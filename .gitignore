@@ -1,0 +1,11 @@
+vendor/
+bin/
+**/\.terraform/
+terraform-provider-alicloud
+crash.log
+terraform.tfstate
+terraform.tfstate.backup
+terraform.log
+*.bak
+/.gitignore.swp
+
