@@ -1,0 +1,5 @@
+package: github.com/alibaba/terraform-alicloud
+import:
+- package: github.com/hashicorp/terraform
+  version: 0.7.12
+- package: github.com/denverdino/aliyungo
