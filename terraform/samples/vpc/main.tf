@@ -29,7 +29,7 @@ resource "alicloud_vpc" "main" {
   cidr_block = "${var.vpc_cidr}"
 }
 
-resource "alicloud_subnet" "main" {
+resource "alicloud_vswitch" "main" {
   vpc_id = "${alicloud_vpc.main.id}"
   count = "${length(split(",", var.availability_zones))}"
   cidr_block = "${lookup(var.cidr_blocks, "az${count.index}")}"
@@ -49,7 +49,7 @@ resource "alicloud_nat_gateway" "main" {
     }
   ]
   depends_on = [
-    "alicloud_subnet.main"]
+    "alicloud_vswitch.main"]
 }
 
 output "vpc_id" {
@@ -57,9 +57,9 @@ output "vpc_id" {
 }
 
 output "vswitch_ids" {
-  value = "${join(",", alicloud_subnet.main.*.id)}"
+  value = "${join(",", alicloud_vswitch.main.*.id)}"
 }
 
 output "availability_zones" {
-  value = "${join(",",alicloud_subnet.main.*.availability_zone)}"
+  value = "${join(",",alicloud_vswitch.main.*.availability_zone)}"
 }

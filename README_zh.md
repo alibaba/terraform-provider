@@ -22,7 +22,7 @@
 
 ### 如何下载编译使用本项目
 1. 在GoPath中创建 "alibaba" 目录，如 "work/go/src/github.com/alibaba"，然后克隆此项目。
-2. 在 "github.com/alibaba/terraform-alicloud" 目录下执行：
+2. 在 "github.com/alibaba/terraform-provider" 目录下执行：
 		
 		 "go get ./..." //this will download depend package
 		 "make all"
@@ -46,7 +46,7 @@
 
 * 提示：如果想运行指定目录下的 *.tf 文件，可以进入到此文件，执行 "terraform get" 等命令。
 
-* 1./alicloud.tf 文件是Terraform的module，module的源指向 terraform/alicloud/instance/main.tf，运行此文件将创建经典网络下的ECS，及磁盘，可以依次运行：
+* 1./alicloud.tf 文件是Terraform的module，module的源指向 terraform/samples/instance/main.tf，运行此文件将创建经典网络下的ECS，及磁盘，可以依次运行：
 
 		terraform get
 		terraform plan
@@ -56,11 +56,11 @@
 
 ![instance](images/instance.png)
 
-* 2.terraform/alicloud/instanc_vpc_cluster/main.tf 文件将创建VPC集群，包括ECS/VPC/Vswitch/NetGateway/安全组。
+* 2.terraform/samples/instanc_vpc_cluster/main.tf 文件将创建VPC集群，包括ECS/VPC/Vswitch/NetGateway/安全组。
 
 ![instance](images/vpc_cluster.png)
 
-* 3.terraform/alicloud/instance_slb/main.tf 文件将创建SLB及ECS实例
+* 3.terraform/samples/instance_slb/main.tf 文件将创建SLB及ECS实例
 
 ![instance](images/slb.png)
 
@@ -70,6 +70,8 @@
 ### 贡献者
 * heww(heww0205@gmail.com)
 * ShuWei(shuwei.yin@alibaba-inc.com)
+* WangYuelucky(wangyuelucky@126.com)
+* GuiMin(guimin.hgm@alibaba-inc.com)
 
 ### License
 * This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/denverdino/aliyungo/blob/master/LICENSE.txt) for the full license text.

@@ -1,4 +1,4 @@
-* 中文Readme参见: [https://github.com/alibaba/terraform-alicloud/README_zh.md](https://github.com/alibaba/terraform-alicloud)
+* 中文Readme参见: README_zh.md
 
 # create and setting Alicloud resource used Terraform
 
@@ -23,7 +23,7 @@
 
 ### How to used project
 1. Create the folder "alibaba" in your GoPath, such as "work/go/src/github.com/alibaba". and clone the project.
-2. In the "github.com/alibaba/terraform-alicloud" directory execute following command:
+2. In the "github.com/alibaba/terraform-provider" directory execute following command:
 		
 		 "go get ./..." //this will download depend package
 		 "make all"
@@ -47,7 +47,7 @@
 
 * notice: if you will run the special *.tf file, need enter the folder, then run "terraform get" etc commands.
 
-* 1.The /alicloud.tf file is Terraform template for Terraform module, It's link source to terraform/alicloud/instance/main.tf, so run the template(.tf) will create the instance of classic web, if update the zone or region etc parameters, then create instance used the updated parameters. the commands such as
+* 1.The /alicloud.tf file is Terraform template for Terraform module, It's link source to terraform/samples/instance/main.tf, so run the template(.tf) will create the instance of classic web, if update the zone or region etc parameters, then create instance used the updated parameters. the commands such as
 	
 		terraform get
 		terraform plan
@@ -55,11 +55,11 @@
 
 ![instance](images/instance.png)
 
-* 2.The terraform/alicloud/instanc_vpc_cluster/main.tf will create the VPC cluster, include ECS\VPC\Vswitch\NetGateWay\SecurityGroup.
+* 2.The terraform/samples/instanc_vpc_cluster/main.tf will create the VPC cluster, include ECS\VPC\Vswitch\NetGateWay\SecurityGroup.
 
 ![instance](images/vpc_cluster.png)
 
-* 3.The terraform/alicloud/instance_slb/main.tf will create SLB and ECS Instance.
+* 3.The terraform/samples/instance_slb/main.tf will create SLB and ECS Instance.
 
 ![instance](images/slb.png)
 
@@ -69,7 +69,7 @@
 ### Contributors
 * heww(heww0205@gmail.com)
 * ShuWei(shuwei.yin@alibaba-inc.com)
-* wangyuelucky(wangyuelucky@126.com)
+* WangYuelucky(wangyuelucky@126.com)
 * GuiMin(guimin.hgm@alibaba-inc.com)
 
 ### License

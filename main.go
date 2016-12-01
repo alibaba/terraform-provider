@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/alibaba/terraform-alicloud/alicloud"
+	"github.com/alibaba/terraform-provider/alicloud"
 	"github.com/hashicorp/terraform/plugin"
 )
 
