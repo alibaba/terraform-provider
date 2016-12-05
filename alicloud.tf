@@ -25,10 +25,6 @@ variable "ssh_username" {
   default = "root"
 }
 
-variable "region" {
-  default = "cn-beijing"
-}
-
 variable "secrity_group" {
   default = "sg-25y6ag32b"
 }
