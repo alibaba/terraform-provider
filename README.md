@@ -1,70 +1,80 @@
+## Aliyun (Alibaba Cloud) terraform provider
 * 中文Readme参见: README_zh.md
 
-# create and setting Alicloud resource used Terraform
+This is the official repository for the Aliyun terraform provider.
+Currently it is under active development and must be installed as described in the [developer notes](#developer-notes).
 
-* Terraform is a tool for "Infrastructue as code" from HashiCorp. Terraform used Template(*.tf) defined infrastructure, It's provide "AWS/Azure/OpenStack" etc cloud platform. This project is used Terraform to create and setting Alicloud resource.
+#### Sample modules
 
-### Install terraform
-* preference: https://www.terraform.io/intro/getting-started/install.html
-		
-* note: the system path setting on the terraform parent folder. example: if the terraform in the PATH "~/work/terraform_0.7.10", then the path is export PATH=$PATH:~/work/terraform_0.7.10
+Sample modules can be found in the [terraform/alicloud](terraform/alicloud) directory.
 
-### Install GoLang SDK
-* If you just used template(*.tf), then you don't need to install Go SDK, you can create template or used the template for create resource.
-* Create folder for Go running environment, example: ~/work/go
-* Download GoLong SDK: http://www.golangtc.com/download 
-* GoLang SDK install on mac that will be reference: http://www.tuicool.com/articles/Fv6zUfE
-* Setting the PATH and GOPATH, example: 
-		
-		export PATH=$PATH:/usr/local/go/bin
-		export GOPATH="~/work/go"
-
-* Look for a GoLang project and get it, then create the go base directory, such as: go get github.com/denverdino/aliyungo
-
-### How to used project
-1. Create the folder "alibaba" in your GoPath, such as "work/go/src/github.com/alibaba". and clone the project.
-2. In the "github.com/alibaba/terraform-provider" directory execute following command:
-		
-		 "go get ./..." //this will download depend package
-		 "make all"
-		 "terraform get"
-		 "terraform plan" //input the tips parameters, such as access_key, secret_key , or zone, ecs instance name etc.
-		 "terraform apply"
-		 
-3. or used export setting parameters below:
-
-		export ALICLOUD_ACCESS_KEY=*** 
-		export ALICLOUD_SECRET_KEY=***
-		terraform get
-		terraform plan
-		terraform apply
-		terraform destroy
-		...
-		
-* note: if you want to used template from this project, you can create tempate and run "terraform plan" etc commands, the template content you can refrence the "Folder description".
-
-### Folder description
-
-* notice: if you will run the special *.tf file, need enter the folder, then run "terraform get" etc commands.
-
-* 1.The /alicloud.tf file is Terraform template for Terraform module, It's link source to terraform/samples/instance/main.tf, so run the template(.tf) will create the instance of classic web, if update the zone or region etc parameters, then create instance used the updated parameters. the commands such as
-	
-		terraform get
-		terraform plan
-		terraform apply
+[instance module](terraform/alicloud/instance/main.tf) will create instances in the **classic** network with a disk
+attached (referenced by [alicloud.tf](alicloud.tf)).
 
 ![instance](images/instance.png)
 
-* 2.The terraform/samples/instanc_vpc_cluster/main.tf will create the VPC cluster, include ECS\VPC\Vswitch\NetGateWay\SecurityGroup.
+[vpc module](terraform/alicloud/instanc_vpc_cluster/main.tf) will create a cluster of machines in a VPC with security groups.
 
 ![instance](images/vpc_cluster.png)
 
-* 3.The terraform/samples/instance_slb/main.tf will create SLB and ECS Instance.
+[slb module](terraform/alicloud/instance_slb/main.tf) will create an SLB with ECS instances.
 
 ![instance](images/slb.png)
 
+### Developer notes
+
+#### Setting up
+* install terraform: https://www.terraform.io/intro/getting-started/install.html
+* install golang:    https://golang.org/doc/install
+* install glide: https://github.com/Masterminds/glide
+* finally:
+```
+cd $GOPATH
+mkdir -p src/github.com/alibaba
+git clone https://github.com/alibaba/terraform-provider.git
+mv terraform-alicloud src/github.com/alibaba
+
+# switch to project
+cd src/github.com/alibaba/terraform-alicloud
+
+# get all dependencies and install modules
+go get ./...
+glide up
+sudo -E "PATH=$PATH" make all
+terraform get
+
+# set the creds
+cat > my.tfvars <<EOF
+ali_access_key = "YOUR_KEY"
+ali_secret_key = "YOUR_SECRET"
+EOF
+
+# you're good to start rocking
+# alicloud.tf contains some samples
+terraform plan
+# terraform apply
+# terraform destroy
+```
+
+#### Common problems
+
+1.
+```
+Error configuring: 1 error(s) occurred:
+* Incompatible API version with plugin. Plugin version: 2, Ours: 1
+
+# fix by manually setting the branch in the sources
+cd src/github.com/hashicorp/terraform/
+git checkout v<YOUR_TF_VERSION_HERE>
+cd -
+
+# rebuild
+sudo -E "PATH=$PATH" make all
+```
+
+
 ### How to contribute code
-* We expect contribute the code in this repository for aliyun production and the terraform template, you have pull request it.
+* Contributions are welcome and will be merged via PRs.
 
 ### Contributors
 * heww(heww0205@gmail.com)

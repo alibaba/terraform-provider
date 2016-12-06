@@ -8,4 +8,4 @@ terraform.tfstate.backup
 terraform.log
 *.bak
 /.gitignore.swp
-
+*.tfvars
