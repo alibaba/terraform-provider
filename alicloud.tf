@@ -1,3 +1,9 @@
+variable "ali_access_key" {}
+variable "ali_secret_key" {}
+variable "region" {
+  default = "cn-beijing"
+}
+
 variable "ecs_password" {
   default = "Test12345"
 }
@@ -19,10 +25,6 @@ variable "ssh_username" {
   default = "root"
 }
 
-variable "region" {
-  default = "cn-beijing"
-}
-
 variable "secrity_group" {
   default = "sg-25y6ag32b"
 }
@@ -40,6 +42,8 @@ variable "datacenter" {
 
 provider "alicloud" {
   region = "${var.region}"
+  access_key = "${var.ali_access_key}"
+  secret_key = "${var.ali_secret_key}"
 }
 
 module "worker-nodes" {
