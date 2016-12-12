@@ -10,6 +10,31 @@ import (
 	"github.com/denverdino/aliyungo/ecs"
 )
 
+// common
+func validateInstancePort(v interface{}, k string) (ws []string, errors []error) {
+	if value := v.(int); value != 0 {
+		if value < 1 || value > 65535 {
+			errors = append(errors, fmt.Errorf(
+				"%q must be a valid instance port between 1 and 65535",
+				k))
+			return
+		}
+	}
+	return
+}
+
+func validateInstanceProtocol(v interface{}, k string) (ws []string, errors []error) {
+	protocal := v.(string)
+	if !isProtocalValid(protocal) {
+		errors = append(errors, fmt.Errorf(
+			"%q is an invalid value. Valid values are either http, https, tcp or udp",
+			k))
+		return
+	}
+	return
+}
+
+// ecs
 func validateDiskCategory(v interface{}, k string) (ws []string, errors []error) {
 	category := ecs.DiskCategory(v.(string))
 	if category != ecs.DiskCategoryCloud && category != ecs.DiskCategoryCloudEfficiency && category != ecs.DiskCategoryCloudSSD {
@@ -178,7 +203,6 @@ func validateInternetMaxBandWidthOut(v interface{}, k string) (ws []string, erro
 	return
 }
 
-
 // SLB
 func validateSlbName(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
@@ -197,8 +221,8 @@ func validateSlbInternetChargeType(v interface{}, k string) (ws []string, errors
 	if value := v.(string); value != "" {
 		chargeType := common.InternetChargeType(value)
 
-		if chargeType != "paybybandwidth" &&
-			chargeType != "paybytraffic" {
+		if chargeType != common.PayByBandwidth &&
+			chargeType != common.PayByTraffic {
 			errors = append(errors, fmt.Errorf(
 				"%q must contain a valid InstanceChargeType, expected %s or %s, got %q",
 				k, "paybybandwidth", "paybytraffic", value))
@@ -211,6 +235,18 @@ func validateSlbInternetChargeType(v interface{}, k string) (ws []string, errors
 func validateSlbBandwidth(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(int); value != 0 {
 		if value < 1 || value > 1000 {
+			errors = append(errors, fmt.Errorf(
+				"%q must be a valid load balancer bandwidth between 1 and 1000",
+				k))
+			return
+		}
+	}
+	return
+}
+
+func validateSlbListenerBandwidth(v interface{}, k string) (ws []string, errors []error) {
+	if value := v.(int); value != 0 {
+		if value < -1 || value > 1000 {
 			errors = append(errors, fmt.Errorf(
 				"%q must be a valid load balancer bandwidth between 1 and 1000",
 				k))
