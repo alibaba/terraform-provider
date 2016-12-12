@@ -221,8 +221,8 @@ func validateSlbInternetChargeType(v interface{}, k string) (ws []string, errors
 	if value := v.(string); value != "" {
 		chargeType := common.InternetChargeType(value)
 
-		if chargeType != common.PayByBandwidth &&
-			chargeType != common.PayByTraffic {
+		if chargeType != "paybybandwidth" &&
+			chargeType != "paybytraffic" {
 			errors = append(errors, fmt.Errorf(
 				"%q must contain a valid InstanceChargeType, expected %s or %s, got %q",
 				k, "paybybandwidth", "paybytraffic", value))
