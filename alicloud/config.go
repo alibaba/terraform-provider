@@ -186,7 +186,7 @@ func (client *AliyunClient) DiskAvailable(zone *ecs.ZoneType, diskCategory ecs.D
 }
 
 // Client for AliyunClient
-func (c *Config) Client() (interface{}, error) {
+func (c *Config) Client() (*AliyunClient, error) {
 	err := c.loadAndValidate()
 	if err != nil {
 		return nil, err

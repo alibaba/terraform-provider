@@ -2,7 +2,6 @@ package alicloud
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
 	"github.com/denverdino/aliyungo/common"
@@ -54,9 +53,7 @@ func TestAccInstance_basic(t *testing.T) {
 				),
 			},
 
-			// We repeat the exact same test so that we can be sure
-			// that the user data hash stuff is working without generating
-			// an incorrect diff.
+			// test for multi steps
 			resource.TestStep{
 				Config: testAccInstanceConfig,
 				Check: resource.ComposeTestCheckFunc(
@@ -85,15 +82,11 @@ func testAccCheckInstanceExists(n string, i *ecs.InstanceAttributesType) resourc
 
 func testAccCheckInstanceExistsWithProviders(n string, i *ecs.InstanceAttributesType, providers *[]*schema.Provider) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		log.Printf("[DEBUG] check instance exists resource name is: %s", n)
-		log.Printf("[DEBUG] check instance exists root module: %s", s.RootModule())
-		log.Printf("[DEBUG] check instance exists all resources: %s", s.RootModule().Resources)
 		rs, ok := s.RootModule().Resources[n]
-		log.Printf("[DEBUG] check instance exists get resource: %s", rs)
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
 		}
-		log.Printf("[DEBUG] check instance exists: %s", rs.Primary.ID)
+
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No ID is set")
 		}
@@ -151,7 +144,6 @@ func testAccCheckInstanceDestroyWithProvider(s *terraform.State, provider *schem
 		if rs.Type != "alicloud_instance" {
 			continue
 		}
-		log.Printf("[DEBUG] check instance destroy: %v", rs.Primary.ID)
 
 		// Try to find the resource
 		// todo: describeInstance or DescribeInstances?
@@ -173,24 +165,6 @@ func testAccCheckInstanceDestroyWithProvider(s *terraform.State, provider *schem
 
 	return nil
 }
-
-const testAccInstanceConfig_1 = `
-resource "alicloud_security_group" "tf_test_foo" {
-	name = "tf_test_foo"
-	description = "foo"
-}
-
-resource "alicloud_instance" "foo" {
-	# cn-beijing
-	availability_zone = "cn-beijing-b"
-	image_id = "m-2zeistfz0zw14pqx9c43"
-
-	instance_type = "ecs.s2.large"
-	instance_network_type = "Classic"
-	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
-	instance_name = "test_foo"
-}
-`
 
 const testAccInstanceConfig = `
 resource "alicloud_security_group" "tf_test_foo" {
