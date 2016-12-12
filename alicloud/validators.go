@@ -246,9 +246,9 @@ func validateSlbBandwidth(v interface{}, k string) (ws []string, errors []error)
 
 func validateSlbListenerBandwidth(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(int); value != 0 {
-		if value < -1 || value > 1000 {
+		if (value < 1 || value > 1000) && value != -1 {
 			errors = append(errors, fmt.Errorf(
-				"%q must be a valid load balancer bandwidth between 1 and 1000",
+				"%q must be a valid load balancer bandwidth between 1 and 1000 or -1",
 				k))
 			return
 		}
