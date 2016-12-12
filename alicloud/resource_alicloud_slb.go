@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"strings"
 
+	"time"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"time"
 )
 
 func resourceAliyunSlb() *schema.Resource {
@@ -56,7 +57,7 @@ func resourceAliyunSlb() *schema.Resource {
 
 			"listener": &schema.Schema{
 				Type:     schema.TypeSet,
-				Optional:     true,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"instance_port": &schema.Schema{
@@ -293,7 +294,7 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).slbconn
 
-	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteLoadBalancer(d.Id())
 		if err == nil {
 			return nil
