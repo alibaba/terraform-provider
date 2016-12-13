@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"time"
 )
 
 func resourceAliyunSlb() *schema.Resource {
@@ -51,32 +50,37 @@ func resourceAliyunSlb() *schema.Resource {
 			"bandwidth": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Default:      1,
 				ValidateFunc: validateSlbBandwidth,
 			},
 
 			"listener": &schema.Schema{
 				Type:     schema.TypeSet,
-				Optional:     true,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"instance_port": &schema.Schema{
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							ValidateFunc: validateInstancePort,
+							Required:     true,
 						},
 
 						"instance_protocol": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							ValidateFunc: validateInstanceProtocol,
+							Required:     true,
 						},
 
 						"lb_port": &schema.Schema{
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							ValidateFunc: validateInstancePort,
+							Required:     true,
 						},
 
 						"lb_protocol": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							ValidateFunc: validateInstanceProtocol,
+							Required:     true,
 						},
 
 						"ssl_certificate_id": &schema.Schema{
@@ -85,8 +89,9 @@ func resourceAliyunSlb() *schema.Resource {
 						},
 
 						"bandwidth": &schema.Schema{
-							Type:     schema.TypeInt,
-							Required: true,
+							Type:         schema.TypeInt,
+							ValidateFunc: validateSlbListenerBandwidth,
+							Required:     true,
 						},
 					},
 				},
@@ -293,14 +298,11 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).slbconn
 
-	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
-		err := conn.DeleteLoadBalancer(d.Id())
-		if err == nil {
-			return nil
-		}
-
-		return resource.RetryableError(fmt.Errorf("SLB in use - trying again while it is deleted."))
-	})
+	err := conn.DeleteLoadBalancer(d.Id())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func resourceAliyunSlbListenerHash(v interface{}) int {
