@@ -132,25 +132,124 @@ func TestAccAlicloudInstance_multipleRegions(t *testing.T) {
 	})
 }
 
-// func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
-// 	var v ec2.Instance
+func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
+	var v ecs.InstanceAttributesType
 
-// 	resource.Test(t, resource.TestCase{
-// 		PreCheck:      func() { testAccPreCheck(t) },
-// 		IDRefreshName: "alicloud_instance.foo",
-// 		Providers:     testAccProviders,
-// 		CheckDestroy:  testAccCheckInstanceDestroy,
-// 		Steps: []resource.TestStep{
-// 			resource.TestStep{
-// 				Config: testAccInstanceNetworkInstanceSecurityGroups,
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckInstanceExists(
-// 						"alicloud_instance.foo", &v),
-// 				),
-// 			},
-// 		},
-// 	})
-// }
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: "alicloud_instance.foo",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceNetworkInstanceSecurityGroups,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists(
+						"alicloud_instance.foo", &v),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAlicloudInstance_tags(t *testing.T) {
+	var v ecs.InstanceAttributesType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckInstanceConfigTags,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"tags.foo",
+						"bar"),
+				),
+			},
+
+			resource.TestStep{
+				Config: testAccCheckInstanceConfigTagsUpdate,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"tags.foo",
+						""),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"tags.bar",
+						"zzz"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAlicloudInstance_privateIP(t *testing.T) {
+	var v ecs.InstanceAttributesType
+
+	testCheckPrivateIP := func() resource.TestCheckFunc {
+		return func(*terraform.State) error {
+			privateIP := v.VpcAttributes.PrivateIpAddress.IpAddress[0]
+			if privateIP != "172.16.0.229" {
+				return fmt.Errorf("bad private IP: %s", privateIP)
+			}
+
+			return nil
+		}
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: "alicloud_instance.foo",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceConfigPrivateIP,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					testCheckPrivateIP(),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAlicloudInstance_associatePublicIPAndPrivateIP(t *testing.T) {
+	var v ecs.InstanceAttributesType
+
+	testCheckPrivateIP := func() resource.TestCheckFunc {
+		return func(*terraform.State) error {
+			privateIP := v.VpcAttributes.PrivateIpAddress.IpAddress[0]
+			if privateIP != "172.16.0.229" {
+				return fmt.Errorf("bad private IP: %s", privateIP)
+			}
+
+			return nil
+		}
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: "alicloud_instance.foo",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceConfigAssociatePublicIPAndPrivateIP,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					testCheckPrivateIP(),
+				),
+			},
+		},
+	})
+}
 
 func testAccCheckInstanceExists(n string, i *ecs.InstanceAttributesType) resource.TestCheckFunc {
 	providers := []*schema.Provider{testAccProvider}
@@ -346,5 +445,163 @@ resource "alicloud_instance" "bar" {
 	system_disk_category = "cloud_efficiency"
 	security_group_id = "${alicloud_security_group.tf_test_bar.id}"
 	instance_name = "test_bar"
+}
+`
+const testAccInstanceNetworkInstanceSecurityGroups = `
+resource "alicloud_vpc" "foo" {
+  name = "tf_test_foo"
+  cidr_block = "172.16.0.0/12"
+}
+
+resource "alicloud_vswitch" "foo" {
+  vpc_id = "${alicloud_vpc.foo.id}"
+  cidr_block = "172.16.0.0/21"
+  availability_zone = "cn-beijing-b"
+}
+
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	vswitch_id = "${alicloud_vswitch.foo.id}"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+
+	# series II
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
+
+	instance_network_type = "Vpc"
+	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+	instance_name = "test_foo"
+
+	allocate_public_ip = "true"
+}
+`
+const testAccCheckInstanceConfigTags = `
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+
+	# series II
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	internet_charge_type = "PayByBandwidth"
+	system_disk_category = "cloud_efficiency"
+
+	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+	instance_name = "test_foo"
+
+	tags {
+		foo = "bar"
+	}
+}
+`
+
+const testAccCheckInstanceConfigTagsUpdate = `
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+
+	# series II
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	internet_charge_type = "PayByBandwidth"
+	system_disk_category = "cloud_efficiency"
+
+	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+	instance_name = "test_foo"
+
+	tags {
+		bar = "zzz"
+	}
+}
+`
+const testAccInstanceConfigPrivateIP = `
+resource "alicloud_vpc" "foo" {
+  name = "tf_test_foo"
+  cidr_block = "172.16.0.0/12"
+}
+
+resource "alicloud_vswitch" "foo" {
+  vpc_id = "${alicloud_vpc.foo.id}"
+  cidr_block = "172.16.0.0/24"
+  availability_zone = "cn-beijing-b"
+}
+
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+
+	vswitch_id = "${alicloud_vswitch.foo.id}"
+	private_ip = "172.16.0.229"
+	instance_network_type = "Vpc"
+
+	# series II
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	instance_name = "test_foo"
+}
+`
+const testAccInstanceConfigAssociatePublicIPAndPrivateIP = `
+resource "alicloud_vpc" "foo" {
+  name = "tf_test_foo"
+  cidr_block = "172.16.0.0/12"
+}
+
+resource "alicloud_vswitch" "foo" {
+  vpc_id = "${alicloud_vpc.foo.id}"
+  cidr_block = "172.16.0.0/24"
+  availability_zone = "cn-beijing-b"
+}
+
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+
+	vswitch_id = "${alicloud_vswitch.foo.id}"
+	private_ip = "172.16.0.229"
+	allocate_public_ip = "true"
+	instance_network_type = "Vpc"
+
+	# series II
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	instance_name = "test_foo"
 }
 `
