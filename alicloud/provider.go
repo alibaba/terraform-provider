@@ -40,7 +40,7 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_nat_gateway":     resourceAliyunNatGateway(),
 			//both subnet and vswith exists,cause compatible old version, and compatible aws habit.
 			"alicloud_subnet":          resourceAliyunSubnet(),
-			"alicloud_vswitch":          resourceAliyunSubnet(),
+			"alicloud_vswitch":         resourceAliyunSubnet(),
 			"alicloud_eip":             resourceAliyunEip(),
 			"alicloud_eip_association": resourceAliyunEipAssociation(),
 			"alicloud_slb":             resourceAliyunSlb(),
@@ -66,7 +66,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 }
 
 // This is a global MutexKV for use within this plugin.
-var aliyunMutexKV = mutexkv.NewMutexKV()
+var alicloudMutexKV = mutexkv.NewMutexKV()
 
 var descriptions map[string]string
 
