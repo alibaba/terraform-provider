@@ -28,7 +28,9 @@ func TestAccInstance_basic(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() { testAccPreCheck(t) },
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
 
 		// module name
 		IDRefreshName: "alicloud_instance.foo",
@@ -45,7 +47,7 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"image_id",
-						"m-2zeistfz0zw14pqx9c43"),
+						"ubuntu1404_64_40G_cloudinit_20160727.raw"),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -63,7 +65,7 @@ func TestAccInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"image_id",
-						"m-2zeistfz0zw14pqx9c43"),
+						"ubuntu1404_64_40G_cloudinit_20160727.raw"),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -175,7 +177,7 @@ resource "alicloud_security_group" "tf_test_foo" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "m-2zeistfz0zw14pqx9c43"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
 
 	instance_type = "ecs.s2.large"
 	instance_network_type = "Classic"
