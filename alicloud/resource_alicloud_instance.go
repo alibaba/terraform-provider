@@ -6,8 +6,8 @@ import (
 
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
-	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/denverdino/aliyungo/slb"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceAliyunInstance() *schema.Resource {
@@ -42,7 +42,7 @@ func resourceAliyunInstance() *schema.Resource {
 			"allocate_public_ip": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default: true,
+				Default:  true,
 			},
 
 			"instance_name": &schema.Schema{
@@ -76,9 +76,9 @@ func resourceAliyunInstance() *schema.Resource {
 				ForceNew: true,
 			},
 			"internet_max_bandwidth_out": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
 				ValidateFunc: validateInternetMaxBandWidthOut,
 			},
 			"host_name": &schema.Schema{
@@ -134,7 +134,6 @@ func resourceAliyunInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
-
 			"public_ip": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -154,7 +153,7 @@ func resourceAliyunInstance() *schema.Resource {
 
 			"tags": tagsSchema(),
 
-			"load_balancer":  &schema.Schema{
+			"load_balancer": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -187,7 +186,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetPartial("instance_name")
 	d.SetPartial("description")
 	d.SetPartial("password")
-	if (d.Get("subnet_id") != "" || d.Get("vswitch_id") != "") {
+	if d.Get("subnet_id") != "" || d.Get("vswitch_id") != "" {
 		d.SetPartial("subnet_id")
 		d.SetPartial("vswitch_id")
 	}
@@ -197,7 +196,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetPartial("availability_zone")
 	d.SetPartial("allocate_public_ip")
 
-	if (d.Get("allocate_public_ip").(bool)) {
+	if d.Get("allocate_public_ip").(bool) {
 		ipAddress, err := conn.AllocatePublicIpAddress(d.Id())
 		if err != nil {
 			log.Printf("[DEBUG] AllocatePublicIpAddress for instance got error: %s", err)
@@ -205,7 +204,6 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 			d.Set("public_ip", ipAddress)
 		}
 	}
-
 
 	// after instance created, its status is pending,
 	// so we need to wait it become to stopped and then start it
@@ -250,12 +248,13 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 
 	d.Set("host_name", instance.HostName)
 
-	if (d.Get("instance_network_type") == "Classic") {
-		d.Set("private_ip", instance.InnerIpAddress)
-	} else {
+	// private ip only support vpc instance
+	if d.Get("instance_network_type") == VpcNet {
 		d.Set("private_ip", instance.VpcAttributes.PrivateIpAddress.IpAddress[0])
 		d.Set("subnet_id", instance.VpcAttributes.VSwitchId)
 		d.Set("vswitch_id", instance.VpcAttributes.VSwitchId)
+	} else {
+		d.Set("private_ip", instance.InnerIpAddress)
 	}
 
 	tags, _, err := conn.DescribeTags(&ecs.DescribeTagsArgs{
@@ -404,7 +403,7 @@ func complexBackendServer(instanceId string, weight int) []slb.BackendServerType
 	result := make([]slb.BackendServerType, 0, 1)
 	backendServer := slb.BackendServerType{
 		ServerId: instanceId,
-		Weight: weight,
+		Weight:   weight,
 	}
 	result = append(result, backendServer)
 	return result
@@ -512,7 +511,7 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	if vswitchValue == "" {
 		vswitchValue = d.Get("vswitch_id").(string)
 	}
-	if (vswitchValue != "") {
+	if vswitchValue != "" {
 		args.VSwitchId = vswitchValue
 	}
 
