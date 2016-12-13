@@ -28,7 +28,9 @@ func TestAccAlicloudInstance_basic(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() { testAccPreCheck(t) },
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
 
 		// module name
 		IDRefreshName: "alicloud_instance.foo",
