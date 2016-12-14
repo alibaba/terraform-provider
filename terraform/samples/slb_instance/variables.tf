@@ -5,8 +5,9 @@ variable "slb_name" {
 variable "instances" {
   type = "list"
   default = [
-    "i-2zecejialx1rx513qcyv",
-    "i-2zedgb871dbnpc5x3w9n"]
+    "i-2ze8q011etu3a54eym2u",
+    "i-2zebe1ftlybmza8dfmyf"]
+
 }
 
 variable "internet_charge_type" {
