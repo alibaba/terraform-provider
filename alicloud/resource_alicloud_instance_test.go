@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccInstance_basic(t *testing.T) {
+func TestAccAlicloudInstance_basic(t *testing.T) {
 	var v ecs.InstanceAttributesType
 	// todo: create and mount volume
 
@@ -76,6 +76,81 @@ func TestAccInstance_basic(t *testing.T) {
 	})
 
 }
+
+func TestAccAlicloudInstance_vpc(t *testing.T) {
+	var v ecs.InstanceAttributesType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:      func() { testAccPreCheck(t) },
+		IDRefreshName: "alicloud_instance.foo",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceConfigVPC,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists(
+						"alicloud_instance.foo", &v),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"instance_network_type",
+						"Vpc"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAlicloudInstance_multipleRegions(t *testing.T) {
+	var v ecs.InstanceAttributesType
+
+	// multi provideris
+	var providers []*schema.Provider
+	providerFactories := map[string]terraform.ResourceProviderFactory{
+		"alicloud": func() (terraform.ResourceProvider, error) {
+			p := Provider()
+			providers = append(providers, p.(*schema.Provider))
+			return p, nil
+		},
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: providerFactories,
+		CheckDestroy:      testAccCheckInstanceDestroyWithProviders(&providers),
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceConfigMultipleRegions,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExistsWithProviders(
+						"alicloud_instance.foo", &v, &providers),
+					testAccCheckInstanceExistsWithProviders(
+						"alicloud_instance.bar", &v, &providers),
+				),
+			},
+		},
+	})
+}
+
+// func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
+// 	var v ec2.Instance
+
+// 	resource.Test(t, resource.TestCase{
+// 		PreCheck:      func() { testAccPreCheck(t) },
+// 		IDRefreshName: "alicloud_instance.foo",
+// 		Providers:     testAccProviders,
+// 		CheckDestroy:  testAccCheckInstanceDestroy,
+// 		Steps: []resource.TestStep{
+// 			resource.TestStep{
+// 				Config: testAccInstanceNetworkInstanceSecurityGroups,
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccCheckInstanceExists(
+// 						"alicloud_instance.foo", &v),
+// 				),
+// 			},
+// 		},
+// 	})
+// }
 
 func testAccCheckInstanceExists(n string, i *ecs.InstanceAttributesType) resource.TestCheckFunc {
 	providers := []*schema.Provider{testAccProvider}
@@ -184,5 +259,92 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 	instance_name = "test_foo"
+}
+`
+const testAccInstanceConfigVPC = `
+resource "alicloud_vpc" "foo" {
+  name = "tf_test_foo"
+  cidr_block = "172.16.0.0/12"
+}
+
+resource "alicloud_vswitch" "foo" {
+  vpc_id = "${alicloud_vpc.foo.id}"
+  cidr_block = "172.16.0.0/21"
+  availability_zone = "cn-beijing-b"
+}
+
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	vswitch_id = "${alicloud_vswitch.foo.id}"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+
+	# series II
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
+
+	instance_network_type = "Vpc"
+	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+	instance_name = "test_foo"
+}
+`
+const testAccInstanceConfigMultipleRegions = `
+provider "alicloud" {
+	alias = "beijing"
+	region = "cn-beijing"
+}
+
+provider "alicloud" {
+	alias = "shanghai"
+	region = "cn-shanghai"
+}
+
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	provider = "alicloud.beijing"
+	description = "foo"
+}
+
+resource "alicloud_security_group" "tf_test_bar" {
+	name = "tf_test_bar"
+	provider = "alicloud.shanghai"
+	description = "bar"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	provider = "alicloud.beijing"
+	availability_zone = "cn-beijing-b"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+
+	instance_network_type = "Classic"
+	internet_charge_type = "PayByBandwidth"
+
+	instance_type = "ecs.n1.medium"
+	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+	instance_name = "test_foo"
+}
+
+resource "alicloud_instance" "bar" {
+	# cn-shanghai
+	provider = "alicloud.shanghai"
+	availability_zone = "cn-shanghai-b"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+
+	instance_network_type = "Classic"
+	internet_charge_type = "PayByBandwidth"
+
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
+	security_group_id = "${alicloud_security_group.tf_test_bar.id}"
+	instance_name = "test_bar"
 }
 `
