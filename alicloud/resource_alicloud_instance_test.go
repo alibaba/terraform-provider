@@ -189,6 +189,47 @@ func TestAccAlicloudInstance_tags(t *testing.T) {
 	})
 }
 
+func TestAccAlicloudInstance_update(t *testing.T) {
+	var v ecs.InstanceAttributesType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckInstanceConfigOrigin,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"instance_name",
+						"instance_foo"),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"host_name",
+						"host-foo"),
+				),
+			},
+
+			resource.TestStep{
+				Config: testAccCheckInstanceConfigOriginUpdate,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"instance_name",
+						"instance_bar"),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"host_name",
+						"host-bar"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccAlicloudInstance_privateIP(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
@@ -534,6 +575,54 @@ resource "alicloud_instance" "foo" {
 	}
 }
 `
+const testAccCheckInstanceConfigOrigin = `
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+
+	# series II
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	internet_charge_type = "PayByBandwidth"
+	system_disk_category = "cloud_efficiency"
+
+	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+
+	instance_name = "instance_foo"
+	host_name = "host-foo"
+}
+`
+
+const testAccCheckInstanceConfigOriginUpdate = `
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+
+	# series II
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	internet_charge_type = "PayByBandwidth"
+	system_disk_category = "cloud_efficiency"
+
+	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+	
+	instance_name = "instance_bar"
+	host_name = "host-bar"
+}
+`
+
 const testAccInstanceConfigPrivateIP = `
 resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
