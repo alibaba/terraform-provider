@@ -4,19 +4,19 @@ provider "alicloud" {
 
 module "vpc" {
   availability_zones = "${var.availability_zones}"
-  source = "../vpc"
+  source = "../alicloud-vpc"
   short_name = "${var.short_name}"
   region = "${var.region}"
 }
 
 module "security-groups" {
-  source = "../security_groups"
+  source = "../alicloud-vpc-cluster-sg"
   short_name = "${var.short_name}"
   vpc_id = "${module.vpc.vpc_id}"
 }
 
 module "control-nodes" {
-  source = "../instance_vpc_base"
+  source = "../alicloud-ecs-vpc"
   count = "${var.control_count}"
   role = "control"
   datacenter = "${var.datacenter}"
@@ -32,7 +32,7 @@ module "control-nodes" {
 }
 
 module "edge-nodes" {
-  source = "../instance_vpc_base"
+  source = "../alicloud-ecs-vpc"
   count = "${var.edge_count}"
   role = "edge"
   datacenter = "${var.datacenter}"
@@ -47,7 +47,7 @@ module "edge-nodes" {
 }
 
 module "worker-nodes" {
-  source = "../instance_vpc_base"
+  source = "../alicloud-ecs-vpc"
   count = "${var.worker_count}"
   role = "worker"
   datacenter = "${var.datacenter}"
