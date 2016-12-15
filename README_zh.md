@@ -1,12 +1,15 @@
 
 # 利用Terraform创建/配置Aliyun资源
 
-* Terraform是HashiCorp公司出品的，著名Vagrant、Packer工具也出自于该公司。Terraform是“基础设施即代码”的开源工具，通过模板定义“基础设施”，目前已支持AWS、Azure、OpenStack等主流云平台，这个项目是利用Terraform创建阿里云的资源。
+* Terraform是HashiCorp公司出品的，著名Vagrant、Packer工具也出自于该公司。Terraform是“基础设施即代码”的开源工具，通过模板定义“基础设施”，目前已支持AWS、Azure、OpenStack等主流云平台，这个项目是阿里云官方出品，利用Terraform创建阿里云的资源。
 
 ### 安装 Terraform
 * 安装Terraform可参考：https://www.terraform.io/intro/getting-started/install.html
 		
 * 注意：设置环境变量时，需要指向terraform所在的父目录，如：terraform的路径是"~/work/terraform_0.7.10"，则指定环境时设定为export PATH=$PATH:~/work/terraform_0.7.10
+
+* 如果想直接使用此项目中提供的模板，可以直接下载编译好的[terraform-alicloud-provider](http://opensource-tf.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud)文件，并拷贝到与Terraform同级的目录下，如~/work/terraform_0.7.10。
+
 
 ### 安装GoLang运行环境
 * 如果只想引用此项目的tf模板，不需要安装GoLang的运行环境，此运行环境是为了编译修改源代码所用。
@@ -42,30 +45,13 @@
 		
 提示：如果想直接使用此项目中提供的模板，而不需要编译或修改源码，可以直接编写Terraform的模板并运行"terraform plan"等命令，模板参考下面的“Terraform模板文件夹介绍”
 
-### Terraform模板文件夹介绍
+### Sample
 
-* 提示：如果想运行指定目录下的 *.tf 文件，可以进入到此文件，执行 "terraform get" 等命令。
+* [这里](terraform/samples)提供了一些场景的Sample，包括ECS、SLB、VPC、安全组等模板。
 
-* 1./alicloud.tf 文件是Terraform的module，module的源指向 terraform/samples/instance/main.tf，运行此文件将创建经典网络下的ECS，及磁盘，可以依次运行：
-
-		terraform get
-		terraform plan
-		terraform apply
-		
-根据提示输入AK等信息。
-
-![instance](images/instance.png)
-
-* 2.terraform/samples/instanc_vpc_cluster/main.tf 文件将创建VPC集群，包括ECS/VPC/Vswitch/NetGateway/安全组。
-
-![instance](images/vpc_cluster.png)
-
-* 3.terraform/samples/instance_slb/main.tf 文件将创建SLB及ECS实例
-
-![instance](images/slb.png)
 
 ### 如何贡献代码
-* 我们欢迎有更多的开发者贡献代码，包括GoLang的源码及Terraform的模板。fork此项目，然后提交pull request，我们review代码后，即可合并进主干。
+* 我们欢迎有更多的开发者贡献代码，包括GoLang的源码及Terraform的模板。Fork此项目，然后提交pull request，我们review代码后，即可合并进主干。
 
 ### 贡献者
 * heww(heww0205@gmail.com)
