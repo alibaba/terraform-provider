@@ -67,16 +67,16 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	ec2conn := meta.(*AliyunClient).ecsconn
+	ecsconn := meta.(*AliyunClient).ecsconn
 
-	vpc, err := ec2conn.CreateVpc(args)
+	vpc, err := ecsconn.CreateVpc(args)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(vpc.VpcId)
 
-	err = ec2conn.WaitForVpcAvailable(args.RegionId, vpc.VpcId, 60)
+	err = ecsconn.WaitForVpcAvailable(args.RegionId, vpc.VpcId, 60)
 	if err != nil {
 		return fmt.Errorf("Timeout when WaitForVpcAvailable")
 	}
