@@ -1,25 +1,16 @@
 ## Aliyun (Alibaba Cloud) terraform provider
-* 中文Readme参见: README_zh.md
+
 
 This is the official repository for the Aliyun terraform provider.
+
+If just use the terraform-provide without develop the project, you can download the binary package [terraform-alicloud-provider](http://opensource-tf.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud) and move it into special forlder where download the Terraform PATH, such as "/usr/local/terraform"
+
 Currently it is under active development and must be installed as described in the [developer notes](#developer-notes).
 
-#### Sample modules
+#### Example
 
-Sample modules can be found in the [terraform/alicloud](terraform/alicloud) directory.
+Example modules can be found in the [terraform/examples](terraform/examples) directory.
 
-[instance module](terraform/alicloud/instance/main.tf) will create instances in the **classic** network with a disk
-attached (referenced by [alicloud.tf](alicloud.tf)).
-
-![instance](images/instance.png)
-
-[vpc module](terraform/alicloud/instanc_vpc_cluster/main.tf) will create a cluster of machines in a VPC with security groups.
-
-![instance](images/vpc_cluster.png)
-
-[slb module](terraform/alicloud/instance_slb/main.tf) will create an SLB with ECS instances.
-
-![instance](images/slb.png)
 
 ### Developer notes
 
@@ -50,7 +41,7 @@ ali_secret_key = "YOUR_SECRET"
 EOF
 
 # you're good to start rocking
-# alicloud.tf contains some samples
+# alicloud.tf contains some examples
 terraform plan
 # terraform apply
 # terraform destroy
