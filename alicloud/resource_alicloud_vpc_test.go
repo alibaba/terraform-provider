@@ -8,7 +8,6 @@ import (
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"log"
 )
 
 func TestAccAlicloudVpc_basic(t *testing.T) {
@@ -105,8 +104,6 @@ func testAccCheckVpcDestroy(s *terraform.State) error {
 
 		// Try to find the VPC
 		instance, err := client.DescribeVpc(rs.Primary.ID)
-		log.Printf("[WARN] get vpc instance: %#v", instance)
-		log.Printf("[WARN] err: %#v", instance)
 
 		if instance != nil {
 			return fmt.Errorf("VPCs still exist")

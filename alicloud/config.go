@@ -128,6 +128,35 @@ func (client *AliyunClient) DescribeVpc(vpcId string) (*ecs.VpcSetType, error) {
 
 	return &vpcs[0], nil
 }
+// describe vswitch by param filters
+func (client *AliyunClient) QueryVswitches(args *ecs.DescribeVSwitchesArgs) (vswitches []ecs.VSwitchSetType, err error) {
+	vsws, _, err := client.ecsconn.DescribeVSwitches(args)
+	if err != nil {
+		if notFoundError(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return vsws, nil
+}
+
+func (client *AliyunClient) QueryVswitchById(vpcId, vswitchId string) (vsw *ecs.VSwitchSetType, err error) {
+	args := &ecs.DescribeVSwitchesArgs{
+		VpcId:    vpcId,
+		VSwitchId: vswitchId,
+	}
+	vsws, err := client.QueryVswitches(args)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(vsws) == 0 {
+		return nil, nil
+	}
+
+	return &vsws[0], nil
+}
 
 // DescribeZone validate zoneId is valid in region
 func (client *AliyunClient) DescribeZone(zoneID string) (*ecs.ZoneType, error) {
