@@ -443,9 +443,10 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	client := meta.(*AliyunClient)
 
 	args := &ecs.CreateInstanceArgs{
-		RegionId:        getRegion(d, meta),
-		InstanceType:    d.Get("instance_type").(string),
-		SecurityGroupId: d.Get("security_group_id").(string),
+		RegionId:         getRegion(d, meta),
+		InstanceType:     d.Get("instance_type").(string),
+		SecurityGroupId:  d.Get("security_group_id").(string),
+		PrivateIpAddress: d.Get("private_ip").(string),
 	}
 
 	imageID := d.Get("image_id").(string)

@@ -1,5 +1,4 @@
-variable "ali_access_key" {}
-variable "ali_secret_key" {}
+
 variable "region" {
   default = "cn-beijing"
 }
@@ -42,12 +41,10 @@ variable "datacenter" {
 
 provider "alicloud" {
   region = "${var.region}"
-  access_key = "${var.ali_access_key}"
-  secret_key = "${var.ali_secret_key}"
 }
 
 module "worker-nodes" {
-  source = "./terraform/samples/instance"
+  source = "./terraform/examples/alicloud-ecs"
   count = "${var.worker_count}"
   count_format = "${var.worker_count_format}"
   role = "worker"
