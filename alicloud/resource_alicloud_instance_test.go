@@ -81,7 +81,9 @@ func TestAccAlicloudInstance_vpc(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
+		PreCheck:      func() {
+			testAccPreCheck(t)
+		},
 		IDRefreshName: "alicloud_instance.foo",
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckInstanceDestroy,
@@ -115,7 +117,9 @@ func TestAccAlicloudInstance_multipleRegions(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
+		PreCheck:          func() {
+			testAccPreCheck(t)
+		},
 		ProviderFactories: providerFactories,
 		CheckDestroy:      testAccCheckInstanceDestroyWithProviders(&providers),
 		Steps: []resource.TestStep{
@@ -136,7 +140,9 @@ func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
+		PreCheck:      func() {
+			testAccPreCheck(t)
+		},
 		IDRefreshName: "alicloud_instance.foo",
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckInstanceDestroy,
@@ -156,7 +162,9 @@ func TestAccAlicloudInstance_tags(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() {
+			testAccPreCheck(t)
+		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
@@ -193,7 +201,9 @@ func TestAccAlicloudInstance_update(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() {
+			testAccPreCheck(t)
+		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
@@ -245,7 +255,9 @@ func TestAccAlicloudInstance_privateIP(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
+		PreCheck:      func() {
+			testAccPreCheck(t)
+		},
 		IDRefreshName: "alicloud_instance.foo",
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckInstanceDestroy,
@@ -276,7 +288,9 @@ func TestAccAlicloudInstance_associatePublicIPAndPrivateIP(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() { testAccPreCheck(t) },
+		PreCheck:      func() {
+			testAccPreCheck(t)
+		},
 		IDRefreshName: "alicloud_instance.foo",
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckInstanceDestroy,
