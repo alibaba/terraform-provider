@@ -9,3 +9,4 @@ terraform.log
 *.bak
 /.gitignore.swp
 *.tfvars
+.idea/
