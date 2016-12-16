@@ -7,9 +7,9 @@ If just use the terraform-provide without develop the project, you can download 
 
 Currently it is under active development and must be installed as described in the [developer notes](#developer-notes).
 
-#### Sample
+#### Example
 
-Sample modules can be found in the [terraform/samples](terraform/samples) directory.
+Example modules can be found in the [terraform/examples](terraform/examples) directory.
 
 
 ### Developer notes
@@ -41,7 +41,7 @@ ali_secret_key = "YOUR_SECRET"
 EOF
 
 # you're good to start rocking
-# alicloud.tf contains some samples
+# alicloud.tf contains some examples
 terraform plan
 # terraform apply
 # terraform destroy
