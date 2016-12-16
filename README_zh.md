@@ -45,9 +45,9 @@
 		
 提示：如果想直接使用此项目中提供的模板，而不需要编译或修改源码，可以直接编写Terraform的模板并运行"terraform plan"等命令，模板参考下面的“Terraform模板文件夹介绍”
 
-### Sample
+### Example
 
-* [这里](terraform/samples)提供了一些场景的Sample，包括ECS、SLB、VPC、安全组等模板。
+* [这里](terraform/examples)提供了一些场景的Example，包括ECS、SLB、VPC、安全组等模板。
 
 
 ### 如何贡献代码
