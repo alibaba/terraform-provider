@@ -50,7 +50,6 @@ func resourceAliyunSlb() *schema.Resource {
 			"bandwidth": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Default:      1,
 				ValidateFunc: validateSlbBandwidth,
 			},
 
