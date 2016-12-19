@@ -59,7 +59,7 @@ func TestAccAlicloudVpc_update(t *testing.T) {
 			resource.TestStep{
 				Config: testAccVpcConfigUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckVpcExists("aws_vpc.foo", &vpc),
+					testAccCheckVpcExists("alicloud_vpc.foo", &vpc),
 					resource.TestCheckResourceAttr(
 						"alicloud_vpc.foo", "name", "tf_test_bar"),
 				),

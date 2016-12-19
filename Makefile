@@ -7,7 +7,7 @@ copy:
 	cp terraform-provider-alicloud $(shell dirname `which terraform`)
 
 test:
-	TF_ACC=1 go test -v ./alicloud
+	TF_ACC=1 go test -v ./alicloud -timeout 120m
 
 vet:
 	@echo "go tool vet $(VETARGS) ."

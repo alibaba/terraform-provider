@@ -12,13 +12,12 @@ import (
 
 // common
 func validateInstancePort(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(int); value != 0 {
-		if value < 1 || value > 65535 {
-			errors = append(errors, fmt.Errorf(
-				"%q must be a valid instance port between 1 and 65535",
-				k))
-			return
-		}
+	value := v.(int);
+	if value < 1 || value > 65535 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid instance port between 1 and 65535",
+			k))
+		return
 	}
 	return
 }
@@ -140,7 +139,7 @@ func validateIoOptimized(v interface{}, k string) (ws []string, errors []error) 
 	if value := v.(string); value != "" {
 		ioOptimized := ecs.IoOptimized(value)
 		if ioOptimized != ecs.IoOptimizedNone &&
-			ioOptimized != ecs.IoOptimizedOptimized {
+		ioOptimized != ecs.IoOptimizedOptimized {
 			errors = append(errors, fmt.Errorf(
 				"%q must contain a valid IoOptimized, expected %s or %s, got %q",
 				k, ecs.IoOptimizedNone, ecs.IoOptimizedOptimized, ioOptimized))
@@ -155,7 +154,7 @@ func validateInstanceNetworkType(v interface{}, k string) (ws []string, errors [
 	if value := v.(string); value != "" {
 		network := InstanceNetWork(value)
 		if network != ClassicNet &&
-			network != VpcNet {
+		network != VpcNet {
 			errors = append(errors, fmt.Errorf(
 				"%q must contain a valid InstanceNetworkType, expected Clasic or Vpc", k))
 		}
@@ -167,7 +166,7 @@ func validateInstanceChargeType(v interface{}, k string) (ws []string, errors []
 	if value := v.(string); value != "" {
 		chargeType := common.InstanceChargeType(value)
 		if chargeType != common.PrePaid &&
-			chargeType != common.PostPaid {
+		chargeType != common.PostPaid {
 			errors = append(errors, fmt.Errorf(
 				"%q must contain a valid InstanceChargeType, expected %s or %s, got %q",
 				k, common.PrePaid, common.PostPaid, chargeType))
@@ -181,7 +180,7 @@ func validateInternetChargeType(v interface{}, k string) (ws []string, errors []
 	if value := v.(string); value != "" {
 		chargeType := common.InternetChargeType(value)
 		if chargeType != common.PayByBandwidth &&
-			chargeType != common.PayByTraffic {
+		chargeType != common.PayByTraffic {
 			errors = append(errors, fmt.Errorf(
 				"%q must contain a valid InstanceChargeType, expected %s or %s, got %q",
 				k, common.PayByBandwidth, common.PayByTraffic, chargeType))
@@ -192,13 +191,12 @@ func validateInternetChargeType(v interface{}, k string) (ws []string, errors []
 }
 
 func validateInternetMaxBandWidthOut(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(int); value != 0 {
-		if value < 1 || value > 100 {
-			errors = append(errors, fmt.Errorf(
-				"%q must be a valid internet bandwidth out between 1 and 1000",
-				k))
-			return
-		}
+	value := v.(int)
+	if value < 1 || value > 100 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid internet bandwidth out between 1 and 1000",
+			k))
+		return
 	}
 	return
 }
@@ -222,7 +220,7 @@ func validateSlbInternetChargeType(v interface{}, k string) (ws []string, errors
 		chargeType := common.InternetChargeType(value)
 
 		if chargeType != "paybybandwidth" &&
-			chargeType != "paybytraffic" {
+		chargeType != "paybytraffic" {
 			errors = append(errors, fmt.Errorf(
 				"%q must contain a valid InstanceChargeType, expected %s or %s, got %q",
 				k, "paybybandwidth", "paybytraffic", value))
@@ -233,25 +231,23 @@ func validateSlbInternetChargeType(v interface{}, k string) (ws []string, errors
 }
 
 func validateSlbBandwidth(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(int); value != 0 {
-		if value < 1 || value > 1000 {
-			errors = append(errors, fmt.Errorf(
-				"%q must be a valid load balancer bandwidth between 1 and 1000",
-				k))
-			return
-		}
+	value := v.(int)
+	if value < 1 || value > 1000 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid load balancer bandwidth between 1 and 1000",
+			k))
+		return
 	}
 	return
 }
 
 func validateSlbListenerBandwidth(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(int); value != 0 {
-		if (value < 1 || value > 1000) && value != -1 {
-			errors = append(errors, fmt.Errorf(
-				"%q must be a valid load balancer bandwidth between 1 and 1000 or -1",
-				k))
-			return
-		}
+	value := v.(int)
+	if (value < 1 || value > 1000) && value != -1 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid load balancer bandwidth between 1 and 1000 or -1",
+			k))
+		return
 	}
 	return
 }
