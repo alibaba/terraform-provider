@@ -247,7 +247,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 					continue
 				}
 
-				log.Println("[ERROR] Delete bandwidth package is failed, bandwidthPackageId: %", e.BandwidthPackageId)
+				log.Printf("[ERROR] Delete bandwidth package is failed, bandwidthPackageId: %s", e.BandwidthPackageId)
 				return resource.NonRetryableError(err)
 			}
 		}

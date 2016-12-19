@@ -370,7 +370,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 			weight = v.(int)
 		}
 
-		log.Printf("[DEBUG] load_balancer weight is %s", weight)
+		log.Printf("[DEBUG] load_balancer weight is %d", weight)
 
 		addBackendServerList := complexBackendServer(d.Id(), weight)
 		removeBackendServerList := complexBackendServer(d.Id(), weight)
@@ -520,7 +520,7 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 		args.InstanceChargeType = common.InstanceChargeType(v)
 	}
 
-	log.Printf("[DEBUG] period is %s", d.Get("period").(int))
+	log.Printf("[DEBUG] period is %d", d.Get("period").(int))
 	if v := d.Get("period").(int); v != 0 {
 		args.Period = v
 	} else if args.InstanceChargeType == common.PrePaid {
