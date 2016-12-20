@@ -9,6 +9,6 @@ resource "alicloud_slb" "instance" {
       "instance_protocol" = "tcp"
       "lb_port" = "3376"
       "lb_protocol" = "tcp"
-      "bandwidth" = "5"
+      "bandwidth" = "1"
     }]
 }
