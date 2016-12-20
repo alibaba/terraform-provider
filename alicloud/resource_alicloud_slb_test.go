@@ -125,14 +125,14 @@ func TestAccAlicloudSlb_bindECS(t *testing.T) {
 					testAccCheckSlbExists("alicloud_slb.bindecs", &slb),
 					resource.TestCheckResourceAttr(
 						"alicloud_slb.bindecs", "name", "tf_test_slb_bind"),
-					testAccCheckSlbBackendServerAttribute("alicloud_instance.foo", &slb),
+					testAccCheckSlbBackendServer("alicloud_instance.foo", &slb),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckSlbBackendServerAttribute(n string, slb *slb.LoadBalancerType) resource.TestCheckFunc {
+func testAccCheckSlbBackendServer(n string, slb *slb.LoadBalancerType) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
