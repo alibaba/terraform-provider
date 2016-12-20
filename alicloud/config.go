@@ -41,25 +41,6 @@ func (client *AliyunClient) DescribeEipAddress(allocationId string) (*ecs.EipAdd
 	return &eips[0], nil
 }
 
-func (client *AliyunClient) DescribeNatGateway(natGatewayId string) (*NatGatewaySetType, error) {
-
-	args := &DescribeNetGatewaysArgs{
-		RegionId:     client.Region,
-		NatGatewayId: natGatewayId,
-	}
-
-	natGateways, _, err := DescribeNatGateways(client.ecsconn, args)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(natGateways) == 0 {
-		return nil, common.GetClientErrorFromString("Not found")
-	}
-
-	return &natGateways[0], nil
-}
-
 func (client *AliyunClient) DescribeImage(imageId string) (*ecs.ImageType, error) {
 
 	pagination := common.Pagination{
