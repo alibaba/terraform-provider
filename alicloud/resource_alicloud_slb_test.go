@@ -124,9 +124,10 @@ func TestAccAlicloudSlb_bindECS(t *testing.T) {
 			resource.TestStep{
 				Config: testAccSlbBindECS,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSlbExists("alicloud_slb.backendservice", &slb),
+					testAccCheckSlbExists("alicloud_slb.bindecs", &slb),
 					resource.TestCheckResourceAttr(
-						"alicloud_slb.backendservice", "name", "tf_test_slb_bindecs"),
+						"alicloud_slb.bindecs", "name", "tf_test_slb_bind"),
+
 				),
 			},
 		},
@@ -146,6 +147,7 @@ func testAccCheckSlbExists(n string, slb *slb.LoadBalancerType) resource.TestChe
 
 		client := testAccProvider.Meta().(*AliyunClient)
 		instance, err := client.DescribeLoadBalancerAttribute(rs.Primary.ID)
+		log.Printf("[WARN] slb instance id %#v", rs.Primary.ID)
 
 		if err != nil {
 			return err
@@ -253,15 +255,15 @@ resource "alicloud_instance" "foo" {
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	internet_charge_type = "PayByBandwidth"
+	internet_max_bandwidth_out = "5"
 	system_disk_category = "cloud_efficiency"
 
 	security_group_id = "${alicloud_security_group.foo.id}"
 	instance_name = "test_foo"
-
 }
 
-resource "alicloud_slb" "backendservice" {
-  name = "tf_test_slb_bindecs"
+resource "alicloud_slb" "bindecs" {
+  name = "tf_test_slb_bind"
   internet_charge_type = "paybybandwidth"
   bandwidth = "5"
   internet = "true"
