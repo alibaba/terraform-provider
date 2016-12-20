@@ -26,7 +26,6 @@ func resourceAliyunNatGateway() *schema.Resource {
 			"spec": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -77,13 +76,10 @@ func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	bandwidthPackages := d.Get("bandwidth_packages").([]interface{})
-	if len(bandwidthPackages) > 1 {
-		return fmt.Errorf("Only one bandwidth package config per NatGateway is supported")
-	}
 
-	// if len(packages) > 4 {
-	// 	return fmt.Errorf("Only less than 4 bandwidth packages form per NatGateway is supported")
-	// }
+	if len(bandwidthPackages) > 4 {
+		return fmt.Errorf("Only less than 4 bandwidth packages form per NatGateway is supported")
+	}
 
 	bandwidthPackageTypes := []BandwidthPackageType{}
 
@@ -135,7 +131,7 @@ func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) er
 
 	d.SetPartial("bandwidth_packages")
 
-	d.Set("bandwidth_package_id", resp.BandwidthPackageIds.BandwidthPackageId[0])
+	//d.Set("bandwidth_package_id", resp.BandwidthPackageIds.BandwidthPackageId[0])
 	d.SetPartial("bandwidth_package_id")
 
 	return resourceAliyunNatGatewayRead(d, meta)
@@ -155,6 +151,8 @@ func resourceAliyunNatGatewayRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Set("name", natGateway.Name)
+	d.Set("spec", natGateway.Spec)
+	d.Set("bandwidth_package_ids", natGateway.BandwidthPackageIds.BandwidthPackageId)
 	d.Set("description", natGateway.Description)
 
 	return nil
@@ -213,6 +211,29 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 		}
 
 		d.SetPartial("description")
+	}
+
+	if d.HasChange("spec") {
+		var spec NatGatewaySpec
+		if v, ok := d.GetOk("spec"); ok {
+			spec = NatGatewaySpec(v.(string))
+		} else {
+			// set default to small spec
+			spec = NatGatewaySmallSpec
+		}
+
+		args := &ModifyNatGatewaySpecArgs{
+			RegionId:     natGateway.RegionId,
+			NatGatewayId: natGateway.NatGatewayId,
+			Spec:  spec,
+		}
+
+		err := ModifyNatGatewaySpec(client.vpcconn, args)
+		if err != nil {
+			return fmt.Errorf("%s %s", err, *args)
+		}
+
+		d.SetPartial("spec")
 	}
 
 	return nil

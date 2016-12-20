@@ -23,7 +23,6 @@ type AliyunClient struct {
 	slbconn *slb.Client
 }
 
-
 // Client for AliyunClient
 func (c *Config) Client() (*AliyunClient, error) {
 	err := c.loadAndValidate()

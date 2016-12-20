@@ -107,6 +107,17 @@ func ModifyNatGatewayAttribute(client *ecs.Client, args *ModifyNatGatewayAttribu
 	return client.Invoke("ModifyNatGatewayAttribute", args, &response)
 }
 
+type ModifyNatGatewaySpecArgs struct {
+	RegionId     common.Region
+	NatGatewayId string
+	Spec         NatGatewaySpec
+}
+
+func ModifyNatGatewaySpec(client *ecs.Client, args *ModifyNatGatewaySpecArgs) error {
+	response := ModifyNatGatewayAttributeResponse{}
+	return client.Invoke("ModifyNatGatewaySpec", args, &response)
+}
+
 type DeleteNatGatewayArgs struct {
 	RegionId     common.Region
 	NatGatewayId string
@@ -172,3 +183,11 @@ type DescribeSnatTableEntriesArgs struct {
 func DescribeSnatTableEntries(client *ecs.Client, args *DescribeSnatTableEntriesArgs) {
 
 }
+
+type NatGatewaySpec string
+
+const (
+	NatGatewaySmallSpec = NatGatewaySpec("Small")
+	NatGatewayMiddleSpec = NatGatewaySpec("Middle")
+	NatGatewayLargeSpec = NatGatewaySpec("Large")
+)
