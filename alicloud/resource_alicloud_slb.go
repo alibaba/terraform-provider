@@ -50,8 +50,8 @@ func resourceAliyunSlb() *schema.Resource {
 			"bandwidth": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Default:      1,
 				ValidateFunc: validateSlbBandwidth,
+				Computed:     true,
 			},
 
 			"listener": &schema.Schema{
@@ -192,7 +192,6 @@ func resourceAliyunSlbRead(d *schema.ResourceData, meta interface{}) error {
 	} else {
 		d.Set("internal", false)
 	}
-
 	d.Set("internet_charge_type", loadBalancer.InternetChargeType)
 	d.Set("bandwidth", loadBalancer.Bandwidth)
 	d.Set("vswitch_id", loadBalancer.VSwitchId)
@@ -217,8 +216,8 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.SetPartial("name")
 	}
 
-	if d.Get("vswitch_id") == "" {
-		//don't intranet web, then can modify bandwidth
+	if d.Get("internet") == true && d.Get("internet_charge_type") == "paybybandwidth" {
+		//don't intranet web and paybybandwidth, then can modify bandwidth
 		if d.HasChange("bandwidth") {
 			args := &slb.ModifyLoadBalancerInternetSpecArgs{
 				LoadBalancerId: d.Id(),
