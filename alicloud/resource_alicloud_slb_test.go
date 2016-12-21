@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/denverdino/aliyungo/slb"
-	"log"
 )
 
 func TestAccAlicloudSlb_basic(t *testing.T) {
@@ -51,7 +50,6 @@ func TestAccAlicloudSlb_listener(t *testing.T) {
 	testListener := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
 			listenerPorts := slb.ListenerPorts.ListenerPort[0]
-			log.Printf("[WARN] get listenerPorts %#v", listenerPorts)
 			if listenerPorts != 3376 {
 				return fmt.Errorf("bad loadbalancer listener: %s", listenerPorts)
 			}
@@ -127,11 +125,40 @@ func TestAccAlicloudSlb_bindECS(t *testing.T) {
 					testAccCheckSlbExists("alicloud_slb.bindecs", &slb),
 					resource.TestCheckResourceAttr(
 						"alicloud_slb.bindecs", "name", "tf_test_slb_bind"),
-
+					testAccCheckSlbBackendServer("alicloud_instance.foo", &slb),
 				),
 			},
 		},
 	})
+}
+
+func testAccCheckSlbBackendServer(n string, slb *slb.LoadBalancerType) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No ECS ID is set")
+		}
+
+		ecsInstanceId := rs.Primary.ID
+
+		backendServers := slb.BackendServers.BackendServer
+
+		if len(backendServers) == 0 {
+			return fmt.Errorf("no SLB backendServer: %#v", backendServers)
+		}
+
+		backendServersInstanceId := backendServers[0].ServerId
+
+		if (ecsInstanceId != backendServersInstanceId) {
+			return fmt.Errorf("SLB BackEndServers check invalid: ECS instance %s is not equal SLB backendServer %s",
+				ecsInstanceId, backendServersInstanceId)
+		}
+		return nil
+	}
 }
 
 func testAccCheckSlbExists(n string, slb *slb.LoadBalancerType) resource.TestCheckFunc {
@@ -147,7 +174,6 @@ func testAccCheckSlbExists(n string, slb *slb.LoadBalancerType) resource.TestChe
 
 		client := testAccProvider.Meta().(*AliyunClient)
 		instance, err := client.DescribeLoadBalancerAttribute(rs.Primary.ID)
-		log.Printf("[WARN] slb instance id %#v", rs.Primary.ID)
 
 		if err != nil {
 			return err
