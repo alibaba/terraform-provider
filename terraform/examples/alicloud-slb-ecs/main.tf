@@ -6,9 +6,8 @@ resource "alicloud_slb" "instance" {
 
   listener = [
     {
-      "instance_port" = "2380"
-      "instance_protocol" = "tcp"
-      "lb_port" = "3376"
+      "instance_port" = "2111"
+      "lb_port" = "21"
       "lb_protocol" = "tcp"
       "bandwidth" = "5"
     }]

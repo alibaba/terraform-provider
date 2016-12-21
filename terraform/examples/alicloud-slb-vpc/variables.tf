@@ -18,7 +18,3 @@ variable "instances" {
 variable "internet_charge_type" {
   default = "paybytraffic"
 }
-
-variable "internet" {
-  default = "false"
-}

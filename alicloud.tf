@@ -1,4 +1,3 @@
-
 variable "region" {
   default = "cn-beijing"
 }
