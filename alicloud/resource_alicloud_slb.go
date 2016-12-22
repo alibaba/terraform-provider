@@ -31,7 +31,6 @@ func resourceAliyunSlb() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 
 			"vswitch_id": &schema.Schema{
@@ -52,7 +51,7 @@ func resourceAliyunSlb() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validateSlbBandwidth,
-				Computed:     true,
+				Computed: true,
 			},
 
 			"listener": &schema.Schema{
@@ -103,11 +102,6 @@ func resourceAliyunSlb() *schema.Resource {
 			"address": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
-			},
-
-			"vpc_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 		},
 	}
@@ -167,7 +161,6 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunSlbRead(d *schema.ResourceData, meta interface{}) error {
-
 	slbconn := meta.(*AliyunClient).slbconn
 	loadBalancer, err := slbconn.DescribeLoadBalancerAttribute(d.Id())
 	if err != nil {
@@ -190,7 +183,6 @@ func resourceAliyunSlbRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("bandwidth", loadBalancer.Bandwidth)
 	d.Set("vswitch_id", loadBalancer.VSwitchId)
 	d.Set("address", loadBalancer.Address)
-	d.Set("vpc_id", loadBalancer.VpcId)
 
 	return nil
 }
