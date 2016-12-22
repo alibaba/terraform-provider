@@ -124,7 +124,6 @@ func TestAccAlicloudSlb_vpc(t *testing.T) {
 
 		// module name
 		IDRefreshName: "alicloud_slb.vpc",
-		IDRefreshIgnore: []string{"vpc_id", "vswitch_id"},
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckSlbDestroy,
 		Steps: []resource.TestStep{
@@ -303,7 +302,7 @@ resource "alicloud_vswitch" "foo" {
 
 resource "alicloud_slb" "vpc" {
   name = "tf_test_slb_vpc"
-  vpc_id = "${alicloud_vpc.foo.id}"
+  //internet_charge_type = "paybybandwidth"
   vswitch_id = "${alicloud_vswitch.foo.id}"
 }
 `

@@ -1,6 +1,5 @@
 resource "alicloud_slb" "instance" {
   name = "${var.name}"
-  vpc_id = "${var.vpc_id}"
   vswitch_id = "${var.vswitch_id}"
   instances = "${var.instances}"
   internet_charge_type = "${var.internet_charge_type}"

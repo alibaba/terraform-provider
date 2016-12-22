@@ -43,7 +43,7 @@ func resourceAliyunSlb() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Default: "paybytraffic",
+				Default:      "paybytraffic",
 				ValidateFunc: validateSlbInternetChargeType,
 			},
 
@@ -51,7 +51,7 @@ func resourceAliyunSlb() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validateSlbBandwidth,
-				Computed: true,
+				Computed:     true,
 			},
 
 			"listener": &schema.Schema{
