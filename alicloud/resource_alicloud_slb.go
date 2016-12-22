@@ -31,7 +31,6 @@ func resourceAliyunSlb() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 
 			"vswitch_id": &schema.Schema{
@@ -44,6 +43,7 @@ func resourceAliyunSlb() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Default:      "paybytraffic",
 				ValidateFunc: validateSlbInternetChargeType,
 			},
 
@@ -62,12 +62,6 @@ func resourceAliyunSlb() *schema.Resource {
 						"instance_port": &schema.Schema{
 							Type:         schema.TypeInt,
 							ValidateFunc: validateInstancePort,
-							Required:     true,
-						},
-
-						"instance_protocol": &schema.Schema{
-							Type:         schema.TypeString,
-							ValidateFunc: validateInstanceProtocol,
 							Required:     true,
 						},
 
@@ -109,11 +103,6 @@ func resourceAliyunSlb() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
-			"vpc_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 		},
 	}
 }
@@ -154,7 +143,6 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 	if v, ok := d.GetOk("vswitch_id"); ok && v.(string) != "" {
 		slbArgs.VSwitchId = v.(string)
 	}
-
 	slb, err := slbconn.CreateLoadBalancer(slbArgs)
 	if err != nil {
 		return err
@@ -173,7 +161,6 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunSlbRead(d *schema.ResourceData, meta interface{}) error {
-
 	slbconn := meta.(*AliyunClient).slbconn
 	loadBalancer, err := slbconn.DescribeLoadBalancerAttribute(d.Id())
 	if err != nil {
@@ -196,7 +183,6 @@ func resourceAliyunSlbRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("bandwidth", loadBalancer.Bandwidth)
 	d.Set("vswitch_id", loadBalancer.VSwitchId)
 	d.Set("address", loadBalancer.Address)
-	d.Set("vpc_id", loadBalancer.VpcId)
 
 	return nil
 }
@@ -308,8 +294,6 @@ func resourceAliyunSlbListenerHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 	buf.WriteString(fmt.Sprintf("%d-", m["instance_port"].(int)))
-	buf.WriteString(fmt.Sprintf("%s-",
-		strings.ToLower(m["instance_protocol"].(string))))
 	buf.WriteString(fmt.Sprintf("%d-", m["lb_port"].(int)))
 	buf.WriteString(fmt.Sprintf("%s-",
 		strings.ToLower(m["lb_protocol"].(string))))
@@ -347,6 +331,19 @@ func createListener(conn *slb.Client, loadBalancerId string, listener *Listener)
 		}
 
 		if err := conn.CreateLoadBalancerHTTPListener(args); err != nil {
+			return err
+		}
+	}
+
+	if listener.Protocol == strings.ToLower("udp") {
+		args := &slb.CreateLoadBalancerUDPListenerArgs{
+			LoadBalancerId:    loadBalancerId,
+			ListenerPort:      listener.LoadBalancerPort,
+			BackendServerPort: listener.InstancePort,
+			Bandwidth:         listener.Bandwidth,
+		}
+
+		if err := conn.CreateLoadBalancerUDPListener(args); err != nil {
 			return err
 		}
 	}

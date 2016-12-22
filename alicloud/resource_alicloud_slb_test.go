@@ -6,10 +6,18 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/denverdino/aliyungo/slb"
+	"log"
 )
 
 func TestAccAlicloudSlb_basic(t *testing.T) {
 	var slb slb.LoadBalancerType
+
+	testCheckAttr := func() resource.TestCheckFunc {
+		return func(*terraform.State) error {
+			log.Printf("testCheckAttr slb AddressType is: %s", slb.AddressType)
+			return nil
+		}
+	}
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -17,27 +25,52 @@ func TestAccAlicloudSlb_basic(t *testing.T) {
 		},
 
 		// module name
-		IDRefreshName: "alicloud_slb.classic",
+		IDRefreshName: "alicloud_slb.bindwidth",
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckSlbDestroy,
 		Steps: []resource.TestStep{
 			//test internet_charge_type is paybybandwidth
 			resource.TestStep{
-				Config: testAccSlbConfig,
+				Config: testAccSlbBindWidth,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSlbExists("alicloud_slb.classic_paybybandwidth", &slb),
+					testAccCheckSlbExists("alicloud_slb.bindwidth", &slb),
+					testCheckAttr(),
 					resource.TestCheckResourceAttr(
-						"alicloud_slb.classic_paybybandwidth", "name", "tf_test_slb_classic"),
+						"alicloud_slb.bindwidth", "internet_charge_type", "paybybandwidth"),
 				),
 			},
+		},
+	})
+}
 
+func TestAccAlicloudSlb_traffic(t *testing.T) {
+	var slb slb.LoadBalancerType
+
+	testCheckAttr := func() resource.TestCheckFunc {
+		return func(*terraform.State) error {
+			log.Printf("testCheckAttr slb AddressType is: %s", slb.AddressType)
+			return nil
+		}
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: "alicloud_slb.traffic",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckSlbDestroy,
+		Steps: []resource.TestStep{
 			//test internet_charge_type is paybytraffic
 			resource.TestStep{
-				Config: testAccSlbConfig,
+				Config: testAccSlbTraffic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSlbExists("alicloud_slb.classic_paybytraffic", &slb),
+					testAccCheckSlbExists("alicloud_slb.traffic", &slb),
+					testCheckAttr(),
 					resource.TestCheckResourceAttr(
-						"alicloud_slb.classic_paybytraffic", "name", "tf_test_slb_classic"),
+						"alicloud_slb.traffic", "name", "tf_test_slb_classic"),
 				),
 			},
 		},
@@ -50,7 +83,7 @@ func TestAccAlicloudSlb_listener(t *testing.T) {
 	testListener := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
 			listenerPorts := slb.ListenerPorts.ListenerPort[0]
-			if listenerPorts != 3376 {
+			if listenerPorts != 161 {
 				return fmt.Errorf("bad loadbalancer listener: %s", listenerPorts)
 			}
 
@@ -95,7 +128,7 @@ func TestAccAlicloudSlb_vpc(t *testing.T) {
 		CheckDestroy:  testAccCheckSlbDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccSlb4VpcConfig,
+				Config: testAccSlb4Vpc,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSlbExists("alicloud_slb.vpc", &slb),
 					resource.TestCheckResourceAttr(
@@ -150,6 +183,8 @@ func testAccCheckSlbBackendServer(n string, slb *slb.LoadBalancerType) resource.
 		if len(backendServers) == 0 {
 			return fmt.Errorf("no SLB backendServer: %#v", backendServers)
 		}
+
+		log.Printf("bacnendservers: %#v", backendServers)
 
 		backendServersInstanceId := backendServers[0].ServerId
 
@@ -212,19 +247,18 @@ func testAccCheckSlbDestroy(s *terraform.State) error {
 	return nil
 }
 
-const testAccSlbConfig = `
-resource "alicloud_slb" "classic_paybybandwidth" {
-  name = "tf_test_slb_classic"
+const testAccSlbBindWidth = `
+resource "alicloud_slb" "bindwidth" {
+  name = "tf_test_slb_bindwidth"
   internet_charge_type = "paybybandwidth"
-  bandwidth = "5"
-  internet = "true"
+  bandwidth = 5
+  internet = true
 }
+`
 
-resource "alicloud_slb" "classic_paybytraffic" {
+const testAccSlbTraffic = `
+resource "alicloud_slb" "traffic" {
   name = "tf_test_slb_classic"
-  internet_charge_type = "paybytraffic"
-  bandwidth = "5"
-  internet = "true"
 }
 `
 
@@ -232,20 +266,29 @@ const testAccSlbListener = `
 resource "alicloud_slb" "listener" {
   name = "tf_test_slb"
   internet_charge_type = "paybybandwidth"
-  bandwidth = "5"
-  internet = "true"
+  bandwidth = 5
+  internet = true
   listener = [
     {
-      "instance_port" = "2375"
-      "instance_protocol" = "tcp"
-      "lb_port" = "3376"
+      "instance_port" = "2111"
+      "lb_port" = "21"
       "lb_protocol" = "tcp"
-      "bandwidth" = "5"
+      "bandwidth" = 1
+    },{
+      "instance_port" = "8000"
+      "lb_port" = "80"
+      "lb_protocol" = "http"
+      "bandwidth" = 1
+    },{
+      "instance_port" = "1611"
+      "lb_port" = "161"
+      "lb_protocol" = "udp"
+      "bandwidth" = 1
     }]
 }
 `
 
-const testAccSlb4VpcConfig = `
+const testAccSlb4Vpc = `
 resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
   cidr_block = "172.16.0.0/12"
@@ -259,9 +302,7 @@ resource "alicloud_vswitch" "foo" {
 
 resource "alicloud_slb" "vpc" {
   name = "tf_test_slb_vpc"
-  internet_charge_type = "paybybandwidth"
-  bandwidth = "5"
-  internet = "true"
+  //internet_charge_type = "paybybandwidth"
   vswitch_id = "${alicloud_vswitch.foo.id}"
 }
 `
