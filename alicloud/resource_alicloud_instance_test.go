@@ -81,7 +81,7 @@ func TestAccAlicloudInstance_vpc(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		IDRefreshName: "alicloud_instance.foo",
@@ -117,7 +117,7 @@ func TestAccAlicloudInstance_multipleRegions(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		ProviderFactories: providerFactories,
@@ -140,7 +140,7 @@ func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		IDRefreshName: "alicloud_instance.foo",
@@ -162,7 +162,7 @@ func TestAccAlicloudInstance_tags(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -201,7 +201,7 @@ func TestAccAlicloudInstance_update(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -255,7 +255,7 @@ func TestAccAlicloudInstance_privateIP(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		IDRefreshName: "alicloud_instance.foo",
@@ -288,7 +288,7 @@ func TestAccAlicloudInstance_associatePublicIPAndPrivateIP(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		IDRefreshName: "alicloud_instance.foo",

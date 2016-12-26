@@ -3,11 +3,11 @@ package alicloud
 import (
 	"testing"
 
+	"fmt"
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
-	"fmt"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/denverdino/aliyungo/common"
 )
 
 func TestAccAlicloudVswitch_basic(t *testing.T) {
@@ -103,4 +103,3 @@ resource "alicloud_vswitch" "foo" {
   availability_zone = "cn-beijing-b"
 }
 `
-

@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"log"
+	"time"
 )
 
 func resourceAliyunSlb() *schema.Resource {
@@ -277,17 +279,32 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.SetPartial("instances")
 	}
 
+	d.Partial(false)
+
 	return resourceAliyunSlbRead(d, meta)
 }
 
 func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*AliyunClient)
 	conn := meta.(*AliyunClient).slbconn
 
-	err := conn.DeleteLoadBalancer(d.Id())
-	if err != nil {
-		return err
-	}
-	return nil
+	return resource.Retry(10*time.Minute, func() *resource.RetryError {
+		instance, _ := client.DescribeLoadBalancerAttribute(d.Id())
+		log.Printf("[WARN]slb instance before delete %#v", instance)
+		if instance == nil {
+			return nil
+		}
+
+		err := conn.DeleteLoadBalancer(d.Id())
+
+		e, _ := err.(*common.Error)
+		if e != nil && e.ErrorResponse.Code == LoadBalancerNotFound {
+			log.Printf("[ERROR] Delete not exist slb.")
+			return resource.NonRetryableError(err)
+		}
+		log.Printf("[WARN]slb instance delete error %#v", err)
+		return resource.RetryableError(fmt.Errorf("Slb in use. -- trying again while it is deleted."))
+	})
 }
 
 func resourceAliyunSlbListenerHash(v interface{}) int {
