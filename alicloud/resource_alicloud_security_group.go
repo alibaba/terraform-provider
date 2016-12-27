@@ -3,11 +3,12 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/denverdino/aliyungo/ecs"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/resource"
-	"time"
 	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/terraform/helper/resource"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"time"
 )
 
 func resourceAliyunSecurityGroup() *schema.Resource {
@@ -123,7 +124,7 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 
 	conn := meta.(*AliyunClient).ecsconn
 
-	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteSecurityGroup(getRegion(d, meta), d.Id())
 
 		if err != nil {

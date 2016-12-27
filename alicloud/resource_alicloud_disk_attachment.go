@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/denverdino/aliyungo/ecs"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/resource"
-	"time"
 	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
 	"log"
+	"time"
 )
 
 func resourceAliyunDiskAttachment() *schema.Resource {
@@ -107,7 +107,7 @@ func resourceAliyunDiskAttachmentDelete(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DetachDisk(instanceID, diskID)
 		if err != nil {
 			e, _ := err.(*common.Error)

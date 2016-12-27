@@ -22,8 +22,8 @@ func TestAccAlicloudDiskAttchment(t *testing.T) {
 
 		// module name
 		IDRefreshName: "alicloud_disk_attachment.disk-att",
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDiskAttachmentDestroy,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckDiskAttachmentDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccDiskAttachmentConfig,
@@ -60,12 +60,12 @@ func testAccCheckDiskAttachmentExists(n string, instance *ecs.InstanceAttributes
 		conn := client.ecsconn
 
 		request := &ecs.DescribeDisksArgs{
-			RegionId:   client.Region,
+			RegionId: client.Region,
 			//InstanceId: instance.InstanceId,
-			DiskIds:    []string{rs.Primary.Attributes["disk_id"]},
+			DiskIds: []string{rs.Primary.Attributes["disk_id"]},
 		}
 
-		return resource.Retry(3 * time.Minute, func() *resource.RetryError {
+		return resource.Retry(3*time.Minute, func() *resource.RetryError {
 			response, _, err := conn.DescribeDisks(request)
 
 			if response != nil {
@@ -99,8 +99,8 @@ func testAccCheckDiskAttachmentDestroy(s *terraform.State) error {
 		conn := client.ecsconn
 
 		request := &ecs.DescribeDisksArgs{
-			RegionId:  client.Region,
-			DiskIds:   []string{rs.Primary.ID},
+			RegionId: client.Region,
+			DiskIds:  []string{rs.Primary.ID},
 		}
 
 		response, _, err := conn.DescribeDisks(request)

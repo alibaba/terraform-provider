@@ -114,7 +114,7 @@ func testAccCheckSecurityGroupDestroy(s *terraform.State) error {
 
 		// Try to find the SecurityGroup
 		args := &ecs.DescribeSecurityGroupsArgs{
-			RegionId:        client.Region,
+			RegionId: client.Region,
 		}
 
 		log.Printf("sg id :%s", rs.Primary.ID)

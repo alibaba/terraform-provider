@@ -12,7 +12,7 @@ resource "alicloud_instance" "instance" {
   instance_type = "${var.ecs_type}"
   count = "${var.count}"
   availability_zone = "${element(split(",", var.availability_zones), count.index)}"
-  security_group_id = "${var.security_group_id}"
+  security_groups = ["${var.security_groups}"]
   vswitch_id = "${var.vswitch_id}"
 
   internet_charge_type = "${var.internet_charge_type}"

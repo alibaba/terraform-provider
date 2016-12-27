@@ -42,7 +42,7 @@ func TestAccAlicloudVpc_update(t *testing.T) {
 	var vpc ecs.VpcSetType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		Providers:    testAccProviders,
