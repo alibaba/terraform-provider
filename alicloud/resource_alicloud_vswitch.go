@@ -153,7 +153,7 @@ func resourceAliyunSwitchDelete(d *schema.ResourceData, meta interface{}) error 
 
 		if err != nil {
 			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == "InvalidRegionId.NotFound" {
+			if e.ErrorResponse.Code == VswitcInvalidRegionId {
 				log.Printf("[ERROR] Delete Switch is failed.")
 				return resource.NonRetryableError(err)
 			}

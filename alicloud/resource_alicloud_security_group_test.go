@@ -117,11 +117,8 @@ func testAccCheckSecurityGroupDestroy(s *terraform.State) error {
 			RegionId: client.Region,
 		}
 
-		log.Printf("sg id :%s", rs.Primary.ID)
 		groups, _, err := conn.DescribeSecurityGroups(args)
 
-		log.Printf("sg: %#v", groups)
-		log.Printf("sg err: %#v", err)
 		for _, sg := range groups {
 			if sg.SecurityGroupId == rs.Primary.ID {
 				return fmt.Errorf("Error SecurityGroup still exist")

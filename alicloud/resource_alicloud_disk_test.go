@@ -33,11 +33,11 @@ func TestAccAlicloudDisk_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_disk.foo",
 						"category",
-						"cloud"),
+						"cloud_efficiency"),
 					resource.TestCheckResourceAttr(
 						"alicloud_disk.foo",
 						"size",
-						"10"),
+						"30"),
 				),
 			},
 		},
@@ -63,6 +63,10 @@ func TestAccAlicloudDisk_withTags(t *testing.T) {
 				Config: testAccDiskConfigWithTags,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDiskExists("alicloud_disk.foo", &v),
+					resource.TestCheckResourceAttr(
+						"alicloud_disk.foo",
+						"tags.Name",
+						"TerraformTest"),
 				),
 			},
 		},
@@ -136,15 +140,17 @@ const testAccDiskConfig = `
 resource "alicloud_disk" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-        size = "10"
+	name = "New-disk"
+	description = "Hello ecs disk."
+	category = "cloud_efficiency"
+        size = "30"
 }
 `
 const testAccDiskConfigWithTags = `
 resource "alicloud_disk" "foo" {
 	# cn-beijing
-	category = "cloud_efficiency"
 	availability_zone = "cn-beijing-b"
-        size = "30"
+        size = "10"
         tags {
         	Name = "TerraformTest"
         }
