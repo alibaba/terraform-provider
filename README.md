@@ -19,14 +19,16 @@ Example modules can be found in the [terraform/examples](terraform/examples) dir
 * install golang:    https://golang.org/doc/install
 * install glide: https://github.com/Masterminds/glide
 * finally:
+
 ```
 cd $GOPATH
 mkdir -p src/github.com/alibaba
+cd src/github.com/alibaba
 git clone https://github.com/alibaba/terraform-provider.git
-mv terraform-alicloud src/github.com/alibaba
+mv terraform-provider src/github.com/alibaba
 
 # switch to project
-cd src/github.com/alibaba/terraform-alicloud
+cd src/github.com/alibaba/terraform-provider
 
 # get all dependencies and install modules
 go get ./...
@@ -74,7 +76,7 @@ sudo -E "PATH=$PATH" make all
 * GuiMin(guimin.hgm@alibaba-inc.com)
 
 ### License
-* This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/denverdino/aliyungo/blob/master/LICENSE.txt) for the full license text.
+* This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/alibaba/terraform-provider/blob/master/LICENSE) for the full license text.
 
 ### Refrence
 * Terraform document: https://www.terraform.io/intro/

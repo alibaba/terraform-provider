@@ -124,7 +124,7 @@ resource "alicloud_instance" "instance" {
   image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
   instance_type = "ecs.s1.small"
   availability_zone = "cn-beijing-a"
-  security_group_id = "${alicloud_security_group.group.id}"
+  security_groups = ["${alicloud_security_group.group.id}"]
   vswitch_id = "${alicloud_vswitch.main.id}"
   instance_name = "hello"
 

@@ -135,7 +135,7 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if v, ok := d.GetOk("internet_charge_type"); ok && v.(string) != "" {
-		slbArgs.InternetChargeType = common.InternetChargeType(v.(string))
+		slbArgs.InternetChargeType = slb.InternetChargeType(v.(string))
 	}
 
 	if v, ok := d.GetOk("bandwidth"); ok && v.(int) != 0 {
