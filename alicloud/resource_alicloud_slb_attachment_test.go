@@ -68,7 +68,7 @@ resource "alicloud_instance" "foo" {
 	internet_max_bandwidth_out = "5"
 	system_disk_category = "cloud_efficiency"
 
-	security_group_id = "${alicloud_security_group.foo.id}"
+	security_groups = ["${alicloud_security_group.foo.id}"]
 	instance_name = "test_foo"
 }
 
