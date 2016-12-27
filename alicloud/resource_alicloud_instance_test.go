@@ -217,6 +217,55 @@ func TestAccAlicloudInstance_multiSecurityGroup(t *testing.T) {
 
 }
 
+func TestAccAlicloudInstance_multiSecurityGroupByCount(t *testing.T) {
+	var v ecs.InstanceAttributesType
+
+	testCheck := func(sgCount int) resource.TestCheckFunc {
+		return func(*terraform.State) error {
+			if len(v.SecurityGroupIds.SecurityGroupId) < 0 {
+				return fmt.Errorf("no security group: %#v", v.SecurityGroupIds.SecurityGroupId)
+			}
+
+			if len(v.SecurityGroupIds.SecurityGroupId) < sgCount {
+				return fmt.Errorf("less security group: %#v", v.SecurityGroupIds.SecurityGroupId)
+			}
+
+			return nil
+		}
+	}
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: "alicloud_instance.foo",
+
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceConfig_multiSecurityGroupByCount,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists(
+						"alicloud_instance.foo", &v),
+					testCheck(2),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"image_id",
+						"ubuntu1404_64_40G_cloudinit_20160727.raw"),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"instance_name",
+						"test_foo"),
+				),
+			},
+		},
+	})
+
+}
+
 func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
@@ -609,8 +658,7 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}"]
 	instance_name = "test_foo"
-}
-`
+}`
 
 const testAccInstanceConfig_multiSecurityGroup_add = `
 resource "alicloud_security_group" "tf_test_foo" {
@@ -657,6 +705,26 @@ resource "alicloud_instance" "foo" {
 	instance_network_type = "Classic"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+	instance_name = "test_foo"
+}
+`
+
+const testAccInstanceConfig_multiSecurityGroupByCount = `
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	count = 2
+	description = "foo"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+
+	instance_type = "ecs.s2.large"
+	instance_network_type = "Classic"
+	internet_charge_type = "PayByBandwidth"
+	security_groups = ["${alicloud_security_group.tf_test_foo.*.id}"]
 	instance_name = "test_foo"
 }
 `
