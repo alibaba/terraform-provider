@@ -343,6 +343,7 @@ func testAccCheckInstanceExistsWithProviders(n string, i *ecs.InstanceAttributes
 			}
 			if err != nil {
 				return err
+
 			}
 		}
 
@@ -473,17 +474,19 @@ resource "alicloud_security_group" "tf_test_bar" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
-	provider = "alicloud.beijing"
-	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+  # cn-beijing
+  provider = "alicloud.beijing"
+  availability_zone = "cn-beijing-b"
+  image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
 
-	instance_network_type = "Classic"
-	internet_charge_type = "PayByBandwidth"
+  instance_network_type = "Classic"
+  internet_charge_type = "PayByBandwidth"
 
-	instance_type = "ecs.n1.medium"
-	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
-	instance_name = "test_foo"
+  instance_type = "ecs.n1.medium"
+  io_optimized = "optimized"
+  system_disk_category = "cloud_efficiency"
+  security_group_id = "${alicloud_security_group.tf_test_foo.id}"
+  instance_name = "test_foo"
 }
 
 resource "alicloud_instance" "bar" {

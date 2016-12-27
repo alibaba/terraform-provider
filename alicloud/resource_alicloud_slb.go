@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"time"
 )
 
 func resourceAliyunSlb() *schema.Resource {
@@ -230,7 +231,7 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 			for _, listener := range remove {
 				err := slbconn.DeleteLoadBalancerListener(d.Id(), listener.LoadBalancerPort)
 				if err != nil {
-					return fmt.Errorf("Failure removing outdated SLB listeners: %s", err)
+					return fmt.Errorf("Failure removing outdated SLB listeners: %#v", err)
 				}
 			}
 		}
@@ -239,7 +240,7 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 			for _, listener := range add {
 				err := createListener(slbconn, d.Id(), listener)
 				if err != nil {
-					return fmt.Errorf("Failure add SLB listeners: %s", err)
+					return fmt.Errorf("Failure add SLB listeners: %#v", err)
 				}
 			}
 		}
@@ -283,11 +284,26 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).slbconn
 
-	err := conn.DeleteLoadBalancer(d.Id())
-	if err != nil {
-		return err
-	}
-	return nil
+	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
+		err := conn.DeleteLoadBalancer(d.Id())
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+
+		loadBalancer, err := conn.DescribeLoadBalancerAttribute(d.Id())
+		if err != nil {
+			e, _ := err.(*common.Error)
+			if e.ErrorResponse.Code == "InvalidLoadBalancerId.NotFound" {
+				return nil
+			}
+			return resource.NonRetryableError(err)
+		}
+		if loadBalancer != nil {
+			return resource.RetryableError(fmt.Errorf("LoadBalancer in use - trying again while it deleted."))
+		}
+		return nil
+	})
+
 }
 
 func resourceAliyunSlbListenerHash(v interface{}) int {
