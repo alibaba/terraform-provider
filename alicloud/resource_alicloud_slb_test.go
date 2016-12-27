@@ -1,12 +1,12 @@
 package alicloud
 
 import (
-	"testing"
-	"github.com/hashicorp/terraform/helper/resource"
 	"fmt"
-	"github.com/hashicorp/terraform/terraform"
 	"github.com/denverdino/aliyungo/slb"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 	"log"
+	"testing"
 )
 
 func TestAccAlicloudSlb_basic(t *testing.T) {
@@ -27,8 +27,8 @@ func TestAccAlicloudSlb_basic(t *testing.T) {
 		// module name
 		IDRefreshName: "alicloud_slb.bindwidth",
 
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckSlbDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSlbDestroy,
 		Steps: []resource.TestStep{
 			//test internet_charge_type is paybybandwidth
 			resource.TestStep{
@@ -189,7 +189,7 @@ func testAccCheckSlbBackendServer(n string, slb *slb.LoadBalancerType) resource.
 
 		backendServersInstanceId := backendServers[0].ServerId
 
-		if (ecsInstanceId != backendServersInstanceId) {
+		if ecsInstanceId != backendServersInstanceId {
 			return fmt.Errorf("SLB BackEndServers check invalid: ECS instance %s is not equal SLB backendServer %s",
 				ecsInstanceId, backendServersInstanceId)
 		}
@@ -338,4 +338,3 @@ resource "alicloud_slb" "bindecs" {
   instances = ["${alicloud_instance.foo.id}"]
 }
 `
-

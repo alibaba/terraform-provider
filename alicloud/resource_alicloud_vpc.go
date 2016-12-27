@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/denverdino/aliyungo/ecs"
-	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
 	"time"
 )
 
@@ -150,7 +150,7 @@ func resourceAliyunVpcUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
-	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteVpc(d.Id())
 
 		if err != nil {
@@ -159,7 +159,7 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 
 		args := &ecs.DescribeVpcsArgs{
 			RegionId: getRegion(d, meta),
-			VpcId: d.Id(),
+			VpcId:    d.Id(),
 		}
 		vpc, _, descErr := conn.DescribeVpcs(args)
 		if descErr != nil {

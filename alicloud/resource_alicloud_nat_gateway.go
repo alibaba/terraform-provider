@@ -3,10 +3,10 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/denverdino/aliyungo/common"
-	"log"
 	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
+	"log"
 	"time"
 )
 
@@ -225,7 +225,7 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 		args := &ModifyNatGatewaySpecArgs{
 			RegionId:     natGateway.RegionId,
 			NatGatewayId: natGateway.NatGatewayId,
-			Spec:  spec,
+			Spec:         spec,
 		}
 
 		err := ModifyNatGatewaySpec(client.vpcconn, args)
@@ -243,7 +243,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 
 	client := meta.(*AliyunClient)
 
-	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 
 		packages, err := DescribeBandwidthPackages(client.vpcconn, &DescribeBandwidthPackagesArgs{
 			RegionId:     getRegion(d, meta),
