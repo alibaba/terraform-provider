@@ -49,6 +49,7 @@ func resourceAliyunInstance() *schema.Resource {
 			"instance_name": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Default:      "ECS-Instance",
 				ValidateFunc: validateInstanceName,
 			},
 
@@ -177,7 +178,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	instanceID, err := conn.CreateInstance(args)
 	if err != nil {
-		return fmt.Errorf("Error creating Aliyun ecs instance: %s", err)
+		return fmt.Errorf("Error creating Aliyun ecs instance: %#v", err)
 	}
 
 	d.SetId(instanceID)
@@ -199,7 +200,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	if d.Get("allocate_public_ip").(bool) {
 		ipAddress, err := conn.AllocatePublicIpAddress(d.Id())
 		if err != nil {
-			log.Printf("[DEBUG] AllocatePublicIpAddress for instance got error: %s", err)
+			log.Printf("[DEBUG] AllocatePublicIpAddress for instance got error: %#v", err)
 		} else {
 			d.Set("public_ip", ipAddress)
 		}
@@ -208,15 +209,15 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	// after instance created, its status is pending,
 	// so we need to wait it become to stopped and then start it
 	if err := conn.WaitForInstance(d.Id(), ecs.Stopped, defaultTimeout); err != nil {
-		log.Printf("[DEBUG] WaitForInstance %s got error: %s", ecs.Stopped, err)
+		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", ecs.Stopped, err)
 	}
 
 	if err := conn.StartInstance(d.Id()); err != nil {
-		return fmt.Errorf("Start instance got error: %s", err)
+		return fmt.Errorf("Start instance got error: %#v", err)
 	}
 
 	if err := conn.WaitForInstance(d.Id(), ecs.Running, defaultTimeout); err != nil {
-		log.Printf("[DEBUG] WaitForInstance %s got error: %s", ecs.Running, err)
+		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", ecs.Running, err)
 	}
 
 	return resourceAliyunInstanceUpdate(d, meta)
@@ -231,10 +232,10 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error DescribeInstanceAttribute: %s", err)
+		return fmt.Errorf("Error DescribeInstanceAttribute: %#v", err)
 	}
 
-	log.Printf("[DEBUG] DescribeInstanceAttribute for instance: %v", instance)
+	log.Printf("[DEBUG] DescribeInstanceAttribute for instance: %#v", instance)
 
 	d.Set("instance_name", instance.InstanceName)
 	d.Set("description", instance.Description)
@@ -264,7 +265,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	})
 
 	if err != nil {
-		log.Printf("[DEBUG] DescribeTags for instance got error: %s", err)
+		log.Printf("[DEBUG] DescribeTags for instance got error: %#v", err)
 	}
 
 	log.Printf("[DEBUG] set tags")
@@ -282,8 +283,8 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	d.Partial(true)
 
 	if err := setTags(client, ecs.TagResourceInstance, d); err != nil {
-		log.Printf("[DEBUG] Set tags for instance got error: %s", err)
-		return fmt.Errorf("Set tags for instance got error: %s", err)
+		log.Printf("[DEBUG] Set tags for instance got error: %#v", err)
+		return fmt.Errorf("Set tags for instance got error: %#v", err)
 	} else {
 		d.SetPartial("tags")
 	}
@@ -297,18 +298,18 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if err := conn.ModifyInstanceAttribute(args); err != nil {
-			return fmt.Errorf("Instance change password got error: %s", err)
+			return fmt.Errorf("Instance change password got error: %#v", err)
 		}
 
 		if v, ok := d.GetOk("status"); ok && v.(string) != "" {
 			if ecs.InstanceStatus(d.Get("status").(string)) == ecs.Running {
 				log.Printf("[DEBUG] RebootInstance after change password")
 				if err := conn.RebootInstance(d.Id(), false); err != nil {
-					return fmt.Errorf("RebootInstance got error: %s", err)
+					return fmt.Errorf("RebootInstance got error: %#v", err)
 				}
 
 				if err := conn.WaitForInstance(d.Id(), ecs.Running, defaultTimeout); err != nil {
-					return fmt.Errorf("WaitForInstance got error: %s", err)
+					return fmt.Errorf("WaitForInstance got error: %#v", err)
 				}
 			}
 		}
@@ -325,7 +326,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if err := conn.ModifyInstanceAttribute(args); err != nil {
-			return fmt.Errorf("Modify instance name got error: %s", err)
+			return fmt.Errorf("Modify instance name got error: %#v", err)
 		}
 
 		d.SetPartial("instance_name")
@@ -340,7 +341,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if err := conn.ModifyInstanceAttribute(args); err != nil {
-			return fmt.Errorf("Modify instance description got error: %s", err)
+			return fmt.Errorf("Modify instance description got error: %#v", err)
 		}
 
 		d.SetPartial("description")
@@ -355,7 +356,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if err := conn.ModifyInstanceAttribute(args); err != nil {
-			return fmt.Errorf("Modify instance host_name got error: %s", err)
+			return fmt.Errorf("Modify instance host_name got error: %#v", err)
 		}
 
 		d.SetPartial("host_name")
@@ -404,14 +405,14 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 			removeBackendServers = append(removeBackendServers, d.Id())
 			_, err := slbconn.RemoveBackendServers(loadBalanderId, removeBackendServers)
 			if err != nil {
-				return fmt.Errorf("RemoveBackendServers got error: %s", err)
+				return fmt.Errorf("RemoveBackendServers got error: %#v", err)
 			}
 		}
 
 		if len(addBackendServerList) > 0 {
 			_, err := slbconn.AddBackendServers(loadBalanderId, addBackendServerList)
 			if err != nil {
-				return fmt.Errorf("AddBackendServers got error: %s", err)
+				return fmt.Errorf("AddBackendServers got error: %#v", err)
 			}
 		}
 
@@ -442,7 +443,7 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 		if notFoundError(err) {
 			return nil
 		}
-		return fmt.Errorf("Error DescribeInstanceAttribute: %s", err)
+		return fmt.Errorf("Error DescribeInstanceAttribute: %#v", err)
 	}
 
 	if instance.Status != ecs.Stopped {

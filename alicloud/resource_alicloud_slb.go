@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"log"
 	"time"
 )
 
@@ -232,7 +231,7 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 			for _, listener := range remove {
 				err := slbconn.DeleteLoadBalancerListener(d.Id(), listener.LoadBalancerPort)
 				if err != nil {
-					return fmt.Errorf("Failure removing outdated SLB listeners: %s", err)
+					return fmt.Errorf("Failure removing outdated SLB listeners: %#v", err)
 				}
 			}
 		}
@@ -241,7 +240,7 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 			for _, listener := range add {
 				err := createListener(slbconn, d.Id(), listener)
 				if err != nil {
-					return fmt.Errorf("Failure add SLB listeners: %s", err)
+					return fmt.Errorf("Failure add SLB listeners: %#v", err)
 				}
 			}
 		}
@@ -285,25 +284,26 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
 	conn := meta.(*AliyunClient).slbconn
 
-	return resource.Retry(10*time.Minute, func() *resource.RetryError {
-		instance, _ := client.DescribeLoadBalancerAttribute(d.Id())
-		log.Printf("[WARN]slb instance before delete %#v", instance)
-		if instance == nil {
-			return nil
-		}
-
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteLoadBalancer(d.Id())
-
-		e, _ := err.(*common.Error)
-		if e != nil && e.ErrorResponse.Code == LoadBalancerNotFound {
-			log.Printf("[ERROR] Delete not exist slb.")
+		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		log.Printf("[WARN]slb instance delete error %#v", err)
-		return resource.RetryableError(fmt.Errorf("Slb in use. -- trying again while it is deleted."))
+
+		loadBalancer, err := conn.DescribeLoadBalancerAttribute(d.Id())
+		if err != nil {
+			e, _ := err.(*common.Error)
+			if e.ErrorResponse.Code == "InvalidLoadBalancerId.NotFound" {
+				return nil
+			}
+			return resource.NonRetryableError(err)
+		}
+		if loadBalancer != nil {
+			return resource.RetryableError(fmt.Errorf("LoadBalancer in use - trying again while it deleted."))
+		}
+		return nil
 	})
 }
 

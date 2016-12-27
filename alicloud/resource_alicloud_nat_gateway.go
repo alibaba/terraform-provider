@@ -115,7 +115,7 @@ func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) er
 
 	resp, err := CreateNatGateway(conn, args)
 	if err != nil {
-		return fmt.Errorf("CreateNatGateway got error: %s", err)
+		return fmt.Errorf("CreateNatGateway got error: %#v", err)
 	}
 
 	d.SetId(resp.NatGatewayId)
@@ -207,7 +207,7 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 
 		err := ModifyNatGatewayAttribute(client.vpcconn, args)
 		if err != nil {
-			return fmt.Errorf("%s %s", err, *args)
+			return fmt.Errorf("%#v %#v", err, *args)
 		}
 
 		d.SetPartial("description")
@@ -230,7 +230,7 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 
 		err := ModifyNatGatewaySpec(client.vpcconn, args)
 		if err != nil {
-			return fmt.Errorf("%s %s", err, *args)
+			return fmt.Errorf("%#v %#v", err, *args)
 		}
 
 		d.SetPartial("spec")
@@ -243,34 +243,36 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 
 	client := meta.(*AliyunClient)
 
-	packages, err := DescribeBandwidthPackages(client.vpcconn, &DescribeBandwidthPackagesArgs{
-		RegionId:     getRegion(d, meta),
-		NatGatewayId: d.Id(),
-	})
-	if err != nil {
-		return err
-	}
-
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		for _, e := range packages {
+
+		packages, err := DescribeBandwidthPackages(client.vpcconn, &DescribeBandwidthPackagesArgs{
+			RegionId:     getRegion(d, meta),
+			NatGatewayId: d.Id(),
+		})
+		if err != nil {
+			log.Printf("[ERROR] Describe bandwidth package is failed, natGateway Id: %s", d.Id())
+			return resource.NonRetryableError(err)
+		}
+
+		retry := false
+		for _, pack := range packages {
 			err = DeleteBandwidthPackage(client.vpcconn, &DeleteBandwidthPackageArgs{
 				RegionId:           getRegion(d, meta),
-				BandwidthPackageId: e.BandwidthPackageId,
+				BandwidthPackageId: pack.BandwidthPackageId,
 			})
 
 			if err != nil {
 				er, _ := err.(*common.Error)
-				if er.ErrorResponse.Code == "Forbidden.SomeIpReferredByForwardEntry" {
-					return resource.RetryableError(fmt.Errorf("Bandwidth package in use - trying again while it is deleted."))
+				if er.ErrorResponse.Code == "Invalid.RegionId" {
+					log.Printf("[ERROR] Delete bandwidth package is failed, bandwidthPackageId: %#v", pack.BandwidthPackageId)
+					return resource.NonRetryableError(err)
 				}
-
-				if e.BandwidthPackageId != "" && er.ErrorResponse.Code == "InvalidBandwidthPackageId.NotFound" {
-					continue
-				}
-
-				log.Printf("[ERROR] Delete bandwidth package is failed, bandwidthPackageId: %s", e.BandwidthPackageId)
-				return resource.NonRetryableError(err)
+				retry = true
 			}
+		}
+
+		if retry {
+			return resource.RetryableError(fmt.Errorf("Bandwidth package in use - trying again while it is deleted."))
 		}
 
 		args := &DeleteNatGatewayArgs{
@@ -279,16 +281,26 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 		}
 
 		err = DeleteNatGateway(client.vpcconn, args)
-		if err == nil {
+		if err != nil {
+			er, _ := err.(*common.Error)
+			if er.ErrorResponse.Code == "DependencyViolation.BandwidthPackages" {
+				return resource.RetryableError(fmt.Errorf("NatGateway in use - trying again while it is deleted."))
+			}
+		}
+
+		describeArgs := &DescribeNatGatewaysArgs{
+			RegionId:     client.Region,
+			NatGatewayId: d.Id(),
+		}
+		gw, _, gwErr := DescribeNatGateways(client.vpcconn, describeArgs)
+
+		if gwErr != nil {
+			log.Printf("[ERROR] Describe NatGateways failed.")
+			return resource.NonRetryableError(gwErr)
+		} else if gw == nil || len(gw) < 1 {
 			return nil
 		}
 
-		er, _ := err.(*common.Error)
-		if er.ErrorResponse.Code == "DependencyViolation.BandwidthPackages" {
-			return resource.RetryableError(fmt.Errorf("NatGateway in use - trying again while it is deleted."))
-		}
-
-		log.Println("[ERROR] Delete NatGateway is failed.")
-		return resource.NonRetryableError(err)
+		return resource.RetryableError(fmt.Errorf("NatGateway in use - trying again while it is deleted."))
 	})
 }

@@ -25,7 +25,7 @@ func (client *AliyunClient) DescribeEipAddress(allocationId string) (*ecs.EipAdd
 
 func (client *AliyunClient) DescribeNatGateway(natGatewayId string) (*NatGatewaySetType, error) {
 
-	args := &DescribeNetGatewaysArgs{
+	args := &DescribeNatGatewaysArgs{
 		RegionId:     client.Region,
 		NatGatewayId: natGatewayId,
 	}
