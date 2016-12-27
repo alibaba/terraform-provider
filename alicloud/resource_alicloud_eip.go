@@ -124,7 +124,7 @@ func resourceAliyunEipDelete(d *schema.ResourceData, meta interface{}) error {
 
 		if err != nil {
 			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == "IncorrectEipStatus" {
+			if e.ErrorResponse.Code == EipIncorrectStatus {
 				return resource.RetryableError(fmt.Errorf("EIP in use - trying again while it is deleted."))
 			}
 		}

@@ -295,7 +295,7 @@ func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
 		loadBalancer, err := conn.DescribeLoadBalancerAttribute(d.Id())
 		if err != nil {
 			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == "InvalidLoadBalancerId.NotFound" {
+			if e.ErrorResponse.Code == LoadBalancerNotFound {
 				return nil
 			}
 			return resource.NonRetryableError(err)

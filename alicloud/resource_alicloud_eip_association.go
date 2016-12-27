@@ -95,7 +95,7 @@ func resourceAliyunEipAssociationDelete(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			e, _ := err.(*common.Error)
 			errCode := e.ErrorResponse.Code
-			if errCode == "IncorrectInstanceStatus" || errCode == "IncorrectHaVipStatus" {
+			if errCode == InstanceIncorrectStatus || errCode == HaVipIncorrectStatus {
 				return resource.RetryableError(fmt.Errorf("Eip in use - trying again while make it unassociated."))
 			}
 		}
@@ -113,11 +113,9 @@ func resourceAliyunEipAssociationDelete(d *schema.ResourceData, meta interface{}
 			return nil
 		}
 		for _, eip := range eips {
-			log.Printf("status: %s", eip.Status)
-			if eip.Status != "Available" {
+			if eip.Status != ecs.EipStatusAvailable {
 				return resource.RetryableError(fmt.Errorf("Eip in use - trying again while make it unassociated."))
 			}
-			continue
 		}
 
 		return nil

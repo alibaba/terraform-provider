@@ -129,7 +129,7 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 
 		if err != nil {
 			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == "DependencyViolation" {
+			if e.ErrorResponse.Code == SgDependencyViolation {
 				return resource.RetryableError(fmt.Errorf("Security group in use - trying again while it is deleted."))
 			}
 		}
@@ -141,7 +141,7 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 
 		if err != nil {
 			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == "InvalidSecurityGroupId.NotFound" {
+			if e.ErrorResponse.Code == InvalidSecurityGroupIdNotFound {
 				return nil
 			}
 			return resource.NonRetryableError(err)

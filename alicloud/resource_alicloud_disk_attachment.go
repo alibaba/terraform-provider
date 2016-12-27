@@ -111,7 +111,7 @@ func resourceAliyunDiskAttachmentDelete(d *schema.ResourceData, meta interface{}
 		err := conn.DetachDisk(instanceID, diskID)
 		if err != nil {
 			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == "IncorrectDiskStatus" || e.ErrorResponse.Code == "InstanceLockedForSecurity" {
+			if e.ErrorResponse.Code == DiskIncorrectStatus || e.ErrorResponse.Code == InstanceLockedForSecurity {
 				return resource.RetryableError(fmt.Errorf("Disk in use - trying again while it detaches"))
 			}
 		}

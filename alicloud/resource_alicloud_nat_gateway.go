@@ -263,7 +263,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 
 			if err != nil {
 				er, _ := err.(*common.Error)
-				if er.ErrorResponse.Code == "Invalid.RegionId" {
+				if er.ErrorResponse.Code == NatGatewayInvalidRegionId {
 					log.Printf("[ERROR] Delete bandwidth package is failed, bandwidthPackageId: %#v", pack.BandwidthPackageId)
 					return resource.NonRetryableError(err)
 				}
@@ -283,7 +283,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 		err = DeleteNatGateway(client.vpcconn, args)
 		if err != nil {
 			er, _ := err.(*common.Error)
-			if er.ErrorResponse.Code == "DependencyViolation.BandwidthPackages" {
+			if er.ErrorResponse.Code == DependencyViolationBandwidthPackages {
 				return resource.RetryableError(fmt.Errorf("NatGateway in use - trying again while it is deleted."))
 			}
 		}
