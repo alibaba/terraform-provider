@@ -6,7 +6,6 @@ import (
 
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
-	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -43,7 +42,7 @@ func resourceAliyunInstance() *schema.Resource {
 			"allocate_public_ip": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  false,
 			},
 
 			"instance_name": &schema.Schema{
@@ -154,16 +153,6 @@ func resourceAliyunInstance() *schema.Resource {
 			},
 
 			"tags": tagsSchema(),
-
-			"load_balancer": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"load_balancer_weight": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
 		},
 	}
 }
@@ -245,6 +234,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("image_id", instance.ImageId)
 	d.Set("instance_type", instance.InstanceType)
 	d.Set("internet_charge_type", instance.InternetChargeType)
+	log.Printf("io_optimize:%s", instance.IoOptimized)
 	d.Set("io_optimized", instance.IoOptimized)
 
 	d.Set("host_name", instance.HostName)
@@ -278,7 +268,6 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	client := meta.(*AliyunClient)
 	conn := client.ecsconn
-	slbconn := client.slbconn
 
 	d.Partial(true)
 
@@ -386,52 +375,9 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.SetPartial("security_groups")
 	}
 
-	if d.HasChange("load_balancer") || d.HasChange("load_balancer_weight") {
-		log.Printf("[DEBUG] ModifyInstanceAttribute load_balancer")
-		loadBalanderId := d.Get("load_balancer").(string)
-
-		var weight int = 100
-		if v, ok := d.GetOk("load_balancer_weight"); ok {
-			weight = v.(int)
-		}
-
-		log.Printf("[DEBUG] load_balancer weight is %d", weight)
-
-		addBackendServerList := complexBackendServer(d.Id(), weight)
-		removeBackendServerList := complexBackendServer(d.Id(), weight)
-
-		if len(removeBackendServerList) > 0 {
-			removeBackendServers := make([]string, 0, 1)
-			removeBackendServers = append(removeBackendServers, d.Id())
-			_, err := slbconn.RemoveBackendServers(loadBalanderId, removeBackendServers)
-			if err != nil {
-				return fmt.Errorf("RemoveBackendServers got error: %#v", err)
-			}
-		}
-
-		if len(addBackendServerList) > 0 {
-			_, err := slbconn.AddBackendServers(loadBalanderId, addBackendServerList)
-			if err != nil {
-				return fmt.Errorf("AddBackendServers got error: %#v", err)
-			}
-		}
-
-		d.SetPartial("load_balancer")
-	}
-
 	d.Partial(false)
 
 	return resourceAliyunInstanceRead(d, meta)
-}
-
-func complexBackendServer(instanceId string, weight int) []slb.BackendServerType {
-	result := make([]slb.BackendServerType, 0, 1)
-	backendServer := slb.BackendServerType{
-		ServerId: instanceId,
-		Weight:   weight,
-	}
-	result = append(result, backendServer)
-	return result
 }
 
 func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) error {

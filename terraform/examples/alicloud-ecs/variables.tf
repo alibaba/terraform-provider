@@ -21,13 +21,9 @@ variable "ecs_password" {
 }
 variable "availability_zones" {
 }
-variable "security_groups" {
-  type    = "list"
+variable "allocate_public_ip" {
+  default = true
 }
-variable "ssh_username" {
-  default = "root"
-}
-
 variable "internet_charge_type" {
   default = "PayByTraffic"
 }

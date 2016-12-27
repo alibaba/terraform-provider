@@ -326,7 +326,6 @@ resource "alicloud_instance" "foo" {
 
 	# series II
 	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
 	internet_charge_type = "PayByBandwidth"
 	internet_max_bandwidth_out = "5"
 	system_disk_category = "cloud_efficiency"

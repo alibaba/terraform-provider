@@ -93,6 +93,7 @@ func resourceAliyunSlb() *schema.Resource {
 				Set: resourceAliyunSlbListenerHash,
 			},
 
+			//deprecated
 			"instances": &schema.Schema{
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -288,6 +289,7 @@ func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteLoadBalancer(d.Id())
+
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}

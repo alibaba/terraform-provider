@@ -26,12 +26,12 @@ variable "ecs_password" {
 variable "availability_zones" {
   default = "cn-beijing-b"
 }
-variable "security_groups" {
-  type    = "list"
-   default = ["sg-25y6ag32b"]
-}
 variable "ssh_username" {
   default = "root"
+}
+
+variable "allocate_public_ip" {
+  default = true
 }
 
 variable "internet_charge_type" {
@@ -64,8 +64,4 @@ variable "slb_name" {
 
 variable "internet" {
   default = true
-}
-
-variable "load_balancer_weight" {
-  default = "100"
 }

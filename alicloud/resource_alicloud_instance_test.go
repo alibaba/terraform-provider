@@ -543,7 +543,9 @@ resource "alicloud_instance" "foo" {
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
 
-	instance_type = "ecs.s2.large"
+	system_disk_category = "cloud_ssd"
+
+	instance_type = "ecs.n1.small"
 	instance_network_type = "Classic"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
