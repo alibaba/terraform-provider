@@ -34,7 +34,6 @@ func TestAccAlicloudEIPAssociation(t *testing.T) {
 						"alicloud_eip.eip", &asso),
 					testAccCheckEIPAssociationExists(
 						"alicloud_eip_association.foo", &inst, &asso),
-
 				),
 			},
 		},
@@ -54,7 +53,7 @@ func testAccCheckEIPAssociationExists(n string, instance *ecs.InstanceAttributes
 		}
 
 		client := testAccProvider.Meta().(*AliyunClient)
-		return resource.Retry(3 * time.Minute, func() *resource.RetryError {
+		return resource.Retry(3*time.Minute, func() *resource.RetryError {
 			d, err := client.DescribeEipAddress(rs.Primary.Attributes["allocation_id"])
 
 			if err != nil {

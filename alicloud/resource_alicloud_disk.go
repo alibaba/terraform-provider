@@ -3,12 +3,12 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/denverdino/aliyungo/ecs"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/resource"
-	"time"
 	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
 	"log"
+	"time"
 )
 
 func resourceAliyunDisk() *schema.Resource {
@@ -25,13 +25,15 @@ func resourceAliyunDisk() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateDiskName,
 			},
 
 			"description": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateDiskDescription,
 			},
 
 			"category": &schema.Schema{
@@ -118,18 +120,26 @@ func resourceAliyunDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		args.DiskName = v.(string)
 	}
 
+	if v, ok := d.GetOk("description"); ok && v.(string) != "" {
+		args.Description = v.(string)
+	}
+
 	diskID, err := conn.CreateDisk(args)
 	if err != nil {
 		return fmt.Errorf("CreateDisk got a error: %#v", err)
 	}
 
 	d.SetId(diskID)
+	d.Partial(true)
+
 	d.SetPartial("name")
 	d.SetPartial("availability_zone")
 	d.SetPartial("description")
 	d.SetPartial("size")
 	d.SetPartial("category")
 	d.SetPartial("snapshot_id")
+
+	d.Partial(false)
 
 	return resourceAliyunDiskUpdate(d, meta)
 }
@@ -158,6 +168,7 @@ func resourceAliyunDiskRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("category", disk.Category)
 		d.Set("size", disk.Size)
 		d.Set("status", disk.Status)
+		d.Set("name", disk.DiskName)
 		d.Set("description", disk.Description)
 		d.Set("snapshot_id", disk.SourceSnapshotId)
 	}
@@ -199,7 +210,6 @@ func resourceAliyunDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		if err := conn.ModifyDiskAttribute(args); err != nil {
-			log.Printf("\n\n\n\n\n\n disk err: %s", err)
 			return err
 		}
 
@@ -228,7 +238,7 @@ func resourceAliyunDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceAliyunDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
-	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteDisk(d.Id())
 		if err != nil {
 			e, _ := err.(*common.Error)

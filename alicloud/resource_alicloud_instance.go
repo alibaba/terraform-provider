@@ -448,7 +448,6 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 		InstanceType:     d.Get("instance_type").(string),
 		SecurityGroupId:  d.Get("security_group_id").(string),
 		PrivateIpAddress: d.Get("private_ip").(string),
-
 	}
 
 	imageID := d.Get("image_id").(string)

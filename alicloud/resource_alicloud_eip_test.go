@@ -88,7 +88,7 @@ func testAccCheckEIPDestroy(s *terraform.State) error {
 		conn := client.ecsconn
 
 		args := &ecs.DescribeEipAddressesArgs{
-			RegionId: client.Region,
+			RegionId:     client.Region,
 			AllocationId: rs.Primary.ID,
 		}
 		d, _, err := conn.DescribeEipAddresses(args)
