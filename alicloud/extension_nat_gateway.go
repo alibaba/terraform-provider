@@ -66,19 +66,20 @@ type DescribeNatGatewayResponse struct {
 	common.Response
 	common.PaginationResult
 	NatGateways struct {
-		NatGateway []NatGatewaySetType
-	}
+			    NatGateway []NatGatewaySetType
+		    }
 }
 
-type DescribeNetGatewaysArgs struct {
+type DescribeNatGatewaysArgs struct {
 	RegionId     common.Region
 	NatGatewayId string
 	VpcId        string
 	common.Pagination
 }
 
-func DescribeNatGateways(client *ecs.Client, args *DescribeNetGatewaysArgs) (natGateways []NatGatewaySetType,
-	pagination *common.PaginationResult, err error) {
+func DescribeNatGateways(client *ecs.Client, args *DescribeNatGatewaysArgs) (natGateways []NatGatewaySetType,
+pagination *common.PaginationResult, err error) {
+
 	args.Validate()
 	response := DescribeNatGatewayResponse{}
 
@@ -148,8 +149,8 @@ type DescribeBandwidthPackageType struct {
 type DescribeBandwidthPackagesResponse struct {
 	common.Response
 	BandwidthPackages struct {
-		BandwidthPackage []DescribeBandwidthPackageType
-	}
+				  BandwidthPackage []DescribeBandwidthPackageType
+			  }
 }
 
 func DescribeBandwidthPackages(client *ecs.Client, args *DescribeBandwidthPackagesArgs) ([]DescribeBandwidthPackageType, error) {
@@ -187,7 +188,7 @@ func DescribeSnatTableEntries(client *ecs.Client, args *DescribeSnatTableEntries
 type NatGatewaySpec string
 
 const (
-	NatGatewaySmallSpec  = NatGatewaySpec("Small")
+	NatGatewaySmallSpec = NatGatewaySpec("Small")
 	NatGatewayMiddleSpec = NatGatewaySpec("Middle")
-	NatGatewayLargeSpec  = NatGatewaySpec("Large")
+	NatGatewayLargeSpec = NatGatewaySpec("Large")
 )

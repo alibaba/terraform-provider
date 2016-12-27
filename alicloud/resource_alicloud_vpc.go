@@ -30,7 +30,7 @@ func resourceAliyunVpc() *schema.Resource {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
 					if len(value) < 2 || len(value) > 128 {
-						errors = append(errors, fmt.Errorf("%q cannot be longer than 128 characters", k))
+						errors = append(errors, fmt.Errorf("%s cannot be longer than 128 characters", k))
 					}
 
 					if strings.HasPrefix(value, "http://") || strings.HasPrefix(value, "https://") {
@@ -46,7 +46,7 @@ func resourceAliyunVpc() *schema.Resource {
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
 					if len(value) < 2 || len(value) > 256 {
-						errors = append(errors, fmt.Errorf("%q cannot be longer than 256 characters", k))
+						errors = append(errors, fmt.Errorf("%s cannot be longer than 256 characters", k))
 
 					}
 					return
@@ -152,7 +152,19 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 
 	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
 		err := conn.DeleteVpc(d.Id())
-		if err == nil {
+
+		if err != nil {
+			return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
+		}
+
+		args := &ecs.DescribeVpcsArgs{
+			RegionId: getRegion(d, meta),
+			VpcId: d.Id(),
+		}
+		vpc, _, descErr := conn.DescribeVpcs(args)
+		if descErr != nil {
+			return resource.NonRetryableError(err)
+		} else if vpc == nil || len(vpc) < 1 {
 			return nil
 		}
 

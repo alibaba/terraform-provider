@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/resource"
 	"time"
-	"log"
 	"fmt"
 )
 
@@ -122,17 +121,26 @@ func resourceAliyunEipDelete(d *schema.ResourceData, meta interface{}) error {
 
 	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
 		err := conn.ReleaseEipAddress(d.Id())
-		if err == nil {
+
+		if err != nil {
+			e, _ := err.(*common.Error)
+			if e.ErrorResponse.Code == "IncorrectEipStatus" {
+				return resource.RetryableError(fmt.Errorf("EIP in use - trying again while it is deleted."))
+			}
+		}
+
+		args := &ecs.DescribeEipAddressesArgs{
+			RegionId:     getRegion(d, meta),
+			AllocationId: d.Id(),
+		}
+
+		eips, _, descErr := conn.DescribeEipAddresses(args)
+		if descErr != nil {
+			return resource.NonRetryableError(descErr)
+		} else if eips == nil || len(eips) < 1 {
 			return nil
 		}
-
-		e, _ := err.(*common.Error)
-		if e.ErrorResponse.Code == "IncorrectEipStatus" {
-			return resource.RetryableError(fmt.Errorf("EIP in use - trying again while it is deleted."))
-		}
-
-		log.Println("[ERROR] Delete EIP failed.")
-		return resource.NonRetryableError(err)
+		return resource.RetryableError(fmt.Errorf("EIP in use - trying again while it is deleted."))
 	})
 }
 

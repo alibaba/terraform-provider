@@ -26,6 +26,7 @@ func TestAccAlicloudSlb_basic(t *testing.T) {
 
 		// module name
 		IDRefreshName: "alicloud_slb.bindwidth",
+
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckSlbDestroy,
 		Steps: []resource.TestStep{
@@ -84,7 +85,7 @@ func TestAccAlicloudSlb_listener(t *testing.T) {
 		return func(*terraform.State) error {
 			listenerPorts := slb.ListenerPorts.ListenerPort[0]
 			if listenerPorts != 161 {
-				return fmt.Errorf("bad loadbalancer listener: %s", listenerPorts)
+				return fmt.Errorf("bad loadbalancer listener: %#v", listenerPorts)
 			}
 
 			return nil
