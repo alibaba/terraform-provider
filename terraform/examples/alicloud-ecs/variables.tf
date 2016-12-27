@@ -21,7 +21,8 @@ variable "ecs_password" {
 }
 variable "availability_zones" {
 }
-variable "security_group_id" {
+variable "security_groups" {
+  type    = "list"
 }
 variable "ssh_username" {
   default = "root"

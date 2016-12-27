@@ -34,9 +34,10 @@ func resourceAliyunInstance() *schema.Resource {
 				Required: true,
 			},
 
-			"security_group_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+			"security_groups": &schema.Schema{
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
 			},
 
 			"allocate_public_ip": &schema.Schema{
@@ -183,7 +184,6 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(instanceID)
 
 	d.Partial(true)
-	d.SetPartial("security_group_id")
 	d.SetPartial("instance_name")
 	d.SetPartial("description")
 	d.SetPartial("password")
@@ -362,6 +362,30 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.SetPartial("host_name")
 	}
 
+	if d.HasChange("security_groups") {
+		o, n := d.GetChange("security_groups")
+		os := o.(*schema.Set)
+		ns := n.(*schema.Set)
+
+		rl := expandStringList(os.Difference(ns).List())
+		al := expandStringList(ns.Difference(os).List())
+
+		if len(al) > 0 {
+			err := client.JoinSecurityGroups(d.Id(), al)
+			if err != nil {
+				return err
+			}
+		}
+		if len(rl) > 0 {
+			err := client.LeaveSecurityGroups(d.Id(), rl)
+			if err != nil {
+				return err
+			}
+		}
+
+		d.SetPartial("security_groups")
+	}
+
 	if d.HasChange("load_balancer") || d.HasChange("load_balancer_weight") {
 		log.Printf("[DEBUG] ModifyInstanceAttribute load_balancer")
 		loadBalanderId := d.Get("load_balancer").(string)
@@ -440,15 +464,12 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.CreateInstanceArgs, error) {
-
 	client := meta.(*AliyunClient)
 
 	args := &ecs.CreateInstanceArgs{
 		RegionId:         getRegion(d, meta),
 		InstanceType:     d.Get("instance_type").(string),
-		SecurityGroupId:  d.Get("security_group_id").(string),
 		PrivateIpAddress: d.Get("private_ip").(string),
-
 	}
 
 	imageID := d.Get("image_id").(string)
@@ -470,6 +491,19 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	}
 
 	args.ZoneId = zoneID
+
+	sgs, ok := d.GetOk("security_groups")
+
+	if ok {
+		sgList := expandStringList(sgs.(*schema.Set).List())
+		sg0 := sgList[0]
+		// check security group instance exist
+		_, err := client.DescribeSecurity(sg0)
+		if err == nil {
+			args.SecurityGroupId = sg0
+		}
+
+	}
 
 	systemDiskCategory := ecs.DiskCategory(d.Get("system_disk_category").(string))
 

@@ -1,12 +1,13 @@
 package alicloud
 
 import (
-	"testing"
-	"github.com/hashicorp/terraform/helper/resource"
 	"fmt"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/slb"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 	"log"
+	"testing"
 )
 
 func TestAccAlicloudSlb_basic(t *testing.T) {
@@ -27,8 +28,8 @@ func TestAccAlicloudSlb_basic(t *testing.T) {
 		// module name
 		IDRefreshName: "alicloud_slb.bindwidth",
 
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckSlbDestroy,
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSlbDestroy,
 		Steps: []resource.TestStep{
 			//test internet_charge_type is paybybandwidth
 			resource.TestStep{
@@ -189,7 +190,7 @@ func testAccCheckSlbBackendServer(n string, slb *slb.LoadBalancerType) resource.
 
 		backendServersInstanceId := backendServers[0].ServerId
 
-		if (ecsInstanceId != backendServersInstanceId) {
+		if ecsInstanceId != backendServersInstanceId {
 			return fmt.Errorf("SLB BackEndServers check invalid: ECS instance %s is not equal SLB backendServer %s",
 				ecsInstanceId, backendServersInstanceId)
 		}
@@ -239,8 +240,12 @@ func testAccCheckSlbDestroy(s *terraform.State) error {
 		}
 
 		if err != nil {
+			e, _ := err.(*common.Error)
 			// Verify the error is what we want
-			return err
+			if e.ErrorResponse.Code != LoadBalancerNotFound {
+				return err
+			}
+
 		}
 
 	}
@@ -326,7 +331,7 @@ resource "alicloud_instance" "foo" {
 	internet_max_bandwidth_out = "5"
 	system_disk_category = "cloud_efficiency"
 
-	security_group_id = "${alicloud_security_group.foo.id}"
+	security_groups = ["${alicloud_security_group.foo.id}"]
 	instance_name = "test_foo"
 }
 
@@ -338,4 +343,3 @@ resource "alicloud_slb" "bindecs" {
   instances = ["${alicloud_instance.foo.id}"]
 }
 `
-

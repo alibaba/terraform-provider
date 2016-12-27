@@ -1,11 +1,11 @@
 package alicloud
 
 import (
-	"github.com/hashicorp/terraform/helper/resource"
-	"testing"
 	"fmt"
-	"github.com/hashicorp/terraform/terraform"
 	"github.com/denverdino/aliyungo/common"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
+	"testing"
 )
 
 func TestAccAlicloudNatGateway_basic(t *testing.T) {

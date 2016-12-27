@@ -61,7 +61,7 @@ func TestAccAlicloudDisk_withTags(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccDiskConfigWithTags,
-				Check:  resource.ComposeTestCheckFunc(
+				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDiskExists("alicloud_disk.foo", &v),
 				),
 			},
@@ -84,8 +84,8 @@ func testAccCheckDiskExists(n string, disk *ecs.DiskItemType) resource.TestCheck
 		conn := client.ecsconn
 
 		request := &ecs.DescribeDisksArgs{
-			RegionId:  client.Region,
-			DiskIds:   []string{rs.Primary.ID},
+			RegionId: client.Region,
+			DiskIds:  []string{rs.Primary.ID},
 		}
 
 		response, _, err := conn.DescribeDisks(request)
@@ -113,8 +113,8 @@ func testAccCheckDiskDestroy(s *terraform.State) error {
 		conn := client.ecsconn
 
 		request := &ecs.DescribeDisksArgs{
-			RegionId:  client.Region,
-			DiskIds:   []string{rs.Primary.ID},
+			RegionId: client.Region,
+			DiskIds:  []string{rs.Primary.ID},
 		}
 
 		response, _, err := conn.DescribeDisks(request)
