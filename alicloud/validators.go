@@ -12,13 +12,12 @@ import (
 
 // common
 func validateInstancePort(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(int); value != 0 {
-		if value < 1 || value > 65535 {
-			errors = append(errors, fmt.Errorf(
-				"%q must be a valid instance port between 1 and 65535",
-				k))
-			return
-		}
+	value := v.(int)
+	if value < 1 || value > 65535 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid instance port between 1 and 65535",
+			k))
+		return
 	}
 	return
 }
@@ -58,6 +57,33 @@ func validateInstanceName(v interface{}, k string) (ws []string, errors []error)
 }
 
 func validateInstanceDescription(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if len(value) < 2 || len(value) > 256 {
+		errors = append(errors, fmt.Errorf("%q cannot be longer than 256 characters", k))
+
+	}
+	return
+}
+
+func validateDiskName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if value == "" {
+		return
+	}
+
+	if len(value) < 2 || len(value) > 128 {
+		errors = append(errors, fmt.Errorf("%q cannot be longer than 128 characters", k))
+	}
+
+	if strings.HasPrefix(value, "http://") || strings.HasPrefix(value, "https://") {
+		errors = append(errors, fmt.Errorf("%s cannot starts with http:// or https://", k))
+	}
+
+	return
+}
+
+func validateDiskDescription(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) < 2 || len(value) > 256 {
 		errors = append(errors, fmt.Errorf("%q cannot be longer than 256 characters", k))
@@ -157,7 +183,8 @@ func validateInstanceNetworkType(v interface{}, k string) (ws []string, errors [
 		if network != ClassicNet &&
 			network != VpcNet {
 			errors = append(errors, fmt.Errorf(
-				"%q must contain a valid InstanceNetworkType, expected Clasic or Vpc", k))
+				"%q must contain a valid InstanceNetworkType, expected %s or %s, go %q",
+				k, ClassicNet, VpcNet, network))
 		}
 	}
 	return
@@ -192,13 +219,12 @@ func validateInternetChargeType(v interface{}, k string) (ws []string, errors []
 }
 
 func validateInternetMaxBandWidthOut(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(int); value != 0 {
-		if value < 1 || value > 100 {
-			errors = append(errors, fmt.Errorf(
-				"%q must be a valid internet bandwidth out between 1 and 1000",
-				k))
-			return
-		}
+	value := v.(int)
+	if value < 1 || value > 100 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid internet bandwidth out between 1 and 1000",
+			k))
+		return
 	}
 	return
 }
@@ -208,7 +234,7 @@ func validateSlbName(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
 		if len(value) < 1 || len(value) > 80 {
 			errors = append(errors, fmt.Errorf(
-				"%q must be a valid load balancer name between 1 and 80",
+				"%q must be a valid load balancer name characters between 1 and 80",
 				k))
 			return
 		}
@@ -233,25 +259,23 @@ func validateSlbInternetChargeType(v interface{}, k string) (ws []string, errors
 }
 
 func validateSlbBandwidth(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(int); value != 0 {
-		if value < 1 || value > 1000 {
-			errors = append(errors, fmt.Errorf(
-				"%q must be a valid load balancer bandwidth between 1 and 1000",
-				k))
-			return
-		}
+	value := v.(int)
+	if value < 1 || value > 1000 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid load balancer bandwidth between 1 and 1000",
+			k))
+		return
 	}
 	return
 }
 
 func validateSlbListenerBandwidth(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(int); value != 0 {
-		if (value < 1 || value > 1000) && value != -1 {
-			errors = append(errors, fmt.Errorf(
-				"%q must be a valid load balancer bandwidth between 1 and 1000 or -1",
-				k))
-			return
-		}
+	value := v.(int)
+	if (value < 1 || value > 1000) && value != -1 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid load balancer bandwidth between 1 and 1000 or -1",
+			k))
+		return
 	}
 	return
 }
