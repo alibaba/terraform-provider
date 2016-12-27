@@ -21,6 +21,9 @@ variable "ecs_password" {
 }
 variable "availability_zones" {
 }
+variable "allocate_public_ip" {
+  default = true
+}
 variable "internet_charge_type" {
   default = "PayByTraffic"
 }

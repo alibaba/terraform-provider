@@ -30,6 +30,10 @@ variable "ssh_username" {
   default = "root"
 }
 
+variable "allocate_public_ip" {
+  default = true
+}
+
 variable "internet_charge_type" {
   default = "PayByTraffic"
 }
