@@ -1,12 +1,12 @@
 hash: b17ea8ac8997ea43c5b74c2c2b0b7a13411075609ae320936e714240359d8e6d
-updated: 2016-12-19T16:26:29.529046338+08:00
+updated: 2016-12-27T18:46:33.289242637+08:00
 imports:
 - name: github.com/apparentlymart/go-cidr
   version: a3ebdb999b831ecb6ab8a226e31b07b2b9061c47
   subpackages:
   - cidr
 - name: github.com/aws/aws-sdk-go
-  version: 4644cdf3025727edc7d7e74902201364016b0221
+  version: 9a0c8a57d9bb717d481bc91f995df80d9bb9238c
   subpackages:
   - aws
   - aws/credentials
@@ -42,14 +42,14 @@ imports:
   subpackages:
   - spew
 - name: github.com/denverdino/aliyungo
-  version: 90f2dbabec9d3a2889d244ee71b054b86e56964f
+  version: 63cb58b7147c89834aeeac467412aeb8727e5aac
   subpackages:
   - common
   - ecs
   - slb
   - util
 - name: github.com/go-ini/ini
-  version: 2ba15ac2dc9cdf88c110ec2dc0ced7fa45f5678c
+  version: 6f66b0e091edb3c7b380f7c4f0f884274d550b67
 - name: github.com/hashicorp/errwrap
   version: 7554cd9344cec97297fa6649b055a8c98c2a1e55
 - name: github.com/hashicorp/go-getter
@@ -76,7 +76,7 @@ imports:
   - json/scanner
   - json/token
 - name: github.com/hashicorp/hil
-  version: 543808c44b249df579868afe2cc0692a02bf0478
+  version: 5b8d13c8c5c2753e109fab25392a1dbfa2db93d2
   subpackages:
   - ast
   - parser

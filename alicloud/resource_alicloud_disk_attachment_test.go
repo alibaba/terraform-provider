@@ -126,7 +126,7 @@ resource "alicloud_disk" "disk" {
   size = "50"
 
   tags {
-    Name = "TerraformTest-instance"
+    Name = "TerraformTest-disk"
   }
 }
 
