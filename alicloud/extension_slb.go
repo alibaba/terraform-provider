@@ -42,7 +42,7 @@ func expandListeners(configured []interface{}) ([]*Listener, error) {
 		if l.SSLCertificateId != "" {
 			// validate the protocol is correct
 			for _, p := range []string{"https", "ssl"} {
-				if (strings.ToLower(l.Protocol) == p) {
+				if strings.ToLower(l.Protocol) == p {
 					valid = true
 				}
 			}

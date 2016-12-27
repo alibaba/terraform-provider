@@ -207,7 +207,7 @@ func validateSlbName(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
 		if len(value) < 1 || len(value) > 80 {
 			errors = append(errors, fmt.Errorf(
-				"%q must be a valid load balancer name between 1 and 80",
+				"%q must be a valid load balancer name characters between 1 and 80",
 				k))
 			return
 		}

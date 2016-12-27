@@ -81,7 +81,7 @@ func TestAccAlicloudInstance_vpc(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		IDRefreshName: "alicloud_instance.foo",
@@ -117,7 +117,7 @@ func TestAccAlicloudInstance_multipleRegions(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		ProviderFactories: providerFactories,
@@ -140,7 +140,7 @@ func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		IDRefreshName: "alicloud_instance.foo",
@@ -162,7 +162,7 @@ func TestAccAlicloudInstance_tags(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -201,7 +201,7 @@ func TestAccAlicloudInstance_update(t *testing.T) {
 	var v ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -255,7 +255,7 @@ func TestAccAlicloudInstance_privateIP(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		IDRefreshName: "alicloud_instance.foo",
@@ -288,7 +288,7 @@ func TestAccAlicloudInstance_associatePublicIPAndPrivateIP(t *testing.T) {
 	}
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:      func() {
+		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 		IDRefreshName: "alicloud_instance.foo",
@@ -408,9 +408,12 @@ resource "alicloud_instance" "foo" {
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
 
-	instance_type = "ecs.s2.large"
+	system_disk_category = "cloud_ssd"
+
+	instance_type = "ecs.n1.small"
 	instance_network_type = "Classic"
-	internet_charge_type = "PayByBandwidth"
+	internet_charge_type = "PayByTraffic"
+	internet_max_bandwidth_out = 5
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 	instance_name = "test_foo"
 }

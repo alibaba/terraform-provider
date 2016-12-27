@@ -10,6 +10,8 @@ import (
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"log"
+	"time"
 )
 
 func resourceAliyunSlb() *schema.Resource {
@@ -92,6 +94,7 @@ func resourceAliyunSlb() *schema.Resource {
 				Set: resourceAliyunSlbListenerHash,
 			},
 
+			//deprecated
 			"instances": &schema.Schema{
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -283,11 +286,23 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).slbconn
 
-	err := conn.DeleteLoadBalancer(d.Id())
-	if err != nil {
-		return err
-	}
-	return nil
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
+		err := conn.DeleteLoadBalancer(d.Id())
+		if err == nil {
+			return nil
+		}
+		loadBalancer, descErr := conn.DescribeLoadBalancerAttribute(d.Id())
+		if descErr != nil {
+			return resource.NonRetryableError(err)
+		}
+		if loadBalancer == nil {
+			return nil
+		}
+
+		log.Printf("[ERROR] Delete slb is failed.")
+		return resource.RetryableError(fmt.Errorf("slb in use - trying again while it is deleted"))
+	})
+
 }
 
 func resourceAliyunSlbListenerHash(v interface{}) int {

@@ -29,8 +29,8 @@ resource "alicloud_instance" "instance" {
     dc = "${var.datacenter}"
   }
 
-  load_balancer = "${alicloud_slb.instance.id}"
-  load_balancer_weight = "${var.load_balancer_weight}"
+//  load_balancer = "${alicloud_slb.instance.id}"
+//  load_balancer_weight = "${var.load_balancer_weight}"
 
 }
 
@@ -55,3 +55,7 @@ resource "alicloud_slb" "instance" {
     }]
 }
 
+resource "alicloud_slb_attachment" "foo" {
+  slb_id = "${alicloud_slb.instance.id}"
+  instances = ["${alicloud_instance.instance.*.id}"]
+}

@@ -14,15 +14,15 @@ resource "alicloud_instance" "instance" {
   availability_zone = "${element(split(",", var.availability_zones), count.index)}"
   security_group_id = "${var.security_group_id}"
 
-  internet_charge_type = "${var.internet_charge_type}"
-  internet_max_bandwidth_out = "${var.internet_max_bandwidth_out}"
+//  internet_charge_type = "${var.internet_charge_type}"
+//  internet_max_bandwidth_out = "${var.internet_max_bandwidth_out}"
   instance_network_type = "${var.instance_network_type}"
 
   password = "${var.ecs_password}"
 
   instance_charge_type = "PostPaid"
   period = "1"
-  system_disk_category = "cloud_efficiency"
+  system_disk_category = "cloud"
 
 
   tags {
