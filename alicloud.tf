@@ -24,7 +24,8 @@ variable "ssh_username" {
 }
 
 variable "secrity_group" {
-  default = "sg-25y6ag32b"
+  type    = "list"
+  default = ["sg-2ze31ok28w1ww0mnq1r8"]
 }
 variable "availability_zones" {
   default = "cn-beijing-b"
@@ -53,7 +54,7 @@ module "worker-nodes" {
   ssh_username = "${var.ssh_username}"
   short_name = "${var.short_name}"
   availability_zones = "${var.availability_zones}"
-  security_group_id = "${var.secrity_group}"
+  security_groups = ["${var.secrity_group}"]
   internet_charge_type = "${var.internet_charge_type}"
 }
 
