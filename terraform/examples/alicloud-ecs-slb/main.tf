@@ -1,5 +1,10 @@
+resource "alicloud_security_group" "group" {
+  name = "${var.short_name}"
+  description = "New security group"
+}
+
 resource "alicloud_disk" "disk" {
-  availability_zone = "${element(split(",", var.availability_zones), count.index)}"
+  availability_zone = "${var.availability_zones}"
   category = "${var.disk_category}"
   size = "${var.disk_size}"
   count = "${var.count}"
@@ -11,8 +16,8 @@ resource "alicloud_instance" "instance" {
   image_id = "${var.image_id}"
   instance_type = "${var.ecs_type}"
   count = "${var.count}"
-  availability_zone = "${element(split(",", var.availability_zones), count.index)}"
-  security_groups = ["${var.security_groups}"]
+  availability_zone = "${var.availability_zones}"
+  security_groups = ["${alicloud_security_group.group.*.id}"]
 
   internet_charge_type = "${var.internet_charge_type}"
   internet_max_bandwidth_out = "${var.internet_max_bandwidth_out}"
@@ -29,16 +34,6 @@ resource "alicloud_instance" "instance" {
     dc = "${var.datacenter}"
   }
 
-//  load_balancer = "${alicloud_slb.instance.id}"
-//  load_balancer_weight = "${var.load_balancer_weight}"
-
-}
-
-resource "alicloud_disk_attachment" "instance-attachment" {
-  count = "${var.count}"
-  disk_id = "${element(alicloud_disk.disk.*.id, count.index)}"
-  instance_id = "${element(alicloud_instance.instance.*.id, count.index)}"
-  device_name = "${var.device_name}"
 }
 
 resource "alicloud_slb" "instance" {
@@ -54,6 +49,15 @@ resource "alicloud_slb" "instance" {
       "bandwidth" = "5"
     }]
 }
+
+
+resource "alicloud_disk_attachment" "instance-attachment" {
+  count = "${var.count}"
+  disk_id = "${element(alicloud_disk.disk.*.id, count.index)}"
+  instance_id = "${element(alicloud_instance.instance.*.id, count.index)}"
+  device_name = "${var.device_name}"
+}
+
 
 resource "alicloud_slb_attachment" "foo" {
   slb_id = "${alicloud_slb.instance.id}"

@@ -19,14 +19,7 @@ variable "worker_ecs_type" {
 variable "short_name" {
   default = "hi"
 }
-variable "ssh_username" {
-  default = "root"
-}
 
-variable "secrity_group" {
-  type    = "list"
-  default = ["sg-2ze31ok28w1ww0mnq1r8"]
-}
 variable "availability_zones" {
   default = "cn-beijing-b"
 }
@@ -51,10 +44,8 @@ module "worker-nodes" {
   datacenter = "${var.datacenter}"
   ecs_type = "${var.worker_ecs_type}"
   ecs_password = "${var.ecs_password}"
-  ssh_username = "${var.ssh_username}"
   short_name = "${var.short_name}"
   availability_zones = "${var.availability_zones}"
-  security_groups = ["${var.secrity_group}"]
   internet_charge_type = "${var.internet_charge_type}"
 }
 
