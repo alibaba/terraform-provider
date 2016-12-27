@@ -70,15 +70,16 @@ type DescribeNatGatewayResponse struct {
 	}
 }
 
-type DescribeNetGatewaysArgs struct {
+type DescribeNatGatewaysArgs struct {
 	RegionId     common.Region
 	NatGatewayId string
 	VpcId        string
 	common.Pagination
 }
 
-func DescribeNatGateways(client *ecs.Client, args *DescribeNetGatewaysArgs) (natGateways []NatGatewaySetType,
+func DescribeNatGateways(client *ecs.Client, args *DescribeNatGatewaysArgs) (natGateways []NatGatewaySetType,
 	pagination *common.PaginationResult, err error) {
+
 	args.Validate()
 	response := DescribeNatGatewayResponse{}
 

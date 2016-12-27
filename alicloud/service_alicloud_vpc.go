@@ -1,8 +1,8 @@
 package alicloud
 
 import (
-	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/ecs"
 )
 
 func (client *AliyunClient) DescribeEipAddress(allocationId string) (*ecs.EipAddressSetType, error) {
@@ -25,7 +25,7 @@ func (client *AliyunClient) DescribeEipAddress(allocationId string) (*ecs.EipAdd
 
 func (client *AliyunClient) DescribeNatGateway(natGatewayId string) (*NatGatewaySetType, error) {
 
-	args := &DescribeNetGatewaysArgs{
+	args := &DescribeNatGatewaysArgs{
 		RegionId:     client.Region,
 		NatGatewayId: natGatewayId,
 	}
@@ -62,6 +62,7 @@ func (client *AliyunClient) DescribeVpc(vpcId string) (*ecs.VpcSetType, error) {
 
 	return &vpcs[0], nil
 }
+
 // describe vswitch by param filters
 func (client *AliyunClient) QueryVswitches(args *ecs.DescribeVSwitchesArgs) (vswitches []ecs.VSwitchSetType, err error) {
 	vsws, _, err := client.ecsconn.DescribeVSwitches(args)
@@ -77,7 +78,7 @@ func (client *AliyunClient) QueryVswitches(args *ecs.DescribeVSwitchesArgs) (vsw
 
 func (client *AliyunClient) QueryVswitchById(vpcId, vswitchId string) (vsw *ecs.VSwitchSetType, err error) {
 	args := &ecs.DescribeVSwitchesArgs{
-		VpcId:    vpcId,
+		VpcId:     vpcId,
 		VSwitchId: vswitchId,
 	}
 	vsws, err := client.QueryVswitches(args)

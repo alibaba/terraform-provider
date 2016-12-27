@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -26,8 +27,9 @@ func TestAccAlicloudSlb_basic(t *testing.T) {
 
 		// module name
 		IDRefreshName: "alicloud_slb.bindwidth",
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckSlbDestroy,
+
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckSlbDestroy,
 		Steps: []resource.TestStep{
 			//test internet_charge_type is paybybandwidth
 			resource.TestStep{
@@ -84,7 +86,7 @@ func TestAccAlicloudSlb_listener(t *testing.T) {
 		return func(*terraform.State) error {
 			listenerPorts := slb.ListenerPorts.ListenerPort[0]
 			if listenerPorts != 161 {
-				return fmt.Errorf("bad loadbalancer listener: %s", listenerPorts)
+				return fmt.Errorf("bad loadbalancer listener: %#v", listenerPorts)
 			}
 
 			return nil
@@ -238,8 +240,12 @@ func testAccCheckSlbDestroy(s *terraform.State) error {
 		}
 
 		if err != nil {
+			e, _ := err.(*common.Error)
 			// Verify the error is what we want
-			return err
+			if e.ErrorResponse.Code != LoadBalancerNotFound {
+				return err
+			}
+
 		}
 
 	}
@@ -324,7 +330,7 @@ resource "alicloud_instance" "foo" {
 	internet_max_bandwidth_out = "5"
 	system_disk_category = "cloud_efficiency"
 
-	security_group_id = "${alicloud_security_group.foo.id}"
+	security_groups = ["${alicloud_security_group.foo.id}"]
 	instance_name = "test_foo"
 }
 

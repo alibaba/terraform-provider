@@ -3,12 +3,12 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/denverdino/aliyungo/ecs"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/resource"
-	"time"
 	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
 	"log"
+	"time"
 )
 
 func resourceAliyunDisk() *schema.Resource {
@@ -118,13 +118,9 @@ func resourceAliyunDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		args.DiskName = v.(string)
 	}
 
-	if v, ok := d.GetOk("name"); ok && v.(string) != "" {
-		args.DiskName = v.(string)
-	}
-
 	diskID, err := conn.CreateDisk(args)
 	if err != nil {
-		return fmt.Errorf("CreateDisk got a error: %s", err)
+		return fmt.Errorf("CreateDisk got a error: %#v", err)
 	}
 
 	d.SetId(diskID)
@@ -135,10 +131,49 @@ func resourceAliyunDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetPartial("category")
 	d.SetPartial("snapshot_id")
 
-	return resourceAliyunDiskRead(d, meta)
+	return resourceAliyunDiskUpdate(d, meta)
 }
 
 func resourceAliyunDiskRead(d *schema.ResourceData, meta interface{}) error {
+	conn := meta.(*AliyunClient).ecsconn
+
+	disks, _, err := conn.DescribeDisks(&ecs.DescribeDisksArgs{
+		RegionId: getRegion(d, meta),
+		DiskIds:  []string{d.Id()},
+	})
+
+	if err != nil {
+		if notFoundError(err) {
+			d.SetId("")
+			return nil
+		}
+		return fmt.Errorf("Error DescribeDiskAttribute: %#v", err)
+	}
+
+	log.Printf("[DEBUG] DescribeDiskAttribute for instance: %#v", disks)
+
+	if disks != nil && len(disks) > 0 {
+		disk := disks[0]
+		d.Set("availability_zone", disk.ZoneId)
+		d.Set("category", disk.Category)
+		d.Set("size", disk.Size)
+		d.Set("status", disk.Status)
+		d.Set("description", disk.Description)
+		d.Set("snapshot_id", disk.SourceSnapshotId)
+	}
+
+	tags, _, err := conn.DescribeTags(&ecs.DescribeTagsArgs{
+		RegionId:     getRegion(d, meta),
+		ResourceType: ecs.TagResourceDisk,
+		ResourceId:   d.Id(),
+	})
+
+	if err != nil {
+		log.Printf("[DEBUG] DescribeTags for disk got error: %#v", err)
+	}
+
+	log.Printf("[DEBUG] set tags")
+	d.Set("tags", tagsToMap(tags))
 
 	return nil
 }
@@ -150,19 +185,21 @@ func resourceAliyunDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 	d.Partial(true)
 
 	if err := setTags(client, ecs.TagResourceDisk, d); err != nil {
-		return err
+		log.Printf("[DEBUG] Set tags for instance got error: %#v", err)
+		return fmt.Errorf("Set tags for instance got error: %#v", err)
 	} else {
 		d.SetPartial("tags")
 	}
 
 	if d.HasChange("name") {
-		val := d.Get("description").(string)
+		val := d.Get("name").(string)
 		args := &ecs.ModifyDiskAttributeArgs{
 			DiskId:   d.Id(),
 			DiskName: val,
 		}
 
 		if err := conn.ModifyDiskAttribute(args); err != nil {
+			log.Printf("\n\n\n\n\n\n disk err: %s", err)
 			return err
 		}
 
@@ -183,24 +220,36 @@ func resourceAliyunDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.SetPartial("description")
 	}
 
+	d.Partial(false)
+
 	return resourceAliyunDiskRead(d, meta)
 }
 
 func resourceAliyunDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
-	return resource.Retry(5 * time.Minute, func() *resource.RetryError {
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteDisk(d.Id())
-		if err == nil {
+		if err != nil {
+			e, _ := err.(*common.Error)
+			if e.ErrorResponse.Code == "IncorrectDiskStatus" || e.ErrorResponse.Code == "DiskCreatingSnapshot" {
+				return resource.RetryableError(fmt.Errorf("Disk in use - trying again while it is deleted."))
+			}
+		}
+
+		disks, _, descErr := conn.DescribeDisks(&ecs.DescribeDisksArgs{
+			RegionId: getRegion(d, meta),
+			DiskIds:  []string{d.Id()},
+		})
+
+		if descErr != nil {
+			log.Printf("[ERROR] Delete disk is failed.")
+			return resource.NonRetryableError(descErr)
+		}
+		if disks == nil || len(disks) < 1 {
 			return nil
 		}
 
-		e, _ := err.(*common.Error)
-		if e.ErrorResponse.Code == "IncorrectDiskStatus" || e.ErrorResponse.Code == "DiskCreatingSnapshot" {
-			return resource.RetryableError(fmt.Errorf("Disk in use - trying again while it is deleted."))
-		}
-
-		log.Printf("[ERROR] Delete disk is failed.")
-		return resource.NonRetryableError(err)
+		return resource.RetryableError(fmt.Errorf("Disk in use - trying again while it is deleted."))
 	})
 }

@@ -33,9 +33,10 @@ func resourceAliyunInstance() *schema.Resource {
 				Required: true,
 			},
 
-			"security_group_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+			"security_groups": &schema.Schema{
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
 			},
 
 			"allocate_public_ip": &schema.Schema{
@@ -47,6 +48,7 @@ func resourceAliyunInstance() *schema.Resource {
 			"instance_name": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
+				Default:      "ECS-Instance",
 				ValidateFunc: validateInstanceName,
 			},
 
@@ -165,13 +167,12 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	instanceID, err := conn.CreateInstance(args)
 	if err != nil {
-		return fmt.Errorf("Error creating Aliyun ecs instance: %s", err)
+		return fmt.Errorf("Error creating Aliyun ecs instance: %#v", err)
 	}
 
 	d.SetId(instanceID)
 
 	d.Partial(true)
-	d.SetPartial("security_group_id")
 	d.SetPartial("instance_name")
 	d.SetPartial("description")
 	d.SetPartial("password")
@@ -188,7 +189,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	if d.Get("allocate_public_ip").(bool) {
 		ipAddress, err := conn.AllocatePublicIpAddress(d.Id())
 		if err != nil {
-			log.Printf("[DEBUG] AllocatePublicIpAddress for instance got error: %s", err)
+			log.Printf("[DEBUG] AllocatePublicIpAddress for instance got error: %#v", err)
 		} else {
 			d.Set("public_ip", ipAddress)
 		}
@@ -197,15 +198,15 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	// after instance created, its status is pending,
 	// so we need to wait it become to stopped and then start it
 	if err := conn.WaitForInstance(d.Id(), ecs.Stopped, defaultTimeout); err != nil {
-		log.Printf("[DEBUG] WaitForInstance %s got error: %s", ecs.Stopped, err)
+		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", ecs.Stopped, err)
 	}
 
 	if err := conn.StartInstance(d.Id()); err != nil {
-		return fmt.Errorf("Start instance got error: %s", err)
+		return fmt.Errorf("Start instance got error: %#v", err)
 	}
 
 	if err := conn.WaitForInstance(d.Id(), ecs.Running, defaultTimeout); err != nil {
-		log.Printf("[DEBUG] WaitForInstance %s got error: %s", ecs.Running, err)
+		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", ecs.Running, err)
 	}
 
 	return resourceAliyunInstanceUpdate(d, meta)
@@ -220,10 +221,10 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error DescribeInstanceAttribute: %s", err)
+		return fmt.Errorf("Error DescribeInstanceAttribute: %#v", err)
 	}
 
-	log.Printf("[DEBUG] DescribeInstanceAttribute for instance: %v", instance)
+	log.Printf("[DEBUG] DescribeInstanceAttribute for instance: %#v", instance)
 
 	d.Set("instance_name", instance.InstanceName)
 	d.Set("description", instance.Description)
@@ -254,7 +255,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	})
 
 	if err != nil {
-		log.Printf("[DEBUG] DescribeTags for instance got error: %s", err)
+		log.Printf("[DEBUG] DescribeTags for instance got error: %#v", err)
 	}
 
 	log.Printf("[DEBUG] set tags")
@@ -271,8 +272,8 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	d.Partial(true)
 
 	if err := setTags(client, ecs.TagResourceInstance, d); err != nil {
-		log.Printf("[DEBUG] Set tags for instance got error: %s", err)
-		return fmt.Errorf("Set tags for instance got error: %s", err)
+		log.Printf("[DEBUG] Set tags for instance got error: %#v", err)
+		return fmt.Errorf("Set tags for instance got error: %#v", err)
 	} else {
 		d.SetPartial("tags")
 	}
@@ -286,18 +287,18 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if err := conn.ModifyInstanceAttribute(args); err != nil {
-			return fmt.Errorf("Instance change password got error: %s", err)
+			return fmt.Errorf("Instance change password got error: %#v", err)
 		}
 
 		if v, ok := d.GetOk("status"); ok && v.(string) != "" {
 			if ecs.InstanceStatus(d.Get("status").(string)) == ecs.Running {
 				log.Printf("[DEBUG] RebootInstance after change password")
 				if err := conn.RebootInstance(d.Id(), false); err != nil {
-					return fmt.Errorf("RebootInstance got error: %s", err)
+					return fmt.Errorf("RebootInstance got error: %#v", err)
 				}
 
 				if err := conn.WaitForInstance(d.Id(), ecs.Running, defaultTimeout); err != nil {
-					return fmt.Errorf("WaitForInstance got error: %s", err)
+					return fmt.Errorf("WaitForInstance got error: %#v", err)
 				}
 			}
 		}
@@ -314,7 +315,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if err := conn.ModifyInstanceAttribute(args); err != nil {
-			return fmt.Errorf("Modify instance name got error: %s", err)
+			return fmt.Errorf("Modify instance name got error: %#v", err)
 		}
 
 		d.SetPartial("instance_name")
@@ -329,7 +330,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if err := conn.ModifyInstanceAttribute(args); err != nil {
-			return fmt.Errorf("Modify instance description got error: %s", err)
+			return fmt.Errorf("Modify instance description got error: %#v", err)
 		}
 
 		d.SetPartial("description")
@@ -344,10 +345,34 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if err := conn.ModifyInstanceAttribute(args); err != nil {
-			return fmt.Errorf("Modify instance host_name got error: %s", err)
+			return fmt.Errorf("Modify instance host_name got error: %#v", err)
 		}
 
 		d.SetPartial("host_name")
+	}
+
+	if d.HasChange("security_groups") {
+		o, n := d.GetChange("security_groups")
+		os := o.(*schema.Set)
+		ns := n.(*schema.Set)
+
+		rl := expandStringList(os.Difference(ns).List())
+		al := expandStringList(ns.Difference(os).List())
+
+		if len(al) > 0 {
+			err := client.JoinSecurityGroups(d.Id(), al)
+			if err != nil {
+				return err
+			}
+		}
+		if len(rl) > 0 {
+			err := client.LeaveSecurityGroups(d.Id(), rl)
+			if err != nil {
+				return err
+			}
+		}
+
+		d.SetPartial("security_groups")
 	}
 
 	d.Partial(false)
@@ -364,7 +389,7 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 		if notFoundError(err) {
 			return nil
 		}
-		return fmt.Errorf("Error DescribeInstanceAttribute: %s", err)
+		return fmt.Errorf("Error DescribeInstanceAttribute: %#v", err)
 	}
 
 	if instance.Status != ecs.Stopped {
@@ -385,13 +410,11 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.CreateInstanceArgs, error) {
-
 	client := meta.(*AliyunClient)
 
 	args := &ecs.CreateInstanceArgs{
 		RegionId:         getRegion(d, meta),
 		InstanceType:     d.Get("instance_type").(string),
-		SecurityGroupId:  d.Get("security_group_id").(string),
 		PrivateIpAddress: d.Get("private_ip").(string),
 	}
 
@@ -414,6 +437,19 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	}
 
 	args.ZoneId = zoneID
+
+	sgs, ok := d.GetOk("security_groups")
+
+	if ok {
+		sgList := expandStringList(sgs.(*schema.Set).List())
+		sg0 := sgList[0]
+		// check security group instance exist
+		_, err := client.DescribeSecurity(sg0)
+		if err == nil {
+			args.SecurityGroupId = sg0
+		}
+
+	}
 
 	systemDiskCategory := ecs.DiskCategory(d.Get("system_disk_category").(string))
 

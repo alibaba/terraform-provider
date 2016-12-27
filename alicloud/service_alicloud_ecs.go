@@ -1,9 +1,9 @@
 package alicloud
 
 import (
-	"github.com/denverdino/aliyungo/ecs"
-	"github.com/denverdino/aliyungo/common"
 	"fmt"
+	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/ecs"
 )
 
 func (client *AliyunClient) DescribeImage(imageId string) (*ecs.ImageType, error) {
@@ -108,4 +108,43 @@ func (client *AliyunClient) DiskAvailable(zone *ecs.ZoneType, diskCategory ecs.D
 		return fmt.Errorf("%s is not available in %s zone of %s region", diskCategory, zone.ZoneId, client.Region)
 	}
 	return nil
+}
+
+// todo: support syc
+func (client *AliyunClient) JoinSecurityGroups(instanceId string, securityGroupIds []string) error {
+	for _, sid := range securityGroupIds {
+		err := client.ecsconn.JoinSecurityGroup(instanceId, sid)
+		if err != nil {
+			e, _ := err.(*common.Error)
+			if e.ErrorResponse.Code != InvalidInstanceIdAlreadyExists {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (client *AliyunClient) LeaveSecurityGroups(instanceId string, securityGroupIds []string) error {
+	for _, sid := range securityGroupIds {
+		err := client.ecsconn.LeaveSecurityGroup(instanceId, sid)
+		if err != nil {
+			e, _ := err.(*common.Error)
+			if e.ErrorResponse.Code != InvalidSecurityGroupIdNotFound {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (client *AliyunClient) DescribeSecurity(securityGroupId string) (*ecs.DescribeSecurityGroupAttributeResponse, error) {
+
+	args := &ecs.DescribeSecurityGroupAttributeArgs{
+		RegionId:        client.Region,
+		SecurityGroupId: securityGroupId,
+	}
+
+	return client.ecsconn.DescribeSecurityGroupAttribute(args)
 }
