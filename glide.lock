@@ -1,5 +1,5 @@
-hash: b17ea8ac8997ea43c5b74c2c2b0b7a13411075609ae320936e714240359d8e6d
-updated: 2016-12-28T09:38:08.884982007+08:00
+hash: b037b8fa40ceeff988d0733fb00b32b910511641c8b404181dd80c219d1997d8
+updated: 2016-12-28T13:21:47.313594826+08:00
 imports:
 - name: github.com/apparentlymart/go-cidr
   version: a3ebdb999b831ecb6ab8a226e31b07b2b9061c47
@@ -84,12 +84,11 @@ imports:
 - name: github.com/hashicorp/logutils
   version: 0dc08b1671f34c4250ce212759ebd880f743d883
 - name: github.com/hashicorp/terraform
-  version: 0e43dc26f5beaac829ec94c8feaae33e5907212f
+  version: dd2c6da4f6226b5ccd0601a15bba197fc223b1ec
   subpackages:
   - config
   - config/module
   - dag
-  - dot
   - flatmap
   - helper/config
   - helper/experiment
