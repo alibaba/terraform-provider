@@ -11,8 +11,8 @@
 
 * 如果想直接使用此项目中提供的模板，可以直接下载如下编译好的二进制文件，并拷贝到与Terraform同级的目录下，如~/work/terraform_0.8.2。
 
-  * Mac OS X  [64-bit](http://tf-mac.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud )
-  * Linux  [64-bit](http://tf-linux.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud )
+  * Mac OS X  [64-bit](http://tf-mac.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
+  * Linux  [64-bit](http://tf-linux.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
   * Windows  [64-bit](http://tf-windows.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.exe)
 
 

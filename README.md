@@ -5,8 +5,8 @@ This is the official repository for the Aliyun terraform provider. Currently it 
 
 If just use the terraform-provide without develop the project, you can download the following binary package and move it into special forlder where download the Terraform PATH, such as "/usr/local/terraform".
 
-* Mac OS X  [64-bit](http://tf-mac.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud )
-* Linux  [64-bit](http://tf-linux.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud )
+* Mac OS X  [64-bit](http://tf-mac.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
+* Linux  [64-bit](http://tf-linux.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
 * Windows  [64-bit](http://tf-windows.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.exe)
 
 Currently it is under active development and must be installed as described in the [developer notes](#developer-notes).
