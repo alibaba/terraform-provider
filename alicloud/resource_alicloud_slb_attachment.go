@@ -1,6 +1,7 @@
 package alicloud
 
 import (
+	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 )
@@ -40,7 +41,7 @@ func resourceAliyunSlbAttachmentCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		if notFoundError(err) {
 			d.SetId("")
-			return nil
+			return fmt.Errorf("Special SLB Id not found: %#v", err)
 		}
 
 		return err
@@ -67,8 +68,8 @@ func resourceAliyunSlbAttachmentRead(d *schema.ResourceData, meta interface{}) e
 	backendServerType := loadBalancer.BackendServers
 	log.Printf("backendserver: %s", backendServerType)
 	servers := backendServerType.BackendServer
+	instanceIds := make([]string, 0, len(servers))
 	if len(servers) > 0 {
-		instanceIds := make([]string, 0, len(servers))
 		for _, e := range servers {
 			instanceIds = append(instanceIds, e.ServerId)
 		}
@@ -76,9 +77,9 @@ func resourceAliyunSlbAttachmentRead(d *schema.ResourceData, meta interface{}) e
 			return err
 		}
 		log.Printf("read instances: %s", instanceIds)
-		d.Set("instances", instanceIds)
-
 	}
+
+	d.Set("instances", instanceIds)
 
 	return nil
 }
@@ -92,6 +93,9 @@ func resourceAliyunSlbAttachmentUpdate(d *schema.ResourceData, meta interface{})
 		ns := n.(*schema.Set)
 		remove := expandBackendServers(os.Difference(ns).List())
 		add := expandBackendServers(ns.Difference(os).List())
+
+		log.Printf("[WARN]remove backendserver:%v#", remove)
+		log.Printf("[WARN]add backendserver:%v#", add)
 
 		if len(add) > 0 {
 			_, err := slbconn.AddBackendServers(d.Id(), add)

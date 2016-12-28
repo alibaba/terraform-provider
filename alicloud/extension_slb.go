@@ -63,7 +63,9 @@ func expandListeners(configured []interface{}) ([]*Listener, error) {
 func expandBackendServers(list []interface{}) []slb.BackendServerType {
 	result := make([]slb.BackendServerType, 0, len(list))
 	for _, i := range list {
-		result = append(result, slb.BackendServerType{ServerId: i.(string), Weight: 100})
+		if i.(string) != "" {
+			result = append(result, slb.BackendServerType{ServerId: i.(string), Weight: 100})
+		}
 	}
 	return result
 }

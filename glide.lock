@@ -1,38 +1,38 @@
-hash: b17ea8ac8997ea43c5b74c2c2b0b7a13411075609ae320936e714240359d8e6d
-updated: 2016-12-27T18:46:33.289242637+08:00
+hash: b037b8fa40ceeff988d0733fb00b32b910511641c8b404181dd80c219d1997d8
+updated: 2016-12-28T13:21:47.313594826+08:00
 imports:
 - name: github.com/apparentlymart/go-cidr
   version: a3ebdb999b831ecb6ab8a226e31b07b2b9061c47
   subpackages:
   - cidr
 - name: github.com/aws/aws-sdk-go
-  version: 9a0c8a57d9bb717d481bc91f995df80d9bb9238c
+  version: 34836244f5c4e694b99d1a81898af5559a3c9c6d
   subpackages:
   - aws
-  - aws/credentials
-  - aws/credentials/ec2rolecreds
-  - aws/ec2metadata
-  - aws/session
-  - service/s3
   - aws/awserr
-  - aws/endpoints
+  - aws/awsutil
   - aws/client
   - aws/client/metadata
-  - aws/request
   - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
   - aws/credentials/stscreds
   - aws/defaults
-  - aws/awsutil
+  - aws/ec2metadata
+  - aws/endpoints
+  - aws/request
+  - aws/session
   - aws/signer/v4
   - private/protocol
-  - private/protocol/restxml
-  - private/waiter
-  - service/sts
-  - aws/credentials/endpointcreds
-  - private/protocol/rest
   - private/protocol/query
-  - private/protocol/xml/xmlutil
   - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/restxml
+  - private/protocol/xml/xmlutil
+  - private/waiter
+  - service/s3
+  - service/sts
 - name: github.com/bgentry/go-netrc
   version: 9fd32a8b3d3d3f9d43c341bfe098430e07609480
   subpackages:
@@ -69,10 +69,10 @@ imports:
   subpackages:
   - hcl/ast
   - hcl/parser
-  - hcl/token
-  - json/parser
   - hcl/scanner
   - hcl/strconv
+  - hcl/token
+  - json/parser
   - json/scanner
   - json/token
 - name: github.com/hashicorp/hil
@@ -84,24 +84,23 @@ imports:
 - name: github.com/hashicorp/logutils
   version: 0dc08b1671f34c4250ce212759ebd880f743d883
 - name: github.com/hashicorp/terraform
-  version: 0e43dc26f5beaac829ec94c8feaae33e5907212f
+  version: dd2c6da4f6226b5ccd0601a15bba197fc223b1ec
   subpackages:
-  - plugin
+  - config
+  - config/module
+  - dag
+  - flatmap
+  - helper/config
+  - helper/experiment
   - helper/hashcode
+  - helper/hilmapstructure
+  - helper/logging
   - helper/mutexkv
   - helper/resource
   - helper/schema
-  - terraform
-  - config/module
-  - helper/config
-  - helper/logging
-  - config
-  - dag
-  - dot
-  - flatmap
-  - helper/experiment
-  - helper/hilmapstructure
   - helper/shadow
+  - plugin
+  - terraform
 - name: github.com/hashicorp/yamux
   version: d1caa6c97c9fc1cc9e83bbe34d0603f9ff0ce8bd
 - name: github.com/jmespath/go-jmespath
@@ -116,4 +115,4 @@ imports:
   version: 9ad27c461a633e32a235a061d523aefe8f18571d
 - name: github.com/satori/go.uuid
   version: b061729afc07e77a8aa4fad0a2fd840958f1942a
-devImports: []
+testImports: []
