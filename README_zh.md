@@ -4,11 +4,16 @@
 * Terraform是HashiCorp公司出品的，著名Vagrant、Packer工具也出自于该公司。Terraform是“基础设施即代码”的开源工具，通过模板定义“基础设施”，目前已支持AWS、Azure、OpenStack等主流云平台，这个项目是阿里云官方出品，利用Terraform创建阿里云的资源。
 
 ### 安装 Terraform
+* Alicloud terraform provider 当前支持的 Terraform 的版本 ≥ v0.8.2
 * 安装Terraform可参考：https://www.terraform.io/intro/getting-started/install.html
 		
-* 注意：设置环境变量时，需要指向terraform所在的父目录，如：terraform的路径是"~/work/terraform_0.7.10"，则指定环境时设定为export PATH=$PATH:~/work/terraform_0.7.10
+* 注意：设置环境变量时，需要指向terraform所在的父目录，如：terraform的路径是"~/work/terraform_0.8.2"，则指定环境时设定为export PATH=$PATH:~/work/terraform_0.8.2
 
-* 如果想直接使用此项目中提供的模板，可以直接下载编译好的[terraform-alicloud-provider](http://opensource-tf.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud)文件，并拷贝到与Terraform同级的目录下，如~/work/terraform_0.7.10。
+* 如果想直接使用此项目中提供的模板，可以直接下载如下编译好的二进制文件，并拷贝到与Terraform同级的目录下，如~/work/terraform_0.8.2。
+
+  * Mac OS X  [64-bit](http://tf-mac.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
+  * Linux  [64-bit](http://tf-linux.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
+  * Windows  [64-bit](http://tf-windows.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.exe)
 
 
 ### 安装GoLang运行环境
@@ -51,6 +56,7 @@
 
 
 ### 如何贡献代码
+* 如果您在使用的过程中遇到任何问题，可直接通过 submit issue 或者 pull request进行询问，我们将尽快予以解决。
 * 我们欢迎有更多的开发者贡献代码，包括GoLang的源码及Terraform的模板。Fork此项目，然后提交pull request，我们review代码后，即可合并进主干。
 
 ### 贡献者
