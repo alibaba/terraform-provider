@@ -1,9 +1,13 @@
 ## Aliyun (Alibaba Cloud) terraform provider
 
 
-This is the official repository for the Aliyun terraform provider.
+This is the official repository for the Aliyun terraform provider. Currently it supports terraform version ≥ v0.8.2 .
 
-If just use the terraform-provide without develop the project, you can download the binary package [terraform-alicloud-provider](http://opensource-tf.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud) and move it into special forlder where download the Terraform PATH, such as "/usr/local/terraform"
+If just use the terraform-provide without develop the project, you can download the following binary package and move it into special forlder where download the Terraform PATH, such as "/usr/local/terraform".
+
+* Mac OS X  [64-bit](http://tf-mac.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud )
+* Linux  [64-bit](http://tf-linux.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud )
+* Windows  [64-bit](http://tf-windows.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.exe)
 
 Currently it is under active development and must be installed as described in the [developer notes](#developer-notes).
 
@@ -67,6 +71,7 @@ sudo -E "PATH=$PATH" make all
 
 
 ### How to contribute code
+* If you're unsure or afraid of anything, just ask or submit the issue or pull request anyways. We appreciate any sort of contributions, and don't want a wall of rules to get in the way of that.
 * Contributions are welcome and will be merged via PRs.
 
 ### Contributors
