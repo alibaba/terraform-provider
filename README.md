@@ -27,12 +27,11 @@ Example modules can be found in the [terraform/examples](terraform/examples) dir
 ```
 cd $GOPATH
 mkdir -p src/github.com/alibaba
-cd src/github.com/alibaba
+cd $GOPATH/src/github.com/alibaba
 git clone https://github.com/alibaba/terraform-provider.git
-mv terraform-provider src/github.com/alibaba
 
 # switch to project
-cd src/github.com/alibaba/terraform-provider
+cd $GOPATH/src/github.com/alibaba/terraform-provider
 
 # get all dependencies and install modules
 go get ./...
@@ -41,13 +40,11 @@ sudo -E "PATH=$PATH" make all
 terraform get
 
 # set the creds
-cat > my.tfvars <<EOF
-ali_access_key = "YOUR_KEY"
-ali_secret_key = "YOUR_SECRET"
-EOF
+export TF_VAR_ali_access_key="***"
+export TF_VAR_ali_secret_key="***"
 
 # you're good to start rocking
-# alicloud.tf contains some examples
+# alicloud.tf contains the default example
 terraform plan
 # terraform apply
 # terraform destroy
