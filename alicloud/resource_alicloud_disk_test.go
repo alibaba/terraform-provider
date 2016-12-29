@@ -54,7 +54,7 @@ func TestAccAlicloudDisk_withTags(t *testing.T) {
 		},
 
 		//module name
-		IDRefreshName: "alicloud_disk.foo",
+		IDRefreshName: "alicloud_disk.bar",
 
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDiskDestroy,
@@ -62,9 +62,9 @@ func TestAccAlicloudDisk_withTags(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDiskConfigWithTags,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDiskExists("alicloud_disk.foo", &v),
+					testAccCheckDiskExists("alicloud_disk.bar", &v),
 					resource.TestCheckResourceAttr(
-						"alicloud_disk.foo",
+						"alicloud_disk.bar",
 						"tags.Name",
 						"TerraformTest"),
 				),
@@ -147,7 +147,7 @@ resource "alicloud_disk" "foo" {
 }
 `
 const testAccDiskConfigWithTags = `
-resource "alicloud_disk" "foo" {
+resource "alicloud_disk" "bar" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
         size = "10"

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestAccAlicloudDiskAttchment(t *testing.T) {
+func TestAccAlicloudDiskAttachment(t *testing.T) {
 	var i ecs.InstanceAttributesType
 	var v ecs.DiskItemType
 	// todo: create volume

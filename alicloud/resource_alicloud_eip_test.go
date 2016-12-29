@@ -32,6 +32,18 @@ func TestAccAlicloudEIP_basic(t *testing.T) {
 					testAccCheckEIPAttributes(&eip),
 				),
 			},
+			resource.TestStep{
+				Config: testAccEIPConfigTwo,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckEIPExists(
+						"alicloud_eip.foo", &eip),
+					testAccCheckEIPAttributes(&eip),
+					resource.TestCheckResourceAttr(
+						"alicloud_eip.foo",
+						"band_width",
+						"10"),
+				),
+			},
 		},
 	})
 
@@ -108,5 +120,12 @@ func testAccCheckEIPDestroy(s *terraform.State) error {
 
 const testAccEIPConfig = `
 resource "alicloud_eip" "foo" {
+}
+`
+
+const testAccEIPConfigTwo = `
+resource "alicloud_eip" "foo" {
+    band_width = "10"
+    internet_charge_type = "PayByBandwidth"
 }
 `
