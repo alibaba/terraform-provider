@@ -174,7 +174,7 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 		if v, ok := d.GetOk("name"); ok {
 			name = v.(string)
 		} else {
-			return fmt.Errorf("can to change name to empty string")
+			return fmt.Errorf("cann't change name to empty string")
 		}
 
 		args := &ModifyNatGatewayAttributeArgs{

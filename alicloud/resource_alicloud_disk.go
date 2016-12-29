@@ -98,22 +98,17 @@ func resourceAliyunDiskCreate(d *schema.ResourceData, meta interface{}) error {
 			args.DiskCategory == ecs.DiskCategoryCloudSSD) && (size < 20 || size > 32768) {
 			return fmt.Errorf("the size of %s disk must between 20 to 32768", args.DiskCategory)
 		}
-
 		args.Size = size
-	} else {
-		if args.DiskCategory == ecs.DiskCategoryCloud {
-			args.Size = 5
-		}
-		if args.DiskCategory == ecs.DiskCategoryCloudEfficiency ||
-			args.DiskCategory == ecs.DiskCategoryCloudSSD {
-			args.Size = 20
-		}
 
 		d.Set("size", args.Size)
 	}
 
 	if v, ok := d.GetOk("snapshot_id"); ok && v.(string) != "" {
 		args.SnapshotId = v.(string)
+	}
+
+	if args.Size <= 0 && args.SnapshotId == "" {
+		return fmt.Errorf("One of size or snapshot_id is required when specifying an ECS disk.")
 	}
 
 	if v, ok := d.GetOk("name"); ok && v.(string) != "" {
