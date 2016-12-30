@@ -65,7 +65,6 @@ func resourceAliyunDisk() *schema.Resource {
 }
 
 func resourceAliyunDiskCreate(d *schema.ResourceData, meta interface{}) error {
-
 	client := meta.(*AliyunClient)
 
 	conn := client.ecsconn
