@@ -40,8 +40,8 @@ sudo -E "PATH=$PATH" make all
 terraform get
 
 # set the creds
-export TF_VAR_ali_access_key="***"
-export TF_VAR_ali_secret_key="***"
+export ALICLOUD_ACCESS_KEY="***"
+export ALICLOUD_SECRET_KEY="***"
 
 # you're good to start rocking
 # alicloud.tf contains the default example
