@@ -158,6 +158,7 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 	d.SetPartial("internet_charge_type")
 	d.SetPartial("bandwidth")
 	d.SetPartial("vswitch_id")
+	d.SetPartial("address")
 
 	return resourceAliyunSlbUpdate(d, meta)
 }
