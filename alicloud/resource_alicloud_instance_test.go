@@ -13,15 +13,15 @@ import (
 )
 
 func TestAccAlicloudInstance_basic(t *testing.T) {
-	var v ecs.InstanceAttributesType
-	// todo: create and mount volume
+	var instance ecs.InstanceAttributesType
 
 	testCheck := func(*terraform.State) error {
-		if v.ZoneId == "" {
+		log.Printf("[WARN] instances: %#v", instance)
+		if instance.ZoneId == "" {
 			return fmt.Errorf("bad availability zone")
 		}
-		if len(v.SecurityGroupIds.SecurityGroupId) == 0 {
-			return fmt.Errorf("no security group: %#v", v.SecurityGroupIds.SecurityGroupId)
+		if len(instance.SecurityGroupIds.SecurityGroupId) == 0 {
+			return fmt.Errorf("no security group: %#v", instance.SecurityGroupIds.SecurityGroupId)
 		}
 
 		return nil
@@ -42,12 +42,12 @@ func TestAccAlicloudInstance_basic(t *testing.T) {
 				Config: testAccInstanceConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists(
-						"alicloud_instance.foo", &v),
+						"alicloud_instance.foo", &instance),
 					testCheck,
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"image_id",
-						"ubuntu1404_64_40G_cloudinit_20160727.raw"),
+						"ubuntu_140405_32_40G_cloudinit_20161115.vhd"),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -60,12 +60,12 @@ func TestAccAlicloudInstance_basic(t *testing.T) {
 				Config: testAccInstanceConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists(
-						"alicloud_instance.foo", &v),
+						"alicloud_instance.foo", &instance),
 					testCheck,
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"image_id",
-						"ubuntu1404_64_40G_cloudinit_20160727.raw"),
+						"ubuntu_140405_32_40G_cloudinit_20161115.vhd"),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -78,7 +78,7 @@ func TestAccAlicloudInstance_basic(t *testing.T) {
 }
 
 func TestAccAlicloudInstance_vpc(t *testing.T) {
-	var v ecs.InstanceAttributesType
+	var instance ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -92,7 +92,7 @@ func TestAccAlicloudInstance_vpc(t *testing.T) {
 				Config: testAccInstanceConfigVPC,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists(
-						"alicloud_instance.foo", &v),
+						"alicloud_instance.foo", &instance),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_network_type",
@@ -104,7 +104,7 @@ func TestAccAlicloudInstance_vpc(t *testing.T) {
 }
 
 func TestAccAlicloudInstance_multipleRegions(t *testing.T) {
-	var v ecs.InstanceAttributesType
+	var instance ecs.InstanceAttributesType
 
 	// multi provideris
 	var providers []*schema.Provider
@@ -127,9 +127,9 @@ func TestAccAlicloudInstance_multipleRegions(t *testing.T) {
 				Config: testAccInstanceConfigMultipleRegions,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExistsWithProviders(
-						"alicloud_instance.foo", &v, &providers),
+						"alicloud_instance.foo", &instance, &providers),
 					testAccCheckInstanceExistsWithProviders(
-						"alicloud_instance.bar", &v, &providers),
+						"alicloud_instance.bar", &instance, &providers),
 				),
 			},
 		},
@@ -137,16 +137,16 @@ func TestAccAlicloudInstance_multipleRegions(t *testing.T) {
 }
 
 func TestAccAlicloudInstance_multiSecurityGroup(t *testing.T) {
-	var v ecs.InstanceAttributesType
+	var instance ecs.InstanceAttributesType
 
 	testCheck := func(sgCount int) resource.TestCheckFunc {
 		return func(*terraform.State) error {
-			if len(v.SecurityGroupIds.SecurityGroupId) < 0 {
-				return fmt.Errorf("no security group: %#v", v.SecurityGroupIds.SecurityGroupId)
+			if len(instance.SecurityGroupIds.SecurityGroupId) < 0 {
+				return fmt.Errorf("no security group: %#v", instance.SecurityGroupIds.SecurityGroupId)
 			}
 
-			if len(v.SecurityGroupIds.SecurityGroupId) < sgCount {
-				return fmt.Errorf("less security group: %#v", v.SecurityGroupIds.SecurityGroupId)
+			if len(instance.SecurityGroupIds.SecurityGroupId) < sgCount {
+				return fmt.Errorf("less security group: %#v", instance.SecurityGroupIds.SecurityGroupId)
 			}
 
 			return nil
@@ -168,12 +168,12 @@ func TestAccAlicloudInstance_multiSecurityGroup(t *testing.T) {
 				Config: testAccInstanceConfig_multiSecurityGroup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists(
-						"alicloud_instance.foo", &v),
+						"alicloud_instance.foo", &instance),
 					testCheck(2),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"image_id",
-						"ubuntu1404_64_40G_cloudinit_20160727.raw"),
+						"ubuntu_140405_32_40G_cloudinit_20161115.vhd"),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -184,12 +184,12 @@ func TestAccAlicloudInstance_multiSecurityGroup(t *testing.T) {
 				Config: testAccInstanceConfig_multiSecurityGroup_add,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists(
-						"alicloud_instance.foo", &v),
+						"alicloud_instance.foo", &instance),
 					testCheck(3),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"image_id",
-						"ubuntu1404_64_40G_cloudinit_20160727.raw"),
+						"ubuntu_140405_32_40G_cloudinit_20161115.vhd"),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -200,12 +200,12 @@ func TestAccAlicloudInstance_multiSecurityGroup(t *testing.T) {
 				Config: testAccInstanceConfig_multiSecurityGroup_remove,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists(
-						"alicloud_instance.foo", &v),
+						"alicloud_instance.foo", &instance),
 					testCheck(1),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"image_id",
-						"ubuntu1404_64_40G_cloudinit_20160727.raw"),
+						"ubuntu_140405_32_40G_cloudinit_20161115.vhd"),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -218,16 +218,16 @@ func TestAccAlicloudInstance_multiSecurityGroup(t *testing.T) {
 }
 
 func TestAccAlicloudInstance_multiSecurityGroupByCount(t *testing.T) {
-	var v ecs.InstanceAttributesType
+	var instance ecs.InstanceAttributesType
 
 	testCheck := func(sgCount int) resource.TestCheckFunc {
 		return func(*terraform.State) error {
-			if len(v.SecurityGroupIds.SecurityGroupId) < 0 {
-				return fmt.Errorf("no security group: %#v", v.SecurityGroupIds.SecurityGroupId)
+			if len(instance.SecurityGroupIds.SecurityGroupId) < 0 {
+				return fmt.Errorf("no security group: %#v", instance.SecurityGroupIds.SecurityGroupId)
 			}
 
-			if len(v.SecurityGroupIds.SecurityGroupId) < sgCount {
-				return fmt.Errorf("less security group: %#v", v.SecurityGroupIds.SecurityGroupId)
+			if len(instance.SecurityGroupIds.SecurityGroupId) < sgCount {
+				return fmt.Errorf("less security group: %#v", instance.SecurityGroupIds.SecurityGroupId)
 			}
 
 			return nil
@@ -249,12 +249,12 @@ func TestAccAlicloudInstance_multiSecurityGroupByCount(t *testing.T) {
 				Config: testAccInstanceConfig_multiSecurityGroupByCount,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists(
-						"alicloud_instance.foo", &v),
+						"alicloud_instance.foo", &instance),
 					testCheck(2),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"image_id",
-						"ubuntu1404_64_40G_cloudinit_20160727.raw"),
+						"ubuntu_140405_32_40G_cloudinit_20161115.vhd"),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -267,7 +267,7 @@ func TestAccAlicloudInstance_multiSecurityGroupByCount(t *testing.T) {
 }
 
 func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
-	var v ecs.InstanceAttributesType
+	var instance ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -281,7 +281,7 @@ func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
 				Config: testAccInstanceNetworkInstanceSecurityGroups,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists(
-						"alicloud_instance.foo", &v),
+						"alicloud_instance.foo", &instance),
 				),
 			},
 		},
@@ -289,7 +289,7 @@ func TestAccAlicloudInstance_NetworkInstanceSecurityGroups(t *testing.T) {
 }
 
 func TestAccAlicloudInstance_tags(t *testing.T) {
-	var v ecs.InstanceAttributesType
+	var instance ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -301,7 +301,7 @@ func TestAccAlicloudInstance_tags(t *testing.T) {
 			resource.TestStep{
 				Config: testAccCheckInstanceConfigTags,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					testAccCheckInstanceExists("alicloud_instance.foo", &instance),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"tags.foo",
@@ -312,7 +312,7 @@ func TestAccAlicloudInstance_tags(t *testing.T) {
 			resource.TestStep{
 				Config: testAccCheckInstanceConfigTagsUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					testAccCheckInstanceExists("alicloud_instance.foo", &instance),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"tags.foo",
@@ -328,7 +328,7 @@ func TestAccAlicloudInstance_tags(t *testing.T) {
 }
 
 func TestAccAlicloudInstance_update(t *testing.T) {
-	var v ecs.InstanceAttributesType
+	var instance ecs.InstanceAttributesType
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -340,7 +340,7 @@ func TestAccAlicloudInstance_update(t *testing.T) {
 			resource.TestStep{
 				Config: testAccCheckInstanceConfigOrigin,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					testAccCheckInstanceExists("alicloud_instance.foo", &instance),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -355,7 +355,7 @@ func TestAccAlicloudInstance_update(t *testing.T) {
 			resource.TestStep{
 				Config: testAccCheckInstanceConfigOriginUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					testAccCheckInstanceExists("alicloud_instance.foo", &instance),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
 						"instance_name",
@@ -371,11 +371,11 @@ func TestAccAlicloudInstance_update(t *testing.T) {
 }
 
 func TestAccAlicloudInstance_privateIP(t *testing.T) {
-	var v ecs.InstanceAttributesType
+	var instance ecs.InstanceAttributesType
 
 	testCheckPrivateIP := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
-			privateIP := v.VpcAttributes.PrivateIpAddress.IpAddress[0]
+			privateIP := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
 			if privateIP != "172.16.0.229" {
 				return fmt.Errorf("bad private IP: %s", privateIP)
 			}
@@ -395,7 +395,7 @@ func TestAccAlicloudInstance_privateIP(t *testing.T) {
 			resource.TestStep{
 				Config: testAccInstanceConfigPrivateIP,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					testAccCheckInstanceExists("alicloud_instance.foo", &instance),
 					testCheckPrivateIP(),
 				),
 			},
@@ -404,11 +404,11 @@ func TestAccAlicloudInstance_privateIP(t *testing.T) {
 }
 
 func TestAccAlicloudInstance_associatePublicIPAndPrivateIP(t *testing.T) {
-	var v ecs.InstanceAttributesType
+	var instance ecs.InstanceAttributesType
 
 	testCheckPrivateIP := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
-			privateIP := v.VpcAttributes.PrivateIpAddress.IpAddress[0]
+			privateIP := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
 			if privateIP != "172.16.0.229" {
 				return fmt.Errorf("bad private IP: %s", privateIP)
 			}
@@ -428,7 +428,7 @@ func TestAccAlicloudInstance_associatePublicIPAndPrivateIP(t *testing.T) {
 			resource.TestStep{
 				Config: testAccInstanceConfigAssociatePublicIPAndPrivateIP,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckInstanceExists("alicloud_instance.foo", &v),
+					testAccCheckInstanceExists("alicloud_instance.foo", &instance),
 					testCheckPrivateIP(),
 				),
 			},
@@ -541,7 +541,7 @@ resource "alicloud_security_group" "tf_test_bar" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	system_disk_category = "cloud_ssd"
 
@@ -550,6 +550,11 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
+
+	tags {
+		foo = "bar"
+		work = "test"
+	}
 }
 `
 const testAccInstanceConfigVPC = `
@@ -574,7 +579,7 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	vswitch_id = "${alicloud_vswitch.foo.id}"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
 	instance_type = "ecs.n1.medium"
@@ -613,7 +618,7 @@ resource "alicloud_instance" "foo" {
   # cn-beijing
   provider = "alicloud.beijing"
   availability_zone = "cn-beijing-b"
-  image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+  image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
   instance_network_type = "Classic"
   internet_charge_type = "PayByBandwidth"
@@ -629,7 +634,7 @@ resource "alicloud_instance" "bar" {
 	# cn-shanghai
 	provider = "alicloud.shanghai"
 	availability_zone = "cn-shanghai-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	instance_network_type = "Classic"
 	internet_charge_type = "PayByBandwidth"
@@ -656,7 +661,7 @@ resource "alicloud_security_group" "tf_test_bar" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	instance_type = "ecs.s2.large"
 	instance_network_type = "Classic"
@@ -684,7 +689,7 @@ resource "alicloud_security_group" "tf_test_add_sg" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	instance_type = "ecs.s2.large"
 	instance_network_type = "Classic"
@@ -704,7 +709,7 @@ resource "alicloud_security_group" "tf_test_foo" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	instance_type = "ecs.s2.large"
 	instance_network_type = "Classic"
@@ -724,7 +729,7 @@ resource "alicloud_security_group" "tf_test_foo" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	instance_type = "ecs.s2.large"
 	instance_network_type = "Classic"
@@ -756,7 +761,7 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	vswitch_id = "${alicloud_vswitch.foo.id}"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
 	instance_type = "ecs.n1.medium"
@@ -779,7 +784,7 @@ resource "alicloud_security_group" "tf_test_foo" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
 	instance_type = "ecs.n1.medium"
@@ -805,7 +810,7 @@ resource "alicloud_security_group" "tf_test_foo" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
 	instance_type = "ecs.n1.medium"
@@ -830,7 +835,7 @@ resource "alicloud_security_group" "tf_test_foo" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
 	instance_type = "ecs.n1.medium"
@@ -854,7 +859,7 @@ resource "alicloud_security_group" "tf_test_foo" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
 	instance_type = "ecs.n1.medium"
@@ -900,7 +905,7 @@ resource "alicloud_instance" "foo" {
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	system_disk_category = "cloud_efficiency"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 	instance_name = "test_foo"
 }
 `
@@ -936,7 +941,7 @@ resource "alicloud_instance" "foo" {
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	system_disk_category = "cloud_efficiency"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 	instance_name = "test_foo"
 }
 `

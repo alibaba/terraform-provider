@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -37,7 +38,7 @@ func resourceAliyunNatGateway() *schema.Resource {
 				Optional: true,
 			},
 
-			"bandwidth_package_id": &schema.Schema{
+			"bandwidth_package_ids": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -132,8 +133,8 @@ func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) er
 	d.SetPartial("bandwidth_packages")
 
 	//d.Set("bandwidth_package_id", resp.BandwidthPackageIds.BandwidthPackageId[0])
-	d.SetPartial("bandwidth_package_id")
-
+	d.SetPartial("bandwidth_package_ids")
+	d.Partial(false)
 	return resourceAliyunNatGatewayRead(d, meta)
 }
 
@@ -152,7 +153,7 @@ func resourceAliyunNatGatewayRead(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("name", natGateway.Name)
 	d.Set("spec", natGateway.Spec)
-	d.Set("bandwidth_package_ids", natGateway.BandwidthPackageIds.BandwidthPackageId)
+	d.Set("bandwidth_package_ids", strings.Join(natGateway.BandwidthPackageIds.BandwidthPackageId, ","))
 	d.Set("description", natGateway.Description)
 
 	return nil
@@ -174,7 +175,7 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 		if v, ok := d.GetOk("name"); ok {
 			name = v.(string)
 		} else {
-			return fmt.Errorf("can to change name to empty string")
+			return fmt.Errorf("cann't change name to empty string")
 		}
 
 		args := &ModifyNatGatewayAttributeArgs{
@@ -235,8 +236,9 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 
 		d.SetPartial("spec")
 	}
+	d.Partial(false)
 
-	return nil
+	return resourceAliyunNatGatewayRead(d, meta)
 }
 
 func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) error {

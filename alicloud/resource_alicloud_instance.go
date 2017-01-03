@@ -7,6 +7,7 @@ import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
+	"strings"
 )
 
 func resourceAliyunInstance() *schema.Resource {
@@ -96,6 +97,7 @@ func resourceAliyunInstance() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateIoOptimized,
+				Computed:     true,
 			},
 
 			"system_disk_category": &schema.Schema{
@@ -115,6 +117,7 @@ func resourceAliyunInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true, //add this schema cause subnet_id not used enter parameter, will different, so will be ForceNew
 			},
 
 			"vswitch_id": &schema.Schema{
@@ -153,6 +156,11 @@ func resourceAliyunInstance() *schema.Resource {
 			},
 
 			"tags": tagsSchema(),
+
+			"output_tags": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -179,12 +187,23 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	if d.Get("subnet_id") != "" || d.Get("vswitch_id") != "" {
 		d.SetPartial("subnet_id")
 		d.SetPartial("vswitch_id")
+		if InstanceNetWork(d.Get("instance_network_type").(string)) != VpcNet {
+			return fmt.Errorf("if vswitch_id set value then the instance_network_type must be set : %s", VpcNet)
+		}
 	}
 	d.SetPartial("system_disk_category")
 	d.SetPartial("instance_charge_type")
 	d.SetPartial("internet_charge_type")
 	d.SetPartial("availability_zone")
 	d.SetPartial("allocate_public_ip")
+	d.SetPartial("instance_network_type")
+	d.SetPartial("internet_max_bandwidth_in")
+	d.SetPartial("status")
+	d.SetPartial("io_optimized")
+	d.SetPartial("private_ip")
+	d.SetPartial("tags")
+	d.SetPartial("output_tags")
+	d.SetPartial("public_ip")
 
 	if d.Get("allocate_public_ip").(bool) {
 		ipAddress, err := conn.AllocatePublicIpAddress(d.Id())
@@ -234,18 +253,25 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("image_id", instance.ImageId)
 	d.Set("instance_type", instance.InstanceType)
 	d.Set("internet_charge_type", instance.InternetChargeType)
-	log.Printf("io_optimize:%s", instance.IoOptimized)
-	d.Set("io_optimized", instance.IoOptimized)
 
+	if ecs.StringOrBool(instance.IoOptimized).Value {
+		d.Set("io_optimized", "optimized")
+	} else {
+		d.Set("io_optimized", "none")
+	}
 	d.Set("host_name", instance.HostName)
 
+	log.Printf("instance.InternetChargeType: %#v", instance.InternetChargeType)
+
 	// private ip only support vpc instance
-	if d.Get("instance_network_type") == VpcNet {
-		d.Set("private_ip", instance.VpcAttributes.PrivateIpAddress.IpAddress[0])
+	if InstanceNetWork(d.Get("instance_network_type").(string)) == VpcNet {
+		ipAddress := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
+		d.Set("private_ip", ipAddress)
 		d.Set("subnet_id", instance.VpcAttributes.VSwitchId)
 		d.Set("vswitch_id", instance.VpcAttributes.VSwitchId)
 	} else {
-		d.Set("private_ip", instance.InnerIpAddress)
+		ipAddress := strings.Join(ecs.IpAddressSetType(instance.InnerIpAddress).IpAddress, ",")
+		d.Set("private_ip", ipAddress)
 	}
 
 	tags, _, err := conn.DescribeTags(&ecs.DescribeTagsArgs{
@@ -257,9 +283,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if err != nil {
 		log.Printf("[DEBUG] DescribeTags for instance got error: %#v", err)
 	}
-
-	log.Printf("[DEBUG] set tags")
-	d.Set("tags", tagsToMap(tags))
+	d.Set("output_tags", tagsToString(tags))
 
 	return nil
 }
@@ -376,7 +400,6 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.Partial(false)
-
 	return resourceAliyunInstanceRead(d, meta)
 }
 
@@ -419,9 +442,9 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	}
 
 	imageID := d.Get("image_id").(string)
-	if _, err := client.DescribeImage(imageID); err != nil {
-		return nil, err
-	}
+	//if _, err := client.DescribeImage(imageID); err != nil {
+	//	return nil, err
+	//}
 
 	args.ImageId = imageID
 

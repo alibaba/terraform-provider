@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestAccAlicloudDiskAttchment(t *testing.T) {
+func TestAccAlicloudDiskAttachment(t *testing.T) {
 	var i ecs.InstanceAttributesType
 	var v ecs.DiskItemType
 	// todo: create volume
@@ -131,7 +131,7 @@ resource "alicloud_disk" "disk" {
 }
 
 resource "alicloud_instance" "instance" {
-  image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+  image_id = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
   instance_type = "ecs.s1.small"
   availability_zone = "cn-beijing-a"
   security_groups = ["${alicloud_security_group.group.id}"]
