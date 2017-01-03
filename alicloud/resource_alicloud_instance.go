@@ -188,7 +188,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		d.SetPartial("subnet_id")
 		d.SetPartial("vswitch_id")
 		if InstanceNetWork(d.Get("instance_network_type").(string)) != VpcNet {
-			return fmt.Errorf("if vswitch_id set value then the instance_network_type must set : %s", VpcNet)
+			return fmt.Errorf("if vswitch_id set value then the instance_network_type must be set : %s", VpcNet)
 		}
 	}
 	d.SetPartial("system_disk_category")
@@ -442,9 +442,9 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	}
 
 	imageID := d.Get("image_id").(string)
-	if _, err := client.DescribeImage(imageID); err != nil {
-		return nil, err
-	}
+	//if _, err := client.DescribeImage(imageID); err != nil {
+	//	return nil, err
+	//}
 
 	args.ImageId = imageID
 
