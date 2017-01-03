@@ -5,7 +5,3 @@ output "hostname_list" {
 output "ecs_ids" {
   value = "${join(",", alicloud_instance.instance.*.id)}"
 }
-
-output "ecs_public_ip" {
-  value = "${join(",", alicloud_instance.instance.*.public_ip)}"
-}

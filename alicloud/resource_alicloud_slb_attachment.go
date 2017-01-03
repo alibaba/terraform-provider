@@ -3,7 +3,7 @@ package alicloud
 import (
 	"fmt"
 	"github.com/hashicorp/terraform/helper/schema"
-	"log"
+	"strings"
 )
 
 func resourceAliyunSlbAttachment() *schema.Resource {
@@ -17,7 +17,6 @@ func resourceAliyunSlbAttachment() *schema.Resource {
 
 			"slb_id": &schema.Schema{
 				Type:     schema.TypeString,
-				ForceNew: true,
 				Required: true,
 			},
 
@@ -26,6 +25,12 @@ func resourceAliyunSlbAttachment() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Required: true,
 				Set:      schema.HashString,
+			},
+
+			"backend_servers": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -47,6 +52,10 @@ func resourceAliyunSlbAttachmentCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
+	d.Partial(true)
+	d.SetPartial("instances")
+	d.SetPartial("slb_id")
+	d.SetPartial("backend_servers")
 	d.SetId(loadBalancer.LoadBalancerId)
 
 	return resourceAliyunSlbAttachmentUpdate(d, meta)
@@ -59,14 +68,13 @@ func resourceAliyunSlbAttachmentRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		if notFoundError(err) {
 			d.SetId("")
-			return nil
+			return fmt.Errorf("Read special SLB Id not found: %#v", err)
 		}
 
 		return err
 	}
 
 	backendServerType := loadBalancer.BackendServers
-	log.Printf("backendserver: %s", backendServerType)
 	servers := backendServerType.BackendServer
 	instanceIds := make([]string, 0, len(servers))
 	if len(servers) > 0 {
@@ -76,26 +84,24 @@ func resourceAliyunSlbAttachmentRead(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		log.Printf("read instances: %s", instanceIds)
 	}
 
+	d.Set("slb_id", d.Id())
 	d.Set("instances", instanceIds)
+	d.Set("backend_servers", strings.Join(instanceIds, ","))
 
 	return nil
 }
 
 func resourceAliyunSlbAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
 
+	slbconn := meta.(*AliyunClient).slbconn
 	if d.HasChange("instances") {
-		slbconn := meta.(*AliyunClient).slbconn
 		o, n := d.GetChange("instances")
 		os := o.(*schema.Set)
 		ns := n.(*schema.Set)
 		remove := expandBackendServers(os.Difference(ns).List())
 		add := expandBackendServers(ns.Difference(os).List())
-
-		log.Printf("[WARN]remove backendserver:%v#", remove)
-		log.Printf("[WARN]add backendserver:%v#", add)
 
 		if len(add) > 0 {
 			_, err := slbconn.AddBackendServers(d.Id(), add)
@@ -114,10 +120,9 @@ func resourceAliyunSlbAttachmentUpdate(d *schema.ResourceData, meta interface{})
 			}
 		}
 
-		d.SetPartial("instances")
 	}
 
-	return nil
+	return resourceAliyunSlbAttachmentRead(d, meta)
 
 }
 
@@ -127,7 +132,6 @@ func resourceAliyunSlbAttachmentDelete(d *schema.ResourceData, meta interface{})
 	o := d.Get("instances")
 	os := o.(*schema.Set)
 	remove := expandBackendServers(os.List())
-	log.Printf("removeServer:%s", remove)
 
 	if len(remove) > 0 {
 		removeBackendServers := make([]string, 0, len(remove))

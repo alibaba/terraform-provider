@@ -5,7 +5,7 @@ variable "count_format" {
   default = "%02d"
 }
 variable "image_id" {
-  default = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+  default = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
 }
 
 variable "role" {
@@ -46,16 +46,6 @@ variable "instance_network_type" {
 }
 variable "internet_max_bandwidth_out" {
   default = 5
-}
-
-variable "disk_category" {
-  default = "cloud_ssd"
-}
-variable "disk_size" {
-  default = "40"
-}
-variable "device_name" {
-  default = "/dev/xvdb"
 }
 
 variable "slb_name" {

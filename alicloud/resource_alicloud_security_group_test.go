@@ -11,7 +11,7 @@ import (
 )
 
 func TestAccAlicloudSecurityGroup_basic(t *testing.T) {
-	var sg ecs.SecurityGroupItemType
+	var sg ecs.DescribeSecurityGroupAttributeResponse
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -41,7 +41,7 @@ func TestAccAlicloudSecurityGroup_basic(t *testing.T) {
 }
 
 func TestAccAlicloudSecurityGroup_withVpc(t *testing.T) {
-	var sg ecs.SecurityGroupItemType
+	var sg ecs.DescribeSecurityGroupAttributeResponse
 	var vpc ecs.VpcSetType
 
 	resource.Test(t, resource.TestCase{
@@ -69,7 +69,7 @@ func TestAccAlicloudSecurityGroup_withVpc(t *testing.T) {
 
 }
 
-func testAccCheckSecurityGroupExists(n string, sg *ecs.SecurityGroupItemType) resource.TestCheckFunc {
+func testAccCheckSecurityGroupExists(n string, sg *ecs.DescribeSecurityGroupAttributeResponse) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -98,7 +98,7 @@ func testAccCheckSecurityGroupExists(n string, sg *ecs.SecurityGroupItemType) re
 			return fmt.Errorf("SecurityGroup not found")
 		}
 
-		//*sg = *d
+		*sg = *d
 		return nil
 	}
 }
