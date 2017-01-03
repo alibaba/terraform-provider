@@ -322,7 +322,7 @@ resource "alicloud_security_group" "foo" {
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu1404_64_40G_cloudinit_20160727.raw"
+	image_id = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
 
 	# series II
 	instance_type = "ecs.n1.medium"
