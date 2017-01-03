@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
+	"strings"
 )
 
 func (client *AliyunClient) DescribeImage(imageId string) (*ecs.ImageType, error) {
@@ -147,4 +148,25 @@ func (client *AliyunClient) DescribeSecurity(securityGroupId string) (*ecs.Descr
 	}
 
 	return client.ecsconn.DescribeSecurityGroupAttribute(args)
+}
+
+func (client *AliyunClient) DescribeSecurityGroupRule(securityGroupId, types, ip_protocol, port_range string) (*ecs.PermissionType, error) {
+
+	sg, err := client.DescribeSecurity(securityGroupId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range sg.Permissions.Permission {
+		if strings.ToLower(string(p.IpProtocol)) == ip_protocol && p.PortRange == port_range {
+			return &p, nil
+		}
+	}
+	return nil, nil
+
+}
+
+func (client *AliyunClient) RevokeSecurityGroup(args *ecs.RevokeSecurityGroupArgs) error {
+	//todo: handle the specal err
+	return client.ecsconn.RevokeSecurityGroup(args)
 }

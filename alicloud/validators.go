@@ -92,6 +92,7 @@ func validateDiskDescription(v interface{}, k string) (ws []string, errors []err
 	return
 }
 
+//security group
 func validateSecurityGroupName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) < 2 || len(value) > 128 {
@@ -110,6 +111,54 @@ func validateSecurityGroupDescription(v interface{}, k string) (ws []string, err
 	if len(value) < 2 || len(value) > 256 {
 		errors = append(errors, fmt.Errorf("%q cannot be longer than 256 characters", k))
 
+	}
+	return
+}
+
+func validateSecurityRuleType(v interface{}, k string) (ws []string, errors []error) {
+	rt := GroupRuleDirection(v.(string))
+	if rt != GroupRuleIngress && rt != GroupRuleEgress {
+		errors = append(errors, fmt.Errorf("%s must be one of %s %s", k, GroupRuleIngress, GroupRuleEgress))
+	}
+
+	return
+}
+
+func validateSecurityRuleIpProtocol(v interface{}, k string) (ws []string, errors []error) {
+	pt := GroupRuleIpProtocol(v.(string))
+	if pt != GroupRuleTcp && pt != GroupRuleUdp && pt != GroupRuleIcmp && pt != GroupRuleGre && pt != GroupRuleAll {
+		errors = append(errors, fmt.Errorf("%s must be one of %s %s %s %s %s", k,
+			GroupRuleTcp, GroupRuleUdp, GroupRuleIcmp, GroupRuleGre, GroupRuleAll))
+	}
+
+	return
+}
+
+func validateSecurityRuleNicType(v interface{}, k string) (ws []string, errors []error) {
+	pt := GroupRuleNicType(v.(string))
+	if pt != GroupRuleInternet && pt != GroupRuleIntranet {
+		errors = append(errors, fmt.Errorf("%s must be one of %s %s", k, GroupRuleInternet, GroupRuleIntranet))
+	}
+
+	return
+}
+
+func validateSecurityRulePolicy(v interface{}, k string) (ws []string, errors []error) {
+	pt := GroupRulePolicy(v.(string))
+	if pt != GroupRulePolicyAccept && pt != GroupRulePolicyDrop {
+		errors = append(errors, fmt.Errorf("%s must be one of %s %s", k, GroupRulePolicyAccept, GroupRulePolicyDrop))
+	}
+
+	return
+}
+
+func validateSecurityPriority(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if value < 1 || value > 100 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid authorization policy priority between 1 and 100",
+			k))
+		return
 	}
 	return
 }
