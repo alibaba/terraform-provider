@@ -1,7 +1,8 @@
 package alicloud
 
 const (
-
+	// ecs
+	InstanceNotfound = "Instance.Notfound"
 	// disk
 	DiskIncorrectStatus       = "IncorrectDiskStatus"
 	DiskCreatingSnapshot      = "DiskCreatingSnapshot"

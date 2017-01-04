@@ -232,9 +232,10 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+	client := meta.(*AliyunClient)
+	conn := client.ecsconn
 
-	instance, err := conn.DescribeInstanceAttribute(d.Id())
+	instance, err := client.QueryInstancesById(d.Id())
 	if err != nil {
 		if notFoundError(err) {
 			d.SetId("")
@@ -404,10 +405,10 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*AliyunClient)
+	conn := client.ecsconn
 
-	conn := meta.(*AliyunClient).ecsconn
-
-	instance, err := conn.DescribeInstanceAttribute(d.Id())
+	instance, err := client.QueryInstancesById(d.Id())
 	if err != nil {
 		if notFoundError(err) {
 			return nil
