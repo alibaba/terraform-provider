@@ -9,17 +9,22 @@ variable "image_id" {
 }
 
 variable "role" {
+  default = "work"
 }
 variable "datacenter" {
+  default = "beijing"
 }
 variable "short_name" {
   default = "hi"
 }
 variable "ecs_type" {
+  default = "ecs.n1.small"
 }
 variable "ecs_password" {
+  default = "Test12345"
 }
 variable "availability_zones" {
+  default = "cn-beijing-b"
 }
 variable "allocate_public_ip" {
   default = true

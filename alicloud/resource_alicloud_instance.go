@@ -156,11 +156,6 @@ func resourceAliyunInstance() *schema.Resource {
 			},
 
 			"tags": tagsSchema(),
-
-			"output_tags": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -202,7 +197,6 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetPartial("io_optimized")
 	d.SetPartial("private_ip")
 	d.SetPartial("tags")
-	d.SetPartial("output_tags")
 	d.SetPartial("public_ip")
 
 	if d.Get("allocate_public_ip").(bool) {
@@ -244,8 +238,6 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error DescribeInstanceAttribute: %#v", err)
 	}
 
-	log.Printf("[DEBUG] DescribeInstanceAttribute for instance: %#v", instance)
-
 	d.Set("instance_name", instance.InstanceName)
 	d.Set("description", instance.Description)
 	d.Set("status", instance.Status)
@@ -262,9 +254,6 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	d.Set("host_name", instance.HostName)
 
-	log.Printf("instance.InternetChargeType: %#v", instance.InternetChargeType)
-
-	// private ip only support vpc instance
 	if InstanceNetWork(d.Get("instance_network_type").(string)) == VpcNet {
 		ipAddress := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
 		d.Set("private_ip", ipAddress)
@@ -282,9 +271,9 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	})
 
 	if err != nil {
-		log.Printf("[DEBUG] DescribeTags for instance got error: %#v", err)
+		log.Printf("[ERROR] DescribeTags for instance got error: %#v", err)
 	}
-	d.Set("output_tags", tagsToString(tags))
+	d.Set("tags", tagsToMap(tags))
 
 	return nil
 }
