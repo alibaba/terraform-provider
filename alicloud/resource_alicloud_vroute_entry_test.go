@@ -26,7 +26,7 @@ func TestAccAlicloudRouteEntry_Basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccRouteEntryConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRouteEntryExists(
+					testAccCheckRouteTableEntryExists(
 						"alicloud_route_entry.foo", &rt, &rn),
 					resource.TestCheckResourceAttrSet(
 						"alicloud_route_entry.foo", "nexthop_id"),
@@ -37,7 +37,41 @@ func TestAccAlicloudRouteEntry_Basic(t *testing.T) {
 
 }
 
-func testAccCheckRouteEntryExists(n string, t *ecs.RouteTableSetType, e *ecs.RouteEntrySetType) resource.TestCheckFunc {
+func testAccCheckRouteTableExists(rtId string, t *ecs.RouteTableSetType) error {
+	client := testAccProvider.Meta().(*AliyunClient)
+	//query route table
+	rt, terr := client.QueryRouteTableById(rtId)
+
+	if terr != nil {
+		return terr
+	}
+
+	if rt == nil {
+		return fmt.Errorf("Route Table not found")
+	}
+
+	*t = *rt
+	return nil
+}
+
+func testAccCheckRouteEntryExists(routeTableId, cidrBlock, nextHopType, nextHopId string, e *ecs.RouteEntrySetType) error {
+	client := testAccProvider.Meta().(*AliyunClient)
+	//query route table entry
+	re, rerr := client.QueryRouteEntry(routeTableId, cidrBlock, nextHopType, nextHopId)
+
+	if rerr != nil {
+		return rerr
+	}
+
+	if re == nil {
+		return fmt.Errorf("Route Table Entry not found")
+	}
+
+	*e = *re
+	return nil
+}
+
+func testAccCheckRouteTableEntryExists(n string, t *ecs.RouteTableSetType, e *ecs.RouteEntrySetType) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -48,35 +82,17 @@ func testAccCheckRouteEntryExists(n string, t *ecs.RouteTableSetType, e *ecs.Rou
 			return fmt.Errorf("No Route Entry ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
 		parts := strings.Split(rs.Primary.ID, ":")
 
 		//query route table
-		rt, terr := client.QueryRouteTableById(parts[0])
+		err := testAccCheckRouteTableExists(parts[0], t)
 
-		if terr != nil {
-			return terr
+		if err != nil {
+			return err
 		}
-
-		if rt == nil {
-			return fmt.Errorf("Route Table not found")
-		}
-
-		*t = *rt
-
 		//query route table entry
-		re, rerr := client.QueryRouteEntry(parts[0], parts[2], parts[3], parts[4])
-
-		if rerr != nil {
-			return rerr
-		}
-
-		if re == nil {
-			return fmt.Errorf("Route Table Entry not found")
-		}
-
-		*e = *re
-		return nil
+		err = testAccCheckRouteEntryExists(parts[0], parts[2], parts[3], parts[4], e)
+		return err
 	}
 }
 
