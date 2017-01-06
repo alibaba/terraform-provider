@@ -178,7 +178,7 @@ func resourceAliyunDiskRead(d *schema.ResourceData, meta interface{}) error {
 		log.Printf("[DEBUG] DescribeTags for disk got error: %#v", err)
 	}
 
-	d.Set("tags", tagsToString(tags))
+	d.Set("tags", tagsToMap(tags))
 
 	return nil
 }
