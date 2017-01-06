@@ -56,6 +56,10 @@ func resourceAliyunVpc() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"router_table_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -75,6 +79,7 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(vpc.VpcId)
+	d.Set("router_table_id", vpc.RouteTableId)
 
 	err = ecsconn.WaitForVpcAvailable(args.RegionId, vpc.VpcId, 60)
 	if err != nil {

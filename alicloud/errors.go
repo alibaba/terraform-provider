@@ -1,6 +1,8 @@
 package alicloud
 
 const (
+	// common
+	Notfound = "Not found"
 	// ecs
 	InstanceNotfound = "Instance.Notfound"
 	// disk
