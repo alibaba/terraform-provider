@@ -64,6 +64,7 @@ func resourceAliyunRouteEntryCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	// route_table_id:router_id:destination_cidrblock:nexthop_type:nexthop_id
 	d.SetId(rtId + ":" + rId + ":" + cidr + ":" + nt + ":" + ni)
+	d.Set("router_id", rId)
 
 	if err := conn.WaitForAllRouteEntriesAvailable(rId, rtId, defaultTimeout); err != nil {
 		return fmt.Errorf("WaitFor route entry got error: %#v", err)
