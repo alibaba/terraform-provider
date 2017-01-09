@@ -14,7 +14,7 @@ func TestAccAlicloudSlbAttachment_basic(t *testing.T) {
 
 	testCheckAttr := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
-			log.Printf("testCheckAttr slb BackendServers is: %s", slb.BackendServers)
+			log.Printf("testCheckAttr slb BackendServers is: %#v", slb.BackendServers)
 			return nil
 		}
 	}

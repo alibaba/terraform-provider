@@ -48,4 +48,3 @@ module "worker-nodes" {
   availability_zones = "${var.availability_zones}"
   internet_charge_type = "${var.internet_charge_type}"
 }
-
