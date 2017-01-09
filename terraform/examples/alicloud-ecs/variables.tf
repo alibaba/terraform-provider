@@ -32,9 +32,6 @@ variable "allocate_public_ip" {
 variable "internet_charge_type" {
   default = "PayByTraffic"
 }
-variable "instance_network_type" {
-  default = "Classic"
-}
 variable "internet_max_bandwidth_out" {
   default = 5
 }
