@@ -247,7 +247,6 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("private_ip", ipAddress)
 		d.Set("subnet_id", instance.VpcAttributes.VSwitchId)
 		d.Set("vswitch_id", instance.VpcAttributes.VSwitchId)
-
 	} else {
 		ipAddress := strings.Join(ecs.IpAddressSetType(instance.InnerIpAddress).IpAddress, ",")
 		d.Set("private_ip", ipAddress)

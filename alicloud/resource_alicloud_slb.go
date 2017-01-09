@@ -389,9 +389,7 @@ func createListener(conn *slb.Client, loadBalancerId string, listener *Listener)
 				HealthCheck:       slb.OffFlag,
 			},
 		}
-		log.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n ssl: %s", listener.SSLCertificateId)
 		if listener.SSLCertificateId == "" {
-			log.Printf("---------------- ----: ")
 			return fmt.Errorf("Server Certificated Id cann't be null")
 		}
 

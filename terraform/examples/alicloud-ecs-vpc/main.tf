@@ -17,6 +17,7 @@ resource "alicloud_instance" "instance" {
 
   internet_charge_type = "${var.internet_charge_type}"
   internet_max_bandwidth_out = "${var.internet_max_bandwidth_out}"
+  allocate_public_ip = "${allocate_public_ip}"
 
   password = "${var.ecs_password}"
 
