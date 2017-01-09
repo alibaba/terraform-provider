@@ -1,20 +1,21 @@
 ## Aliyun (Alibaba Cloud) terraform provider
 
+This is the official repository for the Aliyun terraform provider.  
+Currently it supports terraform version ≥ v0.8.2.
 
-This is the official repository for the Aliyun terraform provider. Currently it supports terraform version ≥ v0.8.2 .
-
-If just use the terraform-provide without develop the project, you can download the following binary package and move it into special forlder where download the Terraform PATH, such as "/usr/local/terraform".
+If you are not planning to contribute to this repo, you can download the compiled binaries below and move 
+them into the folder under the Terraform **PATH** such as **/usr/local/terraform**.
 
 * Mac OS X  [64-bit](http://tf-mac.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
 * Linux  [64-bit](http://tf-linux.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
 * Windows  [64-bit](http://tf-windows.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.exe)
 
-Currently it is under active development and must be installed as described in the [developer notes](#developer-notes).
+Alternatively, the provider can be installed as described in the [developer notes](#developer-notes).  
+This way you will be able to sync the repo as active development is going on.
 
 #### Example
 
 Example modules can be found in the [terraform/examples](terraform/examples) directory.
-
 
 ### Developer notes
 
@@ -50,6 +51,23 @@ terraform plan
 # terraform destroy
 ```
 
+#### Regions
+```
+cn-shenzhen
+ap-southeast-1
+cn-qingdao
+cn-beijing
+cn-shanghai
+us-east-1
+cn-hongkong
+me-east-1
+ap-southeast-2
+cn-hangzhou
+eu-central-1
+ap-northeast-1
+us-west-1
+```
+
 #### Common problems
 
 1.
@@ -68,7 +86,7 @@ sudo -E "PATH=$PATH" make all
 
 
 ### How to contribute code
-* If you're unsure or afraid of anything, just ask or submit the issue or pull request anyways. We appreciate any sort of contributions, and don't want a wall of rules to get in the way of that.
+* If you are not sure or have any doubts, feel free to ask and/or submit an issue or PR. We appreciate all contributions and don't want to create artificial obstacles that get in the way.
 * Contributions are welcome and will be merged via PRs.
 
 ### Contributors
