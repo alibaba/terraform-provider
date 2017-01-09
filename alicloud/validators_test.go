@@ -291,7 +291,7 @@ func TestValidateIoOptimized(t *testing.T) {
 }
 
 func TestValidateInstanceNetworkType(t *testing.T) {
-	validInstanceNetworkType := []string{"", "Classic", "Vpc"}
+	validInstanceNetworkType := []string{"", "classic", "vpc"}
 	for _, v := range validInstanceNetworkType {
 		_, errors := validateInstanceNetworkType(v, "instance_network_type")
 		if len(errors) != 0 {
@@ -299,7 +299,7 @@ func TestValidateInstanceNetworkType(t *testing.T) {
 		}
 	}
 
-	invalidInstanceNetworkType := []string{"classic", "vswitch", "123"}
+	invalidInstanceNetworkType := []string{"Classic", "vswitch", "123"}
 	for _, v := range invalidInstanceNetworkType {
 		_, errors := validateInstanceNetworkType(v, "instance_network_type")
 		if len(errors) == 0 {

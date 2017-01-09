@@ -236,7 +236,7 @@ func validateIoOptimized(v interface{}, k string) (ws []string, errors []error) 
 	return
 }
 
-// validateInstanceNetworkType ensures that the string value is a Classic or VPC
+// validateInstanceNetworkType ensures that the string value is a classic or vpc
 func validateInstanceNetworkType(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
 		network := InstanceNetWork(value)
