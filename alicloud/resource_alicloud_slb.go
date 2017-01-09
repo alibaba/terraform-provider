@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"log"
 	"time"
 )
 
@@ -78,15 +79,44 @@ func resourceAliyunSlb() *schema.Resource {
 							Required:     true,
 						},
 
-						"ssl_certificate_id": &schema.Schema{
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-
 						"bandwidth": &schema.Schema{
 							Type:         schema.TypeInt,
 							ValidateFunc: validateSlbListenerBandwidth,
 							Required:     true,
+						},
+						//http
+						"scheduler": &schema.Schema{
+							Type:         schema.TypeString,
+							ValidateFunc: validateSlbListenerScheduler,
+							Optional:     true,
+							Default:      "wrr",
+						},
+
+						"sticky_session": &schema.Schema{
+							Type:         schema.TypeString,
+							ValidateFunc: validateSlbListenerStickySession,
+							Optional:     true,
+						},
+						"sticky_session_type": &schema.Schema{
+							Type:         schema.TypeString,
+							ValidateFunc: validateSlbListenerStickySessionType,
+							Optional:     true,
+						},
+						"cookie": &schema.Schema{
+							Type:         schema.TypeString,
+							ValidateFunc: validateSlbListenerCookie,
+							Optional:     true,
+						},
+						"PersistenceTimeout": &schema.Schema{
+							Type:         schema.TypeInt,
+							ValidateFunc: validateSlbListenerPersistenceTimeout,
+							Optional:     true,
+							Default:      0,
+						},
+						//https
+						"ssl_certificate_id": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 					},
 				},
@@ -151,14 +181,6 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(slb.LoadBalancerId)
-
-	d.Partial(true)
-	d.SetPartial("name")
-	d.SetPartial("internet")
-	d.SetPartial("internet_charge_type")
-	d.SetPartial("bandwidth")
-	d.SetPartial("vswitch_id")
-	d.SetPartial("address")
 
 	return resourceAliyunSlbUpdate(d, meta)
 }
@@ -351,6 +373,31 @@ func createListener(conn *slb.Client, loadBalancerId string, listener *Listener)
 		}
 
 		if err := conn.CreateLoadBalancerHTTPListener(args); err != nil {
+			return err
+		}
+	}
+
+	if listener.Protocol == strings.ToLower("https") {
+		args := &slb.CreateLoadBalancerHTTPSListenerArgs{
+
+			HTTPListenerType: slb.HTTPListenerType{
+				LoadBalancerId:    loadBalancerId,
+				ListenerPort:      listener.LoadBalancerPort,
+				BackendServerPort: listener.InstancePort,
+				Bandwidth:         listener.Bandwidth,
+				StickySession:     slb.OffFlag,
+				HealthCheck:       slb.OffFlag,
+			},
+		}
+		log.Printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n ssl: %s", listener.SSLCertificateId)
+		if listener.SSLCertificateId == "" {
+			log.Printf("---------------- ----: ")
+			return fmt.Errorf("Server Certificated Id cann't be null")
+		}
+
+		args.ServerCertificateId = listener.SSLCertificateId
+
+		if err := conn.CreateLoadBalancerHTTPSListener(args); err != nil {
 			return err
 		}
 	}

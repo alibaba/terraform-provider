@@ -8,6 +8,7 @@ import (
 
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
+	"github.com/denverdino/aliyungo/slb"
 )
 
 // common
@@ -323,6 +324,70 @@ func validateSlbListenerBandwidth(v interface{}, k string) (ws []string, errors 
 	if (value < 1 || value > 1000) && value != -1 {
 		errors = append(errors, fmt.Errorf(
 			"%q must be a valid load balancer bandwidth between 1 and 1000 or -1",
+			k))
+		return
+	}
+	return
+}
+
+func validateSlbListenerScheduler(v interface{}, k string) (ws []string, errors []error) {
+	if value := v.(string); value != "" {
+		scheduler := slb.SchedulerType(value)
+
+		if scheduler != "wrr" && scheduler != "wlc" {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid SchedulerType, expected %s or %s, got %q",
+				k, "wrr", "wlc", value))
+		}
+	}
+
+	return
+}
+
+func validateSlbListenerStickySession(v interface{}, k string) (ws []string, errors []error) {
+	if value := v.(string); value != "" {
+		flag := slb.FlagType(value)
+
+		if flag != "on" && flag != "off" {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid StickySession, expected %s or %s, got %q",
+				k, "on", "off", value))
+		}
+	}
+	return
+}
+
+func validateSlbListenerStickySessionType(v interface{}, k string) (ws []string, errors []error) {
+	if value := v.(string); value != "" {
+		flag := slb.StickySessionType(value)
+
+		if flag != "insert" && flag != "server" {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid StickySessionType, expected %s or %s, got %q",
+				k, "insert", "server", value))
+		}
+	}
+	return
+}
+
+func validateSlbListenerCookie(v interface{}, k string) (ws []string, errors []error) {
+	if value := v.(string); value != "" {
+		flag := slb.StickySessionType(value)
+
+		if flag != "insert" && flag != "server" {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid StickySessionType, expected %s or %s, got %q",
+				k, "insert", "server", value))
+		}
+	}
+	return
+}
+
+func validateSlbListenerPersistenceTimeout(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if value < 0 || value > 86400 {
+		errors = append(errors, fmt.Errorf(
+			"%q must be a valid load balancer persistence timeout between 0 and 86400",
 			k))
 		return
 	}
