@@ -184,6 +184,16 @@ func validateCIDRNetworkAddress(v interface{}, k string) (ws []string, errors []
 	return
 }
 
+func validateRouteEntryNextHopType(v interface{}, k string) (ws []string, errors []error) {
+	nht := ecs.NextHopType(v.(string))
+	if nht != ecs.NextHopIntance && nht != ecs.NextHopTunnel {
+		errors = append(errors, fmt.Errorf("%s must be one of %s %s", k,
+			ecs.NextHopIntance, ecs.NextHopTunnel))
+	}
+
+	return
+}
+
 func validateSwitchCIDRNetworkAddress(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	_, ipnet, err := net.ParseCIDR(value)
