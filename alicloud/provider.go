@@ -30,7 +30,10 @@ func Provider() terraform.ResourceProvider {
 				Description: descriptions["region"],
 			},
 		},
+		DataSourcesMap: map[string]*schema.Resource{
 
+			"alicloud_images": dataSourceAlicloudImages(),
+		},
 		ResourcesMap: map[string]*schema.Resource{
 			"alicloud_instance":            resourceAliyunInstance(),
 			"alicloud_disk":                resourceAliyunDisk(),

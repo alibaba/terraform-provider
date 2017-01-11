@@ -9,6 +9,7 @@ import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/slb"
+	"regexp"
 )
 
 // common
@@ -400,6 +401,35 @@ func validateSlbListenerPersistenceTimeout(v interface{}, k string) (ws []string
 			"%q must be a valid load balancer persistence timeout between 0 and 86400",
 			k))
 		return
+	}
+	return
+}
+
+//data source validate func
+//data_source_alicloud_image
+func validateNameRegex(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if _, err := regexp.Compile(value); err != nil {
+		errors = append(errors, fmt.Errorf(
+			"%q contains an invalid regular expression: %s",
+			k, err))
+	}
+	return
+}
+
+func validateImageOwners(v interface{}, k string) (ws []string, errors []error) {
+	if value := v.(string); value != "" {
+		owners := ecs.ImageOwnerAlias(value)
+		if owners != ecs.ImageOwnerSystem &&
+			owners != ecs.ImageOwnerSelf &&
+			owners != ecs.ImageOwnerOthers &&
+			owners != ecs.ImageOwnerMarketplace &&
+			owners != ecs.ImageOwnerDefault {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid Image owner , expected %s, %s, %s, %s or %s, got %q",
+				k, ecs.ImageOwnerSystem, ecs.ImageOwnerSelf, ecs.ImageOwnerOthers, ecs.ImageOwnerMarketplace, ecs.ImageOwnerDefault, owners))
+		}
 	}
 	return
 }
