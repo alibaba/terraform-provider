@@ -417,3 +417,19 @@ func validateNameRegex(v interface{}, k string) (ws []string, errors []error) {
 	}
 	return
 }
+
+func validateImageOwners(v interface{}, k string) (ws []string, errors []error) {
+	if value := v.(string); value != "" {
+		owners := ecs.ImageOwnerAlias(value)
+		if owners != ecs.ImageOwnerSystem &&
+			owners != ecs.ImageOwnerSelf &&
+			owners != ecs.ImageOwnerOthers &&
+			owners != ecs.ImageOwnerMarketplace &&
+			owners != ecs.ImageOwnerDefault {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid Image owner , expected %s, %s, %s, %s or %s, got %q",
+				k, ecs.ImageOwnerSystem, ecs.ImageOwnerSelf, ecs.ImageOwnerOthers, ecs.ImageOwnerMarketplace, ecs.ImageOwnerDefault, owners))
+		}
+	}
+	return
+}
