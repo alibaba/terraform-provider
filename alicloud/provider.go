@@ -32,7 +32,7 @@ func Provider() terraform.ResourceProvider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 
-			"alicloud_image": dataSourceAlicloudImage(),
+			"alicloud_images": dataSourceAlicloudImages(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"alicloud_instance":            resourceAliyunInstance(),
