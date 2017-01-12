@@ -15,7 +15,7 @@ func TestAccAlicloudImagesDataSource_images(t *testing.T) {
 			{
 				Config: testAccCheckAlicloudImagesDataSourceImagesConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAlicloudImagesDataSourceID("data.alicloud_images.multi_image"),
+					testAccCheckAlicloudDataSourceID("data.alicloud_images.multi_image"),
 
 					resource.TestCheckResourceAttr("data.alicloud_images.multi_image", "images.#", "2"),
 
@@ -58,7 +58,7 @@ func TestAccAlicloudImagesDataSource_owners(t *testing.T) {
 			{
 				Config: testAccCheckAlicloudImagesDataSourceOwnersConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAlicloudImagesDataSourceID("data.alicloud_images.owners_filtered_image"),
+					testAccCheckAlicloudDataSourceID("data.alicloud_images.owners_filtered_image"),
 				),
 			},
 		},
@@ -73,7 +73,7 @@ func TestAccAlicloudImagesDataSource_ownersEmpty(t *testing.T) {
 			{
 				Config: testAccCheckAlicloudImagesDataSourceEmptyOwnersConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAlicloudImagesDataSourceID("data.alicloud_images.empty_owners_filtered_image"),
+					testAccCheckAlicloudDataSourceID("data.alicloud_images.empty_owners_filtered_image"),
 					resource.TestCheckResourceAttr("data.alicloud_images.empty_owners_filtered_image", "most_recent", "true"),
 				),
 			},
@@ -89,7 +89,7 @@ func TestAccAlicloudImagesDataSource_nameRegexFilter(t *testing.T) {
 			{
 				Config: testAccCheckAlicloudImagesDataSourceNameRegexConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAlicloudImagesDataSourceID("data.alicloud_images.name_regex_filtered_image"),
+					testAccCheckAlicloudDataSourceID("data.alicloud_images.name_regex_filtered_image"),
 					resource.TestMatchResourceAttr("data.alicloud_images.name_regex_filtered_image", "images.0.image_id", regexp.MustCompile("^centos_")),
 				),
 			},
