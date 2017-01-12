@@ -17,7 +17,6 @@ func dataSourceAlicloudImages() *schema.Resource {
 		Read: dataSourceAlicloudImagesRead,
 
 		Schema: map[string]*schema.Schema{
-			//"filter": dataSourceFiltersSchema(),
 			"name_regex": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -31,9 +30,10 @@ func dataSourceAlicloudImages() *schema.Resource {
 				ForceNew: true,
 			},
 			"owners": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateImageOwners,
 			},
 			// Computed values.
 			"images": {
@@ -81,10 +81,6 @@ func dataSourceAlicloudImages() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"is_self_shared": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
 						"status": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -123,6 +119,35 @@ func dataSourceAlicloudImages() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"is_self_shared": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"is_subscribed": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"is_copied": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"is_support_io_optimized": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"image_version": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"progress": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"usage": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
 						"tags": tagsSchema(),
 					},
 				},
@@ -135,24 +160,18 @@ func dataSourceAlicloudImages() *schema.Resource {
 func dataSourceAlicloudImagesRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
-	//filters, filtersOk := d.GetOk("filter")
 	nameRegex, nameRegexOk := d.GetOk("name_regex")
 	owners, ownersOk := d.GetOk("owners")
+	mostRecent, mostRecentOk := d.GetOk("most_recent")
 
-	//if executableUsersOk == false && filtersOk == false && nameRegexOk == false && ownersOk == false {
-	//	return fmt.Errorf("One of executable_users, filters, name_regex, or owners must be assigned")
-	//}
-	if nameRegexOk == false && ownersOk == false {
-		return fmt.Errorf("One of name_regex, or owners must be assigned")
+	if nameRegexOk == false && ownersOk == false && mostRecentOk == false {
+		return fmt.Errorf("One of name_regex, owners or most_recent must be assigned")
 	}
 
 	params := &ecs.DescribeImagesArgs{
 		RegionId: getRegion(d, meta),
 	}
 
-	//if filtersOk {
-	//	params.Filters = buildAwsDataSourceFilters(filters.(*schema.Set))
-	//}
 	if ownersOk {
 		params.ImageOwnerAlias = ecs.ImageOwnerAlias(owners.(string))
 	}
@@ -188,9 +207,8 @@ func dataSourceAlicloudImagesRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
-	recent := d.Get("most_recent").(bool)
-	log.Printf("[DEBUG] alicloud_image - multiple results found and `most_recent` is set to: %t", recent)
-	if len(filteredImages) > 1 && recent {
+	log.Printf("[DEBUG] alicloud_image - multiple results found and `most_recent` is set to: %t", mostRecent.(bool))
+	if len(filteredImages) > 1 && mostRecent.(bool) {
 		// Query returned single result.
 		images = append(images, mostRecentImage(filteredImages))
 	} else {
@@ -198,34 +216,40 @@ func dataSourceAlicloudImagesRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	log.Printf("[DEBUG] alicloud_image - Images found: %#v", images)
-	return imagesDescriptionAttributes(d, images)
+	return imagesDescriptionAttributes(d, images, meta)
 }
 
 // populate the numerous fields that the image description returns.
-func imagesDescriptionAttributes(d *schema.ResourceData, images []ecs.ImageType) error {
+func imagesDescriptionAttributes(d *schema.ResourceData, images []ecs.ImageType, meta interface{}) error {
 	var id []string
 	var s []map[string]interface{}
 	for _, image := range images {
 		mapping := map[string]interface{}{
-			"id":                image.ImageId,
-			"architecture":      image.Architecture,
-			"creation_time":     image.CreationTime.String(),
-			"description":       image.Description,
-			"image_id":          image.ImageId,
-			"image_owner_alias": image.ImageOwnerAlias,
-			"os_name":           image.OSName,
-			//"os_type":           image.OSType,
-			"name": image.ImageName,
-			//"platform": image.Platform,
-			//"is_self_shared", image.IsSelfShared,
-			//"status":       image.Status,
-			//"state":        image.Status,
-			"size":         image.Size,
-			"product_code": image.ProductCode,
+			"id":                      image.ImageId,
+			"architecture":            image.Architecture,
+			"creation_time":           image.CreationTime.String(),
+			"description":             image.Description,
+			"image_id":                image.ImageId,
+			"image_owner_alias":       image.ImageOwnerAlias,
+			"os_name":                 image.OSName,
+			"os_type":                 image.OSType,
+			"name":                    image.ImageName,
+			"platform":                image.Platform,
+			"status":                  image.Status,
+			"state":                   image.Status,
+			"size":                    image.Size,
+			"is_self_shared":          image.IsSelfShared,
+			"is_subscribed":           image.IsSubscribed,
+			"is_copied":               image.IsCopied,
+			"is_support_io_optimized": image.IsSupportIoOptimized,
+			"image_version":           image.ImageVersion,
+			"progress":                image.Progress,
+			"usage":                   image.Usage,
+			"product_code":            image.ProductCode,
 
-			//d.Set("tags", tagsToMap(image.tags)),
 			// Complex types get their own functions
 			"disk_device_mappings": imageDiskDeviceMappings(image.DiskDeviceMappings.DiskDeviceMapping),
+			"tags":                 imageTagsMappings(d, image.ImageId, meta),
 		}
 
 		log.Printf("[DEBUG] alicloud_image - adding image mapping: %v", mapping)
@@ -274,4 +298,24 @@ func imageDiskDeviceMappings(m []ecs.DiskDeviceMapping) []map[string]interface{}
 	}
 
 	return s
+}
+
+//Returns a mapping of image tags
+func imageTagsMappings(d *schema.ResourceData, imageId string, meta interface{}) map[string]string {
+	client := meta.(*AliyunClient)
+	conn := client.ecsconn
+
+	tags, _, err := conn.DescribeTags(&ecs.DescribeTagsArgs{
+		RegionId:     getRegion(d, meta),
+		ResourceType: ecs.TagResourceImage,
+		ResourceId:   imageId,
+	})
+
+	if err != nil {
+		log.Printf("[ERROR] DescribeTags for image got error: %#v", err)
+		return nil
+	}
+
+	log.Printf("[DEBUG] DescribeTags for image : %v", tags)
+	return tagsToMap(tags)
 }
