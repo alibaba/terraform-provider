@@ -21,6 +21,7 @@ func TestAccAlicloudInstanceTypesDataSource_basic(t *testing.T) {
 
 					resource.TestCheckResourceAttr("data.alicloud_instance_types.4c8g", "instance_types.0.cpu_core_count", "4"),
 					resource.TestCheckResourceAttr("data.alicloud_instance_types.4c8g", "instance_types.0.memory_size", "8"),
+					resource.TestCheckResourceAttr("data.alicloud_instance_types.4c8g", "instance_types.0.id", "ecs.s3.large"),
 				),
 			},
 

@@ -33,7 +33,7 @@ func dataSourceAliyunInstanceTypes() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"instance_type_id": {
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -45,7 +45,7 @@ func dataSourceAliyunInstanceTypes() *schema.Resource {
 							Type:     schema.TypeFloat,
 							Computed: true,
 						},
-						"instance_type_family": {
+						"family": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -98,10 +98,10 @@ func instanceTypesDescriptionAttributes(d *schema.ResourceData, types []ecs.Inst
 	var s []map[string]interface{}
 	for _, t := range types {
 		mapping := map[string]interface{}{
-			"instance_type_id":     t.InstanceTypeId,
-			"cpu_core_count":       t.CpuCoreCount,
-			"memory_size":          t.MemorySize,
-			"instance_type_family": t.InstanceTypeFamily,
+			"id":             t.InstanceTypeId,
+			"cpu_core_count": t.CpuCoreCount,
+			"memory_size":    t.MemorySize,
+			"family":         t.InstanceTypeFamily,
 		}
 
 		log.Printf("[DEBUG] alicloud_instance_type - adding type mapping: %v", mapping)

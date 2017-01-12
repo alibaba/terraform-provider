@@ -34,7 +34,7 @@ func dataSourceAliyunZones() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"zone_id": {
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -117,7 +117,7 @@ func zonesDescriptionAttributes(d *schema.ResourceData, types []ecs.ZoneType) er
 	var s []map[string]interface{}
 	for _, t := range types {
 		mapping := map[string]interface{}{
-			"zone_id":                     t.ZoneId,
+			"id":                          t.ZoneId,
 			"local_name":                  t.LocalName,
 			"available_instance_types":    t.AvailableInstanceTypes.InstanceTypes,
 			"available_resource_creation": t.AvailableResourceCreation.ResourceTypes,
