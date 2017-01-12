@@ -44,15 +44,15 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
-func testAccCheckAlicloudImagesDataSourceID(n string) resource.TestCheckFunc {
+func testAccCheckAlicloudDataSourceID(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Can't find image data source: %s", n)
+			return fmt.Errorf("Can't find data source: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("image data source ID not set")
+			return fmt.Errorf("data source ID not set")
 		}
 		return nil
 	}
