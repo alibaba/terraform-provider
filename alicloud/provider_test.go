@@ -5,6 +5,8 @@ import (
 	"os"
 	"testing"
 
+	"fmt"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -39,5 +41,19 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("ALICLOUD_REGION"); v == "" {
 		log.Println("[INFO] Test: Using cn-beijing as test region")
 		os.Setenv("ALICLOUD_REGION", "cn-beijing")
+	}
+}
+
+func testAccCheckAlicloudImagesDataSourceID(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Can't find image data source: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("image data source ID not set")
+		}
+		return nil
 	}
 }
