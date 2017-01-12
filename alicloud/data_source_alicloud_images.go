@@ -6,9 +6,10 @@ import (
 	"regexp"
 	"sort"
 
+	"bytes"
 	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
 	"time"
 )
 
@@ -221,7 +222,7 @@ func dataSourceAlicloudImagesRead(d *schema.ResourceData, meta interface{}) erro
 
 // populate the numerous fields that the image description returns.
 func imagesDescriptionAttributes(d *schema.ResourceData, images []ecs.ImageType, meta interface{}) error {
-	var id []string
+	var ids []string
 	var s []map[string]interface{}
 	for _, image := range images {
 		mapping := map[string]interface{}{
@@ -253,11 +254,11 @@ func imagesDescriptionAttributes(d *schema.ResourceData, images []ecs.ImageType,
 		}
 
 		log.Printf("[DEBUG] alicloud_image - adding image mapping: %v", mapping)
-		id = append(id, image.ImageId)
+		ids = append(ids, image.ImageId)
 		s = append(s, mapping)
 	}
 
-	d.SetId(strings.Join(id, ";"))
+	d.SetId(dataResourceImageIdHash(ids))
 	if err := d.Set("images", s); err != nil {
 		return err
 	}
@@ -318,4 +319,15 @@ func imageTagsMappings(d *schema.ResourceData, imageId string, meta interface{})
 
 	log.Printf("[DEBUG] DescribeTags for image : %v", tags)
 	return tagsToMap(tags)
+}
+
+// Generates a hash for the set hash function used by the ID
+func dataResourceImageIdHash(ids []string) string {
+	var buf bytes.Buffer
+
+	for _, id := range ids {
+		buf.WriteString(fmt.Sprintf("%s-", id))
+	}
+
+	return fmt.Sprintf("%d", hashcode.String(buf.String()))
 }
