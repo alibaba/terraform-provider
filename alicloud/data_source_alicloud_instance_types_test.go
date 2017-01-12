@@ -1,9 +1,7 @@
 package alicloud
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"testing"
 )
 
@@ -17,7 +15,7 @@ func TestAccAlicloudInstanceTypesDataSource_basic(t *testing.T) {
 			{
 				Config: testAccCheckAlicloudInstanceTypesDataSourceBasicConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAlicloudInstanceTypesDataSourceID("data.alicloud_instance_types.4c8g"),
+					testAccCheckAlicloudDataSourceID("data.alicloud_instance_types.4c8g"),
 
 					resource.TestCheckResourceAttr("data.alicloud_instance_types.4c8g", "instance_types.#", "4"),
 
@@ -29,7 +27,7 @@ func TestAccAlicloudInstanceTypesDataSource_basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccCheckAlicloudInstanceTypesDataSourceBasicConfigUpdate,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAlicloudInstanceTypesDataSourceID("data.alicloud_instance_types.4c8g"),
+					testAccCheckAlicloudDataSourceID("data.alicloud_instance_types.4c8g"),
 
 					resource.TestCheckResourceAttr("data.alicloud_instance_types.4c8g", "instance_types.#", "1"),
 
@@ -39,20 +37,6 @@ func TestAccAlicloudInstanceTypesDataSource_basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccCheckAlicloudInstanceTypesDataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Can't find instance type data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("instance type data source ID not set")
-		}
-		return nil
-	}
 }
 
 const testAccCheckAlicloudInstanceTypesDataSourceBasicConfig = `

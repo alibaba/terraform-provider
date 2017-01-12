@@ -5,7 +5,6 @@ import (
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
-	"strings"
 )
 
 func dataSourceAliyunInstanceTypes() *schema.Resource {
@@ -95,7 +94,7 @@ func dataSourceAliyunInstanceTypesRead(d *schema.ResourceData, meta interface{})
 }
 
 func instanceTypesDescriptionAttributes(d *schema.ResourceData, types []ecs.InstanceTypeItemType) error {
-	var id []string
+	var ids []string
 	var s []map[string]interface{}
 	for _, t := range types {
 		mapping := map[string]interface{}{
@@ -106,11 +105,11 @@ func instanceTypesDescriptionAttributes(d *schema.ResourceData, types []ecs.Inst
 		}
 
 		log.Printf("[DEBUG] alicloud_instance_type - adding type mapping: %v", mapping)
-		id = append(id, t.InstanceTypeId)
+		ids = append(ids, t.InstanceTypeId)
 		s = append(s, mapping)
 	}
 
-	d.SetId(strings.Join(id, ";"))
+	d.SetId(dataResourceIdHash(ids))
 	if err := d.Set("instance_types", s); err != nil {
 		return err
 	}
