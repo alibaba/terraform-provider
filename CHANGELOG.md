@@ -1,0 +1,38 @@
+
+## 0.0.1 (January 5, 2017)
+
+FEATURES:
+
+  * **New Data Resource:** `alicloud_images` ([#66](https://github.com/alibaba/terraform-provider/pull/66))
+  * **New Resource:** `alicloud_route_entry` ([#58](https://github.com/alibaba/terraform-provider/pull/58))
+  * **New Resource:** `alicloud_security_group_rule` ([#49](https://github.com/alibaba/terraform-provider/pull/49))
+  * **New Resource:** `alicloud_slb_attachment` ([#31](https://github.com/alibaba/terraform-provider/pull/31))
+
+IMPROVEMENTS:
+
+  * resource/alicloud_instance: update instance tags ([#57](https://github.com/alibaba/terraform-provider/pull/57))
+  * resource/alicloud_instance: create ecs instance with multi security groups ([#28](https://github.com/alibaba/terraform-provider/pull/28))
+  * resource/alicloud_nat_gateway: support modify nat gateway spec ([#22](https://github.com/alibaba/terraform-provider/pull/22))
+  * resource/alicloud_nat_gateway: support multi bandwidthPackage ([#22](https://github.com/alibaba/terraform-provider/pull/22))
+
+BUG FIXES:
+
+  * resource/alicloud_instance: bug fix cannot read internet_charge_type ([#55](https://github.com/alibaba/terraform-provider/pull/55))
+  * resource/alicloud_instance: bug fix tags, io_optimized, private_ip output ([#47](https://github.com/alibaba/terraform-provider/pull/47))
+  * resource/alicloud_slb: slb output backendsever ([#45](https://github.com/alibaba/terraform-provider/pull/45))
+  * resource/alicloud_disk: fix some disk defects ([#42](https://github.com/alibaba/terraform-provider/pull/42))
+  * resource/alicloud_slb_attachment: bug fix slb attachment ([#36](https://github.com/alibaba/terraform-provider/pull/36))
+  * resource/alicloud_slb: fix slb internetchartype param for go sdk updated ([#32](https://github.com/alibaba/terraform-provider/pull/32))
+  * resource/alicloud_slb: add udp listener, remove instance_protocol in listener ([#24](https://github.com/alibaba/terraform-provider/pull/24))
+  * resource/alicloud_slb: fix slb bandwidth bug and modify listener default bandwidth ([#20](https://github.com/alibaba/terraform-provider/pull/20))
+  
+
+## Initial(December 6, 2016)
+
+  * **New Resource:** `alicloud_instance`
+  * **New Resource:** `alicloud_security_group`
+  * **New Resource:** `alicloud_slb`
+  * **New Resource:** `alicloud_eip`
+  * **New Resource:** `alicloud_vpc`
+  * **New Resource:** `alicloud_vswitch`
+  * **New Resource:** `alicloud_nat_gateway`

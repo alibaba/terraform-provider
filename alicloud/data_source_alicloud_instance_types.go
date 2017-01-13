@@ -7,9 +7,9 @@ import (
 	"log"
 )
 
-func dataSourceAliyunInstanceTypes() *schema.Resource {
+func dataSourceAlicloudInstanceTypes() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAliyunInstanceTypesRead,
+		Read: dataSourceAlicloudInstanceTypesRead,
 
 		Schema: map[string]*schema.Schema{
 			"instance_type_family": {
@@ -56,13 +56,13 @@ func dataSourceAliyunInstanceTypes() *schema.Resource {
 	}
 }
 
-func dataSourceAliyunInstanceTypesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
 	cpu, _ := d.Get("cpu_core_count").(int)
 	mem, _ := d.Get("memory_size").(float64)
 
-	args, err := buildAliyunAliyunInstanceTypesArgs(d, meta)
+	args, err := buildAliyunAlicloudInstanceTypesArgs(d, meta)
 
 	if err != nil {
 		return err
@@ -116,7 +116,7 @@ func instanceTypesDescriptionAttributes(d *schema.ResourceData, types []ecs.Inst
 	return nil
 }
 
-func buildAliyunAliyunInstanceTypesArgs(d *schema.ResourceData, meta interface{}) (*ecs.DescribeInstanceTypesArgs, error) {
+func buildAliyunAlicloudInstanceTypesArgs(d *schema.ResourceData, meta interface{}) (*ecs.DescribeInstanceTypesArgs, error) {
 	args := &ecs.DescribeInstanceTypesArgs{}
 
 	if v := d.Get("instance_type_family").(string); v != "" {

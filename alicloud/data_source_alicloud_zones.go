@@ -8,9 +8,9 @@ import (
 	"reflect"
 )
 
-func dataSourceAliyunZones() *schema.Resource {
+func dataSourceAlicloudZones() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAliyunZonesRead,
+		Read: dataSourceAlicloudZonesRead,
 
 		Schema: map[string]*schema.Schema{
 			"available_instance_type": {
@@ -64,7 +64,7 @@ func dataSourceAliyunZones() *schema.Resource {
 	}
 }
 
-func dataSourceAliyunZonesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
 	insType, _ := d.Get("available_instance_type").(string)
