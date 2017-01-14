@@ -433,3 +433,21 @@ func validateImageOwners(v interface{}, k string) (ws []string, errors []error) 
 	}
 	return
 }
+
+func validateRegion(v interface{}, k string) (ws []string, errors []error) {
+	if value := v.(string); value != "" {
+		region := common.Region(value)
+		var valid string
+		for _, re := range common.ValidRegions {
+			if region == re {
+				return
+			}
+			valid = valid + ", " + string(re)
+		}
+		errors = append(errors, fmt.Errorf(
+			"%q must contain a valid Region ID , expected %#v, got %q",
+			k, valid, value))
+
+	}
+	return
+}
