@@ -97,6 +97,23 @@ func TestAccAlicloudImagesDataSource_nameRegexFilter(t *testing.T) {
 	})
 }
 
+func TestAccAlicloudImagesDataSource_region(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckAlicloudImagesDataSourceRegionConfig,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAlicloudDataSourceID("data.alicloud_images.region_image"),
+					resource.TestCheckResourceAttr("data.alicloud_images.region_image", "most_recent", "true"),
+					resource.TestCheckResourceAttr("data.alicloud_images.region_image", "region", "cn-hangzhou"),
+				),
+			},
+		},
+	})
+}
+
 // Instance store test - using centos images
 const testAccCheckAlicloudImagesDataSourceImagesConfig = `
 data "alicloud_images" "multi_image" {
@@ -126,5 +143,13 @@ data "alicloud_images" "name_regex_filtered_image" {
 	most_recent = true
 	owners = "system"
 	name_regex = "^centos_6\\w{1,5}[64]{1}.*"
+}
+`
+
+// Testing region parameter
+const testAccCheckAlicloudImagesDataSourceRegionConfig = `
+data "alicloud_images" "region_image" {
+	most_recent = true
+	region = "cn-hangzhou"
 }
 `
