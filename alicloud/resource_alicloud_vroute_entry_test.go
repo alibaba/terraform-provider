@@ -166,7 +166,6 @@ resource "alicloud_instance" "foo" {
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 
 	vswitch_id = "${alicloud_vswitch.foo.id}"
-	instance_network_type = "Vpc"
 	allocate_public_ip = true
 
 	# series II
