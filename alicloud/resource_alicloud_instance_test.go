@@ -585,6 +585,7 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
+	io_optimized = "optimized"
 
 	tags {
 		foo = "bar"
@@ -703,6 +704,7 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}"]
 	instance_name = "test_foo"
+	io_optimized = "optimized"
 }`
 
 const testAccInstanceConfig_multiSecurityGroup_add = `
@@ -731,6 +733,7 @@ resource "alicloud_instance" "foo" {
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}",
 				"${alicloud_security_group.tf_test_add_sg.id}"]
 	instance_name = "test_foo"
+	io_optimized = "optimized"
 }
 `
 
@@ -749,6 +752,7 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
+	io_optimized = "optimized"
 }
 `
 
@@ -768,6 +772,7 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.*.id}"]
 	instance_name = "test_foo"
+	io_optimized = "none"
 }
 `
 
@@ -1024,6 +1029,7 @@ resource "alicloud_instance" "foo" {
     system_disk_category = "cloud_efficiency"
     image_id = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
     instance_name = "test_foo"
+    io_optimized = "optimized"
 }
 
 `
