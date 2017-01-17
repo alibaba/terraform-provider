@@ -111,6 +111,40 @@ func TestAccAlicloudInstance_vpc(t *testing.T) {
 	})
 }
 
+func TestAccAlicloudInstance_userData(t *testing.T) {
+	var instance ecs.InstanceAttributesType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		IDRefreshName: "alicloud_instance.foo",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccInstanceConfigUserData,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists(
+						"alicloud_instance.foo", &instance),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"system_disk_category",
+						"cloud_efficiency"),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"internet_charge_type",
+						"PayByTraffic"),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"user_data",
+						"echo 'net.ipv4.ip_forward=1'>> /etc/sysctl.conf"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccAlicloudInstance_multipleRegions(t *testing.T) {
 	var instance ecs.InstanceAttributesType
 
@@ -585,7 +619,6 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
-	io_optimized = "optimized"
 
 	tags {
 		foo = "bar"
@@ -630,6 +663,46 @@ resource "alicloud_instance" "foo" {
 }
 
 `
+const testAccInstanceConfigUserData = `
+resource "alicloud_vpc" "foo" {
+  name = "tf_test_foo"
+  cidr_block = "172.16.0.0/12"
+}
+
+resource "alicloud_vswitch" "foo" {
+  vpc_id = "${alicloud_vpc.foo.id}"
+  cidr_block = "172.16.0.0/21"
+  availability_zone = "cn-beijing-b"
+}
+
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "foo" {
+	# cn-beijing
+	availability_zone = "cn-beijing-b"
+	vswitch_id = "${alicloud_vswitch.foo.id}"
+	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
+	# series II
+	instance_type = "ecs.n1.medium"
+	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
+
+	internet_charge_type = "PayByTraffic"
+	internet_max_bandwidth_out = 5
+	allocate_public_ip = true
+	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+	instance_name = "test_foo"
+
+	user_data = "echo 'net.ipv4.ip_forward=1'>> /etc/sysctl.conf"
+}
+
+`
+
 const testAccInstanceConfigMultipleRegions = `
 provider "alicloud" {
 	alias = "beijing"
@@ -704,7 +777,6 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}"]
 	instance_name = "test_foo"
-	io_optimized = "optimized"
 }`
 
 const testAccInstanceConfig_multiSecurityGroup_add = `
@@ -733,7 +805,6 @@ resource "alicloud_instance" "foo" {
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}",
 				"${alicloud_security_group.tf_test_add_sg.id}"]
 	instance_name = "test_foo"
-	io_optimized = "optimized"
 }
 `
 
@@ -752,7 +823,6 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
-	io_optimized = "optimized"
 }
 `
 
@@ -772,7 +842,6 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.*.id}"]
 	instance_name = "test_foo"
-	io_optimized = "none"
 }
 `
 
@@ -1029,7 +1098,6 @@ resource "alicloud_instance" "foo" {
     system_disk_category = "cloud_efficiency"
     image_id = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
     instance_name = "test_foo"
-    io_optimized = "optimized"
 }
 
 `
