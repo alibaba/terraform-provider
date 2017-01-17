@@ -602,20 +602,25 @@ resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 }
+
 resource "alicloud_security_group" "tf_test_bar" {
 	name = "tf_test_bar"
 	description = "bar"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	system_disk_category = "cloud_ssd"
+
 	instance_type = "ecs.n1.small"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
 	io_optimized = "optimized"
+
 	tags {
 		foo = "bar"
 		work = "test"
@@ -627,31 +632,37 @@ resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
   cidr_block = "172.16.0.0/12"
 }
+
 resource "alicloud_vswitch" "foo" {
   vpc_id = "${alicloud_vpc.foo.id}"
   cidr_block = "172.16.0.0/21"
   availability_zone = "cn-beijing-b"
 }
+
 resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 	vpc_id = "${alicloud_vpc.foo.id}"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	# series II
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	system_disk_category = "cloud_efficiency"
+
 	internet_charge_type = "PayByTraffic"
 	internet_max_bandwidth_out = 5
 	allocate_public_ip = true
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
 }
+
 `
 
 const testAccInstanceConfigUserData = `
@@ -659,16 +670,19 @@ resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
   cidr_block = "172.16.0.0/12"
 }
+
 resource "alicloud_vswitch" "foo" {
   vpc_id = "${alicloud_vpc.foo.id}"
   cidr_block = "172.16.0.0/21"
   availability_zone = "cn-beijing-b"
 }
+
 resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 	vpc_id = "${alicloud_vpc.foo.id}"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
@@ -692,38 +706,47 @@ provider "alicloud" {
 	alias = "beijing"
 	region = "cn-beijing"
 }
+
 provider "alicloud" {
 	alias = "shanghai"
 	region = "cn-shanghai"
 }
+
 resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	provider = "alicloud.beijing"
 	description = "foo"
 }
+
 resource "alicloud_security_group" "tf_test_bar" {
 	name = "tf_test_bar"
 	provider = "alicloud.shanghai"
 	description = "bar"
 }
+
 resource "alicloud_instance" "foo" {
   # cn-beijing
   provider = "alicloud.beijing"
   availability_zone = "cn-beijing-b"
   image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
   internet_charge_type = "PayByBandwidth"
+
   instance_type = "ecs.n1.medium"
   io_optimized = "optimized"
   system_disk_category = "cloud_efficiency"
   security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
   instance_name = "test_foo"
 }
+
 resource "alicloud_instance" "bar" {
 	# cn-shanghai
 	provider = "alicloud.shanghai"
 	availability_zone = "cn-shanghai-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	internet_charge_type = "PayByBandwidth"
+
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	system_disk_category = "cloud_efficiency"
@@ -737,14 +760,17 @@ resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 }
+
 resource "alicloud_security_group" "tf_test_bar" {
 	name = "tf_test_bar"
 	description = "bar"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	instance_type = "ecs.s2.large"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}"]
@@ -757,18 +783,22 @@ resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 }
+
 resource "alicloud_security_group" "tf_test_bar" {
 	name = "tf_test_bar"
 	description = "bar"
 }
+
 resource "alicloud_security_group" "tf_test_add_sg" {
 	name = "tf_test_add_sg"
 	description = "sg"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	instance_type = "ecs.s2.large"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}",
@@ -783,10 +813,12 @@ resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	instance_type = "ecs.s2.large"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
@@ -801,10 +833,12 @@ resource "alicloud_security_group" "tf_test_foo" {
 	count = 2
 	description = "foo"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	instance_type = "ecs.s2.large"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.*.id}"]
@@ -818,27 +852,33 @@ resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
   cidr_block = "172.16.0.0/12"
 }
+
 resource "alicloud_vswitch" "foo" {
   vpc_id = "${alicloud_vpc.foo.id}"
   cidr_block = "172.16.0.0/21"
   availability_zone = "cn-beijing-b"
 }
+
 resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 	vpc_id = "${alicloud_vpc.foo.id}"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	# series II
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	system_disk_category = "cloud_efficiency"
+
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
+
 	internet_max_bandwidth_out = 5
 	allocate_public_ip = "true"
 	internet_charge_type = "PayByBandwidth"
@@ -849,17 +889,21 @@ resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	# series II
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	internet_charge_type = "PayByBandwidth"
 	system_disk_category = "cloud_efficiency"
+
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
+
 	tags {
 		foo = "bar"
 	}
@@ -871,17 +915,21 @@ resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	# series II
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	internet_charge_type = "PayByBandwidth"
 	system_disk_category = "cloud_efficiency"
+
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
+
 	tags {
 		bar = "zzz"
 	}
@@ -892,16 +940,20 @@ resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	# series II
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	internet_charge_type = "PayByBandwidth"
 	system_disk_category = "cloud_efficiency"
+
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+
 	instance_name = "instance_foo"
 	host_name = "host-foo"
 }
@@ -912,17 +964,20 @@ resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+
 	# series II
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
 	internet_charge_type = "PayByBandwidth"
 	system_disk_category = "cloud_efficiency"
+
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
-	
+
 	instance_name = "instance_bar"
 	host_name = "host-bar"
 }
@@ -933,22 +988,27 @@ resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
   cidr_block = "172.16.0.0/12"
 }
+
 resource "alicloud_vswitch" "foo" {
   vpc_id = "${alicloud_vpc.foo.id}"
   cidr_block = "172.16.0.0/24"
   availability_zone = "cn-beijing-b"
 }
+
 resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 	vpc_id = "${alicloud_vpc.foo.id}"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	private_ip = "172.16.0.229"
+
 	# series II
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
@@ -962,25 +1022,30 @@ resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
   cidr_block = "172.16.0.0/12"
 }
+
 resource "alicloud_vswitch" "foo" {
   vpc_id = "${alicloud_vpc.foo.id}"
   cidr_block = "172.16.0.0/24"
   availability_zone = "cn-beijing-b"
 }
+
 resource "alicloud_security_group" "tf_test_foo" {
 	name = "tf_test_foo"
 	description = "foo"
 	vpc_id = "${alicloud_vpc.foo.id}"
 }
+
 resource "alicloud_instance" "foo" {
 	# cn-beijing
 	availability_zone = "cn-beijing-b"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	private_ip = "172.16.0.229"
 	allocate_public_ip = "true"
 	internet_max_bandwidth_out = 5
 	internet_charge_type = "PayByBandwidth"
+
 	# series II
 	instance_type = "ecs.n1.medium"
 	io_optimized = "optimized"
@@ -994,16 +1059,19 @@ resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
   cidr_block = "10.1.0.0/21"
 }
+
 resource "alicloud_vswitch" "foo" {
   vpc_id = "${alicloud_vpc.foo.id}"
   cidr_block = "10.1.1.0/24"
   availability_zone = "cn-beijing-c"
 }
+
 resource "alicloud_security_group" "tf_test_foo" {
     name = "tf_test_foo"
     description = "foo"
     vpc_id = "${alicloud_vpc.foo.id}"
 }
+
 resource "alicloud_security_group_rule" "ingress" {
   type = "ingress"
   ip_protocol = "tcp"
@@ -1014,20 +1082,25 @@ resource "alicloud_security_group_rule" "ingress" {
   security_group_id = "${alicloud_security_group.tf_test_foo.id}"
   cidr_ip = "0.0.0.0/0"
 }
+
 resource "alicloud_instance" "foo" {
     # cn-beijing
     availability_zone = "cn-beijing-c"
     security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+
     vswitch_id = "${alicloud_vswitch.foo.id}"
     allocate_public_ip = true
+
     # series II
     instance_charge_type = "PostPaid"
     instance_type = "ecs.n1.small"
     internet_charge_type = "PayByBandwidth"
     internet_max_bandwidth_out = 5
+
     system_disk_category = "cloud_efficiency"
     image_id = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
     instance_name = "test_foo"
     io_optimized = "optimized"
 }
+
 `
