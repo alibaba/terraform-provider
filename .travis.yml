@@ -10,7 +10,7 @@ install:
 - bash scripts/gogetcookie.sh
 script:
 - make test vet
-- make test TEST=./alicloud TESTARGS=-Xnew-apply
+- make test TESTARGS=-Xnew-apply
 branches:
   only:
   - dev
