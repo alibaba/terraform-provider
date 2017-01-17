@@ -1,4 +1,4 @@
-data "alicloud_instance_types" "4c8g" {
+data "alicloud_instance_types" "1c2g" {
 	cpu_core_count = 1
 	memory_size = 2
 	instance_type_family = "ecs.n1"
@@ -18,7 +18,7 @@ resource "alicloud_instance" "instance" {
   instance_name = "${var.short_name}-${var.role}-${format(var.count_format, count.index+1)}"
   host_name = "${var.short_name}-${var.role}-${format(var.count_format, count.index+1)}"
   image_id = "${var.image_id}"
-  instance_type = "${data.alicloud_instance_types.4c8g.instance_types.0.id}"
+  instance_type = "${data.alicloud_instance_types.1c2g.instance_types.0.id}"
   count = "${var.count}"
   availability_zone = "${data.alicloud_zones.default.zones.0.id}"
   security_groups = ["${alicloud_security_group.group.*.id}"]
