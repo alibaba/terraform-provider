@@ -94,10 +94,9 @@ func resourceAliyunInstance() *schema.Resource {
 			},
 			"io_optimized": &schema.Schema{
 				Type:         schema.TypeString,
-				Optional:     true,
+				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateIoOptimized,
-				Computed:     true,
 			},
 
 			"system_disk_category": &schema.Schema{
@@ -155,13 +154,13 @@ func resourceAliyunInstance() *schema.Resource {
 				Computed: true,
 			},
 
-			"tags": tagsSchema(),
-
 			"user_data": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
+
+			"tags": tagsSchema(),
 		},
 	}
 }
