@@ -40,7 +40,6 @@ resource "alicloud_instance" "snat" {
 	security_groups = ["${alicloud_security_group.sg.id}"]
 
 	vswitch_id = "${alicloud_vswitch.default.id}"
-	instance_network_type = "Vpc"
 	allocate_public_ip = true
 
 	# series II
@@ -48,6 +47,7 @@ resource "alicloud_instance" "snat" {
 	instance_type = "${var.instance_type}"
 	internet_charge_type = "${var.internet_charge_type}"
 	internet_max_bandwidth_out = 5
+	io_optimized = "${var.io_optimized}"
 
 	system_disk_category = "cloud_efficiency"
 	image_id = "${var.image_id}"

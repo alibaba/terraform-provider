@@ -134,6 +134,7 @@ resource "alicloud_instance" "instance" {
   security_groups = ["${alicloud_security_group.group.id}"]
   instance_name = "hello"
   internet_charge_type = "PayByBandwidth"
+  io_optimized = "none"
 
   tags {
     Name = "TerraformTest-instance"

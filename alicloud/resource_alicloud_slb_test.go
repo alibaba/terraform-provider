@@ -142,63 +142,6 @@ func TestAccAlicloudSlb_vpc(t *testing.T) {
 	})
 }
 
-func TestAccAlicloudSlb_bindECS(t *testing.T) {
-	var slb slb.LoadBalancerType
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-
-		// module name
-		IDRefreshName: "alicloud_slb.bindecs",
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckSlbDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccSlbBindECS,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSlbExists("alicloud_slb.bindecs", &slb),
-					resource.TestCheckResourceAttr(
-						"alicloud_slb.bindecs", "name", "tf_test_slb_bind"),
-					testAccCheckSlbBackendServer("alicloud_instance.foo", &slb),
-				),
-			},
-		},
-	})
-}
-
-func testAccCheckSlbBackendServer(n string, slb *slb.LoadBalancerType) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No ECS ID is set")
-		}
-
-		ecsInstanceId := rs.Primary.ID
-
-		backendServers := slb.BackendServers.BackendServer
-
-		if len(backendServers) == 0 {
-			return fmt.Errorf("no SLB backendServer: %#v", backendServers)
-		}
-
-		log.Printf("bacnendservers: %#v", backendServers)
-
-		backendServersInstanceId := backendServers[0].ServerId
-
-		if ecsInstanceId != backendServersInstanceId {
-			return fmt.Errorf("SLB BackEndServers check invalid: ECS instance %s is not equal SLB backendServer %s",
-				ecsInstanceId, backendServersInstanceId)
-		}
-		return nil
-	}
-}
-
 func testAccCheckSlbExists(n string, slb *slb.LoadBalancerType) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -347,35 +290,5 @@ resource "alicloud_slb" "vpc" {
   name = "tf_test_slb_vpc"
   //internet_charge_type = "paybybandwidth"
   vswitch_id = "${alicloud_vswitch.foo.id}"
-}
-`
-
-const testAccSlbBindECS = `
-resource "alicloud_security_group" "foo" {
-	name = "tf_test_foo"
-	description = "foo"
-}
-
-resource "alicloud_instance" "foo" {
-	# cn-beijing
-	availability_zone = "cn-beijing-b"
-	image_id = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
-
-	# series II
-	instance_type = "ecs.n1.medium"
-	internet_charge_type = "PayByBandwidth"
-	internet_max_bandwidth_out = "5"
-	system_disk_category = "cloud_efficiency"
-
-	security_groups = ["${alicloud_security_group.foo.id}"]
-	instance_name = "test_foo"
-}
-
-resource "alicloud_slb" "bindecs" {
-  name = "tf_test_slb_bind"
-  internet_charge_type = "paybybandwidth"
-  bandwidth = "5"
-  internet = "true"
-  instances = ["${alicloud_instance.foo.id}"]
 }
 `

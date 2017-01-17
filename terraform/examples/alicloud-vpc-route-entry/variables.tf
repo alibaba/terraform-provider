@@ -23,3 +23,6 @@ variable "image_id" {
 variable "internet_charge_type" {
   default = "PayByTraffic"
 }
+variable "io_optimized" {
+  default = "optimized"
+}
