@@ -89,6 +89,7 @@ resource "alicloud_instance" "foo" {
 	internet_charge_type = "PayByBandwidth"
 	internet_max_bandwidth_out = "5"
 	system_disk_category = "cloud_efficiency"
+	io_optimized = "optimized"
 
 	security_groups = ["${alicloud_security_group.foo.id}"]
 	instance_name = "test_foo"

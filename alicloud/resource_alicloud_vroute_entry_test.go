@@ -173,6 +173,7 @@ resource "alicloud_instance" "foo" {
 	instance_type = "ecs.n1.small"
 	internet_charge_type = "PayByTraffic"
 	internet_max_bandwidth_out = 5
+	io_optimized = "optimized"
 
 	system_disk_category = "cloud_efficiency"
 	image_id = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"

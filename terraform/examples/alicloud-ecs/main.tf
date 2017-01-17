@@ -27,6 +27,8 @@ resource "alicloud_instance" "instance" {
 
   allocate_public_ip = "${var.allocate_public_ip}"
 
+  io_optimized = "${var.io_optimized}"
+
   instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
 
