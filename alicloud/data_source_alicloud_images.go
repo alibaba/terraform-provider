@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"sort"
 
-	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
 	"time"
@@ -34,12 +33,6 @@ func dataSourceAlicloudImages() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateImageOwners,
-			},
-			"region": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validateRegion,
 			},
 			// Computed values.
 			"images": {
@@ -174,16 +167,9 @@ func dataSourceAlicloudImagesRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("One of name_regex, owners or most_recent must be assigned")
 	}
 
-	params := &ecs.DescribeImagesArgs{}
-
-	region, regionOk := d.GetOk("region")
-	if regionOk {
-		params.RegionId = common.Region(region.(string))
-	} else {
-		params.RegionId = getRegion(d, meta)
+	params := &ecs.DescribeImagesArgs{
+		RegionId: getRegion(d, meta),
 	}
-
-	log.Printf("[WARN] Find iamge data from region %s.", params.RegionId)
 
 	if ownersOk {
 		params.ImageOwnerAlias = ecs.ImageOwnerAlias(owners.(string))
@@ -280,8 +266,12 @@ func imagesDescriptionAttributes(d *schema.ResourceData, images []ecs.ImageType,
 //Find most recent image
 type imageSort []ecs.ImageType
 
-func (a imageSort) Len() int      { return len(a) }
-func (a imageSort) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a imageSort) Len() int {
+	return len(a)
+}
+func (a imageSort) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
 func (a imageSort) Less(i, j int) bool {
 	itime, _ := time.Parse(time.RFC3339, a[i].CreationTime.String())
 	jtime, _ := time.Parse(time.RFC3339, a[j].CreationTime.String())
