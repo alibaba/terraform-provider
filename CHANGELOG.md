@@ -1,3 +1,9 @@
+## 1.0.2 (Unreleased)
+
+IMPROVEMENTS:
+
+  * resource/alicloud_instance: support userdata ([#71](https://github.com/alibaba/terraform-provider/pull/71))
+
 ## 1.0.1 (January 17, 2017)
 
 FEATURES:
