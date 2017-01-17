@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"encoding/base64"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -153,6 +154,12 @@ func resourceAliyunInstance() *schema.Resource {
 				Computed: true,
 			},
 
+			"user_data": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+
 			"tags": tagsSchema(),
 		},
 	}
@@ -249,6 +256,18 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	} else {
 		ipAddress := strings.Join(ecs.IpAddressSetType(instance.InnerIpAddress).IpAddress, ",")
 		d.Set("private_ip", ipAddress)
+	}
+
+	if d.Get("user_data").(string) != "" {
+		ud, err := conn.DescribeUserdata(&ecs.DescribeUserdataArgs{
+			RegionId:   getRegion(d, meta),
+			InstanceId: d.Id(),
+		})
+
+		if err != nil {
+			log.Printf("[ERROR] DescribeUserData for instance got error: %#v", err)
+		}
+		d.Set("user_data", userDataHashSum(ud.UserData))
 	}
 
 	tags, _, err := conn.DescribeTags(&ecs.DescribeTagsArgs{
@@ -496,5 +515,20 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 		return nil, fmt.Errorf("period is required for instance_charge_type is PrePaid")
 	}
 
+	if v := d.Get("user_data").(string); v != "" {
+		args.UserData = v
+	}
+
 	return args, nil
+}
+
+func userDataHashSum(user_data string) string {
+	// Check whether the user_data is not Base64 encoded.
+	// Always calculate hash of base64 decoded value since we
+	// check against double-encoding when setting it
+	v, base64DecodeError := base64.StdEncoding.DecodeString(user_data)
+	if base64DecodeError != nil {
+		v = []byte(user_data)
+	}
+	return string(v)
 }
