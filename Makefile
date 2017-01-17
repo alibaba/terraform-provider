@@ -11,7 +11,7 @@ copy:
 test:
 	TF_ACC=1 go test -v ./alicloud -timeout 120m
 
-test4travis: fmtcheck errcheck generate
+test4travis: fmtcheck errcheck
     TF_ACC= go test $(TEST) $(TESTARGS) -timeout=120m -parallel=4
 
 vet:
@@ -30,4 +30,6 @@ fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
 errcheck:
-    @sh -c "'$(CURDIR)/scripts/errcheck.sh'"
+	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
+
+
