@@ -1,8 +1,11 @@
-## 0.0.1 (January 5, 2017)
+## 1.0.1 (January 17, 2017)
 
 FEATURES:
 
+  * **New Data Resource:** `alicloud_regions` ([#67](https://github.com/alibaba/terraform-provider/pull/67))
   * **New Data Resource:** `alicloud_images` ([#66](https://github.com/alibaba/terraform-provider/pull/66))
+  * **New Data Resource:** `alicloud_instance_types` ([#64](https://github.com/alibaba/terraform-provider/pull/64))
+  * **New Data Resource:** `alicloud_zones` ([#64](https://github.com/alibaba/terraform-provider/pull/64))
   * **New Resource:** `alicloud_route_entry` ([#58](https://github.com/alibaba/terraform-provider/pull/58))
   * **New Resource:** `alicloud_security_group_rule` ([#49](https://github.com/alibaba/terraform-provider/pull/49))
   * **New Resource:** `alicloud_slb_attachment` ([#31](https://github.com/alibaba/terraform-provider/pull/31))
@@ -16,9 +19,9 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  * resource/alicloud_instance: bug fix io_optimized, remove default value, required is true ([#68](https://github.com/alibaba/terraform-provider/pull/68))
   * resource/alicloud_instance: bug fix cannot read internet_charge_type ([#55](https://github.com/alibaba/terraform-provider/pull/55))
   * resource/alicloud_instance: bug fix tags, io_optimized, private_ip output ([#47](https://github.com/alibaba/terraform-provider/pull/47))
-  * resource/alicloud_instance: bug fix io_optimized, remove default value, required is true ([#68](https://github.com/alibaba/terraform-provider/pull/68))
   * resource/alicloud_slb: slb output backendsever ([#45](https://github.com/alibaba/terraform-provider/pull/45))
   * resource/alicloud_disk: fix some disk defects ([#42](https://github.com/alibaba/terraform-provider/pull/42))
   * resource/alicloud_slb_attachment: bug fix slb attachment ([#36](https://github.com/alibaba/terraform-provider/pull/36))
@@ -27,7 +30,7 @@ BUG FIXES:
   * resource/alicloud_slb: fix slb bandwidth bug and modify listener default bandwidth ([#20](https://github.com/alibaba/terraform-provider/pull/20))
   
 
-## Initial(December 6, 2016)
+## 1.0.0(December 6, 2016)
 
   * **New Resource:** `alicloud_instance`
   * **New Resource:** `alicloud_security_group`
