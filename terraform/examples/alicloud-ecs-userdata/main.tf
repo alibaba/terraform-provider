@@ -16,6 +16,16 @@ resource "alicloud_security_group" "sg" {
 	vpc_id = "${alicloud_vpc.default.id}"
 }
 
+resource "alicloud_security_group_rule" "allow_ssh" {
+  security_group_id = "${alicloud_security_group.sg.id}"
+  type = "ingress"
+  cidr_ip= "0.0.0.0/0"
+  policy = "accept"
+  ip_protocol= "tcp"
+  port_range= "22/22"
+  priority= 1
+}
+
 resource "alicloud_instance" "website" {
 	# cn-beijing
 	availability_zone = "${var.zone}"
@@ -31,7 +41,8 @@ resource "alicloud_instance" "website" {
 	internet_max_bandwidth_out = 5
 	allocate_public_ip = true
 	security_groups = ["${alicloud_security_group.sg.id}"]
-	instance_name = "test_foo"
+	instance_name = "tf_website"
+	password= "${var.password}"
 
 	user_data = "${file("userdata.sh")}"
 }
