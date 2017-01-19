@@ -6,16 +6,15 @@ resource "alicloud_vswitch" "main" {
   vpc_id = "${alicloud_vpc.main.id}"
   cidr_block = "${var.vswitch_cidr}"
   availability_zone = "${var.zone}"
-  depends_on = [
-    "alicloud_vpc.main"]
+  depends_on = ["alicloud_vpc.main"]
 }
 
 resource "alicloud_route_entry" "entry" {
-	router_id = "${alicloud_vpc.main.router_id}"
-	route_table_id = "${alicloud_vpc.main.router_table_id}"
-	destination_cidrblock = "0.0.0.0/0"
-	nexthop_type = "Instance"
-	nexthop_id = "${alicloud_instance.nat.id}"
+  router_id = "${alicloud_vpc.main.router_id}"
+  route_table_id = "${alicloud_vpc.main.router_table_id}"
+  destination_cidrblock = "0.0.0.0/0"
+  nexthop_type = "Instance"
+  nexthop_id = "${alicloud_instance.nat.id}"
 }
 
 resource "alicloud_instance" "nat" {
@@ -38,12 +37,12 @@ resource "alicloud_instance" "nat" {
 }
 
 data "template_file" "shell" {
-    template = "${file("userdata.sh")}"
+  template = "${file("userdata.sh")}"
 
-    vars {
-        worker_private_ip = "${alicloud_instance.worker.private_ip}"
-        vswitch_cidr = "${var.vswitch_cidr}"
-    }
+  vars {
+      worker_private_ip = "${alicloud_instance.worker.private_ip}"
+      vswitch_cidr = "${var.vswitch_cidr}"
+  }
 }
 
 resource "alicloud_instance" "worker" {
@@ -65,7 +64,7 @@ resource "alicloud_instance" "worker" {
 resource "alicloud_eip" "eip" {
 }
 
-resource "alicloud_eip_association" "foo" {
+resource "alicloud_eip_association" "attach" {
   allocation_id = "${alicloud_eip.eip.id}"
   instance_id = "${alicloud_instance.nat.id}"
 }
