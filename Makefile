@@ -1,4 +1,7 @@
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
+VETARGS?=-all
+TEST?=$$(go list ./...)
+
 
 all: build copy
 
@@ -8,11 +11,8 @@ build:
 copy:
 	cp terraform-provider-alicloud $(shell dirname `which terraform`)
 
-test:
-	TF_ACC=1 go test -v ./alicloud -timeout 120m
-
-test4travis: fmtcheck errcheck generate
-    TF_ACC= go test $(TEST) $(TESTARGS) -timeout=120m -parallel=4
+test: fmtcheck errcheck
+	TF_ACC= go test -v ./alicloud $(TESTARGS) -run=TestAccAlicloud -timeout=120m -parallel=4
 
 vet:
 	@echo "go tool vet $(VETARGS) ."
@@ -30,4 +30,6 @@ fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
 errcheck:
-    @sh -c "'$(CURDIR)/scripts/errcheck.sh'"
+	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
+
+

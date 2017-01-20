@@ -9,15 +9,15 @@ install:
 # See: https://github.com/golang/go/issues/12933
 - bash scripts/gogetcookie.sh
 script:
-- make test4travis vet
-- make test4travis TEST=./alicloud TESTARGS=-Xnew-apply
+- make test vet
+- make test TESTARGS=-Xnew-apply
 branches:
   only:
   - dev
 notifications:
   irc:
     channels:
-    - irc.freenode.org#terraform-tool
+    - irc.freenode.org#alicloud-terraform
     skip_join: true
     use_notice: true
 matrix:
