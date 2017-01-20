@@ -11,8 +11,8 @@ build:
 copy:
 	cp terraform-provider-alicloud $(shell dirname `which terraform`)
 
-test: fmtcheck errcheck
-	TF_ACC= go test -v ./alicloud $(TESTARGS) -run=TestAccAlicloud -timeout=120m -parallel=4
+test: vet fmtcheck errcheck
+	TF_ACC=1 go test -v ./alicloud -run=TestAccAlicloud -timeout=120m -parallel=4
 
 vet:
 	@echo "go tool vet $(VETARGS) ."
