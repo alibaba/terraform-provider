@@ -8,7 +8,7 @@ install:
   # packages that live there.
   # See: https://github.com/golang/go/issues/12933
   - bash scripts/gogetcookie.sh
-
+  - go get -u github.com/kardianos/govendor
 script:
   - govendor fetch github.com/denverdino/aliyungo/...
   - make test
