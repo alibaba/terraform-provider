@@ -1,25 +1,27 @@
 sudo: false
 language: go
 go:
-- 1.7.3
+  - 1.7.3
 install:
-# This script is used by the Travis build to install a cookie for
-# go.googlesource.com so rate limits are higher when using `go get` to fetch
-# packages that live there.
-# See: https://github.com/golang/go/issues/12933
-- bash scripts/gogetcookie.sh
+  # This script is used by the Travis build to install a cookie for
+  # go.googlesource.com so rate limits are higher when using `go get` to fetch
+  # packages that live there.
+  # See: https://github.com/golang/go/issues/12933
+  - bash scripts/gogetcookie.sh
+
 script:
-- make test
+  - govendor fetch github.com/denverdino/aliyungo/...
+  - make test
 branches:
   only:
-  - dev
+    - dev
 notifications:
   irc:
     channels:
-    - irc.freenode.org#alicloud-terraform
+      - irc.freenode.org#alicloud-terraform
     skip_join: true
     use_notice: true
 matrix:
   fast_finish: true
   allow_failures:
-  - go: tip
+    - go: tip
