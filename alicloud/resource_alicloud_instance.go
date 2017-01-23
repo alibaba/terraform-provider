@@ -21,8 +21,9 @@ func resourceAliyunInstance() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"availability_zone": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 
 			"image_id": &schema.Schema{
@@ -428,18 +429,30 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 
 	args.ImageId = imageID
 
+	systemDiskCategory := ecs.DiskCategory(d.Get("system_disk_category").(string))
+
 	zoneID := d.Get("availability_zone").(string)
+	// check instanceType and systemDiskCategory, when zoneID is not empty
+	if zoneID != "" {
+		zone, err := client.DescribeZone(zoneID)
+		if err != nil {
+			return nil, err
+		}
 
-	zone, err := client.DescribeZone(zoneID)
-	if err != nil {
-		return nil, err
+		if err := client.ResourceAvailable(zone, ecs.ResourceTypeInstance); err != nil {
+			return nil, err
+		}
+
+		if err := client.DiskAvailable(zone, systemDiskCategory); err != nil {
+			return nil, err
+		}
+
+		args.ZoneId = zoneID
+
 	}
-
-	if err := client.ResourceAvailable(zone, ecs.ResourceTypeInstance); err != nil {
-		return nil, err
+	args.SystemDisk = ecs.SystemDiskType{
+		Category: systemDiskCategory,
 	}
-
-	args.ZoneId = zoneID
 
 	sgs, ok := d.GetOk("security_groups")
 
@@ -452,16 +465,6 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 			args.SecurityGroupId = sg0
 		}
 
-	}
-
-	systemDiskCategory := ecs.DiskCategory(d.Get("system_disk_category").(string))
-
-	if err := client.DiskAvailable(zone, systemDiskCategory); err != nil {
-		return nil, err
-	}
-
-	args.SystemDisk = ecs.SystemDiskType{
-		Category: systemDiskCategory,
 	}
 
 	if v := d.Get("instance_name").(string); v != "" {
