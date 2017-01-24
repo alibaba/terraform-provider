@@ -23,9 +23,6 @@ variable "ecs_type" {
 variable "ecs_password" {
   default = "Test12345"
 }
-#variable "availability_zones" {
-#  default = "cn-beijing-b"
-#}
 variable "allocate_public_ip" {
   default = true
 }
