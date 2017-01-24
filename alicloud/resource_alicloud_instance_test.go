@@ -609,8 +609,6 @@ resource "alicloud_security_group" "tf_test_bar" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
-	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	system_disk_category = "cloud_ssd"
@@ -727,7 +725,6 @@ resource "alicloud_security_group" "tf_test_bar" {
 resource "alicloud_instance" "foo" {
   # cn-beijing
   provider = "alicloud.beijing"
-  availability_zone = "cn-beijing-b"
   image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
   internet_charge_type = "PayByBandwidth"
@@ -742,7 +739,6 @@ resource "alicloud_instance" "foo" {
 resource "alicloud_instance" "bar" {
 	# cn-shanghai
 	provider = "alicloud.shanghai"
-	availability_zone = "cn-shanghai-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	internet_charge_type = "PayByBandwidth"
@@ -892,7 +888,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 
 resource "alicloud_instance" "foo" {
 	# cn-beijing
-	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
@@ -918,7 +913,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 
 resource "alicloud_instance" "foo" {
 	# cn-beijing
-	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
@@ -943,7 +937,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 
 resource "alicloud_instance" "foo" {
 	# cn-beijing
-	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
@@ -967,7 +960,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 
 resource "alicloud_instance" "foo" {
 	# cn-beijing
-	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	# series II
