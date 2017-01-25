@@ -81,6 +81,39 @@ func TestAccAlicloudSecurityGroupRule_Egress(t *testing.T) {
 
 }
 
+func TestAccAlicloudSecurityGroupRule_EgressDefaultNicType(t *testing.T) {
+	var pt ecs.PermissionType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: "alicloud_security_group_rule.egress",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckSecurityGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccSecurityGroupRuleEgress_emptyNicType,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSecurityGroupRuleExists(
+						"alicloud_security_group_rule.egress", &pt),
+					resource.TestCheckResourceAttr(
+						"alicloud_security_group_rule.egress",
+						"port_range",
+						"80/80"),
+					resource.TestCheckResourceAttr(
+						"alicloud_security_group_rule.egress",
+						"nic_type",
+						"internet"),
+				),
+			},
+		},
+	})
+
+}
+
 func TestAccAlicloudSecurityGroupRule_Vpc_Ingress(t *testing.T) {
 	var pt ecs.PermissionType
 
@@ -201,6 +234,24 @@ resource "alicloud_security_group_rule" "egress" {
   type = "egress"
   ip_protocol = "udp"
   nic_type = "internet"
+  policy = "accept"
+  port_range = "80/80"
+  priority = 1
+  security_group_id = "${alicloud_security_group.foo.id}"
+  cidr_ip = "10.159.6.18/12"
+}
+
+`
+
+const testAccSecurityGroupRuleEgress_emptyNicType = `
+resource "alicloud_security_group" "foo" {
+  name = "sg_foo"
+}
+
+
+resource "alicloud_security_group_rule" "egress" {
+  type = "egress"
+  ip_protocol = "udp"
   policy = "accept"
   port_range = "80/80"
   priority = 1

@@ -203,6 +203,11 @@ func (client *AliyunClient) DescribeSecurityGroupRule(securityGroupId, types, ip
 }
 
 func (client *AliyunClient) RevokeSecurityGroup(args *ecs.RevokeSecurityGroupArgs) error {
-	//todo: handle the specal err
+	//when the rule is not exist, api will return success(200)
 	return client.ecsconn.RevokeSecurityGroup(args)
+}
+
+func (client *AliyunClient) RevokeSecurityGroupEgress(args *ecs.RevokeSecurityGroupEgressArgs) error {
+	//when the rule is not exist, api will return success(200)
+	return client.ecsconn.RevokeSecurityGroupEgress(args)
 }

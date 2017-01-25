@@ -34,6 +34,7 @@ func resourceAliyunSecurityGroupRule() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
+				Computed:     true,
 				ValidateFunc: validateSecurityRuleNicType,
 			},
 
@@ -161,8 +162,8 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 
 func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
-	args, err := buildAliyunSecurityIngressArgs(d, meta)
 
+	args, err := buildAliyunSecurityIngressArgs(d, meta)
 	if err != nil {
 		return err
 	}
