@@ -147,6 +147,43 @@ func TestAccAlicloudSecurityGroupRule_Vpc_Ingress(t *testing.T) {
 
 }
 
+func TestAccAlicloudSecurityGroupRule_MissParameterSourceCidrIp(t *testing.T) {
+	var pt ecs.PermissionType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: "alicloud_security_group_rule.egress",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckSecurityGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccSecurityGroupRule_missingSourceCidrIp,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSecurityGroupRuleExists(
+						"alicloud_security_group_rule.egress", &pt),
+					resource.TestCheckResourceAttr(
+						"alicloud_security_group_rule.egress",
+						"port_range",
+						"80/80"),
+					resource.TestCheckResourceAttr(
+						"alicloud_security_group_rule.egress",
+						"nic_type",
+						"internet"),
+					resource.TestCheckResourceAttr(
+						"alicloud_security_group_rule.egress",
+						"ip_protocol",
+						"udp"),
+				),
+			},
+		},
+	})
+
+}
+
 func testAccCheckSecurityGroupRuleExists(n string, m *ecs.PermissionType) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -248,7 +285,6 @@ resource "alicloud_security_group" "foo" {
   name = "sg_foo"
 }
 
-
 resource "alicloud_security_group_rule" "egress" {
   type = "egress"
   ip_protocol = "udp"
@@ -280,6 +316,22 @@ resource "alicloud_security_group_rule" "ingress" {
   priority = 1
   security_group_id = "${alicloud_security_group.foo.id}"
   cidr_ip = "10.159.6.18/12"
+}
+
+`
+const testAccSecurityGroupRule_missingSourceCidrIp = `
+resource "alicloud_security_group" "foo" {
+  name = "sg_foo"
+}
+
+resource "alicloud_security_group_rule" "egress" {
+  security_group_id = "${alicloud_security_group.foo.id}"
+  type = "egress"
+  cidr_ip= "0.0.0.0/0"
+  policy = "accept"
+  ip_protocol= "udp"
+  port_range= "80/80"
+  priority= 1
 }
 
 `

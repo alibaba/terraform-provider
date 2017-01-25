@@ -162,15 +162,28 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 
 func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
+	ruleType := d.Get("type").(string)
 
-	args, err := buildAliyunSecurityIngressArgs(d, meta)
+	if GroupRuleDirection(ruleType) == GroupRuleIngress {
+		args, err := buildAliyunSecurityIngressArgs(d, meta)
+		if err != nil {
+			return err
+		}
+		revokeArgs := &ecs.RevokeSecurityGroupArgs{
+			AuthorizeSecurityGroupArgs: *args,
+		}
+		return client.RevokeSecurityGroup(revokeArgs)
+	}
+
+	args, err := buildAliyunSecurityEgressArgs(d, meta)
+
 	if err != nil {
 		return err
 	}
-	revokeArgs := &ecs.RevokeSecurityGroupArgs{
-		AuthorizeSecurityGroupArgs: *args,
+	revokeArgs := &ecs.RevokeSecurityGroupEgressArgs{
+		AuthorizeSecurityGroupEgressArgs: *args,
 	}
-	return client.RevokeSecurityGroup(revokeArgs)
+	return client.RevokeSecurityGroupEgress(revokeArgs)
 }
 
 func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*ecs.AuthorizeSecurityGroupArgs, error) {

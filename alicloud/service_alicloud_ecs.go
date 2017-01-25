@@ -187,14 +187,13 @@ func (client *AliyunClient) DescribeSecurity(securityGroupId string) (*ecs.Descr
 }
 
 func (client *AliyunClient) DescribeSecurityGroupRule(securityGroupId, types, ip_protocol, port_range string) (*ecs.PermissionType, error) {
-
 	sg, err := client.DescribeSecurity(securityGroupId)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, p := range sg.Permissions.Permission {
-		if strings.ToLower(string(p.IpProtocol)) == ip_protocol && p.PortRange == port_range {
+		if strings.ToLower(string(p.IpProtocol)) == ip_protocol && p.PortRange == port_range && strings.ToLower(p.Direction) == types {
 			return &p, nil
 		}
 	}
