@@ -178,17 +178,19 @@ func dataSourceAlicloudImagesRead(d *schema.ResourceData, meta interface{}) erro
 	var allImages []ecs.ImageType
 
 	for {
-		images, _, err := conn.DescribeImages(params)
+		images, paginationResult, err := conn.DescribeImages(params)
 		if err != nil {
-			break
-		}
-		if len(images) == 0 {
 			break
 		}
 
 		allImages = append(allImages, images...)
 
-		params.Pagination.PageNumber++
+		pagination := paginationResult.NextPage()
+		if pagination == nil {
+			break
+		}
+
+		params.Pagination = *pagination
 	}
 
 	var filteredImages []ecs.ImageType
