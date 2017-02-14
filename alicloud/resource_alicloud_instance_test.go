@@ -418,7 +418,7 @@ func TestAccAlicloudInstance_privateIP(t *testing.T) {
 	testCheckPrivateIP := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
 			privateIP := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
-			if privateIP != "" {
+			if privateIP == "" {
 				return fmt.Errorf("can't get private IP")
 			}
 
