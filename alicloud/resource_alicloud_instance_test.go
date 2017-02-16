@@ -418,8 +418,8 @@ func TestAccAlicloudInstance_privateIP(t *testing.T) {
 	testCheckPrivateIP := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
 			privateIP := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
-			if privateIP != "172.16.0.229" {
-				return fmt.Errorf("bad private IP: %s", privateIP)
+			if privateIP == "" {
+				return fmt.Errorf("can't get private IP")
 			}
 
 			return nil
@@ -445,14 +445,14 @@ func TestAccAlicloudInstance_privateIP(t *testing.T) {
 	})
 }
 
-func TestAccAlicloudInstance_associatePublicIPAndPrivateIP(t *testing.T) {
+func TestAccAlicloudInstance_associatePublicIP(t *testing.T) {
 	var instance ecs.InstanceAttributesType
 
 	testCheckPrivateIP := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
 			privateIP := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
-			if privateIP != "172.16.0.229" {
-				return fmt.Errorf("bad private IP: %s", privateIP)
+			if privateIP == "" {
+				return fmt.Errorf("can't get private IP")
 			}
 
 			return nil
@@ -468,7 +468,7 @@ func TestAccAlicloudInstance_associatePublicIPAndPrivateIP(t *testing.T) {
 		CheckDestroy:  testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccInstanceConfigAssociatePublicIPAndPrivateIP,
+				Config: testAccInstanceConfigAssociatePublicIP,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists("alicloud_instance.foo", &instance),
 					testCheckPrivateIP(),
@@ -999,7 +999,6 @@ resource "alicloud_instance" "foo" {
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 
 	vswitch_id = "${alicloud_vswitch.foo.id}"
-	private_ip = "172.16.0.229"
 
 	# series II
 	instance_type = "ecs.n1.medium"
@@ -1009,7 +1008,7 @@ resource "alicloud_instance" "foo" {
 	instance_name = "test_foo"
 }
 `
-const testAccInstanceConfigAssociatePublicIPAndPrivateIP = `
+const testAccInstanceConfigAssociatePublicIP = `
 resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
   cidr_block = "172.16.0.0/12"
@@ -1033,7 +1032,6 @@ resource "alicloud_instance" "foo" {
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 
 	vswitch_id = "${alicloud_vswitch.foo.id}"
-	private_ip = "172.16.0.229"
 	allocate_public_ip = "true"
 	internet_max_bandwidth_out = 5
 	internet_charge_type = "PayByBandwidth"

@@ -38,7 +38,7 @@ variable "io_optimized" {
 }
 
 variable "disk_category" {
-  default = "cloud_ssd"
+  default = "cloud_efficiency"
 }
 variable "disk_size" {
   default = "40"
