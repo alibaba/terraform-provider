@@ -13,7 +13,11 @@ const (
 	VpcNet     = InstanceNetWork("vpc")
 )
 
+// timeout for common product, ecs e.g.
 const defaultTimeout = 120
+
+// timeout for long time progerss product, rds e.g.
+const defaultLongTimeout = 600
 
 func getRegion(d *schema.ResourceData, meta interface{}) common.Region {
 	return meta.(*AliyunClient).Region
@@ -58,3 +62,9 @@ var DefaultBusinessInfo = ecs.BusinessInfo{
 
 // default region for all resource
 const DEFAULT_REGION = "cn-beijing"
+
+// default security ip for db
+const DEFAULT_DB_SECURITY_IP = "127.0.0.1"
+
+// we the count of create instance is only one
+const DEFAULT_INSTANCE_COUNT = 1

@@ -5,6 +5,7 @@ import (
 
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
+	"github.com/denverdino/aliyungo/rds"
 	"github.com/denverdino/aliyungo/slb"
 )
 
@@ -19,6 +20,7 @@ type Config struct {
 type AliyunClient struct {
 	Region  common.Region
 	ecsconn *ecs.Client
+	rdsconn *rds.Client
 	// use new version
 	ecsNewconn *ecs.Client
 	vpcconn    *ecs.Client
@@ -43,6 +45,11 @@ func (c *Config) Client() (*AliyunClient, error) {
 	}
 	ecsNewconn.SetVersion(EcsApiVersion20160314)
 
+	rdsconn, err := c.rdsConn()
+	if err != nil {
+		return nil, err
+	}
+
 	slbconn, err := c.slbConn()
 	if err != nil {
 		return nil, err
@@ -59,6 +66,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 		ecsNewconn: ecsNewconn,
 		vpcconn:    vpcconn,
 		slbconn:    slbconn,
+		rdsconn:    rdsconn,
 	}, nil
 }
 
@@ -103,6 +111,11 @@ func (c *Config) ecsConn() (*ecs.Client, error) {
 		return nil, err
 	}
 
+	return client, nil
+}
+
+func (c *Config) rdsConn() (*rds.Client, error) {
+	client := rds.NewClient(c.AccessKey, c.SecretKey)
 	return client, nil
 }
 
