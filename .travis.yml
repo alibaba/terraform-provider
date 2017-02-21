@@ -2,12 +2,7 @@ sudo: false
 language: go
 go:
   - 1.7.3
-install:
-  # This script is used by the Travis build to install a cookie for
-  # go.googlesource.com so rate limits are higher when using `go get` to fetch
-  # packages that live there.
-  # See: https://github.com/golang/go/issues/12933
-  - bash scripts/gogetcookie.sh
+
 script:
   - go get -u github.com/kardianos/govendor
   - govendor init
@@ -17,6 +12,7 @@ script:
 branches:
   only:
     - dev
+    - master
 notifications:
   irc:
     channels:
