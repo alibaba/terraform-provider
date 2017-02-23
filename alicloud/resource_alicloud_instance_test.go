@@ -357,10 +357,6 @@ func TestAccAlicloudInstance_tags(t *testing.T) {
 					testAccCheckInstanceExists("alicloud_instance.foo", &instance),
 					resource.TestCheckResourceAttr(
 						"alicloud_instance.foo",
-						"tags.foo",
-						""),
-					resource.TestCheckResourceAttr(
-						"alicloud_instance.foo",
 						"tags.bar",
 						"zzz"),
 				),
@@ -764,7 +760,6 @@ resource "alicloud_security_group" "tf_test_bar" {
 
 resource "alicloud_instance" "foo" {
 	# cn-beijing
-	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	instance_type = "ecs.s2.large"
@@ -772,6 +767,7 @@ resource "alicloud_instance" "foo" {
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}"]
 	instance_name = "test_foo"
 	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
 }`
 
 const testAccInstanceConfig_multiSecurityGroup_add = `
@@ -792,7 +788,6 @@ resource "alicloud_security_group" "tf_test_add_sg" {
 
 resource "alicloud_instance" "foo" {
 	# cn-beijing
-	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	instance_type = "ecs.s2.large"
@@ -801,6 +796,7 @@ resource "alicloud_instance" "foo" {
 				"${alicloud_security_group.tf_test_add_sg.id}"]
 	instance_name = "test_foo"
 	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
 }
 `
 
@@ -812,7 +808,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 
 resource "alicloud_instance" "foo" {
 	# cn-beijing
-	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	instance_type = "ecs.s2.large"
@@ -820,6 +815,7 @@ resource "alicloud_instance" "foo" {
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
 	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
 }
 `
 
@@ -832,14 +828,14 @@ resource "alicloud_security_group" "tf_test_foo" {
 
 resource "alicloud_instance" "foo" {
 	# cn-beijing
-	availability_zone = "cn-beijing-b"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	instance_type = "ecs.s2.large"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.*.id}"]
 	instance_name = "test_foo"
-	io_optimized = "none"
+	io_optimized = "optimized"
+	system_disk_category = "cloud_efficiency"
 }
 `
 
