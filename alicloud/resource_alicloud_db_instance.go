@@ -1,14 +1,16 @@
 package alicloud
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/rds"
+	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
-	"strconv"
+	"strings"
 	"time"
 )
 
@@ -22,10 +24,12 @@ func resourceAliyunDBInstance() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"commodity_code": &schema.Schema{
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Required: true,
 			},
 			"engine": &schema.Schema{
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Required: true,
 			},
 			"engine_version": &schema.Schema{
@@ -46,18 +50,10 @@ func resourceAliyunDBInstance() *schema.Resource {
 				Optional: true,
 				Default:  rds.Postpaid,
 			},
-			"period_type": &schema.Schema{
-				Type:     schema.TypeString, // common.TimeType
-				Optional: true,
-			},
 			"period": &schema.Schema{
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Optional: true,
-			},
-			"auto_pay": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
+				Default:  1,
 			},
 
 			//"order_id": &schema.Schema{
@@ -87,70 +83,112 @@ func resourceAliyunDBInstance() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
-			//"connection_mode": &schema.Schema{
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//},
+
+			"instance_network_type": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"vswitch_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			//"master_user_name": &schema.Schema{
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//},
-			//"master_user_password": &schema.Schema{
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//},
-
-			//"preferred_backup_period": &schema.Schema{
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//},
-			//"preferred_backup_time": &schema.Schema{
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//},
-			//"backup_retention_period": &schema.Schema{
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//},
-
-			"security_ip_list": &schema.Schema{
+			"master_user_name": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: false,
-				Default:  "127.0.0.1",
+				ForceNew: true,
+				Optional: true,
+			},
+			"master_user_password": &schema.Schema{
+				Type:     schema.TypeString,
+				ForceNew: true,
 				Optional: true,
 			},
 
-			//"db_mappings": &schema.Schema{
-			//	Type: schema.TypeList,
-			//	Elem: &schema.Resource{
-			//		Schema: map[string]*schema.Schema{
-			//			"db_description": &schema.Schema{
-			//				Type:     schema.TypeString,
-			//				Optional: true,
-			//			},
-			//			"db_name": &schema.Schema{
-			//				Type:     schema.TypeString,
-			//				Required: true,
-			//			},
-			//			"character_set_name": &schema.Schema{
-			//				Type:     schema.TypeString,
-			//				Required: true,
-			//			},
-			//		},
-			//	},
-			//	Optional: true,
-			//},
+			"preferred_backup_period": &schema.Schema{
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+			},
+			"preferred_backup_time": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"backup_retention_period": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+
+			"security_ips": &schema.Schema{
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+			},
+
+			"port": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"connections": &schema.Schema{
+				Type: schema.TypeList,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"connection_string": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"ip_type": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"ip_address": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+				Computed: true,
+			},
+
+			"db_mappings": &schema.Schema{
+				Type: schema.TypeSet,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"db_name": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"character_set_name": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"db_description": &schema.Schema{
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+				Optional: true,
+				Set:      resourceAliyunDatabaseHash,
+			},
 		},
 	}
 }
 
+func resourceAliyunDatabaseHash(v interface{}) int {
+	var buf bytes.Buffer
+	m := v.(map[string]interface{})
+	buf.WriteString(fmt.Sprintf("%s-", m["db_name"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", m["character_set_name"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", m["db_description"].(string)))
+
+	return hashcode.String(buf.String())
+}
+
 func resourceAliyunDBInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).rdsconn
+	client := meta.(*AliyunClient)
+	conn := client.rdsconn
 
 	args, err := buildDBCreateOrderArgs(d, meta)
 	if err != nil {
@@ -174,24 +212,119 @@ func resourceAliyunDBInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	d.Set("instance_charge_type", d.Get("instance_charge_type"))
 	d.Set("period", d.Get("period"))
 	d.Set("period_type", d.Get("period_type"))
-	d.Set("auto_pay", args.AutoPay)
 
-	// after instance created, its status change from Creating to running
+	// wait instance status change from Creating to running
 	if err := conn.WaitForInstance(d.Id(), rds.Running, defaultLongTimeout); err != nil {
 		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", rds.Running, err)
+	}
+
+	masterUserName := d.Get("master_user_name").(string)
+	masterUserPwd := d.Get("master_user_password").(string)
+	if masterUserName != "" && masterUserPwd != "" {
+		if err := client.CreateAccountByInfo(d.Id(), masterUserName, masterUserPwd); err != nil {
+			return fmt.Errorf("Create db account %s error: %v", masterUserName, err)
+		}
+	}
+
+	if d.Get("allocate_public_connection").(bool) {
+		if err := client.AllocateDBPublicConnection(d.Id(), DB_DEFAULT_CONNECT_PORT); err != nil {
+			return fmt.Errorf("Allocate public connection error: %v", err)
+		}
 	}
 
 	return resourceAliyunDBInstanceUpdate(d, meta)
 }
 
 func resourceAliyunDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*AliyunClient)
+	conn := client.rdsconn
+	d.Partial(true)
 
-	// todo: security_ip_list
+	if d.HasChange("db_mappings") {
+		o, n := d.GetChange("db_mappings")
+		os := o.(*schema.Set)
+		ns := n.(*schema.Set)
+
+		var allDbs []string
+		remove := os.Difference(ns).List()
+		add := ns.Difference(os).List()
+
+		if len(remove) > 0 {
+			for _, db := range remove {
+				dbm, _ := db.(map[string]interface{})
+				if err := conn.DeleteDatabase(d.Id(), dbm["db_name"].(string)); err != nil {
+					return fmt.Errorf("Failure delete database %s: %#v", dbm["db_name"].(string), err)
+				}
+			}
+		}
+
+		if len(add) > 0 {
+			for _, db := range add {
+				dbm, _ := db.(map[string]interface{})
+				dbName := dbm["db_name"].(string)
+				allDbs = append(allDbs, dbName)
+
+				if err := client.CreateDatabaseByInfo(d.Id(), dbName, dbm["character_set_name"].(string), dbm["db_description"].(string)); err != nil {
+					return fmt.Errorf("Failure create database %s: %#v", dbName, err)
+				}
+
+			}
+		}
+
+		if err := conn.WaitForAllDatabase(d.Id(), allDbs, rds.Running, 600); err != nil {
+			return fmt.Errorf("Failure create database %#v", err)
+		}
+
+		if user := d.Get("master_user_name").(string); user != "" {
+			for _, dbName := range allDbs {
+				if err := client.GrantDBPrivilege2Account(d.Id(), user, dbName); err != nil {
+					return fmt.Errorf("Failed to grant database %s readwrite privilege to account %s: %#v", dbName, user, err)
+				}
+			}
+		}
+
+		d.SetPartial("db_mappings")
+	}
+
+	if d.HasChange("preferred_backup_period") || d.HasChange("preferred_backup_time") || d.HasChange("backup_retention_period") {
+		period := d.Get("preferred_backup_period").([]interface{})
+		periodList := expandStringList(period)
+		time := d.Get("preferred_backup_time").(string)
+		retention := d.Get("backup_retention_period").(int)
+
+		if time == "" || retention == 0 || len(periodList) < 1 {
+			return fmt.Errorf("Both backup_time, backup_period and retention_period are required to set backup policy.")
+		}
+
+		ps := strings.Join(periodList[:], COMMA_SEPARATED)
+
+		if err := client.ConfigDBBackup(d.Id(), time, ps, retention); err != nil {
+			return fmt.Errorf("Error set backup policy: %#v", err)
+		}
+	}
+
+	if d.HasChange("security_ips") {
+		ip := d.Get("security_ips").([]interface{})
+		ipList := expandStringList(ip)
+
+		ipstr := strings.Join(ipList[:], COMMA_SEPARATED)
+		// default disable connect from outside
+		if ipstr == "" {
+			ipstr = LOCAL_HOST_IP
+		}
+
+		if err := client.ModifySecurityIps(d.Id(), ipstr); err != nil {
+			return fmt.Errorf("Error modify security ips %s: %#v", ipstr, err)
+		}
+	}
+
+	d.Partial(false)
 	return resourceAliyunDBInstanceRead(d, meta)
 }
 
 func resourceAliyunDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
+	conn := client.rdsconn
 
 	instance, err := client.DescribeDBInstanceById(d.Id())
 	if err != nil {
@@ -202,13 +335,34 @@ func resourceAliyunDBInstanceRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error Describe DB InstanceAttribute: %#v", err)
 	}
 
+	args := rds.DescribeDatabasesArgs{
+		DBInstanceId: d.Id(),
+	}
+
+	resp, err := conn.DescribeDatabases(&args)
+	if err != nil {
+		return err
+	}
+	d.Set("db_mappings", flattenDatabaseMappings(resp.Databases.Database))
+
+	argn := rds.DescribeDBInstanceNetInfoArgs{
+		DBInstanceId: d.Id(),
+	}
+
+	resn, err := conn.DescribeDBInstanceNetInfo(&argn)
+	if err != nil {
+		return err
+	}
+	d.Set("connections", flattenDBConnections(resn.DBInstanceNetInfos.DBInstanceNetInfo))
+
 	d.Set("engine", instance.Engine)
 	d.Set("engine_version", instance.EngineVersion)
 	d.Set("db_instance_class", instance.DBInstanceClass)
+	d.Set("port", instance.Port)
 	d.Set("db_instance_storage", instance.DBInstanceStorage)
 	d.Set("zone_id", instance.ZoneId)
 	d.Set("db_instance_net_type", instance.DBInstanceNetType)
-	d.Set("security_ip_list", instance.SecurityIPList)
+	d.Set("instance_network_type", instance.InstanceNetworkType)
 
 	return nil
 }
@@ -238,8 +392,13 @@ func resourceAliyunDBInstanceDelete(d *schema.ResourceData, meta interface{}) er
 }
 
 func buildDBCreateOrderArgs(d *schema.ResourceData, meta interface{}) (*rds.CreateOrderArgs, error) {
+	client := meta.(*AliyunClient)
 	args := &rds.CreateOrderArgs{
-		RegionId:          getRegion(d, meta),
+		RegionId: getRegion(d, meta),
+		// we does not expose this param to user,
+		// because create prepaid instance progress will be stopped when set auto_pay to false,
+		// then could not get instance info, cause timeout error
+		AutoPay:           "true",
 		EngineVersion:     d.Get("engine_version").(string),
 		Engine:            rds.Engine(d.Get("engine").(string)),
 		DBInstanceStorage: d.Get("db_instance_storage").(int),
@@ -250,14 +409,78 @@ func buildDBCreateOrderArgs(d *schema.ResourceData, meta interface{}) (*rds.Crea
 
 	bussStr, err := json.Marshal(DefaultBusinessInfo)
 	if err != nil {
-		log.Printf("Failed to translate bussiness info %#v from json to string", DefaultBusinessInfo)
+		return nil, fmt.Errorf("Failed to translate bussiness info %#v from json to string", DefaultBusinessInfo)
 	}
 
 	args.BusinessInfo = string(bussStr)
 
+	zoneId := d.Get("zone_id").(string)
+	args.ZoneId = zoneId
+
+	multiAZ := d.Get("multi_az").(bool)
+	if multiAZ {
+		if zoneId != "" {
+			return nil, fmt.Errorf("You cannot set the ZoneId parameter when the MultiAZ parameter is set to true")
+		}
+		izs, err := client.DescribeMultiIZByRegion()
+		if err != nil {
+			return nil, fmt.Errorf("Get multiAZ id error")
+		}
+
+		if len(izs) < 1 {
+			return nil, fmt.Errorf("Current region does not support MultiAZ.")
+		}
+
+		args.ZoneId = izs[0]
+	}
+
+	// fill vpcId by vswitchId
+	vswitchId := d.Get("vswitch_id").(string)
+
+	networkType := d.Get("instance_network_type").(string)
+	args.InstanceNetworkType = common.NetworkType(networkType)
+
+	if vswitchId != "" {
+		args.VSwitchId = vswitchId
+
+		// check InstanceNetworkType with vswitchId
+		if networkType == string(common.Classic) {
+			return nil, fmt.Errorf("When fill vswitchId, you shold set instance_network_type to VPC")
+		} else if networkType == "" {
+			args.InstanceNetworkType = common.VPC
+		}
+
+		// get vpcId
+		vpcId, err := client.GetVpcIdByVSwitchId(vswitchId)
+
+		if err != nil {
+			return nil, fmt.Errorf("VswitchId %s is not valid of current region", vswitchId)
+		}
+		args.VPCId = vpcId
+
+		// check vswitchId in zone
+		vsw, err := client.QueryVswitchById(vpcId, vswitchId)
+		if err != nil {
+			return nil, fmt.Errorf("VswitchId %s is not valid of current region", vswitchId)
+		}
+
+		if zoneId == "" {
+			return nil, fmt.Errorf("zoneId is requird to create vpc type instance")
+		}
+		if vsw.ZoneId != zoneId {
+			return nil, fmt.Errorf("VswitchId %s is not belong to the zone %s", vswitchId, zoneId)
+		}
+	}
+
+	if v := d.Get("db_instance_net_type").(string); v != "" {
+		args.DBInstanceNetType = common.NetType(v)
+	}
+
 	chargeType := d.Get("instance_charge_type").(string)
 	if chargeType != "" {
 		args.PayType = rds.DBPayType(chargeType)
+	} else {
+		args.PayType = rds.Postpaid
 	}
 
 	commodityCode := d.Get("commodity_code").(string)
@@ -268,38 +491,8 @@ func buildDBCreateOrderArgs(d *schema.ResourceData, meta interface{}) (*rds.Crea
 		args.CommodityCode = rds.CommodityCode(commodityCode)
 	}
 
-	//zoneId := d.Get("zone_id").(string)
-	//multiAZ := d.Get("multi_az").(string)
-	//allocatePublicCon := d.Get("allocate_public_connection").(string)
-	//connectionMode := d.Get("connection_mode").(string)
-	//vswitchId := d.Get("vswitch_id").(string)
-	//
-	//masterUserName := d.Get("master_user_name").(string)
-	//masterUserPwd := d.Get("master_user_password").(string)
-	//
-	//backupPeriod := d.Get("preferred_backup_period").(string)
-	//backupTime := d.Get("preferred_backup_time").(string)
-	//retentionPeriod := d.Get("backup_retention_period").(string)
-	//
-	//securityIpList := d.Get("security_ip_list").(string)
-	//
-	//dbMapping := d.Get("db_mappings").(string)
-
-	if v := d.Get("db_instance_net_type").(string); v != "" {
-		args.DBInstanceNetType = common.NetType(v)
-	}
-
-	//period := d.Get("period").(string)
-	// if charge_type == postpaid, then auto_pay = true
-	// else charge_type == prepaid, then auto_pay default value is false
-	autoPay := strconv.FormatBool(d.Get("auto_pay").(bool))
-	if chargeType == string(rds.Prepaid) && autoPay == "" {
-		args.AutoPay = strconv.FormatBool(false)
-	} else {
-		args.AutoPay = autoPay
-	}
-
-	// todo: deal commodity_code by charge_type
+	period := d.Get("period").(int)
+	args.UsedTime, args.TimeType = TransformPeriod2Time(period, chargeType)
 
 	return args, nil
 }

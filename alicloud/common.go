@@ -68,3 +68,13 @@ const DEFAULT_DB_SECURITY_IP = "127.0.0.1"
 
 // we the count of create instance is only one
 const DEFAULT_INSTANCE_COUNT = 1
+
+// symbol of multiIZ
+const MULTI_IZ_SYMBOL = "MAZ"
+
+// default connect port of db
+const DB_DEFAULT_CONNECT_PORT = "3306"
+
+const COMMA_SEPARATED = ","
+
+const LOCAL_HOST_IP = "127.0.0.1"
