@@ -465,9 +465,8 @@ func buildDBCreateOrderArgs(d *schema.ResourceData, meta interface{}) (*rds.Crea
 		}
 
 		if zoneId == "" {
-			return nil, fmt.Errorf("zoneId is requird to create vpc type instance")
-		}
-		if vsw.ZoneId != zoneId {
+			args.ZoneId = vsw.ZoneId
+		} else if vsw.ZoneId != zoneId {
 			return nil, fmt.Errorf("VswitchId %s is not belong to the zone %s", vswitchId, zoneId)
 		}
 	}

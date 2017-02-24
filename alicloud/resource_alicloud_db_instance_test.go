@@ -536,6 +536,10 @@ resource "alicloud_db_instance" "foo" {
 `
 
 const testAccDBInstance_vpc = `
+data "alicloud_zones" "default" {
+	"available_resource_creation"= "VSwitch"
+}
+
 resource "alicloud_vpc" "foo" {
   name = "tf_test_foo"
   cidr_block = "172.16.0.0/12"
@@ -544,7 +548,7 @@ resource "alicloud_vpc" "foo" {
 resource "alicloud_vswitch" "foo" {
   vpc_id = "${alicloud_vpc.foo.id}"
   cidr_block = "172.16.0.0/21"
-  availability_zone = "cn-beijing-b"
+  availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 }
 
 resource "alicloud_db_instance" "foo" {
@@ -556,22 +560,10 @@ resource "alicloud_db_instance" "foo" {
 	instance_charge_type = "Postpaid"
 	db_instance_net_type = "Intranet"
 
-	zone_id = "cn-beijing-b"
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 }
 `
 const testAccDBInstance_multiIZ = `
-resource "alicloud_vpc" "foo" {
-  name = "tf_test_foo"
-  cidr_block = "172.16.0.0/12"
-}
-
-resource "alicloud_vswitch" "foo" {
-  vpc_id = "${alicloud_vpc.foo.id}"
-  cidr_block = "172.16.0.0/21"
-  availability_zone = "cn-beijing-b"
-}
-
 resource "alicloud_db_instance" "foo" {
 	commodity_code = "rds"
 	engine = "MySQL"
