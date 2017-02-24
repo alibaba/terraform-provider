@@ -20,10 +20,6 @@ variable "short_name" {
   default = "hi"
 }
 
-variable "availability_zones" {
-  default = "cn-beijing-b"
-}
-
 variable "internet_charge_type" {
   default = "PayByTraffic"
 }
@@ -45,6 +41,5 @@ module "worker-nodes" {
   ecs_type = "${var.worker_ecs_type}"
   ecs_password = "${var.ecs_password}"
   short_name = "${var.short_name}"
-  availability_zones = "${var.availability_zones}"
   internet_charge_type = "${var.internet_charge_type}"
 }
