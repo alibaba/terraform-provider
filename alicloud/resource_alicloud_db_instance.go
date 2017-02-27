@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,13 +29,16 @@ func resourceAliyunDBInstance() *schema.Resource {
 				Required: true,
 			},
 			"engine": &schema.Schema{
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				Type:         schema.TypeString,
+				ValidateFunc: validateAllowedStringValue([]string{"MySQL", "SQLServer", "PostgreSQL", "PPAS"}),
+				ForceNew:     true,
+				Required:     true,
 			},
 			"engine_version": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				ValidateFunc: validateAllowedStringValue([]string{"5.5", "5.6", "5.7", "2008r2", "2012", "9.4", "9.3"}),
+				ForceNew:     true,
+				Required:     true,
 			},
 			"db_instance_class": &schema.Schema{
 				Type:     schema.TypeString,
@@ -46,24 +50,19 @@ func resourceAliyunDBInstance() *schema.Resource {
 			},
 
 			"instance_charge_type": &schema.Schema{
-				Type:     schema.TypeString, // rds.DBPayType
-				Optional: true,
-				Default:  rds.Postpaid,
+				Type:         schema.TypeString,
+				ValidateFunc: validateAllowedStringValue([]string{string(rds.Postpaid), string(rds.Prepaid)}),
+				Optional:     true,
+				ForceNew:     true,
+				Default:      rds.Postpaid,
 			},
 			"period": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  1,
+				Type:         schema.TypeInt,
+				ValidateFunc: validateAllowedIntValue([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 24, 36}),
+				Optional:     true,
+				ForceNew:     true,
+				Default:      1,
 			},
-
-			//"order_id": &schema.Schema{
-			//	Type:     schema.TypeString,
-			//	Computed: true,
-			//},
-			//"price": &schema.Schema{
-			//	Type:     schema.TypeFloat,
-			//	Computed: true,
-			//},
 
 			"zone_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -73,10 +72,12 @@ func resourceAliyunDBInstance() *schema.Resource {
 			"multi_az": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
+				ForceNew: true,
 			},
 			"db_instance_net_type": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: validateAllowedStringValue([]string{string(common.Internet), string(common.Intranet)}),
+				Optional:     true,
 			},
 			"allocate_public_connection": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -85,12 +86,14 @@ func resourceAliyunDBInstance() *schema.Resource {
 			},
 
 			"instance_network_type": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				ValidateFunc: validateAllowedStringValue([]string{string(common.VPC), string(common.Classic)}),
+				Optional:     true,
+				Computed:     true,
 			},
 			"vswitch_id": &schema.Schema{
 				Type:     schema.TypeString,
+				ForceNew: true,
 				Optional: true,
 			},
 
@@ -100,23 +103,28 @@ func resourceAliyunDBInstance() *schema.Resource {
 				Optional: true,
 			},
 			"master_user_password": &schema.Schema{
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
+				Type:      schema.TypeString,
+				ForceNew:  true,
+				Optional:  true,
+				Sensitive: true,
 			},
 
 			"preferred_backup_period": &schema.Schema{
-				Type:     schema.TypeList,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type: schema.TypeList,
+				Elem: &schema.Schema{Type: schema.TypeString},
+				// terraform does not support ValidateFunc of TypeList attr
+				// ValidateFunc: validateAllowedStringValue([]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}),
 				Optional: true,
 			},
 			"preferred_backup_time": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:         schema.TypeString,
+				ValidateFunc: validateAllowedStringValue(rds.BACKUP_TIME),
+				Optional:     true,
 			},
 			"backup_retention_period": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeInt,
+				ValidateFunc: validateIntegerInRange(7, 730),
+				Optional:     true,
 			},
 
 			"security_ips": &schema.Schema{
@@ -160,8 +168,9 @@ func resourceAliyunDBInstance() *schema.Resource {
 							Required: true,
 						},
 						"character_set_name": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							ValidateFunc: validateAllowedStringValue(rds.CHARACTER_SET_NAME),
+							Required:     true,
 						},
 						"db_description": &schema.Schema{
 							Type:     schema.TypeString,
@@ -315,6 +324,20 @@ func resourceAliyunDBInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 
 		if err := client.ModifySecurityIps(d.Id(), ipstr); err != nil {
 			return fmt.Errorf("Error modify security ips %s: %#v", ipstr, err)
+		}
+	}
+
+	if d.HasChange("db_instance_class") || d.HasChange("db_instance_storage") {
+		dbClass := d.Get("db_instance_class").(string)
+		storage := d.Get("db_instance_storage").(int)
+
+		chargeType := d.Get("instance_charge_type").(string)
+		if chargeType == string(rds.Prepaid) {
+			return fmt.Errorf("Prepaid db instance does not support modify db_instance_class or db_instance_storage")
+		}
+
+		if err := client.ModifyDBClassStorage(d.Id(), dbClass, strconv.Itoa(storage)); err != nil {
+			return fmt.Errorf("Error modify db instance class or storage error: %#v", err)
 		}
 	}
 

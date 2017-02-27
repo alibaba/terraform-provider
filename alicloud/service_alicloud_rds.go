@@ -124,6 +124,25 @@ func (client *AliyunClient) ModifySecurityIps(instanceId, ips string) error {
 	return nil
 }
 
+func (client *AliyunClient) ModifyDBClassStorage(instanceId, class, storage string) error {
+	conn := client.rdsconn
+	args := rds.ModifyDBInstanceSpecArgs{
+		DBInstanceId:      instanceId,
+		PayType:           rds.Postpaid,
+		DBInstanceClass:   class,
+		DBInstanceStorage: storage,
+	}
+
+	if _, err := conn.ModifyDBInstanceSpec(&args); err != nil {
+		return err
+	}
+
+	if err := conn.WaitForInstance(instanceId, rds.Running, 600); err != nil {
+		return err
+	}
+	return nil
+}
+
 // turn period to TimeType
 func TransformPeriod2Time(period int, chargeType string) (ut int, tt common.TimeType) {
 	log.Printf("get period %d chargeType %s", period, chargeType)

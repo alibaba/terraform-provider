@@ -9,6 +9,7 @@ import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/slb"
+	"github.com/hashicorp/terraform/helper/schema"
 	"regexp"
 )
 
@@ -403,6 +404,78 @@ func validateSlbListenerPersistenceTimeout(v interface{}, k string) (ws []string
 		return
 	}
 	return
+}
+
+func validateDBBackupPeriod(v interface{}, k string) (ws []string, errors []error) {
+	days := []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
+	value := v.(string)
+	exist := false
+	for _, d := range days {
+		if value == d {
+			exist = true
+			break
+		}
+	}
+	if !exist {
+		errors = append(errors, fmt.Errorf(
+			"%q must contain a valid backup period value should in array %#v, got %q",
+			k, days, value))
+	}
+
+	return
+}
+
+func validateAllowedStringValue(ss []string) schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(string)
+		existed := false
+		for _, s := range ss {
+			if s == value {
+				existed = true
+			}
+		}
+		if !existed {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid string value should in array %#v, got %q",
+				k, ss, value))
+		}
+		return
+
+	}
+}
+
+func validateAllowedIntValue(is []int) schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(int)
+		existed := false
+		for _, i := range is {
+			if i == value {
+				existed = true
+			}
+		}
+		if !existed {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid int value should in array %#v, got %q",
+				k, is, value))
+		}
+		return
+
+	}
+}
+
+func validateIntegerInRange(min, max int) schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(int)
+		if value < min {
+			errors = append(errors, fmt.Errorf(
+				"%q cannot be lower than %d: %d", k, min, value))
+		}
+		if value > max {
+			errors = append(errors, fmt.Errorf(
+				"%q cannot be higher than %d: %d", k, max, value))
+		}
+		return
+	}
 }
 
 //data source validate func

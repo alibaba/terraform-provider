@@ -344,6 +344,42 @@ func TestAccAlicloudDBInstance_securityIps(t *testing.T) {
 
 }
 
+func TestAccAlicloudDBInstance_upgradeClass(t *testing.T) {
+	var instance rds.DBInstanceAttribute
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: "alicloud_db_instance.foo",
+
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDBInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccDBInstance_class,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDBInstanceExists(
+						"alicloud_db_instance.foo", &instance),
+					resource.TestCheckResourceAttr("alicloud_db_instance.foo", "db_instance_class", "rds.mysql.t1.small"),
+				),
+			},
+
+			resource.TestStep{
+				Config: testAccDBInstance_classUpgrade,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDBInstanceExists(
+						"alicloud_db_instance.foo", &instance),
+					resource.TestCheckResourceAttr("alicloud_db_instance.foo", "db_instance_class", "rds.mysql.s1.small"),
+				),
+			},
+		},
+	})
+
+}
+
 func testAccCheckSecurityIpExists(n string, ips []map[string]interface{}) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -717,5 +753,26 @@ resource "alicloud_db_instance" "foo" {
 	db_instance_net_type = "Intranet"
 
 	security_ips = ["10.168.1.12", "100.69.7.112"]
+}
+`
+
+const testAccDBInstance_class = `
+resource "alicloud_db_instance" "foo" {
+	commodity_code = "rds"
+	engine = "MySQL"
+	engine_version = "5.6"
+	db_instance_class = "rds.mysql.t1.small"
+	db_instance_storage = "10"
+	db_instance_net_type = "Intranet"
+}
+`
+const testAccDBInstance_classUpgrade = `
+resource "alicloud_db_instance" "foo" {
+	commodity_code = "rds"
+	engine = "MySQL"
+	engine_version = "5.6"
+	db_instance_class = "rds.mysql.s1.small"
+	db_instance_storage = "10"
+	db_instance_net_type = "Intranet"
 }
 `
