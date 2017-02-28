@@ -11,8 +11,6 @@ resource "alicloud_db_instance" "dc" {
 	master_user_name = "${var.user_name}"
 	master_user_password = "${var.password}"
 
-	count = "${var.count}"
-
 	db_mappings = [{
 	      db_name = "${var.database_name}"
 	      character_set_name = "${var.database_character}"

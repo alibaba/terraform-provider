@@ -106,7 +106,7 @@ func TestAccAlicloudImagesDataSource_imageNotInFirstPage(t *testing.T) {
 				Config: testAccCheckAlicloudImagesDataSourceImageNotInFirstPageConfig,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudDataSourceID("data.alicloud_images.name_regex_filtered_image"),
-					resource.TestMatchResourceAttr("data.alicloud_images.name_regex_filtered_image", "images.0.image_id", regexp.MustCompile("^ubuntu_1404")),
+					resource.TestMatchResourceAttr("data.alicloud_images.name_regex_filtered_image", "images.0.image_id", regexp.MustCompile("^ubuntu_14")),
 				),
 			},
 		},
@@ -150,6 +150,6 @@ const testAccCheckAlicloudImagesDataSourceImageNotInFirstPageConfig = `
 data "alicloud_images" "name_regex_filtered_image" {
 	most_recent = true
 	owners = "system"
-	name_regex = "^ubuntu_1404\\d{2}_64"
+	name_regex = "^ubuntu_14.*_64"
 }
 `

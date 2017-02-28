@@ -1,6 +1,4 @@
-variable "count" {
-  default = "1"
-}
+
 variable "commodity_code" {
   default = "rds"
 }
@@ -21,14 +19,14 @@ variable "net_type" {
 }
 
 variable "user_name" {
-  default = "tf-tester"
+  default = "tf_tester"
 }
 variable "password" {
   default = "Test12345"
 }
 
 variable "database_name" {
-  default = "Test12345"
+  default = "bookstore"
 }
 variable "database_character" {
   default = "utf8"

@@ -105,6 +105,10 @@ func (client *AliyunClient) ConfigDBBackup(instanceId, backupTime, backupPeriod 
 	if _, err := client.rdsconn.ModifyBackupPolicy(&args); err != nil {
 		return err
 	}
+
+	if err := client.rdsconn.WaitForInstance(instanceId, rds.Running, 600); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -119,6 +123,10 @@ func (client *AliyunClient) ModifySecurityIps(instanceId, ips string) error {
 	}
 
 	if _, err := client.rdsconn.ModifySecurityIps(&args); err != nil {
+		return err
+	}
+
+	if err := client.rdsconn.WaitForInstance(instanceId, rds.Running, 600); err != nil {
 		return err
 	}
 	return nil

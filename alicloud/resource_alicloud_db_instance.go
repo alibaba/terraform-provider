@@ -130,6 +130,7 @@ func resourceAliyunDBInstance() *schema.Resource {
 			"security_ips": &schema.Schema{
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+				Computed: true,
 				Optional: true,
 			},
 
@@ -227,6 +228,10 @@ func resourceAliyunDBInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", rds.Running, err)
 	}
 
+	if err := modifySecurityIps(d.Id(), d.Get("security_ips"), meta); err != nil {
+		return err
+	}
+
 	masterUserName := d.Get("master_user_name").(string)
 	masterUserPwd := d.Get("master_user_password").(string)
 	if masterUserName != "" && masterUserPwd != "" {
@@ -242,6 +247,22 @@ func resourceAliyunDBInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	return resourceAliyunDBInstanceUpdate(d, meta)
+}
+
+func modifySecurityIps(id string, ips interface{}, meta interface{}) error {
+	client := meta.(*AliyunClient)
+	ipList := expandStringList(ips.([]interface{}))
+
+	ipstr := strings.Join(ipList[:], COMMA_SEPARATED)
+	// default disable connect from outside
+	if ipstr == "" {
+		ipstr = LOCAL_HOST_IP
+	}
+
+	if err := client.ModifySecurityIps(id, ipstr); err != nil {
+		return fmt.Errorf("Error modify security ips %s: %#v", ipstr, err)
+	}
+	return nil
 }
 
 func resourceAliyunDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -310,21 +331,16 @@ func resourceAliyunDBInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 		if err := client.ConfigDBBackup(d.Id(), time, ps, retention); err != nil {
 			return fmt.Errorf("Error set backup policy: %#v", err)
 		}
+		d.SetPartial("preferred_backup_period")
+		d.SetPartial("preferred_backup_time")
+		d.SetPartial("backup_retention_period")
 	}
 
 	if d.HasChange("security_ips") {
-		ip := d.Get("security_ips").([]interface{})
-		ipList := expandStringList(ip)
-
-		ipstr := strings.Join(ipList[:], COMMA_SEPARATED)
-		// default disable connect from outside
-		if ipstr == "" {
-			ipstr = LOCAL_HOST_IP
+		if err := modifySecurityIps(d.Id(), d.Get("security_ips"), meta); err != nil {
+			return err
 		}
-
-		if err := client.ModifySecurityIps(d.Id(), ipstr); err != nil {
-			return fmt.Errorf("Error modify security ips %s: %#v", ipstr, err)
-		}
+		d.SetPartial("security_ips")
 	}
 
 	if d.HasChange("db_instance_class") || d.HasChange("db_instance_storage") {

@@ -1,6 +1,6 @@
 ### RDS Example
 
-The example launches RDS instance, database, account and grant the database readwrite privilege to the account. the count parameter in variables.tf can let you create specify number RDS instances.
+The example launches RDS instance, database, account and grant the database readwrite privilege to the account.
 
 ### Get up and running
 
