@@ -17,7 +17,7 @@ const (
 const defaultTimeout = 120
 
 // timeout for long time progerss product, rds e.g.
-const defaultLongTimeout = 600
+const defaultLongTimeout = 800
 
 func getRegion(d *schema.ResourceData, meta interface{}) common.Region {
 	return meta.(*AliyunClient).Region

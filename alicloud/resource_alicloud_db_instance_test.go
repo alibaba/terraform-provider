@@ -561,7 +561,6 @@ func testAccCheckDBInstanceDestroy(s *terraform.State) error {
 
 const testAccDBInstanceConfig = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -588,7 +587,6 @@ resource "alicloud_vswitch" "foo" {
 }
 
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -601,7 +599,6 @@ resource "alicloud_db_instance" "foo" {
 `
 const testAccDBInstance_multiIZ = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -613,7 +610,6 @@ resource "alicloud_db_instance" "foo" {
 
 const testAccDBInstance_prepaid_order = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -625,7 +621,6 @@ resource "alicloud_db_instance" "foo" {
 
 const testAccDBInstance_database = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -647,7 +642,6 @@ resource "alicloud_db_instance" "foo" {
 `
 const testAccDBInstance_database_update = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -674,7 +668,6 @@ resource "alicloud_db_instance" "foo" {
 
 const testAccDBInstance_grantDatabasePrivilege2Account = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -700,7 +693,6 @@ resource "alicloud_db_instance" "foo" {
 
 const testAccDBInstance_allocatePublicConnection = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -717,7 +709,6 @@ resource "alicloud_db_instance" "foo" {
 
 const testAccDBInstance_backup = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -733,7 +724,6 @@ resource "alicloud_db_instance" "foo" {
 
 const testAccDBInstance_securityIps = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -744,7 +734,6 @@ resource "alicloud_db_instance" "foo" {
 `
 const testAccDBInstance_securityIpsConfig = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -758,7 +747,6 @@ resource "alicloud_db_instance" "foo" {
 
 const testAccDBInstance_class = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.t1.small"
@@ -768,7 +756,6 @@ resource "alicloud_db_instance" "foo" {
 `
 const testAccDBInstance_classUpgrade = `
 resource "alicloud_db_instance" "foo" {
-	commodity_code = "rds"
 	engine = "MySQL"
 	engine_version = "5.6"
 	db_instance_class = "rds.mysql.s1.small"

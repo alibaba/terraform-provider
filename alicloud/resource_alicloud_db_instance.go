@@ -23,11 +23,6 @@ func resourceAliyunDBInstance() *schema.Resource {
 		Delete: resourceAliyunDBInstanceDelete,
 
 		Schema: map[string]*schema.Schema{
-			"commodity_code": &schema.Schema{
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
-			},
 			"engine": &schema.Schema{
 				Type:         schema.TypeString,
 				ValidateFunc: validateAllowedStringValue([]string{"MySQL", "SQLServer", "PostgreSQL", "PPAS"}),
@@ -217,8 +212,6 @@ func resourceAliyunDBInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	d.SetId(instanceId)
-	// we can't get this attr from DescribeDBInstance, so do it here
-	d.Set("commodity_code", d.Get("commodity_code"))
 	d.Set("instance_charge_type", d.Get("instance_charge_type"))
 	d.Set("period", d.Get("period"))
 	d.Set("period_type", d.Get("period_type"))
@@ -259,7 +252,7 @@ func modifySecurityIps(id string, ips interface{}, meta interface{}) error {
 		ipstr = LOCAL_HOST_IP
 	}
 
-	if err := client.ModifySecurityIps(id, ipstr); err != nil {
+	if err := client.ModifyDBSecurityIps(id, ipstr); err != nil {
 		return fmt.Errorf("Error modify security ips %s: %#v", ipstr, err)
 	}
 	return nil
@@ -394,6 +387,12 @@ func resourceAliyunDBInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	}
 	d.Set("connections", flattenDBConnections(resn.DBInstanceNetInfos.DBInstanceNetInfo))
 
+	ips, err := client.GetSecurityIps(d.Id())
+	if err != nil {
+		log.Printf("Describe DB security ips error: %#v", err)
+	}
+	d.Set("security_ips", ips)
+
 	d.Set("engine", instance.Engine)
 	d.Set("engine_version", instance.EngineVersion)
 	d.Set("db_instance_class", instance.DBInstanceClass)
@@ -521,12 +520,11 @@ func buildDBCreateOrderArgs(d *schema.ResourceData, meta interface{}) (*rds.Crea
 		args.PayType = rds.Postpaid
 	}
 
-	commodityCode := d.Get("commodity_code").(string)
 	// if charge type is postpaid, the commodity code must set to bards
-	if commodityCode == string(rds.Rds) && chargeType == string(rds.Postpaid) {
+	if chargeType == string(rds.Postpaid) {
 		args.CommodityCode = rds.Bards
 	} else {
-		args.CommodityCode = rds.CommodityCode(commodityCode)
+		args.CommodityCode = rds.Rds
 	}
 
 	period := d.Get("period").(int)

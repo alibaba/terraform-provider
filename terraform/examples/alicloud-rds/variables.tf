@@ -1,7 +1,3 @@
-
-variable "commodity_code" {
-  default = "rds"
-}
 variable "engine" {
   default = "MySQL"
 }

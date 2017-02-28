@@ -1,6 +1,5 @@
 
 resource "alicloud_db_instance" "dc" {
-	commodity_code = "${var.commodity_code}"
 	engine = "${var.engine}"
 	engine_version = "${var.engine_version}"
 	db_instance_class = "${var.instance_class}"
@@ -10,6 +9,8 @@ resource "alicloud_db_instance" "dc" {
 
 	master_user_name = "${var.user_name}"
 	master_user_password = "${var.password}"
+
+  security_ips = ["10.168.1.12", "100.69.7.112"]
 
 	db_mappings = [{
 	      db_name = "${var.database_name}"

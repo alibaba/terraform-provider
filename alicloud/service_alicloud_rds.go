@@ -3,7 +3,7 @@ package alicloud
 import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/rds"
-	"log"
+	"strings"
 )
 
 // when getInstance is empty, then throw InstanceNotfound error
@@ -112,7 +112,7 @@ func (client *AliyunClient) ConfigDBBackup(instanceId, backupTime, backupPeriod 
 	return nil
 }
 
-func (client *AliyunClient) ModifySecurityIps(instanceId, ips string) error {
+func (client *AliyunClient) ModifyDBSecurityIps(instanceId, ips string) error {
 	sargs := rds.DBInstanceIPArray{
 		SecurityIps: ips,
 	}
@@ -130,6 +130,34 @@ func (client *AliyunClient) ModifySecurityIps(instanceId, ips string) error {
 		return err
 	}
 	return nil
+}
+
+func (client *AliyunClient) DescribeDBSecurityIps(instanceId string) (ips []rds.DBInstanceIPList, err error) {
+	args := rds.DescribeDBInstanceIPsArgs{
+		DBInstanceId: instanceId,
+	}
+
+	resp, err := client.rdsconn.DescribeDBInstanceIPs(&args)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Items.DBInstanceIPArray, nil
+}
+
+func (client *AliyunClient) GetSecurityIps(instanceId string) ([]string, error) {
+	arr, err := client.DescribeDBSecurityIps(instanceId)
+	if err != nil {
+		return nil, err
+	}
+	ips := ""
+	for i, ip := range arr {
+		if i == 0 {
+			ips += ip.SecurityIPList
+		} else {
+			ips += COMMA_SEPARATED + ip.SecurityIPList
+		}
+	}
+	return strings.Split(ips, COMMA_SEPARATED), nil
 }
 
 func (client *AliyunClient) ModifyDBClassStorage(instanceId, class, storage string) error {
@@ -153,7 +181,6 @@ func (client *AliyunClient) ModifyDBClassStorage(instanceId, class, storage stri
 
 // turn period to TimeType
 func TransformPeriod2Time(period int, chargeType string) (ut int, tt common.TimeType) {
-	log.Printf("get period %d chargeType %s", period, chargeType)
 	if chargeType == string(rds.Postpaid) {
 		return 1, common.Day
 	}
@@ -210,11 +237,11 @@ func flattenDBBackup(list []rds.BackupPolicy) []map[string]interface{} {
 	return result
 }
 
-func flattenDBSecurityIPs(list []rds.DBInstanceIPArray) []map[string]interface{} {
+func flattenDBSecurityIPs(list []rds.DBInstanceIPList) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(list))
 	for _, i := range list {
 		l := map[string]interface{}{
-			"security_ips": i.SecurityIps,
+			"security_ips": i.SecurityIPList,
 		}
 		result = append(result, l)
 	}
