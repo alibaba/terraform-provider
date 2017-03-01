@@ -15,12 +15,12 @@ import (
 	"time"
 )
 
-func resourceAliyunDBInstance() *schema.Resource {
+func resourceAlicloudDBInstance() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAliyunDBInstanceCreate,
-		Read:   resourceAliyunDBInstanceRead,
-		Update: resourceAliyunDBInstanceUpdate,
-		Delete: resourceAliyunDBInstanceDelete,
+		Create: resourceAlicloudDBInstanceCreate,
+		Read:   resourceAlicloudDBInstanceRead,
+		Update: resourceAlicloudDBInstanceUpdate,
+		Delete: resourceAlicloudDBInstanceDelete,
 
 		Schema: map[string]*schema.Schema{
 			"engine": &schema.Schema{
@@ -175,13 +175,13 @@ func resourceAliyunDBInstance() *schema.Resource {
 					},
 				},
 				Optional: true,
-				Set:      resourceAliyunDatabaseHash,
+				Set:      resourceAlicloudDatabaseHash,
 			},
 		},
 	}
 }
 
-func resourceAliyunDatabaseHash(v interface{}) int {
+func resourceAlicloudDatabaseHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
 	buf.WriteString(fmt.Sprintf("%s-", m["db_name"].(string)))
@@ -191,7 +191,7 @@ func resourceAliyunDatabaseHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func resourceAliyunDBInstanceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceAlicloudDBInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rdsconn
 
@@ -203,12 +203,12 @@ func resourceAliyunDBInstanceCreate(d *schema.ResourceData, meta interface{}) er
 	resp, err := conn.CreateOrder(args)
 
 	if err != nil {
-		return fmt.Errorf("Error creating Aliyun db instance: %#v", err)
+		return fmt.Errorf("Error creating Alicloud db instance: %#v", err)
 	}
 
 	instanceId := resp.DBInstanceId
 	if instanceId == "" {
-		return fmt.Errorf("Error get Aliyun db instance id")
+		return fmt.Errorf("Error get Alicloud db instance id")
 	}
 
 	d.SetId(instanceId)
@@ -239,7 +239,7 @@ func resourceAliyunDBInstanceCreate(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	return resourceAliyunDBInstanceUpdate(d, meta)
+	return resourceAlicloudDBInstanceUpdate(d, meta)
 }
 
 func modifySecurityIps(id string, ips interface{}, meta interface{}) error {
@@ -258,7 +258,7 @@ func modifySecurityIps(id string, ips interface{}, meta interface{}) error {
 	return nil
 }
 
-func resourceAliyunDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rdsconn
 	d.Partial(true)
@@ -351,10 +351,10 @@ func resourceAliyunDBInstanceUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	d.Partial(false)
-	return resourceAliyunDBInstanceRead(d, meta)
+	return resourceAlicloudDBInstanceRead(d, meta)
 }
 
-func resourceAliyunDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAlicloudDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rdsconn
 
@@ -405,7 +405,7 @@ func resourceAliyunDBInstanceRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceAliyunDBInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceAlicloudDBInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).rdsconn
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -425,7 +425,7 @@ func resourceAliyunDBInstanceDelete(d *schema.ResourceData, meta interface{}) er
 			return nil
 		}
 
-		return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
+		return resource.RetryableError(fmt.Errorf("DB in use - trying again while it is deleted."))
 	})
 }
 
@@ -472,7 +472,6 @@ func buildDBCreateOrderArgs(d *schema.ResourceData, meta interface{}) (*rds.Crea
 		args.ZoneId = izs[0]
 	}
 
-	// fill vpcId by vswitchId
 	vswitchId := d.Get("vswitch_id").(string)
 
 	networkType := d.Get("instance_network_type").(string)
@@ -494,6 +493,7 @@ func buildDBCreateOrderArgs(d *schema.ResourceData, meta interface{}) (*rds.Crea
 		if err != nil {
 			return nil, fmt.Errorf("VswitchId %s is not valid of current region", vswitchId)
 		}
+		// fill vpcId by vswitchId
 		args.VPCId = vpcId
 
 		// check vswitchId in zone
