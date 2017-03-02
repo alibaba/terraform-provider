@@ -468,8 +468,8 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 }
 func buildAliyunRunInstancesArgs(d *schema.ResourceData, meta interface{}) (*ecs.RunInstanceArgs, error) {
 	args := &ecs.RunInstanceArgs{
-		MaxAmount: 1,
-		MinAmount: 1,
+		MaxAmount: DEFAULT_INSTANCE_COUNT,
+		MinAmount: DEFAULT_INSTANCE_COUNT,
 	}
 
 	bussStr, err := json.Marshal(DefaultBusinessInfo)

@@ -1,8 +1,21 @@
-## 1.0.2 (Unreleased)
+## 1.0.3 (unreleased)
+
+FEATURES:
+
+  * **New Resource:** `alicloud_db_instance` ([#85](https://github.com/alibaba/terraform-provider/pull/85))
+
+## 1.0.2 (February 24, 2017)
 
 IMPROVEMENTS:
 
+  * resource/alicloud_instance: change create ecs postpaid instance API form createInstance to runInstances, support BusinessInfo ([#80](https://github.com/alibaba/terraform-provider/pull/80))
+  * resource/alicloud_instance: change ecs parameter zoneId from required to optional ([#74](https://github.com/alibaba/terraform-provider/pull/74))
   * resource/alicloud_instance: support userdata ([#71](https://github.com/alibaba/terraform-provider/pull/71))
+  
+BUG FIXES:
+  
+  * resource/alicloud_security_group_rule: fix security group egress rule delete failed ([#79](https://github.com/alibaba/terraform-provider/pull/79))
+  * data resource/alicloud_images: data alicloud_images filter all images not only the first page ([#78](https://github.com/alibaba/terraform-provider/pull/78))
 
 ## 1.0.1 (January 17, 2017)
 
