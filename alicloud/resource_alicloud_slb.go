@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"errors"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/hashcode"
@@ -83,40 +84,119 @@ func resourceAliyunSlb() *schema.Resource {
 							ValidateFunc: validateSlbListenerBandwidth,
 							Required:     true,
 						},
-						//http
 						"scheduler": &schema.Schema{
 							Type:         schema.TypeString,
 							ValidateFunc: validateSlbListenerScheduler,
 							Optional:     true,
-							Default:      "wrr",
+							Default:      slb.WRRScheduler,
 						},
-
+						//http & https
 						"sticky_session": &schema.Schema{
 							Type:         schema.TypeString,
 							ValidateFunc: validateSlbListenerStickySession,
 							Optional:     true,
+							Default:      slb.OffFlag,
 						},
+						//http & https
 						"sticky_session_type": &schema.Schema{
 							Type:         schema.TypeString,
 							ValidateFunc: validateSlbListenerStickySessionType,
 							Optional:     true,
 						},
+						//http & https
+						"cookie_timeout": &schema.Schema{
+							Type:         schema.TypeInt,
+							ValidateFunc: validateSlbListenerCookieTimeout,
+							Optional:     true,
+						},
+						//http & https
 						"cookie": &schema.Schema{
 							Type:         schema.TypeString,
 							ValidateFunc: validateSlbListenerCookie,
 							Optional:     true,
 						},
-						"PersistenceTimeout": &schema.Schema{
+						//tcp & udp
+						"persistence_timeout": &schema.Schema{
 							Type:         schema.TypeInt,
 							ValidateFunc: validateSlbListenerPersistenceTimeout,
 							Optional:     true,
 							Default:      0,
+						},
+						//http & https
+						"health_check": &schema.Schema{
+							Type: schema.TypeString,
+							//todo: validateStringAllowValue instead
+							//ValidateFunc: validateSlbListenerPersistenceTimeout,
+							Optional: true,
+							Default:  slb.OffFlag,
+						},
+						//tcp
+						"health_check_type": &schema.Schema{
+							Type: schema.TypeString,
+							//todo: validateStringAllowValue instead
+							//ValidateFunc: validateSlbListenerPersistenceTimeout,
+							Optional: true,
+							Default:  slb.TCPHealthCheckType,
+						},
+						//http & https & tcp
+						"health_check_domain": &schema.Schema{
+							Type:         schema.TypeString,
+							ValidateFunc: validateSlbListenerHealthCheckDomain,
+							Optional:     true,
+						},
+						//http & https & tcp
+						"health_check_uri": &schema.Schema{
+							Type:         schema.TypeString,
+							ValidateFunc: validateSlbListenerHealthCheckUri,
+							Optional:     true,
+						},
+						"health_check_connect_port": &schema.Schema{
+							Type:         schema.TypeInt,
+							ValidateFunc: validateSlbListenerHealthCheckConnectPort,
+							Optional:     true,
+						},
+						"healthy_threshold": &schema.Schema{
+							Type: schema.TypeInt,
+							//todo: validateStringAllowValue instead
+							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
+							Optional: true,
+						},
+						"unhealthy_threshold": &schema.Schema{
+							Type: schema.TypeInt,
+							//todo: validateStringAllowValue instead
+							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
+							Optional: true,
+						},
+						//api interface: http & https is HealthCheckTimeout, tcp & udp is HealthCheckConnectTimeout
+						"health_check_timeout": &schema.Schema{
+							Type: schema.TypeInt,
+							//todo: validateStringAllowValue instead
+							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
+							Optional: true,
+						},
+						"health_check_interval": &schema.Schema{
+							Type: schema.TypeInt,
+							//todo: validateStringAllowValue instead
+							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
+							Optional: true,
+						},
+						//http & https & tcp
+						"health_check_http_code": &schema.Schema{
+							Type: schema.TypeString,
+							//todo: validateStringAllowValue instead
+							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
+							Optional: true,
 						},
 						//https
 						"ssl_certificate_id": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						//https
+						//"ca_certificate_id": &schema.Schema{
+						//	Type:     schema.TypeString,
+						//	Optional: true,
+						//},
 					},
 				},
 				Set: resourceAliyunSlbListenerHash,
@@ -349,44 +429,45 @@ func resourceAliyunSlbListenerHash(v interface{}) int {
 }
 
 func createListener(conn *slb.Client, loadBalancerId string, listener *Listener) error {
+
+	errTypeJudge := func(err error) error {
+		if err != nil {
+			if listenerType, ok := err.(*ListenerErr); ok {
+				if listenerType.ErrType == HealthCheckErrType {
+					return fmt.Errorf("When the HealthCheck is on, then related HealthCheck parameter must have.")
+				} else if listenerType.ErrType == StickySessionErrType {
+					return fmt.Errorf("When the StickySession is on, then StickySessionType parameter must have.")
+				}
+				return fmt.Errorf("slb listener check errtype not found.")
+			}
+		}
+		return nil
+	}
+
 	if listener.Protocol == strings.ToLower("tcp") {
-		args := &slb.CreateLoadBalancerTCPListenerArgs{
-			LoadBalancerId:    loadBalancerId,
-			ListenerPort:      listener.LoadBalancerPort,
-			BackendServerPort: listener.InstancePort,
-			Bandwidth:         listener.Bandwidth,
-		}
-		if err := conn.CreateLoadBalancerTCPListener(args); err != nil {
+
+		args := getTcpListenerArgs(loadBalancerId, listener)
+
+		if err := conn.CreateLoadBalancerTCPListener(&args); err != nil {
 			return err
 		}
-	}
-
-	if listener.Protocol == strings.ToLower("http") {
-		args := &slb.CreateLoadBalancerHTTPListenerArgs{
-			LoadBalancerId:    loadBalancerId,
-			ListenerPort:      listener.LoadBalancerPort,
-			BackendServerPort: listener.InstancePort,
-			Bandwidth:         listener.Bandwidth,
-			StickySession:     slb.OffFlag,
-			HealthCheck:       slb.OffFlag,
+	} else if listener.Protocol == strings.ToLower("http") {
+		args, argsErr := getHttpListenerArgs(loadBalancerId, listener)
+		if paramErr := errTypeJudge(argsErr); paramErr != nil {
+			return paramErr
 		}
 
-		if err := conn.CreateLoadBalancerHTTPListener(args); err != nil {
+		if err := conn.CreateLoadBalancerHTTPListener(&args); err != nil {
 			return err
 		}
-	}
+	} else if listener.Protocol == strings.ToLower("https") {
+		listenerType, err := getHttpListenerType(loadBalancerId, listener)
+		if paramErr := errTypeJudge(err); paramErr != nil {
+			return paramErr
+		}
 
-	if listener.Protocol == strings.ToLower("https") {
 		args := &slb.CreateLoadBalancerHTTPSListenerArgs{
-
-			HTTPListenerType: slb.HTTPListenerType{
-				LoadBalancerId:    loadBalancerId,
-				ListenerPort:      listener.LoadBalancerPort,
-				BackendServerPort: listener.InstancePort,
-				Bandwidth:         listener.Bandwidth,
-				StickySession:     slb.OffFlag,
-				HealthCheck:       slb.OffFlag,
-			},
+			HTTPListenerType: listenerType,
 		}
 		if listener.SSLCertificateId == "" {
 			return fmt.Errorf("Server Certificated Id cann't be null")
@@ -397,17 +478,10 @@ func createListener(conn *slb.Client, loadBalancerId string, listener *Listener)
 		if err := conn.CreateLoadBalancerHTTPSListener(args); err != nil {
 			return err
 		}
-	}
+	} else if listener.Protocol == strings.ToLower("udp") {
+		args := getUdpListenerArgs(loadBalancerId, listener)
 
-	if listener.Protocol == strings.ToLower("udp") {
-		args := &slb.CreateLoadBalancerUDPListenerArgs{
-			LoadBalancerId:    loadBalancerId,
-			ListenerPort:      listener.LoadBalancerPort,
-			BackendServerPort: listener.InstancePort,
-			Bandwidth:         listener.Bandwidth,
-		}
-
-		if err := conn.CreateLoadBalancerUDPListener(args); err != nil {
+		if err := conn.CreateLoadBalancerUDPListener(&args); err != nil {
 			return err
 		}
 	}
@@ -417,4 +491,89 @@ func createListener(conn *slb.Client, loadBalancerId string, listener *Listener)
 	}
 
 	return nil
+}
+
+func getTcpListenerArgs(loadBalancerId string, listener *Listener) slb.CreateLoadBalancerTCPListenerArgs {
+	args := slb.CreateLoadBalancerTCPListenerArgs{
+		LoadBalancerId:         loadBalancerId,
+		ListenerPort:           listener.LoadBalancerPort,
+		BackendServerPort:      listener.InstancePort,
+		Bandwidth:              listener.Bandwidth,
+		Scheduler:              listener.Scheduler,
+		PersistenceTimeout:     listener.PersistenceTimeout,
+		HealthCheckType:        listener.HealthCheckType,
+		HealthCheckDomain:      listener.HealthCheckDomain,
+		HealthCheckURI:         listener.HealthCheckURI,
+		HealthCheckConnectPort: listener.HealthCheckConnectPort,
+		HealthyThreshold:       listener.HealthyThreshold,
+		UnhealthyThreshold:     listener.UnhealthyThreshold,
+		HealthCheckTimeout:     listener.HealthCheckTimeout,
+		HealthCheckInterval:    listener.HealthCheckInterval,
+		HealthCheckHttpCode:    listener.HealthCheckHttpCode,
+	}
+	return args
+}
+
+func getUdpListenerArgs(loadBalancerId string, listener *Listener) slb.CreateLoadBalancerUDPListenerArgs {
+	args := slb.CreateLoadBalancerUDPListenerArgs{
+		LoadBalancerId:      loadBalancerId,
+		ListenerPort:        listener.LoadBalancerPort,
+		BackendServerPort:   listener.InstancePort,
+		Bandwidth:           listener.Bandwidth,
+		PersistenceTimeout:  listener.PersistenceTimeout,
+		HealthCheckTimeout:  listener.HealthCheckTimeout,
+		HealthCheckInterval: listener.HealthCheckInterval,
+	}
+	return args
+}
+
+func getHttpListenerType(loadBalancerId string, listener *Listener) (listenType slb.HTTPListenerType, err error) {
+
+	if listener.HealthCheck == slb.OnFlag {
+		if listener.HealthCheckURI == "" || listener.HealthCheckDomain == "" || listener.HealthCheckConnectPort == 0 || listener.HealthyThreshold == 0 || listener.UnhealthyThreshold == 0 || listener.HealthCheckTimeout == 0 || listener.HealthCheckHttpCode == "" || listener.HealthCheckInterval == 0 {
+
+			errMsg := errors.New("HealthCheck err.")
+			return listenType, &ListenerErr{HealthCheckErrType, errMsg}
+		}
+	}
+
+	if listener.StickySession == slb.OnFlag {
+		if listener.StickySessionType == "" {
+			errMsg := errors.New("stickySession err.")
+			return listenType, &ListenerErr{StickySessionErrType, errMsg}
+		}
+	}
+
+	httpListenertType := slb.HTTPListenerType{
+		LoadBalancerId:         loadBalancerId,
+		ListenerPort:           listener.LoadBalancerPort,
+		BackendServerPort:      listener.InstancePort,
+		Bandwidth:              listener.Bandwidth,
+		Scheduler:              listener.Scheduler,
+		HealthCheck:            listener.HealthCheck,
+		StickySession:          listener.StickySession,
+		StickySessionType:      listener.StickySessionType,
+		CookieTimeout:          listener.CookieTimeout,
+		Cookie:                 listener.Cookie,
+		HealthCheckDomain:      listener.HealthCheckDomain,
+		HealthCheckURI:         listener.HealthCheckURI,
+		HealthCheckConnectPort: listener.HealthCheckConnectPort,
+		HealthyThreshold:       listener.HealthyThreshold,
+		UnhealthyThreshold:     listener.UnhealthyThreshold,
+		HealthCheckTimeout:     listener.HealthCheckTimeout,
+		HealthCheckInterval:    listener.HealthCheckInterval,
+		HealthCheckHttpCode:    listener.HealthCheckHttpCode,
+	}
+
+	return httpListenertType, err
+}
+
+func getHttpListenerArgs(loadBalancerId string, listener *Listener) (listenType slb.CreateLoadBalancerHTTPListenerArgs, err error) {
+	httpListenerType, err := getHttpListenerType(loadBalancerId, listener)
+	if err != nil {
+		return listenType, err
+	}
+
+	httpArgs := slb.CreateLoadBalancerHTTPListenerArgs(httpListenerType)
+	return httpArgs, err
 }
