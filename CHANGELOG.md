@@ -1,3 +1,9 @@
+## 1.0.3 (unreleased)
+
+FEATURES:
+
+  * **New Resource:** `alicloud_db_instance` ([#85](https://github.com/alibaba/terraform-provider/pull/85))
+
 ## 1.0.2 (February 24, 2017)
 
 IMPROVEMENTS:
