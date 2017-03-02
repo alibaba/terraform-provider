@@ -132,3 +132,23 @@ func (client *AliyunClient) QueryRouteEntry(routeTableId, cidrBlock, nextHopType
 	}
 	return nil, nil
 }
+
+func (client *AliyunClient) GetVpcIdByVSwitchId(vswitchId string) (vpcId string, err error) {
+
+	vs, _, err := client.ecsconn.DescribeVpcs(&ecs.DescribeVpcsArgs{
+		RegionId: client.Region,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	for _, v := range vs {
+		for _, sw := range v.VSwitchIds.VSwitchId {
+			if sw == vswitchId {
+				return v.VpcId, nil
+			}
+		}
+	}
+
+	return "", &common.Error{ErrorResponse: common.ErrorResponse{Message: Notfound}}
+}
