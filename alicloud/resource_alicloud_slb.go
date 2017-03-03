@@ -171,7 +171,7 @@ func resourceAliyunSlb() *schema.Resource {
 							ValidateFunc: validateIntegerInRange(1, 10),
 							Optional:     true,
 						},
-						//api interface: http & https is HealthCheckTimeout, tcp & udp is HealthCheckConnectTimeout
+
 						"health_check_timeout": &schema.Schema{
 							Type:         schema.TypeInt,
 							ValidateFunc: validateIntegerInRange(1, 50),
