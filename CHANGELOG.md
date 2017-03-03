@@ -1,6 +1,6 @@
 ## 1.0.4 (unreleased)
 
-## 1.0.3 (March 24, 2017)
+## 1.0.3 (March 4, 2017)
 
 FEATURES:
 
