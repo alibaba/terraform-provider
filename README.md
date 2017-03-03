@@ -1,6 +1,6 @@
-## Aliyun (Alibaba Cloud) terraform provider
+## Alicloud (Alibaba Cloud) terraform provider
 
-This is the official repository for the Aliyun terraform provider.  
+This is the official repository for the Alicloud terraform provider.
 Currently it supports terraform version ≥ v0.8.2.
 
 If you are not planning to contribute to this repo, you can download the compiled binaries below and move 
@@ -90,6 +90,7 @@ sudo -E "PATH=$PATH" make all
 * Contributions are welcome and will be merged via PRs.
 
 ### Contributors
+* demonwy(demon.wy@alibaba-inc.com)
 * heww(heww0205@gmail.com)
 * ShuWei(shuwei.yin@alibaba-inc.com)
 * WangYuelucky(wangyuelucky@126.com)
