@@ -272,6 +272,10 @@ func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 		remove := os.Difference(ns).List()
 		add := ns.Difference(os).List()
 
+		if len(remove) > 0 && len(add) > 0 {
+			return fmt.Errorf("Failure modify database, we neither support create and delete database simultaneous nor modify database attributes.")
+		}
+
 		if len(remove) > 0 {
 			for _, db := range remove {
 				dbm, _ := db.(map[string]interface{})

@@ -55,6 +55,21 @@ func (client *AliyunClient) CreateDatabaseByInfo(instanceId, dbName, charset, de
 	return err
 }
 
+func (client *AliyunClient) DescribeDatabaseByName(instanceId, dbName string) (ds []rds.Database, err error) {
+	conn := client.rdsconn
+	args := rds.DescribeDatabasesArgs{
+		DBInstanceId: instanceId,
+		DBName:       dbName,
+	}
+
+	resp, err := conn.DescribeDatabases(&args)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Databases.Database, nil
+}
+
 func (client *AliyunClient) GrantDBPrivilege2Account(instanceId, username, dbName string) error {
 	conn := client.rdsconn
 	pargs := rds.GrantAccountPrivilegeArgs{
