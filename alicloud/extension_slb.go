@@ -39,6 +39,8 @@ func (e *ListenerErr) Error() string {
 const (
 	HealthCheckErrType   = "healthCheckErrType"
 	StickySessionErrType = "stickySessionErrType"
+	CookieTimeOutErrType = "cookieTimeoutErrType"
+	CookieErrType        = "cookieErrType"
 )
 
 // Takes the result of flatmap.Expand for an array of listeners and

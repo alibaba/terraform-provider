@@ -92,16 +92,20 @@ func resourceAliyunSlb() *schema.Resource {
 						},
 						//http & https
 						"sticky_session": &schema.Schema{
-							Type:         schema.TypeString,
-							ValidateFunc: validateSlbListenerStickySession,
-							Optional:     true,
-							Default:      slb.OffFlag,
+							Type: schema.TypeString,
+							ValidateFunc: validateAllowedStringValue([]string{
+								string(slb.OnFlag),
+								string(slb.OffFlag)}),
+							Optional: true,
+							Default:  slb.OffFlag,
 						},
 						//http & https
 						"sticky_session_type": &schema.Schema{
-							Type:         schema.TypeString,
-							ValidateFunc: validateSlbListenerStickySessionType,
-							Optional:     true,
+							Type: schema.TypeString,
+							ValidateFunc: validateAllowedStringValue([]string{
+								string(slb.InsertStickySessionType),
+								string(slb.ServerStickySessionType)}),
+							Optional: true,
 						},
 						//http & https
 						"cookie_timeout": &schema.Schema{
@@ -125,16 +129,18 @@ func resourceAliyunSlb() *schema.Resource {
 						//http & https
 						"health_check": &schema.Schema{
 							Type: schema.TypeString,
-							//todo: validateStringAllowValue instead
-							//ValidateFunc: validateSlbListenerPersistenceTimeout,
+							ValidateFunc: validateAllowedStringValue([]string{
+								string(slb.OnFlag),
+								string(slb.OffFlag)}),
 							Optional: true,
 							Default:  slb.OffFlag,
 						},
 						//tcp
 						"health_check_type": &schema.Schema{
 							Type: schema.TypeString,
-							//todo: validateStringAllowValue instead
-							//ValidateFunc: validateSlbListenerPersistenceTimeout,
+							ValidateFunc: validateAllowedStringValue([]string{
+								string(slb.TCPHealthCheckType),
+								string(slb.HTTPHealthCheckType)}),
 							Optional: true,
 							Default:  slb.TCPHealthCheckType,
 						},
@@ -156,35 +162,34 @@ func resourceAliyunSlb() *schema.Resource {
 							Optional:     true,
 						},
 						"healthy_threshold": &schema.Schema{
-							Type: schema.TypeInt,
-							//todo: validateStringAllowValue instead
-							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
-							Optional: true,
+							Type:         schema.TypeInt,
+							ValidateFunc: validateIntegerInRange(1, 10),
+							Optional:     true,
 						},
 						"unhealthy_threshold": &schema.Schema{
-							Type: schema.TypeInt,
-							//todo: validateStringAllowValue instead
-							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
-							Optional: true,
+							Type:         schema.TypeInt,
+							ValidateFunc: validateIntegerInRange(1, 10),
+							Optional:     true,
 						},
 						//api interface: http & https is HealthCheckTimeout, tcp & udp is HealthCheckConnectTimeout
 						"health_check_timeout": &schema.Schema{
-							Type: schema.TypeInt,
-							//todo: validateStringAllowValue instead
-							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
-							Optional: true,
+							Type:         schema.TypeInt,
+							ValidateFunc: validateIntegerInRange(1, 50),
+							Optional:     true,
 						},
 						"health_check_interval": &schema.Schema{
-							Type: schema.TypeInt,
-							//todo: validateStringAllowValue instead
-							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
-							Optional: true,
+							Type:         schema.TypeInt,
+							ValidateFunc: validateIntegerInRange(1, 5),
+							Optional:     true,
 						},
 						//http & https & tcp
 						"health_check_http_code": &schema.Schema{
 							Type: schema.TypeString,
-							//todo: validateStringAllowValue instead
-							//ValidateFunc: validateSlbListenerHealthCheckConnectPort,
+							ValidateFunc: validateAllowedStringValue([]string{
+								string(slb.HTTP_2XX),
+								string(slb.HTTP_3XX),
+								string(slb.HTTP_4XX),
+								string(slb.HTTP_5XX)}),
 							Optional: true,
 						},
 						//https
@@ -434,9 +439,17 @@ func createListener(conn *slb.Client, loadBalancerId string, listener *Listener)
 		if err != nil {
 			if listenerType, ok := err.(*ListenerErr); ok {
 				if listenerType.ErrType == HealthCheckErrType {
-					return fmt.Errorf("When the HealthCheck is on, then related HealthCheck parameter must have.")
+					return fmt.Errorf("When the HealthCheck is %s, then related HealthCheck parameter "+
+						"must have.", slb.OnFlag)
 				} else if listenerType.ErrType == StickySessionErrType {
-					return fmt.Errorf("When the StickySession is on, then StickySessionType parameter must have.")
+					return fmt.Errorf("When the StickySession is %s, then StickySessionType parameter "+
+						"must have.", slb.OnFlag)
+				} else if listenerType.ErrType == CookieTimeOutErrType {
+					return fmt.Errorf("When the StickySession is %s and StickySessionType is %s, "+
+						"then CookieTimeout parameter must have.", slb.OnFlag, slb.InsertStickySessionType)
+				} else if listenerType.ErrType == CookieErrType {
+					return fmt.Errorf("When the StickySession is %s and StickySessionType is %s, "+
+						"then Cookie parameter must have.", slb.OnFlag, slb.ServerStickySessionType)
 				}
 				return fmt.Errorf("slb listener check errtype not found.")
 			}
@@ -530,17 +543,31 @@ func getUdpListenerArgs(loadBalancerId string, listener *Listener) slb.CreateLoa
 func getHttpListenerType(loadBalancerId string, listener *Listener) (listenType slb.HTTPListenerType, err error) {
 
 	if listener.HealthCheck == slb.OnFlag {
-		if listener.HealthCheckURI == "" || listener.HealthCheckDomain == "" || listener.HealthCheckConnectPort == 0 || listener.HealthyThreshold == 0 || listener.UnhealthyThreshold == 0 || listener.HealthCheckTimeout == 0 || listener.HealthCheckHttpCode == "" || listener.HealthCheckInterval == 0 {
+		if listener.HealthCheckURI == "" || listener.HealthCheckDomain == "" || listener.HealthCheckConnectPort == 0 ||
+			listener.HealthyThreshold == 0 || listener.UnhealthyThreshold == 0 || listener.HealthCheckTimeout == 0 ||
+			listener.HealthCheckHttpCode == "" || listener.HealthCheckInterval == 0 {
 
-			errMsg := errors.New("HealthCheck err.")
+			errMsg := errors.New("err: HealthCheck empty.")
 			return listenType, &ListenerErr{HealthCheckErrType, errMsg}
 		}
 	}
 
 	if listener.StickySession == slb.OnFlag {
 		if listener.StickySessionType == "" {
-			errMsg := errors.New("stickySession err.")
+			errMsg := errors.New("err: stickySession empty.")
 			return listenType, &ListenerErr{StickySessionErrType, errMsg}
+		}
+
+		if listener.StickySessionType == slb.InsertStickySessionType {
+			if listener.CookieTimeout == 0 {
+				errMsg := errors.New("err: cookieTimeout empty.")
+				return listenType, &ListenerErr{CookieTimeOutErrType, errMsg}
+			}
+		} else if listener.StickySessionType == slb.ServerStickySessionType {
+			if listener.Cookie == "" {
+				errMsg := errors.New("err: cookie empty.")
+				return listenType, &ListenerErr{CookieErrType, errMsg}
+			}
 		}
 	}
 

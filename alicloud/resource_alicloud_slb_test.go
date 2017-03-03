@@ -303,40 +303,40 @@ resource "alicloud_slb" "listener" {
     }]
 }
 `
-const testAccSlbListenerUpdate = `
-resource "alicloud_slb" "listener" {
-  name = "tf_test_slb"
-  internet_charge_type = "paybybandwidth"
-  bandwidth = 5
-  internet = true
-  listener = [
-    {
-      "instance_port" = "8000"
-      "lb_port" = "801"
-      "lb_protocol" = "http"
-      "sticky_session" = "on"
-      "sticky_session_type" = "insert"
-      "cookie_timeout" = 800
-      "bandwidth" = 1
-    },{
-      "instance_port" = "8001"
-      "lb_port" = "811"
-      "lb_protocol" = "http"
-      "sticky_session" = "on"
-      "sticky_session_type" = "server"
-      "cookie" = "testslblistenercookie"
-      "cookie_timeout" = 1800
-      "health_check" = "off"
-      "bandwidth" = 1
-    },{
-      "instance_port" = "443"
-      "lb_port" = "4431"
-      "lb_protocol" = "https"
-      "ssl_certificate_id" = "1204663572767468_159632fef6e"
-      "bandwidth" = 1
-    }]
-}
-`
+
+//const testAccSlbListenerUpdate = `
+//resource "alicloud_slb" "listener" {
+//  name = "tf_test_slb"
+//  internet_charge_type = "paybybandwidth"
+//  bandwidth = 5
+//  internet = true
+//  listener = [
+//    {
+//      "instance_port" = "8000"
+//      "lb_port" = "801"
+//      "lb_protocol" = "http"
+//      "sticky_session" = "on"
+//      "sticky_session_type" = "insert"
+//      "cookie_timeout" = 800
+//      "bandwidth" = 1
+//    },{
+//      "instance_port" = "8001"
+//      "lb_port" = "811"
+//      "lb_protocol" = "http"
+//      "sticky_session" = "on"
+//      "sticky_session_type" = "server"
+//      "cookie" = "testslblistenercookie"
+//      "health_check" = "off"
+//      "bandwidth" = 1
+//    },{
+//      "instance_port" = "443"
+//      "lb_port" = "4431"
+//      "lb_protocol" = "https"
+//      "ssl_certificate_id" = "1204663572767468_159632fef6e"
+//      "bandwidth" = 1
+//    }]
+//}
+//`
 
 const testAccSlb4Vpc = `
 data "alicloud_zones" "default" {

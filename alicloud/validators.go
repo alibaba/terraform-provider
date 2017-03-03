@@ -9,6 +9,7 @@ import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/slb"
+	"github.com/hashicorp/terraform/helper/schema"
 	"regexp"
 )
 
@@ -355,39 +356,10 @@ func validateSlbListenerScheduler(v interface{}, k string) (ws []string, errors 
 	return
 }
 
-func validateSlbListenerStickySession(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(string); value != "" {
-		flag := slb.FlagType(value)
-
-		if flag != "on" && flag != "off" {
-			errors = append(errors, fmt.Errorf(
-				"%q must contain a valid StickySession, expected %s or %s, got %q",
-				k, "on", "off", value))
-		}
-	}
-	return
-}
-
-func validateSlbListenerStickySessionType(v interface{}, k string) (ws []string, errors []error) {
-	if value := v.(string); value != "" {
-		flag := slb.StickySessionType(value)
-
-		if flag != "insert" && flag != "server" {
-			errors = append(errors, fmt.Errorf(
-				"%q must contain a valid StickySessionType, expected %s or %s, got %q",
-				k, "insert", "server", value))
-		}
-	}
-	return
-}
-
 func validateSlbListenerCookie(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
 		if len(value) < 1 || len(value) > 200 {
-			errors = append(errors, fmt.Errorf(
-				"%q must be a valid cookie name characters between 1 and 200",
-				k))
-			return
+			errors = append(errors, fmt.Errorf("%q cannot be longer than 200 characters", k))
 		}
 	}
 	return
@@ -408,7 +380,7 @@ func validateSlbListenerPersistenceTimeout(v interface{}, k string) (ws []string
 	value := v.(int)
 	if value < 0 || value > 3600 {
 		errors = append(errors, fmt.Errorf(
-			"%q must be a valid load balancer persistence timeout between 0 and 3600",
+			"%q must be a valid load balancer persistence timeout between 0 and 86400",
 			k))
 		return
 	}
@@ -446,6 +418,78 @@ func validateSlbListenerHealthCheckConnectPort(v interface{}, k string) (ws []st
 
 	}
 	return
+}
+
+func validateDBBackupPeriod(v interface{}, k string) (ws []string, errors []error) {
+	days := []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
+	value := v.(string)
+	exist := false
+	for _, d := range days {
+		if value == d {
+			exist = true
+			break
+		}
+	}
+	if !exist {
+		errors = append(errors, fmt.Errorf(
+			"%q must contain a valid backup period value should in array %#v, got %q",
+			k, days, value))
+	}
+
+	return
+}
+
+func validateAllowedStringValue(ss []string) schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(string)
+		existed := false
+		for _, s := range ss {
+			if s == value {
+				existed = true
+			}
+		}
+		if !existed {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid string value should in array %#v, got %q",
+				k, ss, value))
+		}
+		return
+
+	}
+}
+
+func validateAllowedIntValue(is []int) schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(int)
+		existed := false
+		for _, i := range is {
+			if i == value {
+				existed = true
+			}
+		}
+		if !existed {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid int value should in array %#v, got %q",
+				k, is, value))
+		}
+		return
+
+	}
+}
+
+func validateIntegerInRange(min, max int) schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(int)
+		if value < min {
+			errors = append(errors, fmt.Errorf(
+				"%q cannot be lower than %d: %d", k, min, value))
+		}
+		if value > max {
+			errors = append(errors, fmt.Errorf(
+				"%q cannot be higher than %d: %d", k, max, value))
+		}
+		return
+	}
 }
 
 //data source validate func
