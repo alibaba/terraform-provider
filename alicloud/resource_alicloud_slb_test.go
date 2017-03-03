@@ -289,12 +289,6 @@ resource "alicloud_slb" "listener" {
       "health_check_http_code" = "http_2xx"
       "bandwidth" = 1
     },{
-      "instance_port" = "443"
-      "lb_port" = "443"
-      "lb_protocol" = "https"
-      "ssl_certificate_id" = "1204663572767468_159632fef6e"
-      "bandwidth" = 1
-    },{
       "instance_port" = "1611"
       "lb_port" = "161"
       "lb_protocol" = "udp"
