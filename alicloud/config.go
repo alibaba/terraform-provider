@@ -74,6 +74,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 // when you need new client not global client, use this method
 func (c *Config) NewEcsConn() (*ecs.Client, error) {
 	client := ecs.NewClient(c.AccessKey, c.SecretKey)
+	client.SetBusinessInfo("Terraform")
 	_, err := client.DescribeRegions()
 
 	if err != nil {
