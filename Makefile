@@ -3,7 +3,7 @@ VETARGS?=-all
 TEST?=$$(go list ./...)
 
 
-all: build copy
+all: build
 
 build: mac windows linux
 
