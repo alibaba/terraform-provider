@@ -446,11 +446,37 @@ func validateAllowedStringValue(ss []string) schema.SchemaValidateFunc {
 		for _, s := range ss {
 			if s == value {
 				existed = true
+				break
 			}
 		}
 		if !existed {
 			errors = append(errors, fmt.Errorf(
 				"%q must contain a valid string value should in array %#v, got %q",
+				k, ss, value))
+		}
+		return
+
+	}
+}
+
+func validateAllowedSplitStringValue(ss []string, splitStr string) schema.SchemaValidateFunc {
+	return func(v interface{}, k string) (ws []string, errors []error) {
+		value := v.(string)
+		existed := false
+		tsList := strings.Split(value, splitStr)
+
+		for _, ts := range tsList {
+			existed = false
+			for _, s := range ss {
+				if ts == s {
+					existed = true
+					break
+				}
+			}
+		}
+		if !existed {
+			errors = append(errors, fmt.Errorf(
+				"%q must contain a valid string value should in %#v, got %q",
 				k, ss, value))
 		}
 		return
@@ -465,6 +491,7 @@ func validateAllowedIntValue(is []int) schema.SchemaValidateFunc {
 		for _, i := range is {
 			if i == value {
 				existed = true
+				break
 			}
 		}
 		if !existed {

@@ -289,8 +289,8 @@ resource "alicloud_slb" "listener" {
       "health_check_http_code" = "http_2xx"
       "bandwidth" = 1
     },{
-      "instance_port" = "1611"
-      "lb_port" = "161"
+      "instance_port" = "2001"
+      "lb_port" = "2001"
       "lb_protocol" = "udp"
       "bandwidth" = 1
       "persistence_timeout" = 700

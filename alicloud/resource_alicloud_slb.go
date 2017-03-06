@@ -185,11 +185,11 @@ func resourceAliyunSlb() *schema.Resource {
 						//http & https & tcp
 						"health_check_http_code": &schema.Schema{
 							Type: schema.TypeString,
-							ValidateFunc: validateAllowedStringValue([]string{
+							ValidateFunc: validateAllowedSplitStringValue([]string{
 								string(slb.HTTP_2XX),
 								string(slb.HTTP_3XX),
 								string(slb.HTTP_4XX),
-								string(slb.HTTP_5XX)}),
+								string(slb.HTTP_5XX)}, ","),
 							Optional: true,
 						},
 						//https
@@ -508,34 +508,34 @@ func createListener(conn *slb.Client, loadBalancerId string, listener *Listener)
 
 func getTcpListenerArgs(loadBalancerId string, listener *Listener) slb.CreateLoadBalancerTCPListenerArgs {
 	args := slb.CreateLoadBalancerTCPListenerArgs{
-		LoadBalancerId:         loadBalancerId,
-		ListenerPort:           listener.LoadBalancerPort,
-		BackendServerPort:      listener.InstancePort,
-		Bandwidth:              listener.Bandwidth,
-		Scheduler:              listener.Scheduler,
-		PersistenceTimeout:     listener.PersistenceTimeout,
-		HealthCheckType:        listener.HealthCheckType,
-		HealthCheckDomain:      listener.HealthCheckDomain,
-		HealthCheckURI:         listener.HealthCheckURI,
-		HealthCheckConnectPort: listener.HealthCheckConnectPort,
-		HealthyThreshold:       listener.HealthyThreshold,
-		UnhealthyThreshold:     listener.UnhealthyThreshold,
-		HealthCheckTimeout:     listener.HealthCheckTimeout,
-		HealthCheckInterval:    listener.HealthCheckInterval,
-		HealthCheckHttpCode:    listener.HealthCheckHttpCode,
+		LoadBalancerId:            loadBalancerId,
+		ListenerPort:              listener.LoadBalancerPort,
+		BackendServerPort:         listener.InstancePort,
+		Bandwidth:                 listener.Bandwidth,
+		Scheduler:                 listener.Scheduler,
+		PersistenceTimeout:        listener.PersistenceTimeout,
+		HealthCheckType:           listener.HealthCheckType,
+		HealthCheckDomain:         listener.HealthCheckDomain,
+		HealthCheckURI:            listener.HealthCheckURI,
+		HealthCheckConnectPort:    listener.HealthCheckConnectPort,
+		HealthyThreshold:          listener.HealthyThreshold,
+		UnhealthyThreshold:        listener.UnhealthyThreshold,
+		HealthCheckConnectTimeout: listener.HealthCheckTimeout,
+		HealthCheckInterval:       listener.HealthCheckInterval,
+		HealthCheckHttpCode:       listener.HealthCheckHttpCode,
 	}
 	return args
 }
 
 func getUdpListenerArgs(loadBalancerId string, listener *Listener) slb.CreateLoadBalancerUDPListenerArgs {
 	args := slb.CreateLoadBalancerUDPListenerArgs{
-		LoadBalancerId:      loadBalancerId,
-		ListenerPort:        listener.LoadBalancerPort,
-		BackendServerPort:   listener.InstancePort,
-		Bandwidth:           listener.Bandwidth,
-		PersistenceTimeout:  listener.PersistenceTimeout,
-		HealthCheckTimeout:  listener.HealthCheckTimeout,
-		HealthCheckInterval: listener.HealthCheckInterval,
+		LoadBalancerId:            loadBalancerId,
+		ListenerPort:              listener.LoadBalancerPort,
+		BackendServerPort:         listener.InstancePort,
+		Bandwidth:                 listener.Bandwidth,
+		PersistenceTimeout:        listener.PersistenceTimeout,
+		HealthCheckConnectTimeout: listener.HealthCheckTimeout,
+		HealthCheckInterval:       listener.HealthCheckInterval,
 	}
 	return args
 }
