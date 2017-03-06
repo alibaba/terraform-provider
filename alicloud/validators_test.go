@@ -430,7 +430,7 @@ func TestValidateSlbListenerBandwidth(t *testing.T) {
 
 func TestValidateAllowedStringValue(t *testing.T) {
 	exceptValues := []string{"aliyun", "alicloud", "alibaba"}
-	validValues := []string{"aliyun", "alicloud", "alibaba"}
+	validValues := []string{"aliyun"}
 	for _, v := range validValues {
 		_, errors := validateAllowedStringValue(exceptValues)(v, "allowvalue")
 		if len(errors) != 0 {
@@ -444,6 +444,21 @@ func TestValidateAllowedStringValue(t *testing.T) {
 		if len(errors) == 0 {
 			t.Fatalf("%q should be an invalid value", v)
 		}
+	}
+}
+
+func TestValidateAllowedStringSplitValue(t *testing.T) {
+	exceptValues := []string{"aliyun", "alicloud", "alibaba"}
+	validValues := "aliyun,alicloud"
+	_, errors := validateAllowedSplitStringValue(exceptValues, ",")(validValues, "allowvalue")
+	if len(errors) != 0 {
+		t.Fatalf("%q should be a valid value in %#v: %q", validValues, exceptValues, errors)
+	}
+
+	invalidValues := "ali,alidata"
+	_, invalidErr := validateAllowedSplitStringValue(exceptValues, ",")(invalidValues, "allowvalue")
+	if len(invalidErr) != 0 {
+		t.Fatalf("%q should be an invalid value", invalidValues)
 	}
 }
 

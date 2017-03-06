@@ -11,6 +11,25 @@ resource "alicloud_slb" "instance" {
         "bandwidth" = "10"
         "health_check_type" = "http"
         "persistence_timeout" = 3600
+        "healthy_threshold" = 8
+        "unhealthy_threshold" = 8
+        "health_check_timeout" = 8
+        "health_check_interval" = 5
+        "health_check_http_code" = "http_2xx,http_3xx"
+        "health_check_timeout" = 8
+    },
+
+    {
+      "instance_port" = "2001"
+      "lb_port" = "2001"
+      "lb_protocol" = "udp"
+      "bandwidth" = "10"
+      "persistence_timeout" = 3600
+      "healthy_threshold" = 8
+      "unhealthy_threshold" = 8
+      "health_check_timeout" = 8
+      "health_check_interval" = 4
+      "health_check_timeout" = 8
     },
 
     {
