@@ -439,6 +439,25 @@ func validateDBBackupPeriod(v interface{}, k string) (ws []string, errors []erro
 	return
 }
 
+func validateDBBackupPeriod(v interface{}, k string) (ws []string, errors []error) {
+	days := []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
+	value := v.(string)
+	exist := false
+	for _, d := range days {
+		if value == d {
+			exist = true
+			break
+		}
+	}
+	if !exist {
+		errors = append(errors, fmt.Errorf(
+			"%q must contain a valid backup period value should in array %#v, got %q",
+			k, days, value))
+	}
+
+	return
+}
+
 func validateAllowedStringValue(ss []string) schema.SchemaValidateFunc {
 	return func(v interface{}, k string) (ws []string, errors []error) {
 		value := v.(string)
