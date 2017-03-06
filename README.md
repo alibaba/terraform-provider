@@ -1,14 +1,9 @@
-## Aliyun (Alibaba Cloud) terraform provider
+## Alicloud ([Alibaba Cloud](http://www.aliyun.com)) terraform provider
 
-This is the official repository for the Aliyun terraform provider.  
+This is the official repository for the Alicloud terraform provider.
 Currently it supports terraform version ≥ v0.8.2.
 
-If you are not planning to contribute to this repo, you can download the compiled binaries below and move 
-them into the folder under the Terraform **PATH** such as **/usr/local/terraform**.
-
-* Mac OS X  [64-bit](http://tf-mac.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
-* Linux  [64-bit](http://tf-linux.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.zip )
-* Windows  [64-bit](http://tf-windows.oss-cn-shanghai.aliyuncs.com/terraform-provider-alicloud.exe)
+If you are not planning to contribute to this repo, you can download the compiled binaries from [https://github.com/alibaba/terraform-provider/releases](https://github.com/alibaba/terraform-provider/releases) and move the banaries (bin/terraform-provider-alicloud) into the folder under the Terraform **PATH** such as **/usr/local/terraform**.
 
 Alternatively, the provider can be installed as described in the [developer notes](#developer-notes).  
 This way you will be able to sync the repo as active development is going on.
@@ -68,6 +63,15 @@ ap-northeast-1
 us-west-1
 ```
 
+#### Support products
+* [ECS](https://www.aliyun.com/product/ecs)
+* [Block Storage](https://www.aliyun.com/product/disk)
+* [SLB](https://www.aliyun.com/product/slb)
+* [VPC](https://www.aliyun.com/product/vpc)
+* [NAT Gateway](https://www.aliyun.com/product/nat)
+* [RDS](https://www.aliyun.com/product/rds)
+
+
 #### Common problems
 
 1.
@@ -90,6 +94,7 @@ sudo -E "PATH=$PATH" make all
 * Contributions are welcome and will be merged via PRs.
 
 ### Contributors
+* demonwy(demon.wy@alibaba-inc.com)
 * heww(heww0205@gmail.com)
 * ShuWei(shuwei.yin@alibaba-inc.com)
 * WangYuelucky(wangyuelucky@126.com)

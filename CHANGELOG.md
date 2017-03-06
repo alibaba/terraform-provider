@@ -1,3 +1,15 @@
+## 1.0.4 (unreleased)
+
+## 1.0.3 (March 4, 2017)
+
+FEATURES:
+
+  * **New Resource:** `alicloud_db_instance` ([#85](https://github.com/alibaba/terraform-provider/pull/85))
+
+IMPROVEMENTS:
+
+  * resource/alicloud_slb: support slb listener persistence_timeout and health check ([#86](https://github.com/alibaba/terraform-provider/pull/86))
+
 ## 1.0.2 (February 24, 2017)
 
 IMPROVEMENTS:
