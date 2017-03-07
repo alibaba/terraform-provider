@@ -70,11 +70,13 @@ func (c *Config) Client() (*AliyunClient, error) {
 	}, nil
 }
 
+const BusinessInfoKey = "Terraform"
+
 // return new ecs Client
 // when you need new client not global client, use this method
 func (c *Config) NewEcsConn() (*ecs.Client, error) {
 	client := ecs.NewClient(c.AccessKey, c.SecretKey)
-	client.SetBusinessInfo("Terraform")
+	client.SetBusinessInfo(BusinessInfoKey)
 	_, err := client.DescribeRegions()
 
 	if err != nil {
@@ -106,6 +108,7 @@ func (c *Config) validateRegion() error {
 
 func (c *Config) ecsConn() (*ecs.Client, error) {
 	client := ecs.NewClient(c.AccessKey, c.SecretKey)
+	client.SetBusinessInfo(BusinessInfoKey)
 	_, err := client.DescribeRegions()
 
 	if err != nil {
@@ -117,12 +120,13 @@ func (c *Config) ecsConn() (*ecs.Client, error) {
 
 func (c *Config) rdsConn() (*rds.Client, error) {
 	client := rds.NewClient(c.AccessKey, c.SecretKey)
+	client.SetBusinessInfo(BusinessInfoKey)
 	return client, nil
 }
 
 func (c *Config) slbConn() (*slb.Client, error) {
 	client := slb.NewClient(c.AccessKey, c.SecretKey)
-
+	client.SetBusinessInfo(BusinessInfoKey)
 	return client, nil
 }
 
@@ -135,5 +139,6 @@ func (c *Config) vpcConn() (*ecs.Client, error) {
 
 	client := &ecs.Client{}
 	client.Init("https://vpc.aliyuncs.com/", "2016-04-28", c.AccessKey, c.SecretKey)
+	client.SetBusinessInfo(BusinessInfoKey)
 	return client, nil
 }
