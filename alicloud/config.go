@@ -70,19 +70,6 @@ func (c *Config) Client() (*AliyunClient, error) {
 	}, nil
 }
 
-// return new ecs Client
-// when you need new client not global client, use this method
-func (c *Config) NewEcsConn() (*ecs.Client, error) {
-	client := ecs.NewClient(c.AccessKey, c.SecretKey)
-	_, err := client.DescribeRegions()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
-}
-
 func (c *Config) loadAndValidate() error {
 	err := c.validateRegion()
 	if err != nil {
@@ -104,7 +91,7 @@ func (c *Config) validateRegion() error {
 }
 
 func (c *Config) ecsConn() (*ecs.Client, error) {
-	client := ecs.NewClient(c.AccessKey, c.SecretKey)
+	client := ecs.NewECSClient(c.AccessKey, c.SecretKey, c.Region)
 	_, err := client.DescribeRegions()
 
 	if err != nil {
