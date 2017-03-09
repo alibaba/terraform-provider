@@ -23,15 +23,26 @@ resource "alicloud_security_group" "sg" {
 	vpc_id = "${alicloud_vpc.default.id}"
 }
 
-resource "alicloud_security_group_rule" "ssh" {
+resource "alicloud_security_group_rule" "ssh-in" {
 	type = "ingress"
-	ip_protocol = "tcp"
+    ip_protocol = "tcp"
 	nic_type = "intranet"
 	policy = "${var.rule_policy}"
 	port_range = "22/22"
 	priority = 1
 	security_group_id = "${alicloud_security_group.sg.id}"
 	cidr_ip = "0.0.0.0/0"
+}
+
+resource "alicloud_security_group_rule" "ssh-out" {
+   type = "ingress"
+   ip_protocol = "tcp"
+   nic_type = "intranet"
+   policy = "${var.rule_policy}"
+   port_range = "22/22"
+   priority = 1
+   security_group_id = "${alicloud_security_group.sg.id}"
+   cidr_ip = "0.0.0.0/0"
 }
 
 resource "alicloud_instance" "snat" {
