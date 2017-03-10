@@ -112,7 +112,7 @@ func (c *Config) rdsConn() (*rds.Client, error) {
 }
 
 func (c *Config) slbConn() (*slb.Client, error) {
-	client := slb.NewRDSClient(c.AccessKey, c.SecretKey, c.Region)
+	client := slb.NewSLBClient(c.AccessKey, c.SecretKey, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
 	return client, nil
 }
@@ -121,4 +121,5 @@ func (c *Config) vpcConn() (*ecs.Client, error) {
 	client := ecs.NewVPCClient(c.AccessKey, c.SecretKey, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
 	return client, nil
+
 }
