@@ -3,13 +3,14 @@ package alicloud
 import (
 	"fmt"
 	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"testing"
 )
 
 func TestAccAlicloudNatGateway_basic(t *testing.T) {
-	var nat NatGatewaySetType
+	var nat ecs.NatGatewaySetType
 
 	testCheck := func(*terraform.State) error {
 		if nat.BusinessStatus != "Normal" {
@@ -55,7 +56,7 @@ func TestAccAlicloudNatGateway_basic(t *testing.T) {
 }
 
 func TestAccAlicloudNatGateway_spec(t *testing.T) {
-	var nat NatGatewaySetType
+	var nat ecs.NatGatewaySetType
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -95,7 +96,7 @@ func TestAccAlicloudNatGateway_spec(t *testing.T) {
 
 }
 
-func testAccCheckNatGatewayExists(n string, nat *NatGatewaySetType) resource.TestCheckFunc {
+func testAccCheckNatGatewayExists(n string, nat *ecs.NatGatewaySetType) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
