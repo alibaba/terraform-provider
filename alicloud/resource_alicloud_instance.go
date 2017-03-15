@@ -106,6 +106,7 @@ func resourceAliyunInstance() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 
 			//subnet_id and vswitch_id both exists, cause compatible old version, and aws habit.
@@ -183,6 +184,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	d.Set("password", d.Get("password"))
 	d.Set("system_disk_category", d.Get("system_disk_category"))
+	d.Set("system_disk_size", d.Get("system_disk_size"))
 
 	if d.Get("allocate_public_ip").(bool) {
 		_, err := conn.AllocatePublicIpAddress(d.Id())
@@ -235,6 +237,7 @@ func resourceAliyunRunInstance(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("password", d.Get("password"))
 	d.Set("system_disk_category", d.Get("system_disk_category"))
+	d.Set("system_disk_size", d.Get("system_disk_size"))
 
 	if d.Get("allocate_public_ip").(bool) {
 		_, err := conn.AllocatePublicIpAddress(d.Id())
@@ -256,6 +259,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	conn := client.ecsconn
 
 	instance, err := client.QueryInstancesById(d.Id())
+
 	if err != nil {
 		if notFoundError(err) {
 			d.SetId("")
@@ -264,7 +268,15 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error DescribeInstanceAttribute: %#v", err)
 	}
 
-	log.Printf("[DEBUG] DescribeInstanceAttribute for instance: %#v", instance)
+	disk, diskErr := client.QueryInstanceSystemDisk(d.Id())
+
+	if diskErr != nil {
+		if notFoundError(diskErr) {
+			d.SetId("")
+			return nil
+		}
+		return fmt.Errorf("Error DescribeSystemDisk: %#v", err)
+	}
 
 	d.Set("instance_name", instance.InstanceName)
 	d.Set("description", instance.Description)
@@ -273,6 +285,9 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("host_name", instance.HostName)
 	d.Set("image_id", instance.ImageId)
 	d.Set("instance_type", instance.InstanceType)
+	d.Set("system_disk_size", disk.Size)
+
+	log.Printf("[DEBUG] READ system_disk_size %s", disk.Size)
 
 	// In Classic network, internet_charge_type is valid in any case, and its default value is 'PayByBanwidth'.
 	// In VPC network, internet_charge_type is valid when instance has public ip, and its default value is 'PayByBanwidth'.
@@ -287,10 +302,6 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	} else {
 		d.Set("io_optimized", "none")
 	}
-
-	log.Printf("instance.InternetChargeType: %#v", instance.InternetChargeType)
-
-	//d.Set("instance_network_type", instance.InstanceNetworkType)
 
 	if d.Get("subnet_id").(string) != "" || d.Get("vswitch_id").(string) != "" {
 		ipAddress := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
@@ -496,6 +507,7 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	args.ImageId = imageID
 
 	systemDiskCategory := ecs.DiskCategory(d.Get("system_disk_category").(string))
+	systemDiskSize := d.Get("system_disk_size").(int)
 
 	zoneID := d.Get("availability_zone").(string)
 	// check instanceType and systemDiskCategory, when zoneID is not empty
@@ -518,6 +530,7 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	}
 	args.SystemDisk = ecs.SystemDiskType{
 		Category: systemDiskCategory,
+		Size:     systemDiskSize,
 	}
 
 	sgs, ok := d.GetOk("security_groups")
@@ -530,7 +543,6 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 		if err == nil {
 			args.SecurityGroupId = sg0
 		}
-
 	}
 
 	if v := d.Get("instance_name").(string); v != "" {
@@ -541,7 +553,7 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 		args.Description = v
 	}
 
-	log.Printf("[DEBUG] internet_charge_type is %s", d.Get("internet_charge_type").(string))
+	log.Printf("[DEBUG] SystemDisk is %s", systemDiskSize)
 	if v := d.Get("internet_charge_type").(string); v != "" {
 		args.InternetChargeType = common.InternetChargeType(v)
 	}
