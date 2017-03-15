@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"log"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -184,6 +185,43 @@ func TestAccAlicloudSecurityGroupRule_MissParameterSourceCidrIp(t *testing.T) {
 
 }
 
+func TestAccAlicloudSecurityGroupRule_SourceSecurityGroup(t *testing.T) {
+	var pt ecs.PermissionType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: "alicloud_security_group_rule.ingress",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckSecurityGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccSecurityGroupRuleSourceSecurityGroup,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckSecurityGroupRuleExists(
+						"alicloud_security_group_rule.ingress", &pt),
+					resource.TestCheckResourceAttr(
+						"alicloud_security_group_rule.ingress",
+						"port_range",
+						"3306/3306"),
+					resource.TestMatchResourceAttr(
+						"alicloud_security_group_rule.ingress",
+						"source_security_group_id",
+						regexp.MustCompile("^sg-[a-zA-Z0-9_]+")),
+					resource.TestCheckResourceAttr(
+						"alicloud_security_group_rule.ingress",
+						"cidr_ip",
+						""),
+				),
+			},
+		},
+	})
+
+}
+
 func testAccCheckSecurityGroupRuleExists(n string, m *ecs.PermissionType) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -198,7 +236,8 @@ func testAccCheckSecurityGroupRuleExists(n string, m *ecs.PermissionType) resour
 		client := testAccProvider.Meta().(*AliyunClient)
 		log.Printf("[WARN]get sg rule %s", rs.Primary.ID)
 		parts := strings.Split(rs.Primary.ID, ":")
-		rule, err := client.DescribeSecurityGroupRule(parts[0], parts[1], parts[2], parts[3])
+		// securityGroupId, direction, nicType, ipProtocol, portRange
+		rule, err := client.DescribeSecurityGroupRule(parts[0], parts[1], parts[4], parts[2], parts[3])
 
 		if err != nil {
 			return err
@@ -222,7 +261,7 @@ func testAccCheckSecurityGroupRuleDestroy(s *terraform.State) error {
 		}
 
 		parts := strings.Split(rs.Primary.ID, ":")
-		rule, err := client.DescribeSecurityGroupRule(parts[0], parts[1], parts[2], parts[3])
+		rule, err := client.DescribeSecurityGroupRule(parts[0], parts[1], parts[4], parts[2], parts[3])
 
 		if rule != nil {
 			return fmt.Errorf("Error SecurityGroup Rule still exist")
@@ -362,5 +401,28 @@ resource "alicloud_security_group_rule" "ingress2" {
   security_group_id = "${alicloud_security_group.foo.id}"
   cidr_ip = "127.0.1.18/16"
 }
+
+`
+
+const testAccSecurityGroupRuleSourceSecurityGroup = `
+resource "alicloud_security_group" "foo" {
+  name = "sg_foo"
+}
+
+resource "alicloud_security_group" "bar" {
+  name = "sg_bar"
+}
+
+resource "alicloud_security_group_rule" "ingress" {
+  type = "ingress"
+  ip_protocol = "tcp"
+  nic_type = "intranet"
+  policy = "accept"
+  port_range = "3306/3306"
+  priority = 50
+  security_group_id = "${alicloud_security_group.bar.id}"
+  source_security_group_id = "${alicloud_security_group.foo.id}"
+}
+
 
 `

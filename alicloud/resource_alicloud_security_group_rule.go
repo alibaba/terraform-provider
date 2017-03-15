@@ -68,7 +68,6 @@ func resourceAliyunSecurityGroupRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "0.0.0.0/0",
 			},
 
 			"source_security_group_id": &schema.Schema{
@@ -87,15 +86,17 @@ func resourceAliyunSecurityGroupRule() *schema.Resource {
 }
 
 func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+	client := meta.(*AliyunClient)
+	conn := client.ecsconn
 
-	ruleType := d.Get("type").(string)
+	direction := d.Get("type").(string)
 	sgId := d.Get("security_group_id").(string)
 	ptl := d.Get("ip_protocol").(string)
 	port := d.Get("port_range").(string)
+	nicType := d.Get("nic_type").(string)
 
 	var autherr error
-	switch GroupRuleDirection(ruleType) {
+	switch GroupRuleDirection(direction) {
 	case GroupRuleIngress:
 		args, err := buildAliyunSecurityIngressArgs(d, meta)
 		if err != nil {
@@ -115,10 +116,11 @@ func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interfac
 	if autherr != nil {
 		return fmt.Errorf(
 			"Error authorizing security group rule type %s: %s",
-			ruleType, autherr)
+			direction, autherr)
 	}
 
-	d.SetId(sgId + ":" + ruleType + ":" + ptl + ":" + port)
+	d.SetId(sgId + ":" + direction + ":" + ptl + ":" + port + ":" + nicType)
+
 	return resourceAliyunSecurityGroupRuleRead(d, meta)
 }
 
@@ -126,10 +128,11 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 	client := meta.(*AliyunClient)
 	parts := strings.Split(d.Id(), ":")
 	sgId := parts[0]
-	types := parts[1]
+	direction := parts[1]
 	ip_protocol := parts[2]
 	port_range := parts[3]
-	rule, err := client.DescribeSecurityGroupRule(sgId, types, ip_protocol, port_range)
+	nic_type := parts[4]
+	rule, err := client.DescribeSecurityGroupRule(sgId, direction, nic_type, ip_protocol, port_range)
 
 	if err != nil {
 		if notFoundError(err) {
@@ -138,7 +141,7 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 		}
 		return fmt.Errorf("Error SecurityGroup rule: %#v", err)
 	}
-	log.Printf("[WARN]sg %s, type %s, protocol %s, port %s, rule %#v", sgId, types, ip_protocol, port_range, rule)
+	log.Printf("[WARN]sg %s, type %s, protocol %s, port %s, rule %#v", sgId, direction, ip_protocol, port_range, rule)
 	d.Set("type", rule.Direction)
 	d.Set("ip_protocol", strings.ToLower(string(rule.IpProtocol)))
 	d.Set("nic_type", rule.NicType)
@@ -147,7 +150,7 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("priority", rule.Priority)
 	d.Set("security_group_id", sgId)
 	//support source and desc by type
-	if GroupRuleDirection(types) == GroupRuleIngress {
+	if GroupRuleDirection(direction) == GroupRuleIngress {
 		d.Set("cidr_ip", rule.SourceCidrIp)
 		d.Set("source_security_group_id", rule.SourceGroupId)
 		d.Set("source_group_owner_account", rule.SourceGroupOwnerAccount)
@@ -184,6 +187,7 @@ func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interfac
 		AuthorizeSecurityGroupEgressArgs: *args,
 	}
 	return client.RevokeSecurityGroupEgress(revokeArgs)
+
 }
 
 func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*ecs.AuthorizeSecurityGroupArgs, error) {
@@ -213,12 +217,18 @@ func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*
 		args.NicType = ecs.NicType(v)
 	}
 
-	if v := d.Get("cidr_ip").(string); v != "" {
-		args.SourceCidrIp = v
+	cidrIp := d.Get("cidr_ip").(string)
+	sourceGroupId := d.Get("source_security_group_id").(string)
+
+	if cidrIp == "" && sourceGroupId == "" {
+		return nil, fmt.Errorf("Either cidr_ip or source_security_group_id is required.")
+	}
+	if cidrIp != "" {
+		args.SourceCidrIp = cidrIp
 	}
 
-	if v := d.Get("source_security_group_id").(string); v != "" {
-		args.SourceGroupId = v
+	if sourceGroupId != "" {
+		args.SourceGroupId = sourceGroupId
 	}
 
 	if v := d.Get("source_group_owner_account").(string); v != "" {
