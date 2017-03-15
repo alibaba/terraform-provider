@@ -62,14 +62,6 @@ func resourceAliyunInstance() *schema.Resource {
 				ValidateFunc: validateInstanceDescription,
 			},
 
-			"instance_network_type": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Computed:     true,
-				ValidateFunc: validateInstanceNetworkType,
-			},
-
 			"internet_charge_type": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -298,7 +290,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("instance.InternetChargeType: %#v", instance.InternetChargeType)
 
-	d.Set("instance_network_type", instance.InstanceNetworkType)
+	//d.Set("instance_network_type", instance.InstanceNetworkType)
 
 	if d.Get("subnet_id").(string) != "" || d.Get("vswitch_id").(string) != "" {
 		ipAddress := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
@@ -481,10 +473,10 @@ func buildAliyunRunInstancesArgs(d *schema.ResourceData, meta interface{}) (*ecs
 
 	subnetValue := d.Get("subnet_id").(string)
 	vswitchValue := d.Get("vswitch_id").(string)
-	networkValue := d.Get("instance_network_type").(string)
+	//networkValue := d.Get("instance_network_type").(string)
 
 	// because runInstance is not compatible with createInstance, force NetworkType value to classic
-	if subnetValue == "" && vswitchValue == "" && networkValue == "" {
+	if subnetValue == "" && vswitchValue == "" {
 		args.NetworkType = string(ClassicNet)
 	}
 
