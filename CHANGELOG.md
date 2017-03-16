@@ -1,4 +1,6 @@
-## 1.0.4 (unreleased)
+## 1.0.5 (unreleased)
+
+## 1.0.4 (March 17, 2017)
 
 BUG FIXES:
   
