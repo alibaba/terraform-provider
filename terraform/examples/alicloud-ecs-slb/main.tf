@@ -31,27 +31,20 @@ resource "alicloud_instance" "instance" {
   image_id = "${var.image_id}"
   instance_type = "${var.ecs_type}"
   count = "${var.count}"
-  availability_zone = "${var.availability_zones}"
   security_groups = ["${alicloud_security_group.group.*.id}"]
-
   internet_charge_type = "${var.internet_charge_type}"
   internet_max_bandwidth_out = "${var.internet_max_bandwidth_out}"
-
   io_optimized = "${var.io_optimized}"
-
   password = "${var.ecs_password}"
-
   allocate_public_ip = "${var.allocate_public_ip}"
-
+  availability_zone = ""
   instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
-
 
   tags {
     role = "${var.role}"
     dc = "${var.datacenter}"
   }
-
 }
 
 resource "alicloud_slb" "instance" {

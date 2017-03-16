@@ -137,6 +137,23 @@ func (client *AliyunClient) QueryInstancesById(id string) (instance *ecs.Instanc
 	return &instances[0], nil
 }
 
+func (client *AliyunClient) QueryInstanceSystemDisk(id string) (disk *ecs.DiskItemType, err error) {
+	args := ecs.DescribeDisksArgs{
+		RegionId:   client.Region,
+		InstanceId: string(id),
+		DiskType:   ecs.DiskTypeAllSystem,
+	}
+	disks, _, err := client.ecsconn.DescribeDisks(&args)
+	if err != nil {
+		return nil, err
+	}
+	if len(disks) == 0 {
+		return nil, common.GetClientErrorFromString(SystemDiskNotFound)
+	}
+
+	return &disks[0], nil
+}
+
 // ResourceAvailable check resource available for zone
 func (client *AliyunClient) ResourceAvailable(zone *ecs.ZoneType, resourceType ecs.ResourceType) error {
 	available := false

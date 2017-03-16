@@ -56,6 +56,10 @@ func TestAccAlicloudInstance_basic(t *testing.T) {
 						"alicloud_instance.foo",
 						"internet_charge_type",
 						"PayByBandwidth"),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.foo",
+						"system_disk_size",
+						"80"),
 				),
 			},
 
@@ -608,6 +612,7 @@ resource "alicloud_instance" "foo" {
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
 	system_disk_category = "cloud_ssd"
+	system_disk_size = 80
 
 	instance_type = "ecs.n1.small"
 	internet_charge_type = "PayByBandwidth"
