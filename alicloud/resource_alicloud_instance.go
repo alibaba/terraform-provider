@@ -109,10 +109,10 @@ func resourceAliyunInstance() *schema.Resource {
 				}),
 			},
 			"system_disk_size": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
 				ValidateFunc: validateIntegerInRange(40, 500),
 			},
 
@@ -534,7 +534,7 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 		args.ZoneId = zoneID
 
 	}
-	
+
 	args.SystemDisk = ecs.SystemDiskType{
 		Category: systemDiskCategory,
 		Size:     systemDiskSize,

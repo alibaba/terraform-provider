@@ -576,14 +576,14 @@ data "alicloud_zones" "default" {
 }
 
 resource "alicloud_vpc" "foo" {
-  name = "tf_test_foo"
-  cidr_block = "172.16.0.0/12"
+	name = "tf_test_foo"
+	cidr_block = "172.16.0.0/12"
 }
 
 resource "alicloud_vswitch" "foo" {
-  vpc_id = "${alicloud_vpc.foo.id}"
-  cidr_block = "172.16.0.0/21"
-  availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+ 	vpc_id = "${alicloud_vpc.foo.id}"
+ 	cidr_block = "172.16.0.0/21"
+ 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 }
 
 resource "alicloud_db_instance" "foo" {
