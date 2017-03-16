@@ -846,12 +846,12 @@ resource "alicloud_security_group" "tf_test_foo" {
 	description = "foo"
 }
 
-resource "alicloud_security_group_rule" "ssh-out" {
-  	type = "egress"
+resource "alicloud_security_group_rule" "http-in" {
+  	type = "ingress"
   	ip_protocol = "tcp"
   	nic_type = "internet"
   	policy = "accept"
-  	port_range = "22/22"
+  	port_range = "80/80"
   	priority = 1
   	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
   	cidr_ip = "0.0.0.0/0"
@@ -997,12 +997,12 @@ resource "alicloud_security_group" "tf_test_foo" {
 	description = "foo"
 }
 
-resource "alicloud_security_group_rule" "ssh-out" {
-  	type = "egress"
+resource "alicloud_security_group_rule" "http-in" {
+  	type = "ingress"
   	ip_protocol = "tcp"
   	nic_type = "internet"
   	policy = "accept"
-  	port_range = "22/22"
+  	port_range = "80/80"
   	priority = 1
   	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
   	cidr_ip = "0.0.0.0/0"
@@ -1042,12 +1042,12 @@ resource "alicloud_security_group" "tf_test_foo" {
 	description = "foo"
 }
 
-resource "alicloud_security_group_rule" "ssh-out" {
-  	type = "egress"
+resource "alicloud_security_group_rule" "http-in" {
+  	type = "ingress"
   	ip_protocol = "tcp"
   	nic_type = "internet"
   	policy = "accept"
-  	port_range = "22/22"
+  	port_range = "80/80"
   	priority = 1
   	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
   	cidr_ip = "0.0.0.0/0"

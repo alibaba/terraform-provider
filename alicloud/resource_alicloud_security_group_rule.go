@@ -190,6 +190,16 @@ func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interfac
 
 }
 
+func checkCidrAndSourceGroupId(cidrIp, sourceGroupId string) error {
+	if cidrIp == "" && sourceGroupId == "" {
+		return fmt.Errorf("Either cidr_ip or source_security_group_id is required.")
+	}
+
+	if cidrIp != "" && sourceGroupId != "" {
+		return fmt.Errorf("You should set only one value of cidr_ip or source_security_group_id.")
+	}
+	return nil
+}
 func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*ecs.AuthorizeSecurityGroupArgs, error) {
 	conn := meta.(*AliyunClient).ecsconn
 
@@ -219,9 +229,8 @@ func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*
 
 	cidrIp := d.Get("cidr_ip").(string)
 	sourceGroupId := d.Get("source_security_group_id").(string)
-
-	if cidrIp == "" && sourceGroupId == "" {
-		return nil, fmt.Errorf("Either cidr_ip or source_security_group_id is required.")
+	if err := checkCidrAndSourceGroupId(cidrIp, sourceGroupId); err != nil {
+		return nil, err
 	}
 	if cidrIp != "" {
 		args.SourceCidrIp = cidrIp
@@ -279,12 +288,17 @@ func buildAliyunSecurityEgressArgs(d *schema.ResourceData, meta interface{}) (*e
 		args.NicType = ecs.NicType(v)
 	}
 
-	if v := d.Get("cidr_ip").(string); v != "" {
-		args.DestCidrIp = v
+	cidrIp := d.Get("cidr_ip").(string)
+	sourceGroupId := d.Get("source_security_group_id").(string)
+	if err := checkCidrAndSourceGroupId(cidrIp, sourceGroupId); err != nil {
+		return nil, err
+	}
+	if cidrIp != "" {
+		args.DestCidrIp = cidrIp
 	}
 
-	if v := d.Get("source_security_group_id").(string); v != "" {
-		args.DestGroupId = v
+	if sourceGroupId != "" {
+		args.DestGroupId = sourceGroupId
 	}
 
 	if v := d.Get("source_group_owner_account").(string); v != "" {
