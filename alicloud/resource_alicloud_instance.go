@@ -101,12 +101,19 @@ func resourceAliyunInstance() *schema.Resource {
 				Default:  "cloud",
 				Optional: true,
 				ForceNew: true,
+				ValidateFunc: validateAllowedStringValue([]string{
+					string(ecs.DiskCategoryCloud),
+					string(ecs.DiskCategoryCloudSSD),
+					string(ecs.DiskCategoryCloudEfficiency),
+					string(ecs.DiskCategoryEphemeralSSD),
+				}),
 			},
 			"system_disk_size": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+				ValidateFunc: validateIntegerInRange(40, 500),
 			},
 
 			//subnet_id and vswitch_id both exists, cause compatible old version, and aws habit.
@@ -183,8 +190,8 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(instanceID)
 
 	d.Set("password", d.Get("password"))
-	d.Set("system_disk_category", d.Get("system_disk_category"))
-	d.Set("system_disk_size", d.Get("system_disk_size"))
+	//d.Set("system_disk_category", d.Get("system_disk_category"))
+	//d.Set("system_disk_size", d.Get("system_disk_size"))
 
 	if d.Get("allocate_public_ip").(bool) {
 		_, err := conn.AllocatePublicIpAddress(d.Id())
@@ -285,9 +292,8 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("host_name", instance.HostName)
 	d.Set("image_id", instance.ImageId)
 	d.Set("instance_type", instance.InstanceType)
+	d.Set("system_disk_category", disk.Category)
 	d.Set("system_disk_size", disk.Size)
-
-	log.Printf("[DEBUG] READ system_disk_size %s", disk.Size)
 
 	// In Classic network, internet_charge_type is valid in any case, and its default value is 'PayByBanwidth'.
 	// In VPC network, internet_charge_type is valid when instance has public ip, and its default value is 'PayByBanwidth'.
@@ -528,6 +534,7 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 		args.ZoneId = zoneID
 
 	}
+	
 	args.SystemDisk = ecs.SystemDiskType{
 		Category: systemDiskCategory,
 		Size:     systemDiskSize,
