@@ -56,10 +56,7 @@ func TestAccAlicloudInstance_basic(t *testing.T) {
 						"alicloud_instance.foo",
 						"internet_charge_type",
 						"PayByBandwidth"),
-					resource.TestCheckResourceAttr(
-						"alicloud_instance.foo",
-						"system_disk_size",
-						"80"),
+					testAccCheckSystemDiskSize("alicloud_instance.foo", 80),
 				),
 			},
 
@@ -595,6 +592,36 @@ func testAccCheckInstanceDestroyWithProvider(s *terraform.State, provider *schem
 	}
 
 	return nil
+}
+
+func testAccCheckSystemDiskSize(n string, size int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		providers := []*schema.Provider{testAccProvider}
+		rs, ok := s.RootModule().Resources[n]
+
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		for _, provider := range providers {
+			if provider.Meta() == nil {
+				continue
+			}
+			client := provider.Meta().(*AliyunClient)
+			systemDisk, err := client.QueryInstanceSystemDisk(rs.Primary.ID)
+			if err != nil {
+				log.Printf("[ERROR]get system disk size error: %#v", err)
+				return err
+			}
+
+			if systemDisk.Size != size {
+				return fmt.Errorf("system disk size not equal %s, the instance system size is %s",
+					size, systemDisk.Size)
+			}
+		}
+
+		return nil
+	}
 }
 
 const testAccInstanceConfig = `
