@@ -85,7 +85,7 @@ func TestAccAlicloudSlb_listener(t *testing.T) {
 	testListener := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
 			listenerPorts := slb.ListenerPorts.ListenerPort[0]
-			if listenerPorts != 161 {
+			if listenerPorts != 2001 {
 				return fmt.Errorf("bad loadbalancer listener: %#v", listenerPorts)
 			}
 

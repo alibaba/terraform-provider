@@ -1,5 +1,14 @@
 ## 1.0.4 (unreleased)
 
+BUG FIXES:
+  
+  * resource/alicloud_db_instance: fix rds update failed bug ([#102](https://github.com/alibaba/terraform-provider/pull/102))
+  * resource/alicloud_instance: fix ecs instance system disk size not work bug ([#100](https://github.com/alibaba/terraform-provider/pull/100))
+  
+IMPROVEMENTS:
+
+  * alicloud/config: add businessinfo to sdk client ([#96](https://github.com/alibaba/terraform-provider/pull/96))
+
 ## 1.0.3 (March 4, 2017)
 
 FEATURES:

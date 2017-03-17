@@ -137,6 +137,23 @@ func (client *AliyunClient) QueryInstancesById(id string) (instance *ecs.Instanc
 	return &instances[0], nil
 }
 
+func (client *AliyunClient) QueryInstanceSystemDisk(id string) (disk *ecs.DiskItemType, err error) {
+	args := ecs.DescribeDisksArgs{
+		RegionId:   client.Region,
+		InstanceId: string(id),
+		DiskType:   ecs.DiskTypeAllSystem,
+	}
+	disks, _, err := client.ecsconn.DescribeDisks(&args)
+	if err != nil {
+		return nil, err
+	}
+	if len(disks) == 0 {
+		return nil, common.GetClientErrorFromString(SystemDiskNotFound)
+	}
+
+	return &disks[0], nil
+}
+
 // ResourceAvailable check resource available for zone
 func (client *AliyunClient) ResourceAvailable(zone *ecs.ZoneType, resourceType ecs.ResourceType) error {
 	available := false
@@ -204,14 +221,26 @@ func (client *AliyunClient) DescribeSecurity(securityGroupId string) (*ecs.Descr
 	return client.ecsconn.DescribeSecurityGroupAttribute(args)
 }
 
-func (client *AliyunClient) DescribeSecurityGroupRule(securityGroupId, types, ip_protocol, port_range string) (*ecs.PermissionType, error) {
-	sg, err := client.DescribeSecurity(securityGroupId)
+func (client *AliyunClient) DescribeSecurityByAttr(securityGroupId, direction, nicType string) (*ecs.DescribeSecurityGroupAttributeResponse, error) {
+
+	args := &ecs.DescribeSecurityGroupAttributeArgs{
+		RegionId:        client.Region,
+		SecurityGroupId: securityGroupId,
+		Direction:       direction,
+		NicType:         ecs.NicType(nicType),
+	}
+
+	return client.ecsconn.DescribeSecurityGroupAttribute(args)
+}
+
+func (client *AliyunClient) DescribeSecurityGroupRule(securityGroupId, direction, nicType, ipProtocol, portRange string) (*ecs.PermissionType, error) {
+	sg, err := client.DescribeSecurityByAttr(securityGroupId, direction, nicType)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, p := range sg.Permissions.Permission {
-		if strings.ToLower(string(p.IpProtocol)) == ip_protocol && p.PortRange == port_range && strings.ToLower(p.Direction) == types {
+		if strings.ToLower(string(p.IpProtocol)) == ipProtocol && p.PortRange == portRange {
 			return &p, nil
 		}
 	}

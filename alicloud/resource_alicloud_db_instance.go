@@ -341,16 +341,23 @@ func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if d.HasChange("db_instance_class") || d.HasChange("db_instance_storage") {
-		dbClass := d.Get("db_instance_class").(string)
-		storage := d.Get("db_instance_storage").(int)
+		co, cn := d.GetChange("db_instance_class")
+		so, sn := d.GetChange("db_instance_storage")
+		classOld := co.(string)
+		classNew := cn.(string)
+		storageOld := so.(int)
+		storageNew := sn.(int)
 
-		chargeType := d.Get("instance_charge_type").(string)
-		if chargeType == string(rds.Prepaid) {
-			return fmt.Errorf("Prepaid db instance does not support modify db_instance_class or db_instance_storage")
-		}
+		// update except the first time, because we will do it in create function
+		if classOld != "" && storageOld != 0 {
+			chargeType := d.Get("instance_charge_type").(string)
+			if chargeType == string(rds.Prepaid) {
+				return fmt.Errorf("Prepaid db instance does not support modify db_instance_class or db_instance_storage")
+			}
 
-		if err := client.ModifyDBClassStorage(d.Id(), dbClass, strconv.Itoa(storage)); err != nil {
-			return fmt.Errorf("Error modify db instance class or storage error: %#v", err)
+			if err := client.ModifyDBClassStorage(d.Id(), classNew, strconv.Itoa(storageNew)); err != nil {
+				return fmt.Errorf("Error modify db instance class or storage error: %#v", err)
+			}
 		}
 	}
 
