@@ -50,6 +50,7 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_subnet":          resourceAliyunSubnet(),
 			"alicloud_vswitch":         resourceAliyunSubnet(),
 			"alicloud_route_entry":     resourceAliyunRouteEntry(),
+			"alicloud_snat_entry":     resourceAliyunSnatEntry(),
 			"alicloud_eip":             resourceAliyunEip(),
 			"alicloud_eip_association": resourceAliyunEipAssociation(),
 			"alicloud_slb":             resourceAliyunSlb(),

@@ -48,6 +48,7 @@ func TestAccAlicloudNatGateway_basic(t *testing.T) {
 						"alicloud_nat_gateway.foo",
 						"name",
 						"test_foo"),
+					testAccCheckNatgatewayIpAddress("alicloud_nat_gateway.foo", &nat),
 				),
 			},
 		},
@@ -94,6 +95,67 @@ func TestAccAlicloudNatGateway_spec(t *testing.T) {
 		},
 	})
 
+}
+
+func testAccCheckNatgatewayIpAddress(n string, nat *ecs.NatGatewaySetType) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Not found: %s", n)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No NatGateway ID is set")
+		}
+
+		client := testAccProvider.Meta().(*AliyunClient)
+		natGateway, err := client.DescribeNatGateway(rs.Primary.ID)
+
+		if err != nil {
+			return err
+		}
+		if natGateway == nil {
+			return fmt.Errorf("Natgateway not found")
+		}
+
+		for key, attr := range rs.Primary.Attributes{
+			fmt.Println("schema range key: %#v", key)
+			fmt.Println("schema range attr: %#v", attr)
+			if(key == "bandwidth_packages.0.public_ip_addresses"){
+				for key1, attr1 := range attr{
+					fmt.Println("schema range key1: %#v", key1)
+					fmt.Println("schema range attr1: %#v", attr1)
+				}
+			}
+		}
+		fmt.Printf("schema bandpackage zone: %#v", rs.Primary.Attributes["bandwidth_packages.0.zone"])
+		fmt.Printf("schema name: %#v", rs.Primary.Attributes["name"])
+
+		//bandWidthPackageIds := natGateway.BandwidthPackageIds.BandwidthPackageId
+		//
+		//for _, packageId := range bandWidthPackageIds {
+		//
+		//	packages, err := client.vpcconn.DescribeBandwidthPackages(&ecs.DescribeBandwidthPackagesArgs{
+		//		RegionId:     client.Region,
+		//		BandwidthPackageId: packageId,
+		//	})
+		//	if err != nil{
+		//		println("DescribeBandwidthPackages err :%#v", err)
+		//		return fmt.Errorf("DescribeBandwidthPackages err :%#v", err)
+		//	}
+		//
+		//	for _, pack := range packages {
+		//		ipAddress := flattenPackPublicIp(pack.PublicIpAddresses.PublicIpAddresse)
+		//		println("testAccCheckNatgatewayIpAddress ipAddress:%#v", ipAddress)
+		//		if ipAddress == ""{
+		//			return fmt.Errorf("natgateway bandwidthpackage publicip is none")
+		//		}
+		//	}
+		//
+		//}
+
+		return nil
+	}
 }
 
 func testAccCheckNatGatewayExists(n string, nat *ecs.NatGatewaySetType) resource.TestCheckFunc {
@@ -164,7 +226,7 @@ resource "alicloud_vpc" "foo" {
 resource "alicloud_vswitch" "foo" {
 	vpc_id = "${alicloud_vpc.foo.id}"
 	cidr_block = "172.16.0.0/21"
-	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+	availability_zone = "${data.alicloud_zones.default.zones.2.id}"
 }
 
 resource "alicloud_nat_gateway" "foo" {
@@ -174,11 +236,11 @@ resource "alicloud_nat_gateway" "foo" {
 	bandwidth_packages = [{
 	  ip_count = 1
 	  bandwidth = 5
-	  zone = "${data.alicloud_zones.default.zones.0.id}"
+	  zone = "${data.alicloud_zones.default.zones.2.id}"
 	}, {
 	  ip_count = 2
 	  bandwidth = 10
-	  zone = "${data.alicloud_zones.default.zones.0.id}"
+	  zone = "${data.alicloud_zones.default.zones.2.id}"
 	}]
 	depends_on = [
     	"alicloud_vswitch.foo"]

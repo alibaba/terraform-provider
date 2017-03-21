@@ -64,6 +64,28 @@ func (client *AliyunClient) DescribeVpc(vpcId string) (*ecs.VpcSetType, error) {
 	return &vpcs[0], nil
 }
 
+func (client *AliyunClient) DescribeSnatEntry(snatTableId string) (*ecs.SnatEntrySetType, error) {
+
+	println("snatTableId: %s", snatTableId)
+	args := &ecs.DescribeSnatTableEntriesArgs{
+		RegionId: client.Region,
+		SnatTableId: snatTableId,
+	}
+
+	snatEntries, _, err := client.vpcconn.DescribeSnatTableEntries(args)
+	println("snatEntries %#v", snatEntries)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(snatEntries) == 0 {
+		return nil, common.GetClientErrorFromString("Not found SnatEntry")
+	}
+
+	return &snatEntries[0], nil
+}
+
 // describe vswitch by param filters
 func (client *AliyunClient) QueryVswitches(args *ecs.DescribeVSwitchesArgs) (vswitches []ecs.VSwitchSetType, err error) {
 	vsws, _, err := client.ecsconn.DescribeVSwitches(args)

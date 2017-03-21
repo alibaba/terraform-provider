@@ -25,6 +25,7 @@ const (
 	//Nat gateway
 	NatGatewayInvalidRegionId            = "Invalid.RegionId"
 	DependencyViolationBandwidthPackages = "DependencyViolation.BandwidthPackages"
+	NoPublicIpAddressInPackage	= "NoPublicIpAddressInPackage"
 
 	// vswitch
 	VswitcInvalidRegionId = "InvalidRegionId.NotFound"
