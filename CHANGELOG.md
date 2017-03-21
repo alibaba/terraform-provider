@@ -1,5 +1,16 @@
 ## 1.0.5 (unreleased)
 
+BUG FIXES:
+
+  * resource/alicloud_instance: fix ecs internet_max_bandwidth_out cannot set zero bug. cause if don't want allocate public ip, then must set internet_max_bandwidth_out is zero.([#105](https://github.com/alibaba/terraform-provider/pull/105))
+
+FEATURES:
+
+  * **New Resource:** `alicloud_snat_entry` ([#105](https://github.com/alibaba/terraform-provider/pull/105))
+  * **New Resource:** `alicloud_forward_entry` ([#105](https://github.com/alibaba/terraform-provider/pull/105))
+  * add snat entry and forward entry template sample in /terraform/examples/alicloud-vpc-snat.
+
+
 ## 1.0.4 (March 17, 2017)
 
 BUG FIXES:
