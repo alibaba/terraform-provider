@@ -25,6 +25,8 @@ const (
 	//Nat gateway
 	NatGatewayInvalidRegionId            = "Invalid.RegionId"
 	DependencyViolationBandwidthPackages = "DependencyViolation.BandwidthPackages"
+	NotFindSnatEntryBySnatId             = "NotFindSnatEntryBySnatId"
+	NotFindForwardEntryByForwardId       = "NotFindForwardEntryByForwardId"
 
 	// vswitch
 	VswitcInvalidRegionId = "InvalidRegionId.NotFound"

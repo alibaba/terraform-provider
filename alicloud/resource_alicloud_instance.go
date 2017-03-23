@@ -193,11 +193,8 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	//d.Set("system_disk_category", d.Get("system_disk_category"))
 	//d.Set("system_disk_size", d.Get("system_disk_size"))
 
-	if d.Get("allocate_public_ip").(bool) {
-		_, err := conn.AllocatePublicIpAddress(d.Id())
-		if err != nil {
-			log.Printf("[DEBUG] AllocatePublicIpAddress for instance got error: %#v", err)
-		}
+	if err := allocateIpAndBandWidthRelative(d, meta); err != nil {
+		return fmt.Errorf("allocateIpAndBandWidthRelative err: %#v", err)
 	}
 
 	// after instance created, its status is pending,
@@ -246,11 +243,8 @@ func resourceAliyunRunInstance(d *schema.ResourceData, meta interface{}) error {
 	d.Set("system_disk_category", d.Get("system_disk_category"))
 	d.Set("system_disk_size", d.Get("system_disk_size"))
 
-	if d.Get("allocate_public_ip").(bool) {
-		_, err := conn.AllocatePublicIpAddress(d.Id())
-		if err != nil {
-			log.Printf("[DEBUG] AllocatePublicIpAddress for instance got error: %#v", err)
-		}
+	if err := allocateIpAndBandWidthRelative(d, meta); err != nil {
+		return fmt.Errorf("allocateIpAndBandWidthRelative err: %#v", err)
 	}
 
 	// after instance created, its status change from pending, starting to running
@@ -475,6 +469,21 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 
 	return nil
 }
+
+func allocateIpAndBandWidthRelative(d *schema.ResourceData, meta interface{}) error {
+	conn := meta.(*AliyunClient).ecsconn
+	if d.Get("allocate_public_ip").(bool) {
+		if d.Get("internet_max_bandwidth_out") == 0 {
+			return fmt.Errorf("Error: if allocate_public_ip is true than the internet_max_bandwidth_out cannot equal zero.")
+		}
+		_, err := conn.AllocatePublicIpAddress(d.Id())
+		if err != nil {
+			return fmt.Errorf("[DEBUG] AllocatePublicIpAddress for instance got error: %#v", err)
+		}
+	}
+	return nil
+}
+
 func buildAliyunRunInstancesArgs(d *schema.ResourceData, meta interface{}) (*ecs.RunInstanceArgs, error) {
 	args := &ecs.RunInstanceArgs{
 		MaxAmount: DEFAULT_INSTANCE_COUNT,
@@ -560,7 +569,6 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 		args.Description = v
 	}
 
-	log.Printf("[DEBUG] SystemDisk is %d", systemDiskSize)
 	if v := d.Get("internet_charge_type").(string); v != "" {
 		args.InternetChargeType = common.InternetChargeType(v)
 	}
