@@ -164,13 +164,10 @@ func (client *AliyunClient) GetSecurityIps(instanceId string) ([]string, error) 
 	if err != nil {
 		return nil, err
 	}
-	ips := ""
-	for i, ip := range arr {
-		if i == 0 {
-			ips += ip.SecurityIPList
-		} else {
-			ips += COMMA_SEPARATED + ip.SecurityIPList
-		}
+	var ips, separator string
+	for _, ip := range arr {
+		ips += separator + ip.SecurityIPList
+		separator = COMMA_SEPARATED
 	}
 	return strings.Split(ips, COMMA_SEPARATED), nil
 }

@@ -28,4 +28,8 @@ const (
 
 	// vswitch
 	VswitcInvalidRegionId = "InvalidRegionId.NotFound"
+
+	// ess
+	InvalidScalingGroupIdNotFound               = "InvalidScalingGroupId.NotFound"
+	IncorrectScalingConfigurationLifecycleState = "IncorrectScalingConfigurationLifecycleState"
 )

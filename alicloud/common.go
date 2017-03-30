@@ -77,4 +77,16 @@ const DB_DEFAULT_CONNECT_PORT = "3306"
 
 const COMMA_SEPARATED = ","
 
+const COLON_SEPARATED = ":"
+
 const LOCAL_HOST_IP = "127.0.0.1"
+
+// Takes the result of flatmap.Expand for an array of strings
+// and returns a []string
+func expandStringList(configured []interface{}) []string {
+	vs := make([]string, 0, len(configured))
+	for _, v := range configured {
+		vs = append(vs, v.(string))
+	}
+	return vs
+}

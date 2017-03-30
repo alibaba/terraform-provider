@@ -2,7 +2,7 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws/client"
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ess"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-func resourceAlicloudEss() *schema.Resource {
+func resourceAlicloudEssScalingGroup() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAliyunEssCreate,
-		Read:   resourceAliyunEssRead,
-		Update: resourceAliyunEssUpdate,
-		Delete: resourceAliyunEssDelete,
+		Create: resourceAliyunEssScalingGroupCreate,
+		Read:   resourceAliyunEssScalingGroupRead,
+		Update: resourceAliyunEssScalingGroupUpdate,
+		Delete: resourceAliyunEssScalingGroupDelete,
 
 		Schema: map[string]*schema.Schema{
 			"min_size": &schema.Schema{
@@ -39,7 +39,7 @@ func resourceAlicloudEss() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"removal_policys": &schema.Schema{
+			"removal_policies": &schema.Schema{
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
@@ -56,121 +56,117 @@ func resourceAlicloudEss() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
 			},
+			// todo: ecs instances
 		},
 	}
 }
 
-func resourceAliyunEssCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceAliyunEssScalingGroupCreate(d *schema.ResourceData, meta interface{}) error {
 
-	args, err := buildAliyunVpcArgs(d, meta)
+	args, err := buildAlicloudEssScalingGroupArgs(d, meta)
 	if err != nil {
 		return err
 	}
 
-	ecsconn := meta.(*AliyunClient).ecsconn
+	essconn := meta.(*AliyunClient).essconn
 
-	vpc, err := ecsconn.CreateVpc(args)
+	scaling, err := essconn.CreateScalingGroup(args)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(vpc.VpcId)
-	d.Set("router_table_id", vpc.RouteTableId)
+	d.SetId(scaling.ScalingGroupId)
 
-	err = ecsconn.WaitForVpcAvailable(args.RegionId, vpc.VpcId, 60)
-	if err != nil {
-		return fmt.Errorf("Timeout when WaitForVpcAvailable")
-	}
-
-	return resourceAliyunVpcRead(d, meta)
+	return resourceAliyunEssScalingGroupUpdate(d, meta)
 }
 
-func resourceAliyunEssRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAliyunEssScalingGroupRead(d *schema.ResourceData, meta interface{}) error {
 
 	client := meta.(*AliyunClient)
 
-	vpc, err := client.DescribeVpc(d.Id())
+	scaling, err := client.DescribeScalingGroupById(d.Id())
 	if err != nil {
 		return err
 	}
 
-	if vpc == nil {
+	if scaling == nil {
 		d.SetId("")
 		return nil
 	}
 
-	d.Set("cidr_block", vpc.CidrBlock)
-	d.Set("name", vpc.VpcName)
-	d.Set("description", vpc.Description)
-	d.Set("router_id", vpc.VRouterId)
+	d.Set("min_size", scaling.MinSize)
+	d.Set("max_size", scaling.MaxSize)
+	d.Set("scaling_group_name", scaling.ScalingGroupName)
+	d.Set("default_cooldown", scaling.DefaultCooldown)
+	d.Set("removal_policies", scaling.RemovalPolicies)
+	d.Set("db_instance_ids", scaling.DBInstanceIds)
+	d.Set("loadbalancer_ids", scaling.LoadBalancerId)
 
 	return nil
 }
 
-func resourceAliyunEssUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceAliyunEssScalingGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	conn := meta.(*AliyunClient).ecsconn
-
-	d.Partial(true)
-
-	attributeUpdate := false
-	args := &ecs.ModifyVpcAttributeArgs{
-		VpcId: d.Id(),
+	conn := meta.(*AliyunClient).essconn
+	args := &ess.ModifyScalingGroupArgs{
+		ScalingGroupId: d.Id(),
 	}
 
-	if d.HasChange("name") {
-		d.SetPartial("name")
-		args.VpcName = d.Get("name").(string)
-
-		attributeUpdate = true
+	if d.HasChange("scaling_group_name") {
+		args.ScalingGroupName = d.Get("scaling_group_name").(string)
 	}
 
-	if d.HasChange("description") {
-		d.SetPartial("description")
-		args.Description = d.Get("description").(string)
-
-		attributeUpdate = true
+	if d.HasChange("min_size") {
+		args.MinSize = d.Get("min_size").(int)
 	}
 
-	if attributeUpdate {
-		if err := conn.ModifyVpcAttribute(args); err != nil {
-			return err
-		}
+	if d.HasChange("max_size") {
+		args.MaxSize = d.Get("max_size").(int)
 	}
 
-	d.Partial(false)
+	if d.HasChange("default_cooldown") {
+		args.DefaultCooldown = d.Get("default_cooldown").(int)
+	}
 
-	return nil
+	if d.HasChange("removal_policies") {
+		policyStrings := d.Get("removal_policies").([]interface{})
+		args.RemovalPolicy = expandStringList(policyStrings)
+	}
+
+	if _, err := conn.ModifyScalingGroup(args); err != nil {
+		return err
+	}
+
+	return resourceAliyunEssScalingGroupRead(d, meta)
 }
 
-func resourceAliyunEssDelete(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+func resourceAliyunEssScalingGroupDelete(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*AliyunClient)
 
-	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		err := conn.DeleteVpc(d.Id())
+	return resource.Retry(2*time.Minute, func() *resource.RetryError {
+		err := client.DeleteScalingGroupById(d.Id())
 
 		if err != nil {
-			return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
+			e, _ := err.(*common.Error)
+			if e.ErrorResponse.Code != InvalidScalingGroupIdNotFound {
+				return resource.RetryableError(fmt.Errorf("Scaling group in use - trying again while it is deleted."))
+			}
 		}
 
-		args := &ecs.DescribeVpcsArgs{
-			RegionId: getRegion(d, meta),
-			VpcId:    d.Id(),
-		}
-		vpc, _, descErr := conn.DescribeVpcs(args)
-		if descErr != nil {
+		scaling, err := client.DescribeScalingGroupById(d.Id())
+		if err != nil {
 			return resource.NonRetryableError(err)
-		} else if vpc == nil || len(vpc) < 1 {
+		} else if scaling == nil {
 			return nil
 		}
 
-		return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
+		return resource.RetryableError(fmt.Errorf("Scaling group in use - trying again while it is deleted."))
 	})
 }
 
-func buildAlicloudEssArgs(d *schema.ResourceData, meta interface{}) (*ess.CreateScalingGroupRequest, error) {
+func buildAlicloudEssScalingGroupArgs(d *schema.ResourceData, meta interface{}) (*ess.CreateScalingGroupArgs, error) {
 	client := meta.(*AliyunClient)
-	args := &ess.CreateScalingGroupRequest{
+	args := &ess.CreateScalingGroupArgs{
 		RegionId:        getRegion(d, meta),
 		MinSize:         d.Get("min_size").(int),
 		MaxSize:         d.Get("max_size").(int),
@@ -193,6 +189,18 @@ func buildAlicloudEssArgs(d *schema.ResourceData, meta interface{}) (*ess.Create
 		// fill vpcId by vswitchId
 		args.VpcId = vpcId
 
+	}
+
+	dbs, ok := d.GetOk("db_instance_ids")
+	if ok {
+		dbsStrings := dbs.([]interface{})
+		args.DBInstanceId = expandStringList(dbsStrings)
+	}
+
+	lbs, ok := d.GetOk("loadbalancer_ids")
+	if ok {
+		lbsStrings := lbs.([]interface{})
+		args.LoadBalancerId = strings.Join(expandStringList(lbsStrings), COMMA_SEPARATED)
 	}
 
 	return args, nil
