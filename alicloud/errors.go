@@ -1,5 +1,7 @@
 package alicloud
 
+import "github.com/denverdino/aliyungo/common"
+
 const (
 	// common
 	Notfound = "Not found"
@@ -35,3 +37,13 @@ const (
 	InvalidScalingGroupIdNotFound               = "InvalidScalingGroupId.NotFound"
 	IncorrectScalingConfigurationLifecycleState = "IncorrectScalingConfigurationLifecycleState"
 )
+
+func GetNotFoundErrorFromString(str string) error {
+	return &common.Error{
+		ErrorResponse: common.ErrorResponse{
+			Code:    InstanceNotfound,
+			Message: str,
+		},
+		StatusCode: -1,
+	}
+}

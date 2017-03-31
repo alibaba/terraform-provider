@@ -27,7 +27,7 @@ resource "alicloud_ess_scaling_group" "scaling" {
   enable = "${var.enable}"
 }
 
-resource "alicloud_ess_scaling_configuration" "foo" {
+resource "alicloud_ess_scaling_configuration" "config" {
   scaling_group_id = "${alicloud_ess_scaling_group.scaling.id}"
 
   image_id = "${data.alicloud_images.ecs_image.images.0.id}"

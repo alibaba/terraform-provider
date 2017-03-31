@@ -8,8 +8,10 @@ import (
 	"encoding/json"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"strings"
+	"time"
 )
 
 func resourceAliyunInstance() *schema.Resource {
@@ -445,29 +447,31 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 	client := meta.(*AliyunClient)
 	conn := client.ecsconn
 
-	instance, err := client.QueryInstancesById(d.Id())
-	if err != nil {
-		if notFoundError(err) {
-			return nil
-		}
-		return fmt.Errorf("Error DescribeInstanceAttribute: %#v", err)
-	}
-
-	if instance.Status != ecs.Stopped {
-		if err := conn.StopInstance(d.Id(), true); err != nil {
-			return err
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
+		instance, err := client.QueryInstancesById(d.Id())
+		if err != nil {
+			if notFoundError(err) {
+				return nil
+			}
 		}
 
-		if err := conn.WaitForInstance(d.Id(), ecs.Stopped, defaultTimeout); err != nil {
-			return err
+		if instance.Status != ecs.Stopped {
+			if err := conn.StopInstance(d.Id(), true); err != nil {
+				return resource.RetryableError(fmt.Errorf("ECS stop error - trying again."))
+			}
+
+			if err := conn.WaitForInstance(d.Id(), ecs.Stopped, defaultTimeout); err != nil {
+				return resource.RetryableError(fmt.Errorf("Waiting for ecs stopped timeout - trying again."))
+			}
 		}
-	}
 
-	if err := conn.DeleteInstance(d.Id()); err != nil {
-		return err
-	}
+		if err := conn.DeleteInstance(d.Id()); err != nil {
+			return resource.RetryableError(fmt.Errorf("ECS Instance in use - trying again while it is deleted."))
+		}
 
-	return nil
+		return nil
+	})
+
 }
 
 func allocateIpAndBandWidthRelative(d *schema.ResourceData, meta interface{}) error {
