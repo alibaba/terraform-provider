@@ -35,16 +35,16 @@ func resourceAlicloudEssSchedule() *schema.Resource {
 				Optional: true,
 			},
 			"launch_expiration_time": &schema.Schema{
-				Type:     schema.TypeInt,
-				Default:  600,
-				Optional: true,
-				validateIntegerInRange(0, 21600),
+				Type:         schema.TypeInt,
+				Default:      600,
+				Optional:     true,
+				ValidateFunc: validateIntegerInRange(0, 21600),
 			},
 			"recurrence_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
-				validateAllowedStringValue([]string{string(ess.Daily),
+				ValidateFunc: validateAllowedStringValue([]string{string(ess.Daily),
 					string(ess.Weekly), string(ess.Monthly)}),
 			},
 			"recurrence_value": &schema.Schema{

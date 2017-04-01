@@ -245,11 +245,15 @@ func resourceAliyunRunInstance(d *schema.ResourceData, meta interface{}) error {
 	d.Set("system_disk_category", d.Get("system_disk_category"))
 	d.Set("system_disk_size", d.Get("system_disk_size"))
 
+	// after instance created, its status change from pending, starting to running
+	if err := conn.WaitForInstanceAsyn(d.Id(), ecs.Running, defaultTimeout); err != nil {
+		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", ecs.Running, err)
+	}
+
 	if err := allocateIpAndBandWidthRelative(d, meta); err != nil {
 		return fmt.Errorf("allocateIpAndBandWidthRelative err: %#v", err)
 	}
 
-	// after instance created, its status change from pending, starting to running
 	if err := conn.WaitForInstanceAsyn(d.Id(), ecs.Running, defaultTimeout); err != nil {
 		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", ecs.Running, err)
 	}

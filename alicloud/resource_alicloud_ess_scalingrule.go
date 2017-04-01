@@ -25,7 +25,7 @@ func resourceAlicloudEssScalingRule() *schema.Resource {
 			"adjustment_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				validateAllowedStringValue([]string{string(ess.QuantityChangeInCapacity),
+				ValidateFunc: validateAllowedStringValue([]string{string(ess.QuantityChangeInCapacity),
 					string(ess.PercentChangeInCapacity), string(ess.TotalCapacity)}),
 			},
 			"adjustment_value": &schema.Schema{
@@ -42,9 +42,9 @@ func resourceAlicloudEssScalingRule() *schema.Resource {
 				Computed: true,
 			},
 			"cooldown": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				validateIntegerInRange(7, 86400),
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validateIntegerInRange(7, 730),
 			},
 		},
 	}
