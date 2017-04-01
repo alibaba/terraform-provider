@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ess"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -72,12 +73,11 @@ func resourceAliyunEssScalingRuleRead(d *schema.ResourceData, meta interface{}) 
 
 	rule, err := client.DescribeScalingRuleById(ids[0], ids[1])
 	if err != nil {
-		return err
-	}
-
-	if rule == nil {
-		d.SetId("")
-		return nil
+		if e, ok := err.(*common.Error); ok && e.Code == InstanceNotfound {
+			d.SetId("")
+			return nil
+		}
+		fmt.Errorf("Error Describe ESS scaling rule Attribute: %#v", err)
 	}
 
 	d.Set("scaling_group_id", rule.ScalingGroupId)

@@ -203,7 +203,7 @@ func (client *AliyunClient) QueryRouteEntry(routeTableId, cidrBlock, nextHopType
 			return &e, nil
 		}
 	}
-	return nil, nil
+	return nil, GetNotFoundErrorFromString("Vpc router entry not found")
 }
 
 func (client *AliyunClient) GetVpcIdByVSwitchId(vswitchId string) (vpcId string, err error) {

@@ -386,6 +386,11 @@ func resourceAlicloudDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
+	if resp.Databases.Database == nil {
+		d.SetId("")
+		return nil
+	}
+
 	d.Set("db_mappings", flattenDatabaseMappings(resp.Databases.Database))
 
 	argn := rds.DescribeDBInstanceNetInfoArgs{

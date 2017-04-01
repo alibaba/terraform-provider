@@ -201,12 +201,11 @@ func resourceAliyunEssScalingConfigurationRead(d *schema.ResourceData, meta inte
 	ids := strings.Split(d.Id(), COLON_SEPARATED)
 	c, err := client.DescribeScalingConfigurationById(ids[0], ids[1])
 	if err != nil {
-		return err
-	}
-
-	if c == nil {
-		d.SetId("")
-		return nil
+		if e, ok := err.(*common.Error); ok && e.Code == InstanceNotfound {
+			d.SetId("")
+			return nil
+		}
+		fmt.Errorf("Error Describe ESS scaling configuration Attribute: %#v", err)
 	}
 
 	d.Set("scaling_group_id", c.ScalingGroupId)

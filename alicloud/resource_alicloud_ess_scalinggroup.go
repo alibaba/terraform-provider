@@ -85,12 +85,11 @@ func resourceAliyunEssScalingGroupRead(d *schema.ResourceData, meta interface{})
 
 	scaling, err := client.DescribeScalingGroupById(d.Id())
 	if err != nil {
-		return err
-	}
-
-	if scaling == nil {
-		d.SetId("")
-		return nil
+		if e, ok := err.(*common.Error); ok && e.Code == InstanceNotfound {
+			d.SetId("")
+			return nil
+		}
+		fmt.Errorf("Error Describe ESS scaling group Attribute: %#v", err)
 	}
 
 	d.Set("min_size", scaling.MinSize)

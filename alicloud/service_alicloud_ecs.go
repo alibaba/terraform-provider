@@ -244,7 +244,7 @@ func (client *AliyunClient) DescribeSecurityGroupRule(securityGroupId, direction
 			return &p, nil
 		}
 	}
-	return nil, nil
+	return nil, GetNotFoundErrorFromString("Security group rule not found")
 
 }
 

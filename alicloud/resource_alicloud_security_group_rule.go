@@ -141,7 +141,7 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 		}
 		return fmt.Errorf("Error SecurityGroup rule: %#v", err)
 	}
-	log.Printf("[WARN]sg %s, type %s, protocol %s, port %s, rule %#v", sgId, direction, ip_protocol, port_range, rule)
+
 	d.Set("type", rule.Direction)
 	d.Set("ip_protocol", strings.ToLower(string(rule.IpProtocol)))
 	d.Set("nic_type", rule.NicType)

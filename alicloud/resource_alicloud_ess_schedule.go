@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ess"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -87,12 +88,11 @@ func resourceAliyunEssScheduleRead(d *schema.ResourceData, meta interface{}) err
 
 	rule, err := client.DescribeScheduleById(d.Id())
 	if err != nil {
-		return err
-	}
-
-	if rule == nil {
-		d.SetId("")
-		return nil
+		if e, ok := err.(*common.Error); ok && e.Code == InstanceNotfound {
+			d.SetId("")
+			return nil
+		}
+		fmt.Errorf("Error Describe ESS schedule Attribute: %#v", err)
 	}
 
 	d.Set("scheduled_action", rule.ScheduledAction)

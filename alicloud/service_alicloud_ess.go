@@ -12,14 +12,11 @@ func (client *AliyunClient) DescribeScalingGroupById(sgId string) (*ess.ScalingG
 
 	sgs, _, err := client.essconn.DescribeScalingGroups(&args)
 	if err != nil {
-		if notFoundError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
 	if len(sgs) == 0 {
-		return nil, nil
+		return nil, GetNotFoundErrorFromString("Scaling group not found")
 	}
 
 	return &sgs[0], nil
@@ -44,14 +41,11 @@ func (client *AliyunClient) DescribeScalingConfigurationById(sgId, configId stri
 
 	cs, _, err := client.essconn.DescribeScalingConfigurations(&args)
 	if err != nil {
-		if notFoundError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
 	if len(cs) == 0 {
-		return nil, nil
+		return nil, GetNotFoundErrorFromString("Scaling configuration not found")
 	}
 
 	return &cs[0], nil
@@ -124,14 +118,11 @@ func (client *AliyunClient) DescribeScalingRuleById(sgId, ruleId string) (*ess.S
 
 	cs, _, err := client.essconn.DescribeScalingRules(&args)
 	if err != nil {
-		if notFoundError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
 	if len(cs) == 0 {
-		return nil, nil
+		return nil, GetNotFoundErrorFromString("Scaling rule not found")
 	}
 
 	return &cs[0], nil
@@ -155,14 +146,11 @@ func (client *AliyunClient) DescribeScheduleById(scheduleId string) (*ess.Schedu
 
 	cs, _, err := client.essconn.DescribeScheduledTasks(&args)
 	if err != nil {
-		if notFoundError(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 
 	if len(cs) == 0 {
-		return nil, nil
+		return nil, GetNotFoundErrorFromString("Schedule not found")
 	}
 
 	return &cs[0], nil
