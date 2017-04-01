@@ -60,10 +60,11 @@ func resourceAlicloudEssScalingConfiguration() *schema.Resource {
 				Computed: true,
 			},
 			"internet_charge_type": &schema.Schema{
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				ForceNew:     true,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validateInternetChargeType,
 			},
 			"internet_max_bandwidth_in": &schema.Schema{
 				Type:     schema.TypeInt,

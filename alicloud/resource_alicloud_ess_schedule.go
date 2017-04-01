@@ -38,11 +38,14 @@ func resourceAlicloudEssSchedule() *schema.Resource {
 				Type:     schema.TypeInt,
 				Default:  600,
 				Optional: true,
+				validateIntegerInRange(0, 21600),
 			},
 			"recurrence_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
+				validateAllowedStringValue([]string{string(ess.Daily),
+					string(ess.Weekly), string(ess.Monthly)}),
 			},
 			"recurrence_value": &schema.Schema{
 				Type:     schema.TypeString,

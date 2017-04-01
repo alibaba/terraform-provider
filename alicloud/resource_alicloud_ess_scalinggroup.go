@@ -21,10 +21,12 @@ func resourceAlicloudEssScalingGroup() *schema.Resource {
 			"min_size": &schema.Schema{
 				Type:     schema.TypeInt,
 				Required: true,
+				validateIntegerInRange(0, 100),
 			},
 			"max_size": &schema.Schema{
 				Type:     schema.TypeInt,
 				Required: true,
+				validateIntegerInRange(0, 100),
 			},
 			"scaling_group_name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -34,6 +36,7 @@ func resourceAlicloudEssScalingGroup() *schema.Resource {
 				Type:     schema.TypeInt,
 				Default:  300,
 				Optional: true,
+				validateIntegerInRange(0, 86400),
 			},
 			"vswitch_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -43,7 +46,7 @@ func resourceAlicloudEssScalingGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
-				MaxItems: 4,
+				MaxItems: 2,
 			},
 			"db_instance_ids": &schema.Schema{
 				Type:     schema.TypeList,
