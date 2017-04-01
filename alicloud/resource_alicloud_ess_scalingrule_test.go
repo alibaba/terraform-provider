@@ -161,7 +161,6 @@ data "alicloud_images" "ecs_image" {
 }
 
 resource "alicloud_security_group" "tf_test_foo" {
-	name = "tf_test_foo"
 	description = "foo"
 }
 
@@ -207,7 +206,6 @@ data "alicloud_images" "ecs_image" {
 }
 
 resource "alicloud_security_group" "tf_test_foo" {
-	name = "tf_test_foo"
 	description = "foo"
 }
 
@@ -253,7 +251,6 @@ data "alicloud_images" "ecs_image" {
 }
 
 resource "alicloud_security_group" "tf_test_foo" {
-	name = "tf_test_foo"
 	description = "foo"
 }
 
