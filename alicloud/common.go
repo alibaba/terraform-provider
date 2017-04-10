@@ -17,14 +17,15 @@ const (
 const defaultTimeout = 120
 
 // timeout for long time progerss product, rds e.g.
-const defaultLongTimeout = 800
+const defaultLongTimeout = 1000
 
 func getRegion(d *schema.ResourceData, meta interface{}) common.Region {
 	return meta.(*AliyunClient).Region
 }
 
 func notFoundError(err error) bool {
-	if e, ok := err.(*common.Error); ok && (e.StatusCode == 404 || e.ErrorResponse.Message == "Not found") {
+	if e, ok := err.(*common.Error); ok &&
+		(e.StatusCode == 404 || e.ErrorResponse.Message == "Not found" || e.Code == InstanceNotfound) {
 		return true
 	}
 
@@ -77,4 +78,16 @@ const DB_DEFAULT_CONNECT_PORT = "3306"
 
 const COMMA_SEPARATED = ","
 
+const COLON_SEPARATED = ":"
+
 const LOCAL_HOST_IP = "127.0.0.1"
+
+// Takes the result of flatmap.Expand for an array of strings
+// and returns a []string
+func expandStringList(configured []interface{}) []string {
+	vs := make([]string, 0, len(configured))
+	for _, v := range configured {
+		vs = append(vs, v.(string))
+	}
+	return vs
+}

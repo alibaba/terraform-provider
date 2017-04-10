@@ -13,7 +13,7 @@ copy:
 	tar -xvf bin/terraform-provider-alicloud_darwin-amd64.tgz && mv bin/terraform-provider-alicloud $(shell dirname `which terraform`)
 
 test: vet fmtcheck errcheck
-	TF_ACC=1 go test -v ./alicloud -run=TestAccAlicloud -timeout=120m -parallel=4
+	TF_ACC=1 go test -v ./alicloud -run=TestAccAlicloud -timeout=180m -parallel=4
 
 vet:
 	@echo "go tool vet $(VETARGS) ."
