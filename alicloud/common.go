@@ -32,24 +32,24 @@ func notFoundError(err error) bool {
 	return false
 }
 
-// Protocal represents network protocal
-type Protocal string
+// Protocol represents network protocol
+type Protocol string
 
-// Constants of protocal definition
+// Constants of protocol definition
 const (
-	Http  = Protocal("http")
-	Https = Protocal("https")
-	Tcp   = Protocal("tcp")
-	Udp   = Protocal("udp")
+	Http  = Protocol("http")
+	Https = Protocol("https")
+	Tcp   = Protocol("tcp")
+	Udp   = Protocol("udp")
 )
 
-// ValidProtocals network protocal list
-var ValidProtocals = []Protocal{Http, Https, Tcp, Udp}
+// ValidProtocols network protocol list
+var ValidProtocols = []Protocol{Http, Https, Tcp, Udp}
 
 // simple array value check method, support string type only
-func isProtocalValid(value string) bool {
+func isProtocolValid(value string) bool {
 	res := false
-	for _, v := range ValidProtocals {
+	for _, v := range ValidProtocols {
 		if string(v) == value {
 			res = true
 		}

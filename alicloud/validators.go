@@ -26,8 +26,8 @@ func validateInstancePort(v interface{}, k string) (ws []string, errors []error)
 }
 
 func validateInstanceProtocol(v interface{}, k string) (ws []string, errors []error) {
-	protocal := v.(string)
-	if !isProtocalValid(protocal) {
+	protocol := v.(string)
+	if !isProtocolValid(protocol) {
 		errors = append(errors, fmt.Errorf(
 			"%q is an invalid value. Valid values are either http, https, tcp or udp",
 			k))
