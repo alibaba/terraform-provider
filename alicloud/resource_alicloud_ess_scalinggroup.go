@@ -21,12 +21,12 @@ func resourceAlicloudEssScalingGroup() *schema.Resource {
 			"min_size": &schema.Schema{
 				Type:         schema.TypeInt,
 				Required:     true,
-				ValidateFunc: validateIntegerInRange(7, 730),
+				ValidateFunc: validateIntegerInRange(0, 100),
 			},
 			"max_size": &schema.Schema{
 				Type:         schema.TypeInt,
 				Required:     true,
-				ValidateFunc: validateIntegerInRange(7, 730),
+				ValidateFunc: validateIntegerInRange(0, 100),
 			},
 			"scaling_group_name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -36,7 +36,7 @@ func resourceAlicloudEssScalingGroup() *schema.Resource {
 				Type:         schema.TypeInt,
 				Default:      300,
 				Optional:     true,
-				ValidateFunc: validateIntegerInRange(7, 730),
+				ValidateFunc: validateIntegerInRange(0, 86400),
 			},
 			"vswitch_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -92,7 +92,7 @@ func resourceAliyunEssScalingGroupRead(d *schema.ResourceData, meta interface{})
 			d.SetId("")
 			return nil
 		}
-		fmt.Errorf("Error Describe ESS scaling group Attribute: %#v", err)
+		return fmt.Errorf("Error Describe ESS scaling group Attribute: %#v", err)
 	}
 
 	d.Set("min_size", scaling.MinSize)
@@ -154,11 +154,12 @@ func resourceAliyunEssScalingGroupDelete(d *schema.ResourceData, meta interface{
 			}
 		}
 
-		scaling, err := client.DescribeScalingGroupById(d.Id())
+		_, err = client.DescribeScalingGroupById(d.Id())
 		if err != nil {
+			if notFoundError(err) {
+				return nil
+			}
 			return resource.NonRetryableError(err)
-		} else if scaling == nil {
-			return nil
 		}
 
 		return resource.RetryableError(fmt.Errorf("Scaling group in use - trying again while it is deleted."))

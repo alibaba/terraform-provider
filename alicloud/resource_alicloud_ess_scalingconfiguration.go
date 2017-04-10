@@ -206,7 +206,7 @@ func resourceAliyunEssScalingConfigurationRead(d *schema.ResourceData, meta inte
 			d.SetId("")
 			return nil
 		}
-		fmt.Errorf("Error Describe ESS scaling configuration Attribute: %#v", err)
+		return fmt.Errorf("Error Describe ESS scaling configuration Attribute: %#v", err)
 	}
 
 	d.Set("scaling_group_id", c.ScalingGroupId)
@@ -244,11 +244,12 @@ func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta in
 			}
 		}
 
-		scaling, err := client.DescribeScalingConfigurationById(ids[0], ids[1])
+		_, err = client.DescribeScalingConfigurationById(ids[0], ids[1])
 		if err != nil {
+			if notFoundError(err) {
+				return nil
+			}
 			return resource.NonRetryableError(err)
-		} else if scaling == nil {
-			return nil
 		}
 
 		return resource.RetryableError(

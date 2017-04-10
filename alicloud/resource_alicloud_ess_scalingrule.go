@@ -44,7 +44,7 @@ func resourceAlicloudEssScalingRule() *schema.Resource {
 			"cooldown": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ValidateFunc: validateIntegerInRange(7, 730),
+				ValidateFunc: validateIntegerInRange(0, 86400),
 			},
 		},
 	}
@@ -80,7 +80,7 @@ func resourceAliyunEssScalingRuleRead(d *schema.ResourceData, meta interface{}) 
 			d.SetId("")
 			return nil
 		}
-		fmt.Errorf("Error Describe ESS scaling rule Attribute: %#v", err)
+		return fmt.Errorf("Error Describe ESS scaling rule Attribute: %#v", err)
 	}
 
 	d.Set("scaling_group_id", rule.ScalingGroupId)
@@ -104,11 +104,12 @@ func resourceAliyunEssScalingRuleDelete(d *schema.ResourceData, meta interface{}
 			return resource.RetryableError(fmt.Errorf("Scaling rule in use - trying again while it is deleted."))
 		}
 
-		rule, err := client.DescribeScalingRuleById(ids[0], ids[1])
+		_, err = client.DescribeScalingRuleById(ids[0], ids[1])
 		if err != nil {
+			if notFoundError(err) {
+				return nil
+			}
 			return resource.NonRetryableError(err)
-		} else if rule == nil {
-			return nil
 		}
 
 		return resource.RetryableError(fmt.Errorf("Scaling rule in use - trying again while it is deleted."))

@@ -131,7 +131,7 @@ func (client *AliyunClient) QueryInstancesById(id string) (instance *ecs.Instanc
 	}
 
 	if len(instances) == 0 {
-		return nil, common.GetClientErrorFromString(InstanceNotfound)
+		return nil, GetNotFoundErrorFromString(InstanceNotfound)
 	}
 
 	return &instances[0], nil

@@ -95,7 +95,7 @@ func resourceAliyunEssScheduleRead(d *schema.ResourceData, meta interface{}) err
 			d.SetId("")
 			return nil
 		}
-		fmt.Errorf("Error Describe ESS schedule Attribute: %#v", err)
+		return fmt.Errorf("Error Describe ESS schedule Attribute: %#v", err)
 	}
 
 	d.Set("scheduled_action", rule.ScheduledAction)
@@ -172,11 +172,12 @@ func resourceAliyunEssScheduleDelete(d *schema.ResourceData, meta interface{}) e
 			return resource.RetryableError(fmt.Errorf("Scaling schedule in use - trying again while it is deleted."))
 		}
 
-		schedule, err := client.DescribeScheduleById(d.Id())
+		_, err = client.DescribeScheduleById(d.Id())
 		if err != nil {
+			if notFoundError(err) {
+				return nil
+			}
 			return resource.NonRetryableError(err)
-		} else if schedule == nil {
-			return nil
 		}
 
 		return resource.RetryableError(fmt.Errorf("Scaling schedule in use - trying again while it is deleted."))

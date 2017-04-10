@@ -24,7 +24,8 @@ func getRegion(d *schema.ResourceData, meta interface{}) common.Region {
 }
 
 func notFoundError(err error) bool {
-	if e, ok := err.(*common.Error); ok && (e.StatusCode == 404 || e.ErrorResponse.Message == "Not found") {
+	if e, ok := err.(*common.Error); ok &&
+		(e.StatusCode == 404 || e.ErrorResponse.Message == "Not found" || e.Code == InstanceNotfound) {
 		return true
 	}
 
