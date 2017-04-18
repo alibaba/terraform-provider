@@ -70,6 +70,7 @@ us-west-1
 * [VPC](https://www.aliyun.com/product/vpc)
 * [NAT Gateway](https://www.aliyun.com/product/nat)
 * [RDS](https://www.aliyun.com/product/rds)
+* [ESS](https://www.aliyun.com/product/ess)
 
 
 #### Common problems
@@ -94,11 +95,11 @@ sudo -E "PATH=$PATH" make all
 * Contributions are welcome and will be merged via PRs.
 
 ### Contributors
-* demonwy(demon.wy@alibaba-inc.com)
+* demonwy
 * heww(heww0205@gmail.com)
-* ShuWei(shuwei.yin@alibaba-inc.com)
+* ShuWei
 * WangYuelucky(wangyuelucky@126.com)
-* GuiMin(guimin.hgm@alibaba-inc.com)
+* GuiMin
 
 ### License
 * This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/alibaba/terraform-provider/blob/master/LICENSE) for the full license text.
