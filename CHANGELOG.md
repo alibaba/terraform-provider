@@ -1,11 +1,20 @@
 ## 1.0.5 (unreleased)
 
+IMPROVEMENTS:
+
+  * resource/alicloud_instance: delete ecs instance with retry ([#113](https://github.com/alibaba/terraform-provider/pull/113))
+
 BUG FIXES:
 
+  * resource/resource_alicloud_security_group_rule: check ptr before use it.([#113](https://github.com/alibaba/terraform-provider/pull/113))
   * resource/alicloud_instance: fix ecs internet_max_bandwidth_out cannot set zero bug. cause if don't want allocate public ip, then must set internet_max_bandwidth_out is zero.([#105](https://github.com/alibaba/terraform-provider/pull/105))
 
 FEATURES:
 
+  * **New Resource:** `alicloud_ess_scalinggroup` ([#113](https://github.com/alibaba/terraform-provider/pull/113))
+  * **New Resource:** `alicloud_ess_scalingconfiguration` ([#113](https://github.com/alibaba/terraform-provider/pull/113))
+  * **New Resource:** `alicloud_ess_scalingrule` ([#113](https://github.com/alibaba/terraform-provider/pull/113))
+  * **New Resource:** `alicloud_ess_schedule` ([#113](https://github.com/alibaba/terraform-provider/pull/113))
   * **New Resource:** `alicloud_snat_entry` ([#105](https://github.com/alibaba/terraform-provider/pull/105))
   * **New Resource:** `alicloud_forward_entry` ([#105](https://github.com/alibaba/terraform-provider/pull/105))
   * add snat entry and forward entry template sample in /terraform/examples/alicloud-vpc-snat.
