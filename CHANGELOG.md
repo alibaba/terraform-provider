@@ -1,4 +1,6 @@
-## 1.0.5 (unreleased)
+## 1.0.6 (unreleased)
+
+## 1.0.5 (April 18, 2017)
 
 IMPROVEMENTS:
 
