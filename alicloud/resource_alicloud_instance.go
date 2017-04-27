@@ -114,7 +114,6 @@ func resourceAliyunInstance() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				ValidateFunc: validateIntegerInRange(40, 500),
 			},
 
@@ -365,6 +364,66 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.SetPartial("tags")
 	}
 
+	imageUpdate := false
+	if d.HasChange("image_id") {
+		oImage, nImage := d.GetChange("image_id")
+		if oImage != nil && oImage != "" {
+			replaceSystemArgs := &ecs.ReplaceSystemDiskArgs{
+				InstanceId: d.Id(),
+				ImageId:    nImage.(string),
+				SystemDisk: ecs.SystemDiskType{
+					Size: d.Get("system_disk_size").(int),
+				},
+			}
+
+			// Ensure instance's status must be stopped before replace system disk.
+			if v, ok := d.GetOk("status"); ok && v.(string) != "" {
+				if ecs.InstanceStatus(d.Get("status").(string)) == ecs.Running {
+					log.Printf("[DEBUG] StopInstance before change system disk")
+					if err := conn.StopInstance(d.Id(), true); err != nil {
+						return fmt.Errorf("Force Stop Instance got an error: %#v", err)
+					}
+					if err := conn.WaitForInstance(d.Id(), ecs.Stopped, 60); err != nil {
+						return fmt.Errorf("WaitForInstance got error: %#v", err)
+					}
+				}
+			}
+
+			_, err := conn.ReplaceSystemDisk(replaceSystemArgs)
+			if err != nil {
+				return fmt.Errorf("Replace system disk got an error: %#v", err)
+			}
+
+			// Ensure instance's image has been replaced successfully.
+			timeout := ecs.InstanceDefaultTimeout
+			for {
+				instance, errDesc := conn.DescribeInstanceAttribute(d.Id())
+				if errDesc != nil {
+					return fmt.Errorf("Describe instance got an error: %#v", errDesc)
+				}
+
+				if instance.ImageId == nImage {
+					break
+				}
+				time.Sleep(ecs.DefaultWaitForInterval * time.Second)
+
+				timeout = timeout - ecs.DefaultWaitForInterval
+				if timeout <= 0 {
+					return common.GetClientErrorFromString("Timeout")
+				}
+			}
+
+			imageUpdate = true
+			d.SetPartial("system_disk_size")
+			d.SetPartial("image_id")
+		}
+	} else {
+		// Provider doesn't support change 'system_disk_size'separately.
+		if d.HasChange("system_disk_size") {
+			return fmt.Errorf("Update resource failed. 'system_disk_size' isn't allowed to change separately. You can update them via renewing instance or changing 'image_id' to replace system disk.")
+		}
+	}
+
 	attributeUpdate := false
 	args := &ecs.ModifyInstanceAttributeArgs{
 		InstanceId: d.Id(),
@@ -410,19 +469,28 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	if passwordUpdate {
-		if v, ok := d.GetOk("status"); ok && v.(string) != "" {
-			if ecs.InstanceStatus(d.Get("status").(string)) == ecs.Running {
-				log.Printf("[DEBUG] RebootInstance after change password")
-				if err := conn.RebootInstance(d.Id(), false); err != nil {
-					return fmt.Errorf("RebootInstance got error: %#v", err)
-				}
+	if imageUpdate || passwordUpdate {
+		instance, errDesc := conn.DescribeInstanceAttribute(d.Id())
+		if errDesc != nil {
+			return fmt.Errorf("Describe instance got an error: %#v", errDesc)
+		}
 
-				if err := conn.WaitForInstance(d.Id(), ecs.Running, defaultTimeout); err != nil {
-					return fmt.Errorf("WaitForInstance got error: %#v", err)
-				}
+		if instance.Status == ecs.Running {
+			log.Printf("[DEBUG] Reboot instance after change image or password")
+			if err := conn.RebootInstance(d.Id(), false); err != nil {
+				return fmt.Errorf("RebootInstance got error: %#v", err)
+			}
+		} else if instance.Status == ecs.Stopped {
+			log.Printf("[DEBUG] Start instance after change image or password")
+			if err := conn.StartInstance(d.Id()); err != nil {
+				return fmt.Errorf("StartInstance got error: %#v", err)
 			}
 		}
+		// Start instance sometimes costs more than 6 minutes when os type is centos.
+		if err := conn.WaitForInstance(d.Id(), ecs.Running, 400); err != nil {
+			return fmt.Errorf("WaitForInstance got error: %#v", err)
+		}
+
 	}
 
 	if d.HasChange("security_groups") {
