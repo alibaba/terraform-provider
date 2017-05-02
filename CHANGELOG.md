@@ -1,4 +1,11 @@
-## 1.0.6 (unreleased)
+## 1.0.7 (unreleased)
+
+## 1.0.6 (May 2, 2017)
+
+IMPROVEMENTS:
+
+  * resource/alicloud_instance: add replaceing system disk function ([#119](https://github.com/alibaba/terraform-provider/pull/119))
+
 
 ## 1.0.5 (April 18, 2017)
 
