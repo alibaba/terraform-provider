@@ -65,6 +65,7 @@ func resourceAlicloudOssBucket() *schema.Resource {
 						},
 					},
 				},
+				MaxItems: 10,
 			},
 
 			"website": &schema.Schema{
