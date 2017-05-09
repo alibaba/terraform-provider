@@ -556,6 +556,24 @@ func allocateIpAndBandWidthRelative(d *schema.ResourceData, meta interface{}) er
 		if d.Get("internet_max_bandwidth_out") == 0 {
 			return fmt.Errorf("Error: if allocate_public_ip is true than the internet_max_bandwidth_out cannot equal zero.")
 		}
+
+		er := resource.Retry(5*time.Minute, func() *resource.RetryError {
+			instance, e := meta.(*AliyunClient).QueryInstancesById(d.Id())
+			if e != nil {
+				if notFoundError(e) {
+					return resource.RetryableError(fmt.Errorf("Ecs instance isn't found - trying again while it is queried."))
+				}
+				return resource.NonRetryableError(e)
+			}
+			if instance == nil {
+				return resource.NonRetryableError(fmt.Errorf("Ecs instance isn't found, and instance object: %#v", instance))
+			}
+			return nil
+		})
+		if er != nil {
+			return fmt.Errorf("Query instance got an error: %#v", er)
+		}
+
 		_, err := conn.AllocatePublicIpAddress(d.Id())
 		if err != nil {
 			return fmt.Errorf("[DEBUG] AllocatePublicIpAddress for instance got error: %#v", err)
