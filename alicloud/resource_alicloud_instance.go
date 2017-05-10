@@ -191,17 +191,15 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(instanceID)
 
 	d.Set("password", d.Get("password"))
-	//d.Set("system_disk_category", d.Get("system_disk_category"))
-	//d.Set("system_disk_size", d.Get("system_disk_size"))
-
-	if err := allocateIpAndBandWidthRelative(d, meta); err != nil {
-		return fmt.Errorf("allocateIpAndBandWidthRelative err: %#v", err)
-	}
 
 	// after instance created, its status is pending,
 	// so we need to wait it become to stopped and then start it
 	if err := conn.WaitForInstance(d.Id(), ecs.Stopped, defaultTimeout); err != nil {
 		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", ecs.Stopped, err)
+	}
+
+	if err := allocateIpAndBandWidthRelative(d, meta); err != nil {
+		return fmt.Errorf("allocateIpAndBandWidthRelative err: %#v", err)
 	}
 
 	if err := conn.StartInstance(d.Id()); err != nil {
@@ -555,23 +553,6 @@ func allocateIpAndBandWidthRelative(d *schema.ResourceData, meta interface{}) er
 	if d.Get("allocate_public_ip").(bool) {
 		if d.Get("internet_max_bandwidth_out") == 0 {
 			return fmt.Errorf("Error: if allocate_public_ip is true than the internet_max_bandwidth_out cannot equal zero.")
-		}
-
-		er := resource.Retry(5*time.Minute, func() *resource.RetryError {
-			instance, e := meta.(*AliyunClient).QueryInstancesById(d.Id())
-			if e != nil {
-				if notFoundError(e) {
-					return resource.RetryableError(fmt.Errorf("Ecs instance isn't found - trying again while it is queried."))
-				}
-				return resource.NonRetryableError(e)
-			}
-			if instance == nil {
-				return resource.NonRetryableError(fmt.Errorf("Ecs instance isn't found, and instance object: %#v", instance))
-			}
-			return nil
-		})
-		if er != nil {
-			return fmt.Errorf("Query instance got an error: %#v", er)
 		}
 
 		_, err := conn.AllocatePublicIpAddress(d.Id())
