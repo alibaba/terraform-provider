@@ -191,17 +191,15 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	d.SetId(instanceID)
 
 	d.Set("password", d.Get("password"))
-	//d.Set("system_disk_category", d.Get("system_disk_category"))
-	//d.Set("system_disk_size", d.Get("system_disk_size"))
-
-	if err := allocateIpAndBandWidthRelative(d, meta); err != nil {
-		return fmt.Errorf("allocateIpAndBandWidthRelative err: %#v", err)
-	}
 
 	// after instance created, its status is pending,
 	// so we need to wait it become to stopped and then start it
 	if err := conn.WaitForInstance(d.Id(), ecs.Stopped, defaultTimeout); err != nil {
 		log.Printf("[DEBUG] WaitForInstance %s got error: %#v", ecs.Stopped, err)
+	}
+
+	if err := allocateIpAndBandWidthRelative(d, meta); err != nil {
+		return fmt.Errorf("allocateIpAndBandWidthRelative err: %#v", err)
 	}
 
 	if err := conn.StartInstance(d.Id()); err != nil {
@@ -556,6 +554,7 @@ func allocateIpAndBandWidthRelative(d *schema.ResourceData, meta interface{}) er
 		if d.Get("internet_max_bandwidth_out") == 0 {
 			return fmt.Errorf("Error: if allocate_public_ip is true than the internet_max_bandwidth_out cannot equal zero.")
 		}
+
 		_, err := conn.AllocatePublicIpAddress(d.Id())
 		if err != nil {
 			return fmt.Errorf("[DEBUG] AllocatePublicIpAddress for instance got error: %#v", err)
