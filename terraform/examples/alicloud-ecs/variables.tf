@@ -8,10 +8,6 @@ variable "image_id" {
   default = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
 }
 
-variable "availability_zones" {
-  default = ""
-}
-
 variable "role" {
   default = "work"
 }
