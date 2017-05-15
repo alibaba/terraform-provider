@@ -1,4 +1,10 @@
-## 1.0.8 (unreleased)
+## 1.0.9 (unreleased)
+
+## 1.0.8 (May 15, 2017)
+BUG FIXES:
+
+  * Fix the bug that doesn't unify error code in master account and RAM.([#130](https://github.com/alibaba/terraform-provider/pull/130))
+  * resource/resource_alicloud_slb: add WaitForListenerAysn before operation StartLoadBalancerListener([#130](https://github.com/alibaba/terraform-provider/pull/130))
 
 ## 1.0.7 (May 10, 2017)
 
