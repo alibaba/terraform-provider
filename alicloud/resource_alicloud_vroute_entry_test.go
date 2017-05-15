@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -110,10 +111,9 @@ func testAccCheckRouteEntryDestroy(s *terraform.State) error {
 		if re != nil {
 			return fmt.Errorf("Error Route Entry still exist")
 		}
-
 		// Verify the error is what we want
-		if err != nil {
-			if notFoundError(err) {
+		if err != nil && !NotFoundError(err) {
+			if e, ok := err.(*common.Error); ok && (e.Code == "" || e.Message == "Not found") {
 				return nil
 			}
 			return err

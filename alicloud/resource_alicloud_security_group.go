@@ -7,6 +7,7 @@ import (
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"log"
 	"time"
 )
 
@@ -53,7 +54,7 @@ func resourceAliyunSecurityGroupCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	d.SetId(securityGroupID)
-
+	log.Printf("%%%%%%%%%%%%%%%%%%%% security id: %s, name:%s", d.Id(), d.Get("name"))
 	return resourceAliyunSecurityGroupRead(d, meta)
 }
 
@@ -64,16 +65,30 @@ func resourceAliyunSecurityGroupRead(d *schema.ResourceData, meta interface{}) e
 		SecurityGroupId: d.Id(),
 		RegionId:        getRegion(d, meta),
 	}
-
-	sg, err := conn.DescribeSecurityGroupAttribute(args)
-	if err != nil {
-		if notFoundError(err) {
-			d.SetId("")
+	//err := resource.Retry(3*time.Minute, func() *resource.RetryError {
+	var sg *ecs.DescribeSecurityGroupAttributeResponse
+	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
+		group, e := conn.DescribeSecurityGroupAttribute(args)
+		if e != nil && !NotFoundError(e) {
+			return resource.NonRetryableError(fmt.Errorf("Error DescribeSecurityGroupAttribute: %#v", e))
+		}
+		if group != nil {
+			sg = group
 			return nil
 		}
-		return fmt.Errorf("Error DescribeSecurityGroupAttribute: %#v", err)
+		return resource.RetryableError(fmt.Errorf("Security group is creating - try again while describe security group"))
+	})
+	//sg, err := conn.DescribeSecurityGroupAttribute(args)
+	//if err != nil {
+	//	if NotFoundError(err) {
+	//		d.SetId("")
+	//		return nil
+	//	}
+	//	return fmt.Errorf("Error DescribeSecurityGroupAttribute: %#v", err)
+	//}
+	if err != nil {
+		return err
 	}
-
 	if sg == nil {
 		d.SetId("")
 		return nil
