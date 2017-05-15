@@ -54,7 +54,6 @@ func resourceAliyunSecurityGroupCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	d.SetId(securityGroupID)
-	log.Printf("%%%%%%%%%%%%%%%%%%%% security id: %s, name:%s", d.Id(), d.Get("name"))
 	return resourceAliyunSecurityGroupRead(d, meta)
 }
 
