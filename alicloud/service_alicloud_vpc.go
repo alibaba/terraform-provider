@@ -186,7 +186,7 @@ func (client *AliyunClient) QueryRouteTableById(routeTableId string) (rt *ecs.Ro
 	}
 
 	if len(rts) == 0 {
-		return nil, &common.Error{ErrorResponse: common.ErrorResponse{Message: Notfound}}
+		return nil, &common.Error{StatusCode: -1, ErrorResponse: common.ErrorResponse{Code: InstanceNotFound, Message: "The specified route table instance is not found"}}
 	}
 
 	return &rts[0], nil
