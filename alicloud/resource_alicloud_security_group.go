@@ -77,14 +77,7 @@ func resourceAliyunSecurityGroupRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return resource.RetryableError(fmt.Errorf("Security group is creating - try again while describe security group"))
 	})
-	//sg, err := conn.DescribeSecurityGroupAttribute(args)
-	//if err != nil {
-	//	if NotFoundError(err) {
-	//		d.SetId("")
-	//		return nil
-	//	}
-	//	return fmt.Errorf("Error DescribeSecurityGroupAttribute: %#v", err)
-	//}
+
 	if err != nil {
 		return err
 	}
