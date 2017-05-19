@@ -7,6 +7,7 @@ import (
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"log"
 	"time"
 )
 
@@ -130,7 +131,7 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteSecurityGroup(getRegion(d, meta), d.Id())
-
+		log.Print("&&&&&&&&&&&&&&&&&&&&&&&& err:%#v", err)
 		if err != nil {
 			e, _ := err.(*common.Error)
 			if e.ErrorResponse.Code == SgDependencyViolation {
@@ -142,8 +143,10 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 			RegionId:        getRegion(d, meta),
 			SecurityGroupId: d.Id(),
 		})
+		log.Print("55555555555555555555555 sg:%#v;     err:%#v", sg, err)
 
 		if err != nil {
+			return resource.NonRetryableError(fmt.Errorf("***********%#v", err))
 			e, _ := err.(*common.Error)
 			if e.ErrorResponse.Code == InvalidSecurityGroupIdNotFound {
 				return nil

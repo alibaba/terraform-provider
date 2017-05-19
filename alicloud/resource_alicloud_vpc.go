@@ -2,11 +2,11 @@ package alicloud
 
 import (
 	"fmt"
-	"strings"
-
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"strings"
 	"time"
 )
 
@@ -73,9 +73,20 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 
 	ecsconn := meta.(*AliyunClient).ecsconn
 
-	vpc, err := ecsconn.CreateVpc(args)
+	var vpc *ecs.CreateVpcResponse
+	err = resource.Retry(3*time.Minute, func() *resource.RetryError {
+		resp, err := ecsconn.CreateVpc(args)
+		if err != nil {
+			if e, ok := err.(*common.Error); ok && (e.StatusCode == 400 || e.Code == UnknownError) {
+				return resource.RetryableError(fmt.Errorf("Vpc is still creating result from some unknown error -- try again"))
+			}
+			return resource.NonRetryableError(err)
+		}
+		vpc = resp
+		return nil
+	})
 	if err != nil {
-		return err
+		fmt.Errorf("Create vpc got an error :%#v", err)
 	}
 
 	d.SetId(vpc.VpcId)
@@ -154,6 +165,15 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 		err := conn.DeleteVpc(d.Id())
 
 		if err != nil {
+			sg, _, err := conn.DescribeSecurityGroups(&ecs.DescribeSecurityGroupsArgs{
+				RegionId: getRegion(d, meta),
+				VpcId:    d.Id(),
+				common.Pagination{
+					PageSize:   1,
+					PageNumber: 50,
+				},
+			})
+
 			return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
 		}
 
