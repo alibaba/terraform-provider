@@ -232,6 +232,35 @@ func testAccCheckOssBucketExistsWithProviders(n string, b *oss.BucketInfo, provi
 		return fmt.Errorf("Bucket not found")
 	}
 }
+
+func TestResourceAlicloudOssBucketAcl_validation(t *testing.T) {
+	_, errors := validateOssBucketAcl("incorrect", "acl")
+	if len(errors) == 0 {
+		t.Fatalf("Expected to trigger a validation error")
+	}
+
+	var testCases = []struct {
+		Value    string
+		ErrCount int
+	}{
+		{
+			Value:    "public-read",
+			ErrCount: 0,
+		},
+		{
+			Value:    "public-read-write",
+			ErrCount: 0,
+		},
+	}
+
+	for _, tc := range testCases {
+		_, errors := validateOssBucketAcl(tc.Value, "acl")
+		if len(errors) != tc.ErrCount {
+			t.Fatalf("Expected not to trigger a validation error")
+		}
+	}
+}
+
 func testAccCheckOssBucketDestroy(s *terraform.State) error {
 	return testAccCheckOssBucketDestroyWithProvider(s, testAccProvider)
 }
