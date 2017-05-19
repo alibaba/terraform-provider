@@ -7,6 +7,13 @@ data "alicloud_instance_types" "instance_type" {
 
 data "alicloud_zones" "zone" {
   available_instance_type = "${data.alicloud_instance_types.instance_type.instance_types.0.id}"
+
+}
+
+data "alicloud_vpcs" "vpc" {
+  cidr_block = "172.16.0.0/12"
+  status = "Available"
+  name_regex = "^t"
 }
 
 resource "alicloud_security_group" "group" {
