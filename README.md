@@ -71,6 +71,7 @@ us-west-1
 * [NAT Gateway](https://www.aliyun.com/product/nat)
 * [RDS](https://www.aliyun.com/product/rds)
 * [ESS](https://www.aliyun.com/product/ess)
+* [OSS](https://www.aliyun.com/product/oss)
 
 
 #### Common problems

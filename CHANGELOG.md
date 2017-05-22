@@ -1,4 +1,27 @@
-## 1.0.7 (unreleased)
+## 1.1.0 (unreleased)
+
+## 1.0.9 (May 19, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_oss_bucket_object` ([#132](https://github.com/alibaba/terraform-provider/pull/132))
+
+## 1.0.8 (May 15, 2017)
+BUG FIXES:
+
+  * Fix the bug that doesn't unify error code in master account and RAM.([#130](https://github.com/alibaba/terraform-provider/pull/130))
+  * resource/resource_alicloud_slb: add WaitForListenerAysn before operation StartLoadBalancerListener([#130](https://github.com/alibaba/terraform-provider/pull/130))
+
+## 1.0.7 (May 10, 2017)
+
+BUG FIXES:
+
+  * resource/resource_alicloud_instance: wait for instance creating successfully before allocate public ip.([#122](https://github.com/alibaba/terraform-provider/pull/122))
+  * resource/provider: if ak or region is empty in the template, it will get ak or region from env.([#122](https://github.com/alibaba/terraform-provider/pull/122))
+  * resource/resource_alicloud_nat_gateway: set bandwidth packages zone's attribution 'Compute' as true for solving diff bug.([#123](https://github.com/alibaba/terraform-provider/pull/123))
+
+FEATURES:
+
+  * **New Resource:** `alicloud_oss_bucket` ([#122](https://github.com/alibaba/terraform-provider/pull/122))
 
 ## 1.0.6 (May 2, 2017)
 
