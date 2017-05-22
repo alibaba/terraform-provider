@@ -1,4 +1,9 @@
-## 1.0.9 (unreleased)
+## 1.1.0 (unreleased)
+
+## 1.0.9 (May 19, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_oss_bucket_object` ([#132](https://github.com/alibaba/terraform-provider/pull/132))
 
 ## 1.0.8 (May 15, 2017)
 BUG FIXES:
