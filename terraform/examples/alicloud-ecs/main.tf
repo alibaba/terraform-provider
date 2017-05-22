@@ -4,12 +4,6 @@ data "alicloud_instance_types" "instance_type" {
   memory_size = "2"
 }
 
-
-data "alicloud_zones" "zone" {
-  available_instance_type = "${data.alicloud_instance_types.instance_type.instance_types.0.id}"
-
-}
-
 data "alicloud_vpcs" "vpc" {
   cidr_block = "172.16.0.0/12"
   status = "Available"
@@ -57,7 +51,7 @@ resource "alicloud_instance" "instance" {
   image_id = "${var.image_id}"
   instance_type = "${data.alicloud_instance_types.instance_type.instance_types.0.id}"
   count = "${var.count}"
-  availability_zone = "${data.alicloud_zones.zone.zones.0.id}"
+  availability_zone = "${var.availability_zones}"
   security_groups = [
     "${alicloud_security_group.group.*.id}"]
 
@@ -80,7 +74,6 @@ resource "alicloud_instance" "instance" {
   }
 
 }
-
 
 resource "alicloud_disk_attachment" "instance-attachment" {
   count = "${var.count}"
