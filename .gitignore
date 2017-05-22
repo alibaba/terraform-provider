@@ -10,3 +10,4 @@ terraform.log
 /.gitignore.swp
 *.tfvars
 glide.lock
+.DS_Store
