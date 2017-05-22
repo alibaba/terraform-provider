@@ -95,11 +95,7 @@ func dataSourceAlicloudVpcs() *schema.Resource {
 func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
-	cidrBlock, cidrBlockOk := d.GetOk("cidr_block")
-	status, statusOk := d.GetOk("status")
 	nameRegex, nameRegexOk := d.GetOk("name_regex")
-	isDefault, isDefaultOk := d.GetOk("is_default")
-	vswitchId, vswitchIdOk := d.GetOk("vswitch_id")
 
 	args := &ecs.DescribeVpcsArgs{
 		RegionId: getRegion(d, meta),
@@ -126,19 +122,19 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 	var filteredVpcsTemp []ecs.VpcSetType
 
 	for _, vpc := range allVpcs {
-		if cidrBlockOk && vpc.CidrBlock != cidrBlock.(string) {
+		if cidrBlock, ok := d.GetOk("cidr_block"); ok && vpc.CidrBlock != cidrBlock.(string) {
 			continue
 		}
 
-		if statusOk && string(vpc.Status) != status.(string) {
+		if status, ok := d.GetOk("status"); ok && string(vpc.Status) != status.(string) {
 			continue
 		}
 
-		if isDefaultOk && vpc.IsDefault != isDefault.(bool) {
+		if isDefault, ok := d.GetOk("is_default"); ok && vpc.IsDefault != isDefault.(bool) {
 			continue
 		}
 
-		if vswitchIdOk && !vpcVswitchIdListContains(vpc.VSwitchIds.VSwitchId, vswitchId.(string)) {
+		if vswitchId, ok := d.GetOk("vswitch_id"); ok && !vpcVswitchIdListContains(vpc.VSwitchIds.VSwitchId, vswitchId.(string)) {
 			continue
 		}
 
