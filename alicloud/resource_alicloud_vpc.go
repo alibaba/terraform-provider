@@ -166,32 +166,6 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 		err := conn.DeleteVpc(d.Id())
 
 		if err != nil {
-			// Delete system created security group.
-			if e, _ := err.(*common.Error); e.Code == VpcDependencyViolationSg {
-				sg, _, err := conn.DescribeSecurityGroups(&ecs.DescribeSecurityGroupsArgs{
-					RegionId: getRegion(d, meta),
-					VpcId:    d.Id(),
-				})
-				if err != nil {
-					return resource.NonRetryableError(fmt.Errorf("Error describing security groups by vpcId: %#v", err))
-				}
-				if sg != nil && len(sg) > 0 {
-					for _, item := range sg {
-						if strings.Contains(item.Description, "System created security group") {
-							log.Printf("[WARN] Delete defaule security group.")
-							err := conn.DeleteSecurityGroup(getRegion(d, meta), item.SecurityGroupId)
-							if err != nil {
-								if e, _ := err.(*common.Error); e.ErrorResponse.Code == SgDependencyViolation {
-									return resource.RetryableError(fmt.Errorf("System created security group in use - trying again while it is deleted."))
-								}
-								return resource.NonRetryableError(fmt.Errorf("Error delete system created security group: %#v", err))
-							}
-							break
-						}
-					}
-				}
-			}
-
 			return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
 		}
 
