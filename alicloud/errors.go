@@ -34,6 +34,10 @@ const (
 	NotFindSnatEntryBySnatId             = "NotFindSnatEntryBySnatId"
 	NotFindForwardEntryByForwardId       = "NotFindForwardEntryByForwardId"
 
+	// vpc
+	VpcDependencyViolation
+	VpcDependencyViolationSg = "DependencyViolation.SecurityGroup"
+
 	// vswitch
 	VswitcInvalidRegionId = "InvalidRegionId.NotFound"
 
