@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/mitchellh/go-homedir"
 	"time"
@@ -190,10 +191,22 @@ func resourceAlicloudOssBucketObjectDelete(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return fmt.Errorf("Error getting bucket: %#v", err)
 	}
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
+		exist, err := bucket.IsObjectExist(d.Id())
+		if err != nil {
+			return resource.NonRetryableError(fmt.Errorf("OSS delete object got an error: %#v", err))
+		}
 
-	if err := bucket.DeleteObject(d.Get("key").(string)); err != nil {
-		return err
-	}
+		if !exist {
+			return nil
+		}
+
+		if err := bucket.DeleteObject(d.Id()); err != nil {
+			return resource.RetryableError(fmt.Errorf("OSS object %#v is in use - trying again while it is deleted.", d.Id()))
+		}
+
+		return nil
+	})
 
 	return nil
 }
