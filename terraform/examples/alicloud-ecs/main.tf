@@ -4,6 +4,12 @@ data "alicloud_instance_types" "instance_type" {
   memory_size = "2"
 }
 
+data "alicloud_vpcs" "vpc" {
+  cidr_block = "172.16.0.0/12"
+  status = "Available"
+  name_regex = "^t"
+}
+
 resource "alicloud_security_group" "group" {
   name = "${var.short_name}"
   description = "New security group"
@@ -46,7 +52,8 @@ resource "alicloud_instance" "instance" {
   instance_type = "${data.alicloud_instance_types.instance_type.instance_types.0.id}"
   count = "${var.count}"
   availability_zone = "${var.availability_zones}"
-  security_groups = ["${alicloud_security_group.group.*.id}"]
+  security_groups = [
+    "${alicloud_security_group.group.*.id}"]
 
   internet_charge_type = "${var.internet_charge_type}"
   internet_max_bandwidth_out = "${var.internet_max_bandwidth_out}"

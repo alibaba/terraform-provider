@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="GOPATH &lt;terraform-provider&gt;">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../../k8s.io" />
+      <root url="file://$PROJECT_DIR$/../.." />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../../k8s.io" />
+      <root url="file://$PROJECT_DIR$/../.." />
+    </SOURCES>
+    <excluded>
+      <root url="file://$PROJECT_DIR$" />
+    </excluded>
+  </library>
+</component>

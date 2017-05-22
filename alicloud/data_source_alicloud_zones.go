@@ -78,11 +78,23 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 
 	var zoneTypes []ecs.ZoneType
 	for _, types := range resp {
+		if insType == "" && len(types.AvailableInstanceTypes.InstanceTypes) == 0 {
+			continue
+		}
+
 		if insType != "" && !constraints(types.AvailableInstanceTypes.InstanceTypes, insType) {
 			continue
 		}
 
+		if resType == "" && len(types.AvailableResourceCreation.ResourceTypes) == 0 {
+			continue
+		}
+
 		if resType != "" && !constraints(types.AvailableResourceCreation.ResourceTypes, resType) {
+			continue
+		}
+
+		if diskType == "" && len(types.AvailableDiskCategories.DiskCategories) == 0 {
 			continue
 		}
 
