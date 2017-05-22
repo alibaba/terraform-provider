@@ -47,6 +47,9 @@ const (
 	// RAM Instance Not Found
 	RamInstanceNotFound   = "Forbidden.InstanceNotFound"
 	AliyunGoClientFailure = "AliyunGoClientFailure"
+
+	//unknown Error
+	UnknownError = "UnknownError"
 )
 
 func GetNotFoundErrorFromString(str string) error {
