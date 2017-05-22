@@ -146,7 +146,7 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 		log.Print("55555555555555555555555 sg:%#v;     err:%#v", sg, err)
 
 		if err != nil {
-			return resource.NonRetryableError(fmt.Errorf("***********%#v", err))
+			log.Printf("***********%#v", err)
 			e, _ := err.(*common.Error)
 			if e.ErrorResponse.Code == InvalidSecurityGroupIdNotFound {
 				return nil

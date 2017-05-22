@@ -165,14 +165,25 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 		err := conn.DeleteVpc(d.Id())
 
 		if err != nil {
-			sg, _, err := conn.DescribeSecurityGroups(&ecs.DescribeSecurityGroupsArgs{
-				RegionId: getRegion(d, meta),
-				VpcId:    d.Id(),
-				common.Pagination{
-					PageSize:   1,
-					PageNumber: 50,
-				},
-			})
+			//sg, _, err := conn.DescribeSecurityGroups(&ecs.DescribeSecurityGroupsArgs{
+			//	RegionId: getRegion(d, meta),
+			//	VpcId:    d.Id(),
+			//	&common.Pagination{
+			//		PageSize:   1,
+			//		PageNumber: 50,
+			//	},
+			//})
+			//if err != nil {
+			//	return resource.NonRetryableError(fmt.Errorf("Error describing security groups by vpcId: %#v", err))
+			//}
+			//if sg != nil && len(sg) > 0 {
+			//	for _, item := range sg {
+			//		s, err := conn.DescribeSecurityGroupAttribute(&ecs.DescribeSecurityGroupAttributeArgs{
+			//			RegionId:        getRegion(d, meta),
+			//			SecurityGroupId: d.Id(),
+			//		})
+			//	}
+			//}
 
 			return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
 		}
