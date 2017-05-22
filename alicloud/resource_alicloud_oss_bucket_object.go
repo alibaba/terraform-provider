@@ -143,7 +143,7 @@ func resourceAlicloudOssBucketObjectPut(d *schema.ResourceData, meta interface{}
 	}
 
 	if err != nil {
-		return fmt.Errorf("Error putting object in Oss bucket (%s): %s", bucket, err)
+		return fmt.Errorf("Error putting object in Oss bucket (%#v): %s", bucket, err)
 	}
 
 	d.SetId(key)
