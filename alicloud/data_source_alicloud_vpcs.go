@@ -104,7 +104,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 	for {
 		vpcs, paginationResult, err := conn.DescribeVpcs(args)
 		if err != nil {
-			return fmt.Errorf("Failed to retrieve VPC information,please try again.")
+			return err
 		}
 
 		allVpcs = append(allVpcs, vpcs...)
