@@ -86,7 +86,7 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	})
 	if err != nil {
-		fmt.Errorf("Create vpc got an error :%#v", err)
+		return fmt.Errorf("Create vpc got an error :%#v", err)
 	}
 
 	d.SetId(vpc.VpcId)
