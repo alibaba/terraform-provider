@@ -95,8 +95,6 @@ func dataSourceAlicloudVpcs() *schema.Resource {
 func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
-	nameRegex, nameRegexOk := d.GetOk("name_regex")
-
 	args := &ecs.DescribeVpcsArgs{
 		RegionId: getRegion(d, meta),
 	}
@@ -142,11 +140,13 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	var filteredVpcs []ecs.VpcSetType
-	if nameRegexOk {
-		r := regexp.MustCompile(nameRegex.(string))
-		for _, vpc := range filteredVpcsTemp {
-			if r.MatchString(vpc.VpcName) {
-				filteredVpcs = append(filteredVpcs, vpc)
+
+	if nameRegex, ok := d.GetOk("name_regex"); ok {
+		if r, err := regexp.Compile(nameRegex.(string)); err == nil {
+			for _, vpc := range filteredVpcsTemp {
+				if r.MatchString(vpc.VpcName) {
+					filteredVpcs = append(filteredVpcs, vpc)
+				}
 			}
 		}
 	} else {
