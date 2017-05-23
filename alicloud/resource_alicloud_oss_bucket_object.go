@@ -208,7 +208,6 @@ func resourceAlicloudOssBucketObjectDelete(d *schema.ResourceData, meta interfac
 		return nil
 	})
 
-	return nil
 }
 
 func buildObjectHeaderOptions(d *schema.ResourceData) (options []oss.Option, err error) {
