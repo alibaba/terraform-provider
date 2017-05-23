@@ -11,7 +11,7 @@ import (
 func dataSourceAlicloudZones() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceAlicloudZonesRead,
-
+		
 		Schema: map[string]*schema.Schema{
 			"available_instance_type": {
 				Type:     schema.TypeString,
