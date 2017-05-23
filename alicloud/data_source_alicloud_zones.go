@@ -75,7 +75,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	
+
 	var zoneTypes []ecs.ZoneType
 	for _, types := range resp {
 		if len(types.AvailableInstanceTypes.InstanceTypes) == 0 || (insType != "" && !constraints(types.AvailableInstanceTypes.InstanceTypes, insType)) {
