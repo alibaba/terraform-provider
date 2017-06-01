@@ -97,10 +97,7 @@ func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interfac
 	ptl := d.Get("ip_protocol").(string)
 	port := d.Get("port_range").(string)
 	nicType := d.Get("nic_type").(string)
-	//group, e := conn.DescribeSecurityGroupAttribute(&ecs.DescribeSecurityGroupAttributeArgs{
-	//	SecurityGroupId: sgId,
-	//	RegionId:        getRegion(d, meta),
-	//})
+
 	var autherr error
 	switch GroupRuleDirection(direction) {
 	case GroupRuleIngress:
