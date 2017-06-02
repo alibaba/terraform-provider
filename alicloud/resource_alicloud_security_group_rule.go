@@ -273,17 +273,15 @@ func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*
 	if err != nil {
 		return nil, fmt.Errorf("Error get security group %s error: %#v", sgId, err)
 	}
-	if (group != nil && group.VpcId != "") || args.SourceGroupId != "" {
-		v := d.Get("nic_type").(string)
-		if GroupRuleNicType(v) != GroupRuleIntranet {
-			return nil, fmt.Errorf("When security group in the vpc or authorizing permission for source security group, " +
-				"the nic_type must be 'intranet'.")
+
+	if v := d.Get("nic_type").(string); v != "" {
+		if (group != nil && group.VpcId != "") || args.SourceGroupId != "" {
+			if GroupRuleNicType(v) != GroupRuleIntranet {
+				return nil, fmt.Errorf("When security group in the vpc or authorizing permission for source security group, " +
+					"the nic_type must be 'intranet'.")
+			}
 		}
 		args.NicType = ecs.NicType(v)
-	} else {
-		if v := d.Get("nic_type").(string); v != "" {
-			args.NicType = ecs.NicType(v)
-		}
 	}
 
 	args.SecurityGroupId = sgId
@@ -338,17 +336,14 @@ func buildAliyunSecurityEgressArgs(d *schema.ResourceData, meta interface{}) (*e
 		return nil, fmt.Errorf("Error get security group %s error: %#v", sgId, err)
 	}
 
-	if (group != nil && group.VpcId != "") || args.DestGroupId != "" {
-		v := d.Get("nic_type").(string)
-		if GroupRuleNicType(v) != GroupRuleIntranet {
-			return nil, fmt.Errorf("When security group in the vpc or authorizing permission for destination security group, " +
-				"the nic_type must be 'intranet'.")
+	if v := d.Get("nic_type").(string); v != "" {
+		if (group != nil && group.VpcId != "") || args.DestGroupId != "" {
+			if GroupRuleNicType(v) != GroupRuleIntranet {
+				return nil, fmt.Errorf("When security group in the vpc or authorizing permission for destination security group, " +
+					"the nic_type must be 'intranet'.")
+			}
 		}
 		args.NicType = ecs.NicType(v)
-	} else {
-		if v := d.Get("nic_type").(string); v != "" {
-			args.NicType = ecs.NicType(v)
-		}
 	}
 
 	args.SecurityGroupId = sgId
