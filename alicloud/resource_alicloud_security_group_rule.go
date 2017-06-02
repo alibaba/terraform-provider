@@ -276,7 +276,7 @@ func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*
 	if (group != nil && group.VpcId != "") || args.SourceGroupId != "" {
 		v := d.Get("nic_type").(string)
 		if GroupRuleNicType(v) != GroupRuleIntranet {
-			return nil, fmt.Errorf("When security group in the vpc or authorizing permission for source/dest security group, " +
+			return nil, fmt.Errorf("When security group in the vpc or authorizing permission for source security group, " +
 				"the nic_type must be 'intranet'.")
 		}
 		args.NicType = ecs.NicType(v)
@@ -314,21 +314,12 @@ func buildAliyunSecurityEgressArgs(d *schema.ResourceData, meta interface{}) (*e
 		args.Priority = v
 	}
 
-	if v := d.Get("nic_type").(string); v != "" {
-		args.NicType = ecs.NicType(v)
+	if v := d.Get("cidr_ip").(string); v != "" {
+		args.DestCidrIp = v
 	}
 
-	cidrIp := d.Get("cidr_ip").(string)
-	sourceGroupId := d.Get("source_security_group_id").(string)
-	if err := checkCidrAndSourceGroupId(cidrIp, sourceGroupId); err != nil {
-		return nil, err
-	}
-	if cidrIp != "" {
-		args.DestCidrIp = cidrIp
-	}
-
-	if sourceGroupId != "" {
-		args.DestGroupId = sourceGroupId
+	if v := d.Get("source_security_group_id").(string); v != "" {
+		args.DestGroupId = v
 	}
 
 	if v := d.Get("source_group_owner_account").(string); v != "" {
@@ -342,9 +333,22 @@ func buildAliyunSecurityEgressArgs(d *schema.ResourceData, meta interface{}) (*e
 		RegionId:        getRegion(d, meta),
 	}
 
-	_, err := conn.DescribeSecurityGroupAttribute(sgArgs)
+	group, err := conn.DescribeSecurityGroupAttribute(sgArgs)
 	if err != nil {
 		return nil, fmt.Errorf("Error get security group %s error: %#v", sgId, err)
+	}
+
+	if (group != nil && group.VpcId != "") || args.DestGroupId != "" {
+		v := d.Get("nic_type").(string)
+		if GroupRuleNicType(v) != GroupRuleIntranet {
+			return nil, fmt.Errorf("When security group in the vpc or authorizing permission for destination security group, " +
+				"the nic_type must be 'intranet'.")
+		}
+		args.NicType = ecs.NicType(v)
+	} else {
+		if v := d.Get("nic_type").(string); v != "" {
+			args.NicType = ecs.NicType(v)
+		}
 	}
 
 	args.SecurityGroupId = sgId
