@@ -1,4 +1,11 @@
-## 1.1.0 (unreleased)
+## 1.1.1 (unreleased)
+
+## 1.1.0 (June 2, 2017)
+BUG FIXES:
+
+  * add retry while creating vpc and vswitch result from vpc and vsw don't solve concurrent bug.([#135](https://github.com/alibaba/terraform-provider/pull/135))
+  * change security_groups's attribution optional to required when creating ecs instance.([#135](https://github.com/alibaba/terraform-provider/pull/135))
+  * fix security group rule bug about setting 'nic_type' to 'intranet' when security group in vpc or authorizing permission for source/dest security group.([#136](https://github.com/alibaba/terraform-provider/pull/136))
 
 ## 1.0.9 (May 19, 2017)
 FEATURES:
