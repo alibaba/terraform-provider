@@ -171,7 +171,7 @@ func (c *Config) ossConn() (*oss.Client, error) {
 
 	endpoint := strings.ToLower(endpointItem[0].Protocols.Protocols[0]) + "://" + endpointItem[0].Endpoint
 	log.Printf("[DEBUG] Instantiate OSS client using endpoint: %#v", endpoint)
-	client, err := oss.New(endpoint, c.AccessKey, c.SecretKey, oss.UserAgent(getUserAgent()), oss.BusinessInfo(BusinessInfoKey))
+	client, err := oss.New(endpoint, c.AccessKey, c.SecretKey, oss.UserAgent(getUserAgent()))
 
 	return client, err
 }
