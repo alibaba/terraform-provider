@@ -16,6 +16,7 @@ const (
 	DiskCreatingSnapshot      = "DiskCreatingSnapshot"
 	InstanceLockedForSecurity = "InstanceLockedForSecurity"
 	SystemDiskNotFound        = "SystemDiskNotFound"
+	DiskOperationConflict     = "OperationConflict"
 	// eip
 	EipIncorrectStatus      = "IncorrectEipStatus"
 	InstanceIncorrectStatus = "IncorrectInstanceStatus"

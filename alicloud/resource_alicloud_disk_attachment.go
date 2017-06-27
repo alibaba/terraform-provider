@@ -135,12 +135,13 @@ func diskAttachment(d *schema.ResourceData, meta interface{}) error {
 	diskID := d.Get("disk_id").(string)
 	instanceID := d.Get("instance_id").(string)
 
-	deviceName := d.Get("device_name").(string)
-
 	args := &ecs.AttachDiskArgs{
 		InstanceId: instanceID,
 		DiskId:     diskID,
-		Device:     deviceName,
+	}
+
+	if err := waitForDisksInUse(d, meta); err != nil {
+		return err
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -149,7 +150,8 @@ func diskAttachment(d *schema.ResourceData, meta interface{}) error {
 
 		if err != nil {
 			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == DiskIncorrectStatus || e.ErrorResponse.Code == InstanceIncorrectStatus {
+			if e.ErrorResponse.Code == DiskIncorrectStatus || e.ErrorResponse.Code == InstanceIncorrectStatus ||
+				e.ErrorResponse.Code == DiskOperationConflict {
 				return resource.RetryableError(fmt.Errorf("Disk or Instance status is incorrect - trying again while it attaches"))
 			}
 			return resource.NonRetryableError(err)
@@ -173,4 +175,25 @@ func diskAttachment(d *schema.ResourceData, meta interface{}) error {
 		return nil
 
 	})
+}
+
+func waitForDisksInUse(d *schema.ResourceData, meta interface{}) error {
+	conn := meta.(*AliyunClient).ecsconn
+	disks, _, err := conn.DescribeDisks(&ecs.DescribeDisksArgs{
+		RegionId:   getRegion(d, meta),
+		InstanceId: d.Get("instance_id").(string),
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error DescribeDiskAttribute: %#v", err)
+	}
+	for _, disk := range disks {
+		if disk.Status == ecs.DiskStatusAttaching {
+			err = conn.WaitForDisk(getRegion(d, meta), disk.DiskId, ecs.DiskStatusInUse, 60)
+			if err != nil {
+				return fmt.Errorf("Wait for attaching disk %s got an error: %#v", disk.DiskId, err)
+			}
+		}
+	}
+	return nil
 }
