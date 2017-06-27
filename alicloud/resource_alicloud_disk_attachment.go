@@ -141,10 +141,6 @@ func diskAttachment(d *schema.ResourceData, meta interface{}) error {
 		DiskId:     diskID,
 	}
 
-	if err := waitForDisksInUse(d, meta); err != nil {
-		return err
-	}
-
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.AttachDisk(args)
 		log.Printf("error : %s", err)
@@ -176,25 +172,4 @@ func diskAttachment(d *schema.ResourceData, meta interface{}) error {
 		return nil
 
 	})
-}
-
-func waitForDisksInUse(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
-	disks, _, err := conn.DescribeDisks(&ecs.DescribeDisksArgs{
-		RegionId:   getRegion(d, meta),
-		InstanceId: d.Get("instance_id").(string),
-	})
-
-	if err != nil {
-		return fmt.Errorf("Error DescribeDiskAttribute: %#v", err)
-	}
-	for _, disk := range disks {
-		if disk.Status == ecs.DiskStatusAttaching {
-			err = conn.WaitForDisk(getRegion(d, meta), disk.DiskId, ecs.DiskStatusInUse, 60)
-			if err != nil {
-				return fmt.Errorf("Wait for attaching disk %s got an error: %#v", disk.DiskId, err)
-			}
-		}
-	}
-	return nil
 }
