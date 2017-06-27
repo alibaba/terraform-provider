@@ -31,10 +31,11 @@ func resourceAliyunDiskAttachment() *schema.Resource {
 			},
 
 			"device_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Computed:   true,
+				Deprecated: "Attribute device_name is deprecated on disk attachment resource. Suggest to remove it from your template.",
 			},
 		},
 	}
