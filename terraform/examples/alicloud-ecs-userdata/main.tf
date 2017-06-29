@@ -32,7 +32,7 @@ resource "alicloud_instance" "website" {
   vswitch_id = "${alicloud_vswitch.vsw.id}"
   image_id = "${var.image}"
 
-  # series II
+  # series III
   instance_type = "${var.ecs_type}"
   io_optimized = "optimized"
   system_disk_category = "cloud_efficiency"

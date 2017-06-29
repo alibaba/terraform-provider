@@ -12,6 +12,11 @@ func dataSourceAlicloudInstanceTypes() *schema.Resource {
 		Read: dataSourceAlicloudInstanceTypesRead,
 
 		Schema: map[string]*schema.Schema{
+			"availability_zone": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"instance_type_family": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -73,8 +78,46 @@ func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	families, err := conn.DescribeInstanceTypeFamilies(&ecs.DescribeInstanceTypeFamiliesArgs{
+		RegionId:   getRegion(d, meta),
+		Generation: ecs.GenerationThree,
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error DescribeInstanceTypeFamilies: %#v.", err)
+	}
+
+	threeFamilies := make(map[string]ecs.InstanceTypeFamilyItemType)
+	for _, family := range families {
+		threeFamilies[family.InstanceTypeFamilyId] = family
+	}
+
+	validFamilies := make(map[string]ecs.InstanceTypeFamilyItemType)
+	if zoneId, ok := d.GetOk("availability_zone"); ok && zoneId != ""{
+		zones, err := conn.DescribeZones(getRegion(d, meta))
+		if err != nil {
+			return fmt.Errorf("Error DescribeZones: %#v", err)
+		}
+		for _, zone := range zones {
+			if zone.ZoneId == zoneId {
+				for _, family := range zone.AvailableResources.InstanceTypeFamilies{
+					if val, ok := threeFamilies[family]; ok {
+						validFamilies[family] = val
+					}
+				}
+			}
+		}
+	}else {
+		validFamilies = threeFamilies
+	}
+
 	var instanceTypes []ecs.InstanceTypeItemType
 	for _, types := range resp {
+		// Only filter series three instance type.
+		if _, ok := validFamilies[types.InstanceTypeFamily]; !ok {
+			continue
+		}
+
 		if cpu > 0 && types.CpuCoreCount != cpu {
 			continue
 		}

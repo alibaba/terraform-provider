@@ -8,7 +8,7 @@ resource "alicloud_instance" "instance" {
   instance_name = "website-${format(var.count_format, count.index+1)}"
   host_name = "website-${format(var.count_format, count.index+1)}"
   image_id = "centos7u2_64_40G_cloudinit_20160728.raw"
-  instance_type = "ecs.s2.large"
+  instance_type = "ecs.n4.large"
   count = "6"
   availability_zone = "cn-beijing-b"
   security_groups = "${var.security_groups}"

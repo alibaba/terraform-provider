@@ -93,21 +93,18 @@ func resourceAliyunInstance() *schema.Resource {
 			},
 			"io_optimized": &schema.Schema{
 				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validateIoOptimized,
+				Optional:     true,
+				Deprecated: "Attribute io_optimized is deprecated on instance resource. All the alicloud instances are IO optimized. Suggest to remove it from your template.",
 			},
 
 			"system_disk_category": &schema.Schema{
 				Type:     schema.TypeString,
-				Default:  "cloud",
+				Default:  "cloud_efficiency",
 				Optional: true,
 				ForceNew: true,
 				ValidateFunc: validateAllowedStringValue([]string{
-					string(ecs.DiskCategoryCloud),
 					string(ecs.DiskCategoryCloudSSD),
 					string(ecs.DiskCategoryCloudEfficiency),
-					string(ecs.DiskCategoryEphemeralSSD),
 				}),
 			},
 			"system_disk_size": &schema.Schema{
@@ -173,6 +170,11 @@ func resourceAliyunInstance() *schema.Resource {
 func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
+	// Ensure instance_type is generation three
+	if err := meta.(*AliyunClient).CheckParameterValidity(d, meta); err != nil{
+		return err
+	}
+
 	// create postpaid instance by runInstances API
 	if v := d.Get("instance_charge_type").(string); v != string(common.PrePaid) {
 		return resourceAliyunRunInstance(d, meta)
@@ -222,11 +224,11 @@ func resourceAliyunRunInstance(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	if args.IoOptimized == "optimized" {
-		args.IoOptimized = ecs.IoOptimized("true")
-	} else {
-		args.IoOptimized = ecs.IoOptimized("false")
-	}
+	//if args.IoOptimized == "optimized" {
+	//	args.IoOptimized = ecs.IoOptimized("true")
+	//} else {
+	//	args.IoOptimized = ecs.IoOptimized("false")
+	//}
 
 	runArgs, err := buildAliyunRunInstancesArgs(d, meta)
 	if err != nil {
@@ -663,9 +665,9 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 		args.Password = v
 	}
 
-	if v := d.Get("io_optimized").(string); v != "" {
-		args.IoOptimized = ecs.IoOptimized(v)
-	}
+	//if v := d.Get("io_optimized").(string); v != "" {
+	//	args.IoOptimized = ecs.IoOptimized(v)
+	//}
 
 	vswitchValue := d.Get("subnet_id").(string)
 	if vswitchValue == "" {

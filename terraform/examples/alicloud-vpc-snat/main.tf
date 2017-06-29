@@ -5,7 +5,7 @@ provider "alicloud" {
 data "alicloud_instance_types" "1c2g" {
 	cpu_core_count = 1
 	memory_size = 2
-	instance_type_family = "ecs.n1"
+	instance_type_family = "ecs.n4"
 }
 
 data "alicloud_zones" "default" {
@@ -75,7 +75,7 @@ resource "alicloud_instance" "default" {
 
 	vswitch_id = "${alicloud_vswitch.default.id}"
 
-	# series II
+	# series III
 	instance_charge_type = "PostPaid"
 	instance_type = "${var.instance_type}"
 	internet_max_bandwidth_out = 0

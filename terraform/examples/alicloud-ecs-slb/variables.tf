@@ -18,7 +18,7 @@ variable "short_name" {
   default = "hi"
 }
 variable "ecs_type" {
-  default = "ecs.n1.small"
+  default = "ecs.n4.small"
 }
 variable "ecs_password" {
   default = "Test12345"

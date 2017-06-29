@@ -1,7 +1,7 @@
 data "alicloud_instance_types" "1c2g" {
 	cpu_core_count = 1
 	memory_size = 2
-	instance_type_family = "ecs.n1"
+	instance_type_family = "ecs.n4"
 }
 
 data "alicloud_zones" "default" {

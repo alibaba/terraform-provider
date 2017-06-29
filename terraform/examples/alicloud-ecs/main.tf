@@ -1,5 +1,5 @@
 data "alicloud_instance_types" "instance_type" {
-  instance_type_family = "ecs.n1"
+  instance_type_family = "ecs.n4"
   cpu_core_count = "1"
   memory_size = "2"
 }
@@ -72,4 +72,5 @@ resource "alicloud_disk_attachment" "instance-attachment" {
   count = "${var.count}"
   disk_id = "${element(alicloud_disk.disk.*.id, count.index)}"
   instance_id = "${element(alicloud_instance.instance.*.id, count.index)}"
+  device_name = "${var.device_name}"
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"strings"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func (client *AliyunClient) DescribeImage(imageId string) (*ecs.ImageType, error) {
@@ -256,4 +257,118 @@ func (client *AliyunClient) RevokeSecurityGroup(args *ecs.RevokeSecurityGroupArg
 func (client *AliyunClient) RevokeSecurityGroupEgress(args *ecs.RevokeSecurityGroupEgressArgs) error {
 	//when the rule is not exist, api will return success(200)
 	return client.ecsconn.RevokeSecurityGroupEgress(args)
+}
+
+func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta interface{}) error {
+	// before creating resources, check input parameters validity according available zone.
+	zoneId := d.Get("availability_zone")
+
+	conn := meta.(*AliyunClient).ecsconn
+	zones, err := conn.DescribeZones(getRegion(d, meta))
+
+	if err != nil {
+		return fmt.Errorf("Error DescribeZone: %#v", err)
+	}
+
+	var availableResources ecs.AvailableResourcesType
+	for _, zone := range zones {
+		if zone.ZoneId == zoneId {
+			availableResources = zone.AvailableResources
+			break
+		}
+	}
+
+	if instanceType, ok := d.GetOk("instance_type"); ok {
+		// Retrieve series III instance type family
+		families, err := client.FetchSpecifiedInstanceTypeFamily(getRegion(d,meta), zoneId, ecs.GenerationThree)
+
+		if err != nil {
+			return err
+		}
+
+		instanceTypeSplit := strings.Split(instanceType, '.')
+		prefix := string(instanceTypeSplit[0] + instanceTypeSplit[1])
+
+		var validFamilies []string
+		for key := range families {
+			validFamilies = append(validFamilies, key)
+		}
+
+		if _, ok := families[prefix]; !ok {
+			if zoneId == nil || zoneId == "" {
+				return fmt.Errorf("Instance type %s is not supported in the region %s. Expected instance types: %s.",
+					instanceType, getRegion(d, meta), strings.Join(validFamilies, ", "))
+			}
+			return fmt.Errorf("Instance type %s is not supported in the availability zone %s. Expected instance types: %s.",
+				instanceType, zoneId, strings.Join(validFamilies, ", "))
+		}
+	}
+
+	if systemDisk, ok := d.GetOk("system_disk_category"); ok {
+
+		find := false
+		for _, item := range availableResources.SystemDiskCategories{
+			if systemDisk == item {
+				find = true
+				break
+			}
+		}
+		if !find {
+			return fmt.Errorf("System disk category %s is not supported in the availability zone %s. Expected system disk category: %s.",
+				systemDisk, zoneId, strings.Join(availableResources.SystemDiskCategories, ", "))
+		}
+	}
+
+	if dataDisk, ok := d.GetOk("category"); ok {
+
+		find := false
+		for _, item := range availableResources.DataDiskCategories{
+			if dataDisk == item {
+				find = true
+				break
+			}
+		}
+		if !find {
+			return fmt.Errorf("Data disk category %s is not supported in the availability zone %s. Expected data disk category: %s.",
+				dataDisk, zoneId, strings.Join(availableResources.DataDiskCategories, ", "))
+		}
+	}
+	return nil
+}
+
+func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Region, zoneId string, generation ecs.InstanceTypeGeneration) (map[string]ecs.InstanceTypeFamilyItemType, error){
+	// Describe specified series instance type families
+	families, err := client.ecsconn.DescribeInstanceTypeFamilies(&ecs.DescribeInstanceTypeFamiliesArgs{
+		RegionId:   regionId,
+		Generation: generation,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("Error DescribeInstanceTypeFamilies: %#v.", err)
+	}
+
+	familiesWithGeneration := make(map[string]ecs.InstanceTypeFamilyItemType)
+	for _, family := range families {
+		familiesWithGeneration[family.InstanceTypeFamilyId] = family
+	}
+
+	// Filter specified zone's instance type families, and make them fit for specified generation
+	if zoneId != nil && zoneId != "" {
+		validFamilies := make(map[string]ecs.InstanceTypeFamilyItemType)
+		zones, err := client.ecsconn.DescribeZones(regionId)
+		if err != nil {
+			return nil, fmt.Errorf("Error DescribeZones: %#v", err)
+		}
+		for _, zone := range zones {
+			if zone.ZoneId == zoneId {
+				for _, familyId := range zone.AvailableResources.InstanceTypeFamilies{
+					if val, ok := familiesWithGeneration[familyId]; ok {
+						validFamilies[familyId] = val
+					}
+				}
+			}
+		}
+		return validFamilies, nil
+	}
+	return familiesWithGeneration, nil
 }

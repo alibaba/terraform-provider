@@ -19,5 +19,5 @@ variable "image" {
 }
 
 variable "ecs_type" {
-  default = "ecs.n1.medium"
+  default = "ecs.n4.large"
 }

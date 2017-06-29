@@ -15,7 +15,7 @@ variable "rule_policy" {
   default = "accept"
 }
 variable "instance_type" {
-  default = "ecs.n1.small"
+  default = "ecs.n4.small"
 }
 variable "image_id" {
   default = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
