@@ -100,7 +100,7 @@ sudo -E "PATH=$PATH" make all
 * heww(heww0205@gmail.com)
 * ShuWei
 * WangYuelucky(wangyuelucky@126.com)
-* GuiMin
+* GuiMin(heguimin36@163.com)
 
 ### License
 * This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/alibaba/terraform-provider/blob/master/LICENSE) for the full license text.
