@@ -10,6 +10,8 @@ import (
 	"github.com/denverdino/aliyungo/location"
 	"github.com/denverdino/aliyungo/rds"
 	"github.com/denverdino/aliyungo/slb"
+	"github.com/denverdino/aliyungo/dns"
+
 	"log"
 	"strings"
 )
@@ -32,6 +34,7 @@ type AliyunClient struct {
 	vpcconn    *ecs.Client
 	slbconn    *slb.Client
 	ossconn    *oss.Client
+	dnsconn    *dns.Client
 }
 
 // Client for AliyunClient
@@ -75,6 +78,11 @@ func (c *Config) Client() (*AliyunClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	dnsconn, err := c.dnsConn()
+	if err != nil {
+		return nil, err
+	}
+
 	return &AliyunClient{
 		Region:     c.Region,
 		ecsconn:    ecsconn,
@@ -84,6 +92,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 		rdsconn:    rdsconn,
 		essconn:    essconn,
 		ossconn:    ossconn,
+		dnsconn:    dnsconn,
 	}, nil
 }
 
@@ -167,4 +176,10 @@ func (c *Config) ossConn() (*oss.Client, error) {
 	log.Printf("[DEBUG] Instantiate OSS client using endpoint: %#v", endpoint)
 	client, err := oss.New(endpoint, c.AccessKey, c.SecretKey)
 	return client, err
+}
+
+func (c *Config) dnsConn() (*dns.Client, error) {
+	client := dns.NewClient(c.AccessKey, c.SecretKey)
+	client.SetBusinessInfo(BusinessInfoKey)
+	return client, nil
 }
