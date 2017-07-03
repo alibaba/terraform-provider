@@ -86,10 +86,11 @@ func resourceAliyunEipRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error Describe Eip Attribute: %#v", err)
 	}
 
+	// Output parameter 'instance' would be deprecated in the next version.
 	if eip.InstanceId != "" {
-		d.Set("instance_id", eip.InstanceId)
+		d.Set("instance", eip.InstanceId)
 	} else {
-		d.Set("instance_id", "")
+		d.Set("instance", "")
 	}
 
 	bandwidth, _ := strconv.Atoi(eip.Bandwidth)
