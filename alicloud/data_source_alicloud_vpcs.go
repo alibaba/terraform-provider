@@ -157,10 +157,11 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
-	log.Printf("[DEBUG] alicloud_vpc - VPCs found: %#v", allVpcs)
+	log.Printf("[DEBUG] alicloud_vpc - VPCs found: %#v", filteredVpcs)
 
-	return vpcsDecriptionAttributes(d, filteredVpcsTemp, meta)
+	return vpcsDecriptionAttributes(d, filteredVpcs, meta)
 }
+
 func vpcVswitchIdListContains(vswitchIdList []string, vswitchId string) bool {
 	for _, idListItem := range vswitchIdList {
 		if idListItem == vswitchId {
@@ -169,6 +170,7 @@ func vpcVswitchIdListContains(vswitchIdList []string, vswitchId string) bool {
 	}
 	return false
 }
+
 func vpcsDecriptionAttributes(data *schema.ResourceData, vpcSetTypes []ecs.VpcSetType, meta interface{}) error {
 	var ids []string
 	var s []map[string]interface{}
