@@ -34,7 +34,6 @@ resource "alicloud_instance" "website" {
 
   # series III
   instance_type = "${var.ecs_type}"
-  io_optimized = "optimized"
   system_disk_category = "cloud_efficiency"
 
   internet_charge_type = "PayByTraffic"

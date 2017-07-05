@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
-	"strings"
 	"github.com/hashicorp/terraform/helper/schema"
+	"strings"
 )
 
 func (client *AliyunClient) DescribeImage(imageId string) (*ecs.ImageType, error) {
@@ -261,8 +261,6 @@ func (client *AliyunClient) RevokeSecurityGroupEgress(args *ecs.RevokeSecurityGr
 
 func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta interface{}) error {
 	// before creating resources, check input parameters validity according available zone.
-	zoneId := d.Get("availability_zone")
-
 	conn := meta.(*AliyunClient).ecsconn
 	zones, err := conn.DescribeZones(getRegion(d, meta))
 
@@ -270,32 +268,49 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 		return fmt.Errorf("Error DescribeZone: %#v", err)
 	}
 
-	var availableResources ecs.AvailableResourcesType
-	for _, zone := range zones {
-		if zone.ZoneId == zoneId {
-			availableResources = zone.AvailableResources
-			break
-		}
+	if zones == nil || len(zones) < 1 {
+		return fmt.Errorf("There are no availability zones in the region: %#v.", getRegion(d, meta))
 	}
 
-	if instanceType, ok := d.GetOk("instance_type"); ok {
+	zoneId := d.Get("availability_zone").(string)
+	valid := false
+	var validZones []string
+	for _, zone := range zones {
+		if zoneId != "" && zone.ZoneId == zoneId {
+			valid = true
+			break
+		}
+		validZones = append(validZones, zone.ZoneId)
+	}
+	if zoneId != "" && !valid {
+		return fmt.Errorf("Availablity zone %s is not supported in the region %s. Expected availablity zones: %s.",
+			zoneId, getRegion(d, meta), strings.Join(validZones, ", "))
+	}
+
+	var instanceType string
+	if insType, ok := d.GetOk("available_instance_type"); ok {
+		instanceType = insType.(string)
+	} else if insType, ok := d.GetOk("instance_type"); ok {
+		instanceType = insType.(string)
+	}
+	if instanceType != "" {
 		// Retrieve series III instance type family
-		families, err := client.FetchSpecifiedInstanceTypeFamily(getRegion(d,meta), zoneId, ecs.GenerationThree)
+		families, err := client.FetchSpecifiedInstanceTypeFamily(getRegion(d, meta), zoneId, GenerationThree)
 
 		if err != nil {
 			return err
 		}
 
-		instanceTypeSplit := strings.Split(instanceType, '.')
-		prefix := string(instanceTypeSplit[0] + instanceTypeSplit[1])
-
-		var validFamilies []string
-		for key := range families {
-			validFamilies = append(validFamilies, key)
-		}
+		instanceTypeSplit := strings.Split(instanceType, DOT_SEPARATED)
+		prefix := string(instanceTypeSplit[0] + DOT_SEPARATED + instanceTypeSplit[1])
 
 		if _, ok := families[prefix]; !ok {
-			if zoneId == nil || zoneId == "" {
+			var validFamilies []string
+			for key := range families {
+				validFamilies = append(validFamilies, key)
+			}
+
+			if zoneId == "" {
 				return fmt.Errorf("Instance type %s is not supported in the region %s. Expected instance types: %s.",
 					instanceType, getRegion(d, meta), strings.Join(validFamilies, ", "))
 			}
@@ -304,41 +319,33 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 		}
 	}
 
-	if systemDisk, ok := d.GetOk("system_disk_category"); ok {
+	if instanceTypeFamily, ok := d.GetOk("instance_type_family"); ok {
+		// Retrieve series III instance type family
+		families, err := client.FetchSpecifiedInstanceTypeFamily(getRegion(d, meta), zoneId, GenerationThree)
 
-		find := false
-		for _, item := range availableResources.SystemDiskCategories{
-			if systemDisk == item {
-				find = true
-				break
+		if err != nil {
+			return err
+		}
+
+		if _, ok := families[instanceTypeFamily.(string)]; !ok {
+			var validFamilies []string
+			for key := range families {
+				validFamilies = append(validFamilies, key)
 			}
-		}
-		if !find {
-			return fmt.Errorf("System disk category %s is not supported in the availability zone %s. Expected system disk category: %s.",
-				systemDisk, zoneId, strings.Join(availableResources.SystemDiskCategories, ", "))
-		}
-	}
-
-	if dataDisk, ok := d.GetOk("category"); ok {
-
-		find := false
-		for _, item := range availableResources.DataDiskCategories{
-			if dataDisk == item {
-				find = true
-				break
+			if zoneId == "" {
+				return fmt.Errorf("Instance type family %s is not supported in the region %s. Expected instance type families: %s.",
+					instanceTypeFamily, getRegion(d, meta), strings.Join(validFamilies, ", "))
 			}
-		}
-		if !find {
-			return fmt.Errorf("Data disk category %s is not supported in the availability zone %s. Expected data disk category: %s.",
-				dataDisk, zoneId, strings.Join(availableResources.DataDiskCategories, ", "))
+			return fmt.Errorf("Instance type family %s is not supported in the availability zone %s. Expected instance type families: %s.",
+				instanceTypeFamily, zoneId, strings.Join(validFamilies, ", "))
 		}
 	}
 	return nil
 }
 
-func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Region, zoneId string, generation ecs.InstanceTypeGeneration) (map[string]ecs.InstanceTypeFamilyItemType, error){
+func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Region, zoneId, generation string) (map[string]ecs.InstanceTypeFamily, error) {
 	// Describe specified series instance type families
-	families, err := client.ecsconn.DescribeInstanceTypeFamilies(&ecs.DescribeInstanceTypeFamiliesArgs{
+	response, err := client.ecsconn.DescribeInstanceTypeFamilies(&ecs.DescribeInstanceTypeFamiliesArgs{
 		RegionId:   regionId,
 		Generation: generation,
 	})
@@ -347,28 +354,32 @@ func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Reg
 		return nil, fmt.Errorf("Error DescribeInstanceTypeFamilies: %#v.", err)
 	}
 
-	familiesWithGeneration := make(map[string]ecs.InstanceTypeFamilyItemType)
-	for _, family := range families {
+	familiesWithGeneration := make(map[string]ecs.InstanceTypeFamily)
+	for _, family := range response.InstanceTypeFamilies.InstanceTypeFamily {
 		familiesWithGeneration[family.InstanceTypeFamilyId] = family
 	}
 
 	// Filter specified zone's instance type families, and make them fit for specified generation
-	if zoneId != nil && zoneId != "" {
-		validFamilies := make(map[string]ecs.InstanceTypeFamilyItemType)
+	if zoneId != "" {
+		validFamilies := make(map[string]ecs.InstanceTypeFamily)
 		zones, err := client.ecsconn.DescribeZones(regionId)
 		if err != nil {
 			return nil, fmt.Errorf("Error DescribeZones: %#v", err)
 		}
 		for _, zone := range zones {
 			if zone.ZoneId == zoneId {
-				for _, familyId := range zone.AvailableResources.InstanceTypeFamilies{
-					if val, ok := familiesWithGeneration[familyId]; ok {
-						validFamilies[familyId] = val
+				for _, resource := range zone.AvailableResources.ResourcesInfo {
+					families, _ := resource.InstanceTypeFamilies[string(ecs.SupportedInstanceTypeFamily)]
+					for _, familyId := range families {
+						if val, ok := familiesWithGeneration[familyId]; ok {
+							validFamilies[familyId] = val
+						}
 					}
+
 				}
+				return validFamilies, nil
 			}
 		}
-		return validFamilies, nil
 	}
 	return familiesWithGeneration, nil
 }

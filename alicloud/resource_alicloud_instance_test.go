@@ -869,7 +869,7 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	instance_type = "ecs.sn1ne.large"
+	instance_type = "ecs.n4.large"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}",
 				"${alicloud_security_group.tf_test_add_sg.id}"]
@@ -1270,7 +1270,6 @@ resource "alicloud_instance" "update_image" {
   	system_disk_size = 50
 
   	instance_type = "ecs.n4.small"
-  	internet_charge_type = "PayByBandwidth"
   	instance_name = "update_image"
   	password = "Test12345"
   	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
@@ -1308,7 +1307,6 @@ resource "alicloud_instance" "update_image" {
   	system_disk_size = 60
 
   	instance_type = "ecs.n4.small"
-  	internet_charge_type = "PayByBandwidth"
   	instance_name = "update_image"
   	password = "Test12345"
   	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]

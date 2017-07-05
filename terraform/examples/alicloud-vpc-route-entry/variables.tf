@@ -6,7 +6,7 @@ variable "vswitch_cidr" {
   default = "10.1.1.0/24"
 }
 variable "zone_id" {
-  default = "cn-beijing-c"
+  default = "cn-beijing-d"
 }
 variable "entry_cidr" {
   default = "172.11.1.1/32"
@@ -22,7 +22,4 @@ variable "image_id" {
 }
 variable "internet_charge_type" {
   default = "PayByTraffic"
-}
-variable "io_optimized" {
-  default = "optimized"
 }

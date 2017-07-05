@@ -79,7 +79,6 @@ resource "alicloud_instance" "default" {
 	instance_charge_type = "PostPaid"
 	instance_type = "${var.instance_type}"
 	internet_max_bandwidth_out = 0
-	io_optimized = "${var.io_optimized}"
 
 	system_disk_category = "cloud_efficiency"
 	image_id = "${var.image_id}"

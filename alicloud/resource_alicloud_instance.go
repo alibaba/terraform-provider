@@ -92,8 +92,8 @@ func resourceAliyunInstance() *schema.Resource {
 				Sensitive: true,
 			},
 			"io_optimized": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
+				Type:       schema.TypeString,
+				Optional:   true,
 				Deprecated: "Attribute io_optimized is deprecated on instance resource. All the alicloud instances are IO optimized. Suggest to remove it from your template.",
 			},
 
@@ -171,7 +171,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	conn := meta.(*AliyunClient).ecsconn
 
 	// Ensure instance_type is generation three
-	if err := meta.(*AliyunClient).CheckParameterValidity(d, meta); err != nil{
+	if err := meta.(*AliyunClient).CheckParameterValidity(d, meta); err != nil {
 		return err
 	}
 
@@ -308,11 +308,11 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		d.Set("public_ip", instance.PublicIpAddress.IpAddress[0])
 	}
 
-	if ecs.StringOrBool(instance.IoOptimized).Value {
-		d.Set("io_optimized", "optimized")
-	} else {
-		d.Set("io_optimized", "none")
-	}
+	//if ecs.StringOrBool(instance.IoOptimized).Value {
+	//	d.Set("io_optimized", "optimized")
+	//} else {
+	//	d.Set("io_optimized", "none")
+	//}
 
 	if d.Get("subnet_id").(string) != "" || d.Get("vswitch_id").(string) != "" {
 		ipAddress := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]

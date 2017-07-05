@@ -7,7 +7,7 @@ variable "vswitch_cidr" {
 }
 
 variable "zone" {
-  default = "cn-beijing-b"
+  default = "cn-beijing-a"
 }
 
 variable "password" {

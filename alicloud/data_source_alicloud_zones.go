@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 	"reflect"
+	"strings"
 )
 
 func dataSourceAlicloudZones() *schema.Resource {
@@ -13,6 +14,10 @@ func dataSourceAlicloudZones() *schema.Resource {
 		Read: dataSourceAlicloudZonesRead,
 
 		Schema: map[string]*schema.Schema{
+			"output_file": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"available_instance_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -27,6 +32,10 @@ func dataSourceAlicloudZones() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				ValidateFunc: validateAllowedStringValue([]string{
+					string(ecs.DiskCategoryCloudSSD),
+					string(ecs.DiskCategoryCloudEfficiency),
+				}),
 			},
 			// Computed values.
 			"zones": {
@@ -76,20 +85,56 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	familiesWithGeneration, err := meta.(*AliyunClient).FetchSpecifiedInstanceTypeFamily(getRegion(d, meta), "", GenerationThree)
+	if err != nil {
+		return err
+	}
 	var zoneTypes []ecs.ZoneType
-	for _, types := range resp {
-		if len(types.AvailableInstanceTypes.InstanceTypes) == 0 || (insType != "" && !constraints(types.AvailableInstanceTypes.InstanceTypes, insType)) {
+	for _, zone := range resp {
+
+		if len(zone.AvailableInstanceTypes.InstanceTypes) == 0 {
 			continue
 		}
 
-		if len(types.AvailableResourceCreation.ResourceTypes) == 0 || (resType != "" && !constraints(types.AvailableResourceCreation.ResourceTypes, resType)) {
+		if insType != "" {
+			if !constraints(zone.AvailableInstanceTypes.InstanceTypes, insType) {
+				continue
+			}
+			// Ensure current instance type belong to series III
+			instanceTypeSplit := strings.Split(insType, DOT_SEPARATED)
+			prefix := string(instanceTypeSplit[0] + DOT_SEPARATED + instanceTypeSplit[1])
+			if _, ok := familiesWithGeneration[prefix]; !ok {
+				continue
+			}
+		}
+
+		if len(zone.AvailableResourceCreation.ResourceTypes) == 0 || (resType != "" && !constraints(zone.AvailableResourceCreation.ResourceTypes, resType)) {
 			continue
 		}
 
-		if len(types.AvailableDiskCategories.DiskCategories) == 0 || (diskType != "" && !constraints(types.AvailableDiskCategories.DiskCategories, diskType)) {
+		if len(zone.AvailableDiskCategories.DiskCategories) == 0 || (diskType != "" && !constraints(zone.AvailableDiskCategories.DiskCategories, diskType)) {
 			continue
 		}
-		zoneTypes = append(zoneTypes, types)
+
+		// Filter and find supported resource types after finding valid zones
+		var vaildInstanceTypes []string
+		var vaildDiskCategories []ecs.DiskCategory
+		for _, typeItem := range zone.AvailableInstanceTypes.InstanceTypes {
+			instanceTypeSplit := strings.Split(typeItem, DOT_SEPARATED)
+			prefix := string(instanceTypeSplit[0] + DOT_SEPARATED + instanceTypeSplit[1])
+			if _, ok := familiesWithGeneration[prefix]; ok {
+				vaildInstanceTypes = append(vaildInstanceTypes, typeItem)
+			}
+		}
+		for _, diskItem := range zone.AvailableDiskCategories.DiskCategories {
+			if ecs.DiskCategory(diskItem) == ecs.DiskCategoryCloudEfficiency ||
+				ecs.DiskCategory(diskItem) == ecs.DiskCategoryCloudSSD {
+				vaildDiskCategories = append(vaildDiskCategories, ecs.DiskCategory(diskItem))
+			}
+		}
+		zone.AvailableInstanceTypes.InstanceTypes = vaildInstanceTypes
+		zone.AvailableDiskCategories.DiskCategories = vaildDiskCategories
+		zoneTypes = append(zoneTypes, zone)
 	}
 
 	if len(zoneTypes) < 1 {
@@ -133,5 +178,11 @@ func zonesDescriptionAttributes(d *schema.ResourceData, types []ecs.ZoneType) er
 	if err := d.Set("zones", s); err != nil {
 		return err
 	}
+
+	// create a json file in current directory and write data source to it.
+	if output, ok := d.GetOk("output_file"); ok && output != nil {
+		writeToFile(output.(string), s)
+	}
+
 	return nil
 }

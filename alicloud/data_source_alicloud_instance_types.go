@@ -32,6 +32,10 @@ func dataSourceAlicloudInstanceTypes() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"output_file": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			// Computed values.
 			"instance_types": {
 				Type:     schema.TypeList,
@@ -62,10 +66,15 @@ func dataSourceAlicloudInstanceTypes() *schema.Resource {
 }
 
 func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+	client := meta.(*AliyunClient)
+	// Ensure instance_type is generation three
+	if err := client.CheckParameterValidity(d, meta); err != nil {
+		return err
+	}
 
-	cpu, _ := d.Get("cpu_core_count").(int)
-	mem, _ := d.Get("memory_size").(float64)
+	cpu := d.Get("cpu_core_count").(int)
+	mem := d.Get("memory_size").(float64)
+	zoneId := d.Get("availability_zone").(string)
 
 	args, err := buildAliyunAlicloudInstanceTypesArgs(d, meta)
 
@@ -73,44 +82,12 @@ func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	resp, err := conn.DescribeInstanceTypesNew(args)
+	resp, err := client.ecsconn.DescribeInstanceTypesNew(args)
 	if err != nil {
 		return err
 	}
 
-	families, err := conn.DescribeInstanceTypeFamilies(&ecs.DescribeInstanceTypeFamiliesArgs{
-		RegionId:   getRegion(d, meta),
-		Generation: ecs.GenerationThree,
-	})
-
-	if err != nil {
-		return fmt.Errorf("Error DescribeInstanceTypeFamilies: %#v.", err)
-	}
-
-	threeFamilies := make(map[string]ecs.InstanceTypeFamilyItemType)
-	for _, family := range families {
-		threeFamilies[family.InstanceTypeFamilyId] = family
-	}
-
-	validFamilies := make(map[string]ecs.InstanceTypeFamilyItemType)
-	if zoneId, ok := d.GetOk("availability_zone"); ok && zoneId != ""{
-		zones, err := conn.DescribeZones(getRegion(d, meta))
-		if err != nil {
-			return fmt.Errorf("Error DescribeZones: %#v", err)
-		}
-		for _, zone := range zones {
-			if zone.ZoneId == zoneId {
-				for _, family := range zone.AvailableResources.InstanceTypeFamilies{
-					if val, ok := threeFamilies[family]; ok {
-						validFamilies[family] = val
-					}
-				}
-			}
-		}
-	}else {
-		validFamilies = threeFamilies
-	}
-
+	validFamilies, err := client.FetchSpecifiedInstanceTypeFamily(getRegion(d, meta), zoneId, GenerationThree)
 	var instanceTypes []ecs.InstanceTypeItemType
 	for _, types := range resp {
 		// Only filter series three instance type.
@@ -155,6 +132,11 @@ func instanceTypesDescriptionAttributes(d *schema.ResourceData, types []ecs.Inst
 	d.SetId(dataResourceIdHash(ids))
 	if err := d.Set("instance_types", s); err != nil {
 		return err
+	}
+
+	// create a json file in current directory and write data source to it.
+	if output, ok := d.GetOk("output_file"); ok && output != nil {
+		writeToFile(output.(string), s)
 	}
 	return nil
 }

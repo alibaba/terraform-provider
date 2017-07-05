@@ -165,11 +165,15 @@ func (c *Config) ossConn() (*oss.Client, error) {
 		return nil, fmt.Errorf("Describe endpoint using region: %#v got an error: %#v.", c.Region, err)
 	}
 	endpointItem := endpoints.Endpoints.Endpoint
+	var endpoint string
 	if endpointItem == nil || len(endpointItem) <= 0 {
-		return nil, fmt.Errorf("Cannot find endpoint in the region: %#v", c.Region)
+		// return nil, fmt.Errorf("Cannot find endpoint in the region: %#v", c.Region")
+		log.Printf("Cannot find endpoint in the region: %#v", c.Region)
+		endpoint = ""
+	} else {
+		endpoint = strings.ToLower(endpointItem[0].Protocols.Protocols[0]) + "://" + endpointItem[0].Endpoint
 	}
 
-	endpoint := strings.ToLower(endpointItem[0].Protocols.Protocols[0]) + "://" + endpointItem[0].Endpoint
 	log.Printf("[DEBUG] Instantiate OSS client using endpoint: %#v", endpoint)
 	client, err := oss.New(endpoint, c.AccessKey, c.SecretKey, oss.UserAgent(getUserAgent()))
 

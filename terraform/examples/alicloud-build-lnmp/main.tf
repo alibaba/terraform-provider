@@ -64,7 +64,6 @@ resource "alicloud_instance" "webserver" {
 	instance_charge_type = "PostPaid"
 	instance_type = "${data.alicloud_instance_types.2c4g.instance_types.0.id}"
 	internet_max_bandwidth_out = 0
-	io_optimized = "${var.io_optimized}"
 
 	system_disk_category = "${var.disk_category}"
 	image_id = "${data.alicloud_images.centos.images.0.id}"

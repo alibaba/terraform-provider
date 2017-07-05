@@ -34,6 +34,10 @@ func dataSourceAlicloudImages() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateImageOwners,
 			},
+			"output_file": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			// Computed values.
 			"images": {
 				Type:     schema.TypeList,
@@ -273,10 +277,15 @@ func imagesDescriptionAttributes(d *schema.ResourceData, images []ecs.ImageType,
 	if err := d.Set("images", s); err != nil {
 		return err
 	}
+
+	// create a json file in current directory and write data source to it.
+	if output, ok := d.GetOk("output_file"); ok && output != nil {
+		writeToFile(output.(string), s)
+	}
 	return nil
 }
 
-//Find most recent image
+//Find most recent imageoutput_file
 type imageSort []ecs.ImageType
 
 func (a imageSort) Len() int {
