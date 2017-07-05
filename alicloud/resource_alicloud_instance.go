@@ -224,12 +224,6 @@ func resourceAliyunRunInstance(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	//if args.IoOptimized == "optimized" {
-	//	args.IoOptimized = ecs.IoOptimized("true")
-	//} else {
-	//	args.IoOptimized = ecs.IoOptimized("false")
-	//}
-
 	runArgs, err := buildAliyunRunInstancesArgs(d, meta)
 	if err != nil {
 		return err
@@ -307,12 +301,6 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if d.Get("allocate_public_ip").(bool) {
 		d.Set("public_ip", instance.PublicIpAddress.IpAddress[0])
 	}
-
-	//if ecs.StringOrBool(instance.IoOptimized).Value {
-	//	d.Set("io_optimized", "optimized")
-	//} else {
-	//	d.Set("io_optimized", "none")
-	//}
 
 	if d.Get("subnet_id").(string) != "" || d.Get("vswitch_id").(string) != "" {
 		ipAddress := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]

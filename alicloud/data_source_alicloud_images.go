@@ -285,7 +285,7 @@ func imagesDescriptionAttributes(d *schema.ResourceData, images []ecs.ImageType,
 	return nil
 }
 
-//Find most recent imageoutput_file
+//Find most recent image
 type imageSort []ecs.ImageType
 
 func (a imageSort) Len() int {
