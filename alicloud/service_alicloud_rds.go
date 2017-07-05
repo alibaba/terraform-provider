@@ -197,7 +197,9 @@ func (client *AliyunClient) GetSecurityIps(instanceId string, securityIps interf
 			if _, ok := ipsMap[ip]; ok {
 				finalIps = append(finalIps, ip)
 				delete(ipsMap, ip)
+				continue
 			}
+			finalIps = append(finalIps, "")
 		}
 	}
 
