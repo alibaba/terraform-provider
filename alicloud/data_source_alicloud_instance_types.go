@@ -67,14 +67,15 @@ func dataSourceAlicloudInstanceTypes() *schema.Resource {
 
 func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
-	// Ensure instance_type is generation three
-	if err := client.CheckParameterValidity(d, meta); err != nil {
+	// Ensure instance_type is generation three, and get generation three families
+	validData, err := client.CheckParameterValidity(d, meta)
+
+	if err != nil {
 		return err
 	}
 
 	cpu := d.Get("cpu_core_count").(int)
 	mem := d.Get("memory_size").(float64)
-	zoneId := d.Get("availability_zone").(string)
 
 	args, err := buildAliyunAlicloudInstanceTypesArgs(d, meta)
 
@@ -87,11 +88,15 @@ func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	validFamilies, err := client.FetchSpecifiedInstanceTypeFamily(getRegion(d, meta), zoneId, GenerationThree)
+	validInstanceTypes := make(map[string]string)
+	if val, ok := validData[InstanceTypeKey]; ok {
+		validInstanceTypes = val.(map[string]string)
+	}
+
 	var instanceTypes []ecs.InstanceTypeItemType
 	for _, types := range resp {
 		// Only filter series three instance type.
-		if _, ok := validFamilies[types.InstanceTypeFamily]; !ok {
+		if _, ok := validInstanceTypes[types.InstanceTypeId]; !ok {
 			continue
 		}
 

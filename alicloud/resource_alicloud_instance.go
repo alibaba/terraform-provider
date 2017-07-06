@@ -98,14 +98,11 @@ func resourceAliyunInstance() *schema.Resource {
 			},
 
 			"system_disk_category": &schema.Schema{
-				Type:     schema.TypeString,
-				Default:  "cloud_efficiency",
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validateAllowedStringValue([]string{
-					string(ecs.DiskCategoryCloudSSD),
-					string(ecs.DiskCategoryCloudEfficiency),
-				}),
+				Type:         schema.TypeString,
+				Default:      "cloud_efficiency",
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateDiskCategory,
 			},
 			"system_disk_size": &schema.Schema{
 				Type:         schema.TypeInt,
@@ -171,7 +168,8 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	conn := meta.(*AliyunClient).ecsconn
 
 	// Ensure instance_type is generation three
-	if err := meta.(*AliyunClient).CheckParameterValidity(d, meta); err != nil {
+	_, err := meta.(*AliyunClient).CheckParameterValidity(d, meta)
+	if err != nil {
 		return err
 	}
 
@@ -652,10 +650,6 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	if v := d.Get("password").(string); v != "" {
 		args.Password = v
 	}
-
-	//if v := d.Get("io_optimized").(string); v != "" {
-	//	args.IoOptimized = ecs.IoOptimized(v)
-	//}
 
 	vswitchValue := d.Get("subnet_id").(string)
 	if vswitchValue == "" {

@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 	"reflect"
-	"strings"
 )
 
 func dataSourceAlicloudZones() *schema.Resource {
@@ -14,10 +13,6 @@ func dataSourceAlicloudZones() *schema.Resource {
 		Read: dataSourceAlicloudZonesRead,
 
 		Schema: map[string]*schema.Schema{
-			"output_file": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"available_instance_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -36,6 +31,10 @@ func dataSourceAlicloudZones() *schema.Resource {
 					string(ecs.DiskCategoryCloudSSD),
 					string(ecs.DiskCategoryCloudEfficiency),
 				}),
+			},
+			"output_file": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			// Computed values.
 			"zones": {
@@ -74,38 +73,26 @@ func dataSourceAlicloudZones() *schema.Resource {
 }
 
 func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
-
 	insType, _ := d.Get("available_instance_type").(string)
 	resType, _ := d.Get("available_resource_creation").(string)
 	diskType, _ := d.Get("available_disk_category").(string)
-
-	resp, err := conn.DescribeZones(getRegion(d, meta))
+	validData, err := meta.(*AliyunClient).CheckParameterValidity(d, meta)
 	if err != nil {
 		return err
 	}
-
-	familiesWithGeneration, err := meta.(*AliyunClient).FetchSpecifiedInstanceTypeFamily(getRegion(d, meta), "", GenerationThree)
-	if err != nil {
-		return err
+	zones := make(map[string]ecs.ZoneType)
+	if val, ok := validData[ZoneKey]; ok {
+		zones = val.(map[string]ecs.ZoneType)
 	}
 	var zoneTypes []ecs.ZoneType
-	for _, zone := range resp {
+	for _, zone := range zones {
 
 		if len(zone.AvailableInstanceTypes.InstanceTypes) == 0 {
 			continue
 		}
 
-		if insType != "" {
-			if !constraints(zone.AvailableInstanceTypes.InstanceTypes, insType) {
-				continue
-			}
-			// Ensure current instance type belong to series III
-			instanceTypeSplit := strings.Split(insType, DOT_SEPARATED)
-			prefix := string(instanceTypeSplit[0] + DOT_SEPARATED + instanceTypeSplit[1])
-			if _, ok := familiesWithGeneration[prefix]; !ok {
-				continue
-			}
+		if insType != "" && !constraints(zone.AvailableInstanceTypes.InstanceTypes, insType) {
+			continue
 		}
 
 		if len(zone.AvailableResourceCreation.ResourceTypes) == 0 || (resType != "" && !constraints(zone.AvailableResourceCreation.ResourceTypes, resType)) {
@@ -115,25 +102,6 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		if len(zone.AvailableDiskCategories.DiskCategories) == 0 || (diskType != "" && !constraints(zone.AvailableDiskCategories.DiskCategories, diskType)) {
 			continue
 		}
-
-		// Filter and find supported resource types after finding valid zones
-		var vaildInstanceTypes []string
-		var vaildDiskCategories []ecs.DiskCategory
-		for _, typeItem := range zone.AvailableInstanceTypes.InstanceTypes {
-			instanceTypeSplit := strings.Split(typeItem, DOT_SEPARATED)
-			prefix := string(instanceTypeSplit[0] + DOT_SEPARATED + instanceTypeSplit[1])
-			if _, ok := familiesWithGeneration[prefix]; ok {
-				vaildInstanceTypes = append(vaildInstanceTypes, typeItem)
-			}
-		}
-		for _, diskItem := range zone.AvailableDiskCategories.DiskCategories {
-			if ecs.DiskCategory(diskItem) == ecs.DiskCategoryCloudEfficiency ||
-				ecs.DiskCategory(diskItem) == ecs.DiskCategoryCloudSSD {
-				vaildDiskCategories = append(vaildDiskCategories, ecs.DiskCategory(diskItem))
-			}
-		}
-		zone.AvailableInstanceTypes.InstanceTypes = vaildInstanceTypes
-		zone.AvailableDiskCategories.DiskCategories = vaildDiskCategories
 		zoneTypes = append(zoneTypes, zone)
 	}
 

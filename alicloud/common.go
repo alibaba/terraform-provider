@@ -86,3 +86,16 @@ func expandStringList(configured []interface{}) []string {
 }
 
 const ServerSideEncryptionAes256 = "AES256"
+
+var SupportedDiskCategory = map[ecs.DiskCategory]ecs.DiskCategory{
+	ecs.DiskCategoryCloudSSD:        ecs.DiskCategoryCloudSSD,
+	ecs.DiskCategoryCloudEfficiency: ecs.DiskCategoryCloudEfficiency}
+
+type ResourceKeyType string
+
+const (
+	ZoneKey               = ResourceKeyType("zones")
+	InstanceTypeKey       = ResourceKeyType("instanceTypes")
+	InstanceTypeFamilyKey = ResourceKeyType("instanceTypeFamilies")
+	DiskCategoryKey       = ResourceKeyType("diskCatetories")
+)
