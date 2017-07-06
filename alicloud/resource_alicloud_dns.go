@@ -109,13 +109,14 @@ func resourceAlicloudDnsDelete(d *schema.ResourceData, meta interface{}) error {
 		DomainName: d.Get("name").(string),
 	}
 
-	return resource.Retry(2*time.Minute, func() *resource.RetryError {
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		_, err := conn.DeleteDomain(args)
 		if err != nil {
 			e, _ := err.(*common.Error)
 			if e.ErrorResponse.Code == RecordForbiddenDNSChange {
 				return resource.RetryableError(fmt.Errorf("Operation forbidden because DNS is changing - trying again after change complete."))
 			}
+			return resource.NonRetryableError(fmt.Errorf("Error deleting domain %s: %s", d.Id(), err))
 		}
 		return nil
 	})

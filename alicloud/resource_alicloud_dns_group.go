@@ -2,13 +2,12 @@ package alicloud
 
 import (
 	"fmt"
-	//"time"
+	"time"
 
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"time"
 )
 
 func resourceAlicloudDnsGroup() *schema.Resource {
@@ -75,13 +74,9 @@ func resourceAlicloudDnsGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	if groups == nil {
-		return fmt.Errorf(args.KeyWord + "--No domain groups found.")
+	if groups == nil || len(groups) <= 0 {
+		return fmt.Errorf("No domain groups found.")
 	}
-	if len(groups) <= 0 {
-		return fmt.Errorf("No domain groups found1.")
-	}
-
 	group := groups[0]
 	d.SetId(group.GroupId)
 	d.Set("name", group.GroupName)
@@ -96,14 +91,14 @@ func resourceAlicloudDnsGroupDelete(d *schema.ResourceData, meta interface{}) er
 		GroupId: d.Id(),
 	}
 
-	return resource.Retry(1*time.Minute, func() *resource.RetryError {
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		_, err := conn.DeleteDomainGroup(args)
 		if err != nil {
 			e, _ := err.(*common.Error)
-			//return resource.RetryableError(fmt.Errorf("The domain group can’t be deleted because it is not empty - trying again after it empty. ---%s, %s", e.ErrorResponse.Code, err))
 			if e.ErrorResponse.Code == FobiddenNotEmptyGroup {
 				return resource.RetryableError(fmt.Errorf("The domain group can’t be deleted because it is not empty - trying again after it empty."))
 			}
+			return resource.NonRetryableError(fmt.Errorf("Error deleting group %s: %s", d.Id(), err))
 		}
 		return nil
 	})
