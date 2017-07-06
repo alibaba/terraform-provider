@@ -1,5 +1,5 @@
 data "alicloud_instance_types" "instance_type" {
-  instance_type_family = "ecs.n1"
+  instance_type_family = "ecs.n4"
   cpu_core_count = "1"
   memory_size = "2"
 }
@@ -54,8 +54,6 @@ resource "alicloud_instance" "instance" {
   password = "${var.ecs_password}"
 
   allocate_public_ip = "${var.allocate_public_ip}"
-
-  io_optimized = "${var.io_optimized}"
 
   instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"

@@ -686,11 +686,10 @@ resource "alicloud_instance" "foo" {
 	system_disk_category = "cloud_ssd"
 	system_disk_size = 80
 
-	instance_type = "ecs.n1.small"
+	instance_type = "ecs.xn4.small"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
-	io_optimized = "optimized"
 
 	tags {
 		foo = "bar"
@@ -726,9 +725,8 @@ resource "alicloud_instance" "foo" {
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	# series II
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	# series III
+	instance_type = "ecs.n4.large"
 	system_disk_category = "cloud_efficiency"
 
 	internet_charge_type = "PayByTraffic"
@@ -765,11 +763,11 @@ resource "alicloud_security_group" "tf_test_foo" {
 
 resource "alicloud_instance" "foo" {
 	# cn-beijing
+	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
-	# series II
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	# series III
+	instance_type = "ecs.n4.large"
 	system_disk_category = "cloud_efficiency"
 	internet_charge_type = "PayByTraffic"
 	internet_max_bandwidth_out = 5
@@ -810,8 +808,7 @@ resource "alicloud_instance" "foo" {
 
   	internet_charge_type = "PayByBandwidth"
 
-  	instance_type = "ecs.n1.medium"
-  	io_optimized = "optimized"
+  	instance_type = "ecs.n4.large"
   	system_disk_category = "cloud_efficiency"
   	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
   	instance_name = "test_foo"
@@ -824,8 +821,7 @@ resource "alicloud_instance" "bar" {
 
 	internet_charge_type = "PayByBandwidth"
 
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	instance_type = "ecs.n4.large"
 	system_disk_category = "cloud_efficiency"
 	security_groups = ["${alicloud_security_group.tf_test_bar.id}"]
 	instance_name = "test_bar"
@@ -847,11 +843,10 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	instance_type = "ecs.s2.large"
+	instance_type = "ecs.n4.large"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}"]
 	instance_name = "test_foo"
-	io_optimized = "optimized"
 	system_disk_category = "cloud_efficiency"
 }`
 
@@ -875,12 +870,11 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	instance_type = "ecs.s2.large"
+	instance_type = "ecs.n4.large"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}", "${alicloud_security_group.tf_test_bar.id}",
 				"${alicloud_security_group.tf_test_add_sg.id}"]
 	instance_name = "test_foo"
-	io_optimized = "optimized"
 	system_disk_category = "cloud_efficiency"
 }
 `
@@ -917,11 +911,10 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	instance_type = "ecs.s2.large"
+	instance_type = "ecs.n4.large"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	instance_name = "test_foo"
-	io_optimized = "optimized"
 	system_disk_category = "cloud_efficiency"
 }
 `
@@ -937,11 +930,10 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	instance_type = "ecs.n2.small"
+	instance_type = "ecs.mn4.small"
 	internet_charge_type = "PayByBandwidth"
 	security_groups = ["${alicloud_security_group.tf_test_foo.*.id}"]
 	instance_name = "test_foo"
-	io_optimized = "optimized"
 	system_disk_category = "cloud_efficiency"
 }
 `
@@ -974,9 +966,8 @@ resource "alicloud_instance" "foo" {
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	# series II
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	# series III
+	instance_type = "ecs.n4.large"
 	system_disk_category = "cloud_efficiency"
 
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
@@ -997,9 +988,8 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	# series II
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	# series III
+	instance_type = "ecs.n4.large"
 	internet_charge_type = "PayByBandwidth"
 	system_disk_category = "cloud_efficiency"
 
@@ -1022,9 +1012,8 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	# series II
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	# series III
+	instance_type = "ecs.n4.large"
 	internet_charge_type = "PayByBandwidth"
 	system_disk_category = "cloud_efficiency"
 
@@ -1068,9 +1057,8 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	# series II
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	# series III
+	instance_type = "ecs.n4.large"
 	internet_charge_type = "PayByBandwidth"
 	system_disk_category = "cloud_efficiency"
 
@@ -1113,9 +1101,8 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 
-	# series II
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	# series III
+	instance_type = "ecs.n4.large"
 	internet_charge_type = "PayByBandwidth"
 	system_disk_category = "cloud_efficiency"
 
@@ -1155,9 +1142,8 @@ resource "alicloud_instance" "foo" {
 
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 
-	# series II
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	# series III
+	instance_type = "ecs.n4.large"
 	system_disk_category = "cloud_efficiency"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 	instance_name = "test_foo"
@@ -1195,9 +1181,8 @@ resource "alicloud_instance" "foo" {
 	internet_max_bandwidth_out = 5
 	internet_charge_type = "PayByBandwidth"
 
-	# series II
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	# series III
+	instance_type = "ecs.n4.large"
 	system_disk_category = "cloud_efficiency"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
 	instance_name = "test_foo"
@@ -1244,16 +1229,15 @@ resource "alicloud_instance" "foo" {
     	vswitch_id = "${alicloud_vswitch.foo.id}"
     	allocate_public_ip = true
 
-    	# series II
+    	# series III
     	instance_charge_type = "PostPaid"
-    	instance_type = "ecs.n1.small"
+    	instance_type = "ecs.n4.small"
     	internet_charge_type = "PayByBandwidth"
     	internet_max_bandwidth_out = 5
 
     	system_disk_category = "cloud_efficiency"
     	image_id = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"
     	instance_name = "test_foo"
-    	io_optimized = "optimized"
 }
 `
 const testAccCheckInstanceImageOrigin = `
@@ -1286,11 +1270,11 @@ resource "alicloud_instance" "update_image" {
   	system_disk_category = "cloud_efficiency"
   	system_disk_size = 50
 
-  	instance_type = "ecs.n1.small"
-  	internet_charge_type = "PayByBandwidth"
+  	instance_type = "ecs.n4.small"
   	instance_name = "update_image"
-  	io_optimized = "optimized"
   	password = "Test12345"
+  	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+	vswitch_id = "${alicloud_vswitch.foo.id}"
 }
 `
 const testAccCheckInstanceImageUpdate = `
@@ -1323,10 +1307,10 @@ resource "alicloud_instance" "update_image" {
   	system_disk_category = "cloud_efficiency"
   	system_disk_size = 60
 
-  	instance_type = "ecs.n1.small"
-  	internet_charge_type = "PayByBandwidth"
+  	instance_type = "ecs.n4.small"
   	instance_name = "update_image"
-  	io_optimized = "optimized"
   	password = "Test12345"
+  	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+	vswitch_id = "${alicloud_vswitch.foo.id}"
 }
 `

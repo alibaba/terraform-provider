@@ -26,7 +26,7 @@ variable "short_name" {
   default = "hi"
 }
 variable "ecs_type" {
-  default = "ecs.n1.small"
+  default = "ecs.n4.small"
 }
 variable "ecs_password" {
   default = "Test12345"
@@ -42,9 +42,6 @@ variable "internet_charge_type" {
 }
 variable "internet_max_bandwidth_out" {
   default = 5
-}
-variable "io_optimized" {
-  default = "optimized"
 }
 variable "disk_category" {
   default = "cloud_ssd"

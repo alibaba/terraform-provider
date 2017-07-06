@@ -20,7 +20,7 @@ variable "removal_policies" {
 }
 
 variable "ecs_instance_type" {
-  default = "ecs.s2.large"
+  default = "ecs.n4.large"
 }
 
 variable "rule_adjust_size" {
