@@ -6,8 +6,7 @@ resource "alicloud_dns_group" "group" {
 
 resource "alicloud_dns" "dns" {
   name = "${var.domain_name}"
-  group_id = "${alicloud_dns_group.group.id}"
-  count = "${var.count}"
+  group_id = "${element(alicloud_dns_group.group.*.id, count.index)}"
 }
 
 

@@ -78,7 +78,6 @@ func resourceAlicloudDnsGroupRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("No domain groups found.")
 	}
 	group := groups[0]
-	d.SetId(group.GroupId)
 	d.Set("name", group.GroupName)
 
 	return nil

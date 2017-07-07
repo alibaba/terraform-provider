@@ -81,8 +81,7 @@ func resourceAlicloudDnsRecordCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("AddDomainRecord got a error: %#v", err)
 	}
-	recordID := response.RecordId
-	d.SetId(recordID)
+	d.SetId(response.RecordId)
 	return resourceAlicloudDnsRecordUpdate(d, meta)
 }
 
@@ -114,13 +113,13 @@ func resourceAlicloudDnsRecordUpdate(d *schema.ResourceData, meta interface{}) e
 		attributeUpdate = true
 	}
 
-	if d.HasChange("ttl") && !(d.IsNewResource() && d.Get("ttl").(int) == 600) {
+	if d.HasChange("ttl") && !d.IsNewResource() {
 		d.SetPartial("ttl")
 		args.TTL = int32(d.Get("ttl").(int))
 		attributeUpdate = true
 	}
 
-	if d.HasChange("routing") && !(d.IsNewResource() && d.Get("routing").(string) == "default") {
+	if d.HasChange("routing") && !d.IsNewResource() {
 		d.SetPartial("routing")
 		args.Line = d.Get("routing").(string)
 		attributeUpdate = true
