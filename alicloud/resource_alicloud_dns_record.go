@@ -43,8 +43,9 @@ func resourceAlicloudDnsRecord() *schema.Resource {
 				Default:  600,
 			},
 			"priority": {
-				Type:     schema.TypeInt,
-				Optional: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validateDomainRecordPriority,
 			},
 			"routing": {
 				Type:     schema.TypeString,
@@ -73,18 +74,7 @@ func resourceAlicloudDnsRecordCreate(d *schema.ResourceData, meta interface{}) e
 		Value:      d.Get("value").(string),
 	}
 
-	if v, ok := d.GetOk("ttl"); ok {
-		args.TTL = int32(v.(int))
-	}
-
-	if v, ok := d.GetOk("priority"); ok {
-		priority := v.(int)
-		if priority > 10 || priority < 1 {
-			return fmt.Errorf("Priority value is 1-10")
-		}
-		args.Priority = priority
-
-	} else if args.Type == dns.MXRecord {
+	if _, ok := d.GetOk("priority"); !ok && args.Type == dns.MXRecord {
 		return fmt.Errorf("MXRecord needs priority param")
 	}
 
@@ -109,11 +99,13 @@ func resourceAlicloudDnsRecordUpdate(d *schema.ResourceData, meta interface{}) e
 		Value:    d.Get("value").(string),
 	}
 
-	requiredParams := []string{"host_record", "type", "value"}
-	for _, v := range requiredParams {
-		if d.HasChange(v) {
-			d.SetPartial(v)
-			attributeUpdate = true
+	if !d.IsNewResource() {
+		requiredParams := []string{"host_record", "type", "value"}
+		for _, v := range requiredParams {
+			if d.HasChange(v) {
+				d.SetPartial(v)
+				attributeUpdate = true
+			}
 		}
 	}
 
@@ -123,21 +115,21 @@ func resourceAlicloudDnsRecordUpdate(d *schema.ResourceData, meta interface{}) e
 		attributeUpdate = true
 	}
 
-	if d.HasChange("ttl") {
+	if d.HasChange("ttl") && !(d.IsNewResource() && d.Get("ttl").(int) == 600) {
 		d.SetPartial("ttl")
 		args.TTL = int32(d.Get("ttl").(int))
 		attributeUpdate = true
 	}
 
-	if d.HasChange("routing") {
+	if d.HasChange("routing") && !(d.IsNewResource() && d.Get("routing").(string) == "default") {
 		d.SetPartial("routing")
 		args.Line = d.Get("routing").(string)
 		attributeUpdate = true
 	}
 
-	if attributeUpdate && !d.IsNewResource() {
+	if attributeUpdate {
 		if _, err := conn.UpdateDomainRecord(args); err != nil {
-			return err
+			return fmt.Errorf("UpdateDomainRecord got an error: %#v", err)
 		}
 	}
 
@@ -186,7 +178,7 @@ func resourceAlicloudDnsRecordDelete(d *schema.ResourceData, meta interface{}) e
 			if e.ErrorResponse.Code == RecordForbiddenDNSChange {
 				return resource.RetryableError(fmt.Errorf("Operation forbidden because DNS is changing - trying again after change complete."))
 			}
-			return resource.NonRetryableError(fmt.Errorf("Error deleting domain record %s: %s", d.Id(), err))
+			return resource.NonRetryableError(fmt.Errorf("Error deleting domain record %s: %#v", d.Id(), err))
 		}
 		return nil
 	})

@@ -54,7 +54,7 @@ func resourceAlicloudDnsGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		d.SetPartial("name")
 		args.GroupName = d.Get("name").(string)
 		if _, err := conn.UpdateDomainGroup(args); err != nil {
-			return err
+			return fmt.Errorf("UpdateDomainGroup got an error: %#v", err)
 		}
 	}
 
@@ -98,7 +98,7 @@ func resourceAlicloudDnsGroupDelete(d *schema.ResourceData, meta interface{}) er
 			if e.ErrorResponse.Code == FobiddenNotEmptyGroup {
 				return resource.RetryableError(fmt.Errorf("The domain group can’t be deleted because it is not empty - trying again after it empty."))
 			}
-			return resource.NonRetryableError(fmt.Errorf("Error deleting group %s: %s", d.Id(), err))
+			return resource.NonRetryableError(fmt.Errorf("Error deleting group %s: %#v", d.Id(), err))
 		}
 		return nil
 	})

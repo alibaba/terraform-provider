@@ -45,10 +45,6 @@ func resourceAlicloudDnsCreate(d *schema.ResourceData, meta interface{}) error {
 		DomainName: d.Get("name").(string),
 	}
 
-	if v, ok := d.GetOk("group_id"); ok && v.(string) != "" {
-		args.GroupId = v.(string)
-	}
-
 	response, err := conn.AddDomain(args)
 	if err != nil {
 		return fmt.Errorf("AddDomain got an error: %#v", err)
@@ -63,16 +59,17 @@ func resourceAlicloudDnsUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	d.Partial(true)
 
-	if v, ok := d.GetOk("group_id"); ok && v.(string) != "" {
-		args := &dns.ChangeDomainGroupArgs{
-			DomainName: d.Get("name").(string),
-			GroupId:    v.(string),
-		}
-		if d.HasChange("group_id") && !d.IsNewResource() {
-			_, err := conn.ChangeDomainGroup(args)
-			if err != nil {
-				return fmt.Errorf("ChangeDomainGroup got an error: %#v", err)
-			}
+	args := &dns.ChangeDomainGroupArgs{
+		DomainName: d.Get("name").(string),
+	}
+
+	if d.HasChange("group_id") {
+		d.SetPartial("group_id")
+		args.GroupId = d.Get("group_id").(string)
+
+		_, err := conn.ChangeDomainGroup(args)
+		if err != nil {
+			return fmt.Errorf("ChangeDomainGroup got an error: %#v", err)
 		}
 	}
 
@@ -116,7 +113,7 @@ func resourceAlicloudDnsDelete(d *schema.ResourceData, meta interface{}) error {
 			if e.ErrorResponse.Code == RecordForbiddenDNSChange {
 				return resource.RetryableError(fmt.Errorf("Operation forbidden because DNS is changing - trying again after change complete."))
 			}
-			return resource.NonRetryableError(fmt.Errorf("Error deleting domain %s: %s", d.Id(), err))
+			return resource.NonRetryableError(fmt.Errorf("Error deleting domain %s: %#v", d.Id(), err))
 		}
 		return nil
 	})
