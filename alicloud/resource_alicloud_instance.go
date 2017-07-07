@@ -94,7 +94,7 @@ func resourceAliyunInstance() *schema.Resource {
 			"io_optimized": &schema.Schema{
 				Type:       schema.TypeString,
 				Optional:   true,
-				Deprecated: "Attribute io_optimized is deprecated on instance resource. All the alicloud instances are IO optimized. Suggest to remove it from your template.",
+				Deprecated: "Attribute io_optimized is deprecated on instance resource. All the launched alicloud instances are IO optimized. Suggest to remove it from your template.",
 			},
 
 			"system_disk_category": &schema.Schema{
