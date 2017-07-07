@@ -35,7 +35,6 @@ func resourceAlicloudDnsRecord() *schema.Resource {
 			"value": {
 				Type:     schema.TypeString,
 				Required: true,
-				//ValidateFunc: validateDnsRecordValue,
 			},
 			"ttl": {
 				Type:     schema.TypeInt,
