@@ -139,10 +139,10 @@ func resourceAlicloudDnsRecordUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).dnsconn
 
-	args := &dns.DescribeDomainRecordInfoArgs{
+	args := &dns.DescribeDomainRecordInformationArgs{
 		RecordId: d.Id(),
 	}
-	response, err := conn.DescribeDomainRecordInfo(args)
+	response, err := conn.DescribeDomainRecordInformation(args)
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -151,7 +151,7 @@ func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	record := response.RecordType
+	record := response.DomainRecordType
 	d.Set("host_record", record.RR)
 	d.Set("type", record.Type)
 	d.Set("value", record.Value)
