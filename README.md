@@ -100,10 +100,11 @@ sudo -E "PATH=$PATH" make all
 * heww(heww0205@gmail.com)
 * ShuWei
 * WangYuelucky(wangyuelucky@126.com)
-* GuiMin
+* GuiMin(heguimin36@163.com)
 
 ### License
 * This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/alibaba/terraform-provider/blob/master/LICENSE) for the full license text.
 
 ### Refrence
-* Terraform document: https://www.terraform.io/intro/
+* Terraform Document: https://www.terraform.io/intro/
+* Terraform Alicloud Examples: https://github.com/mosuke5/terraform_for_alibabacloud_examples

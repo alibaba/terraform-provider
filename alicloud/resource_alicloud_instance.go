@@ -92,23 +92,17 @@ func resourceAliyunInstance() *schema.Resource {
 				Sensitive: true,
 			},
 			"io_optimized": &schema.Schema{
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validateIoOptimized,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "Attribute io_optimized is deprecated on instance resource. All the alicloud instances are IO optimized. Suggest to remove it from your template.",
 			},
 
 			"system_disk_category": &schema.Schema{
-				Type:     schema.TypeString,
-				Default:  "cloud",
-				Optional: true,
-				ForceNew: true,
-				ValidateFunc: validateAllowedStringValue([]string{
-					string(ecs.DiskCategoryCloud),
-					string(ecs.DiskCategoryCloudSSD),
-					string(ecs.DiskCategoryCloudEfficiency),
-					string(ecs.DiskCategoryEphemeralSSD),
-				}),
+				Type:         schema.TypeString,
+				Default:      "cloud_efficiency",
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateDiskCategory,
 			},
 			"system_disk_size": &schema.Schema{
 				Type:         schema.TypeInt,
@@ -173,6 +167,12 @@ func resourceAliyunInstance() *schema.Resource {
 func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
+	// Ensure instance_type is generation three
+	_, err := meta.(*AliyunClient).CheckParameterValidity(d, meta)
+	if err != nil {
+		return err
+	}
+
 	// create postpaid instance by runInstances API
 	if v := d.Get("instance_charge_type").(string); v != string(common.PrePaid) {
 		return resourceAliyunRunInstance(d, meta)
@@ -220,12 +220,6 @@ func resourceAliyunRunInstance(d *schema.ResourceData, meta interface{}) error {
 	args, err := buildAliyunInstanceArgs(d, meta)
 	if err != nil {
 		return err
-	}
-
-	if args.IoOptimized == "optimized" {
-		args.IoOptimized = ecs.IoOptimized("true")
-	} else {
-		args.IoOptimized = ecs.IoOptimized("false")
 	}
 
 	runArgs, err := buildAliyunRunInstancesArgs(d, meta)
@@ -304,12 +298,6 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 
 	if d.Get("allocate_public_ip").(bool) {
 		d.Set("public_ip", instance.PublicIpAddress.IpAddress[0])
-	}
-
-	if ecs.StringOrBool(instance.IoOptimized).Value {
-		d.Set("io_optimized", "optimized")
-	} else {
-		d.Set("io_optimized", "none")
 	}
 
 	if d.Get("subnet_id").(string) != "" || d.Get("vswitch_id").(string) != "" {
@@ -661,10 +649,6 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 
 	if v := d.Get("password").(string); v != "" {
 		args.Password = v
-	}
-
-	if v := d.Get("io_optimized").(string); v != "" {
-		args.IoOptimized = ecs.IoOptimized(v)
 	}
 
 	vswitchValue := d.Get("subnet_id").(string)

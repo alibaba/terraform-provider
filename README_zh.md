@@ -61,9 +61,9 @@
 
 ### 贡献者
 * heww(heww0205@gmail.com)
-* ShuWei(shuwei.yin@alibaba-inc.com)
+* ShuWei
 * WangYuelucky(wangyuelucky@126.com)
-* GuiMin(guimin.hgm@alibaba-inc.com)
+* GuiMin(heguimin36@163.com)
 
 ### License
 * This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/denverdino/aliyungo/blob/master/LICENSE.txt) for the full license text.

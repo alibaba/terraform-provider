@@ -39,6 +39,11 @@ func dataSourceAlicloudVpcs() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"output_file": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			// Computed values
 			"vpcs": {
 				Type:     schema.TypeList,
@@ -169,7 +174,7 @@ func vpcVswitchIdListContains(vswitchIdList []string, vswitchId string) bool {
 	}
 	return false
 }
-func vpcsDecriptionAttributes(data *schema.ResourceData, vpcSetTypes []ecs.VpcSetType, meta interface{}) error {
+func vpcsDecriptionAttributes(d *schema.ResourceData, vpcSetTypes []ecs.VpcSetType, meta interface{}) error {
 	var ids []string
 	var s []map[string]interface{}
 	for _, vpc := range vpcSetTypes {
@@ -190,9 +195,14 @@ func vpcsDecriptionAttributes(data *schema.ResourceData, vpcSetTypes []ecs.VpcSe
 		s = append(s, mapping)
 	}
 
-	data.SetId(dataResourceIdHash(ids))
-	if err := data.Set("vpcs", s); err != nil {
+	d.SetId(dataResourceIdHash(ids))
+	if err := d.Set("vpcs", s); err != nil {
 		return err
+	}
+
+	// create a json file in current directory and write data source to it.
+	if output, ok := d.GetOk("output_file"); ok && output != nil {
+		writeToFile(output.(string), s)
 	}
 	return nil
 }

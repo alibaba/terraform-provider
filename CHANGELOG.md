@@ -1,4 +1,25 @@
-## 1.1.1 (unreleased)
+## 1.1.3 (unreleased)
+
+## 1.1.2 (July 7, 2017)
+IMPROVEMENTS:
+
+  * add terraform user agent ([#151](https://github.com/alibaba/terraform-provider/pull/151))
+  * filter instance types and retain series III ([#161](https://github.com/alibaba/terraform-provider/pull/161))
+  * add data source's output function ([#161](https://github.com/alibaba/terraform-provider/pull/161))
+  * set 'io_optimized' to deprecated ([#161](https://github.com/alibaba/terraform-provider/pull/161))
+  * set 'device_name' to deprecated ([#155](https://github.com/alibaba/terraform-provider/pull/155))
+
+BUG FIXES:
+
+  * fix attaching multiple disks error ([#155](https://github.com/alibaba/terraform-provider/pull/155))
+  * fix rds bug that security_ips will be changed at every time ([#157](https://github.com/alibaba/terraform-provider/pull/157))
+  * fix eip bug that there is no ip address output after running 'terraform apply' at first time ([#160](https://github.com/alibaba/terraform-provider/pull/160))
+
+
+## 1.1.1 (June 6, 2017)
+FEATURES:
+
+  * **New DataSource:** `alicloud_vpcs` ([#145](https://github.com/alibaba/terraform-provider/pull/145))
 
 ## 1.1.0 (June 2, 2017)
 BUG FIXES:

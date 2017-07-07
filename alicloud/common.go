@@ -71,6 +71,8 @@ const COMMA_SEPARATED = ","
 
 const COLON_SEPARATED = ":"
 
+const DOT_SEPARATED = "."
+
 const LOCAL_HOST_IP = "127.0.0.1"
 
 // Takes the result of flatmap.Expand for an array of strings
@@ -84,3 +86,16 @@ func expandStringList(configured []interface{}) []string {
 }
 
 const ServerSideEncryptionAes256 = "AES256"
+
+var SupportedDiskCategory = map[ecs.DiskCategory]ecs.DiskCategory{
+	ecs.DiskCategoryCloudSSD:        ecs.DiskCategoryCloudSSD,
+	ecs.DiskCategoryCloudEfficiency: ecs.DiskCategoryCloudEfficiency}
+
+type ResourceKeyType string
+
+const (
+	ZoneKey               = ResourceKeyType("zones")
+	InstanceTypeKey       = ResourceKeyType("instanceTypes")
+	InstanceTypeFamilyKey = ResourceKeyType("instanceTypeFamilies")
+	DiskCategoryKey       = ResourceKeyType("diskCatetories")
+)

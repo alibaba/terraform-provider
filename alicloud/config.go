@@ -10,6 +10,7 @@ import (
 	"github.com/denverdino/aliyungo/location"
 	"github.com/denverdino/aliyungo/rds"
 	"github.com/denverdino/aliyungo/slb"
+	"github.com/hashicorp/terraform/terraform"
 	"log"
 	"strings"
 )
@@ -112,6 +113,7 @@ func (c *Config) validateRegion() error {
 func (c *Config) ecsConn() (*ecs.Client, error) {
 	client := ecs.NewECSClient(c.AccessKey, c.SecretKey, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
+	client.SetUserAgent(getUserAgent())
 
 	_, err := client.DescribeRegions()
 
@@ -125,24 +127,28 @@ func (c *Config) ecsConn() (*ecs.Client, error) {
 func (c *Config) rdsConn() (*rds.Client, error) {
 	client := rds.NewRDSClient(c.AccessKey, c.SecretKey, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
+	client.SetUserAgent(getUserAgent())
 	return client, nil
 }
 
 func (c *Config) slbConn() (*slb.Client, error) {
 	client := slb.NewSLBClient(c.AccessKey, c.SecretKey, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
+	client.SetUserAgent(getUserAgent())
 	return client, nil
 }
 
 func (c *Config) vpcConn() (*ecs.Client, error) {
 	client := ecs.NewVPCClient(c.AccessKey, c.SecretKey, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
+	client.SetUserAgent(getUserAgent())
 	return client, nil
 
 }
 func (c *Config) essConn() (*ess.Client, error) {
 	client := ess.NewESSClient(c.AccessKey, c.SecretKey, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
+	client.SetUserAgent(getUserAgent())
 	return client, nil
 }
 func (c *Config) ossConn() (*oss.Client, error) {
@@ -159,12 +165,21 @@ func (c *Config) ossConn() (*oss.Client, error) {
 		return nil, fmt.Errorf("Describe endpoint using region: %#v got an error: %#v.", c.Region, err)
 	}
 	endpointItem := endpoints.Endpoints.Endpoint
+	var endpoint string
 	if endpointItem == nil || len(endpointItem) <= 0 {
-		return nil, fmt.Errorf("Cannot find endpoint in the region: %#v", c.Region)
+		// return nil, fmt.Errorf("Cannot find endpoint in the region: %#v", c.Region")
+		log.Printf("Cannot find endpoint in the region: %#v", c.Region)
+		endpoint = ""
+	} else {
+		endpoint = strings.ToLower(endpointItem[0].Protocols.Protocols[0]) + "://" + endpointItem[0].Endpoint
 	}
 
-	endpoint := strings.ToLower(endpointItem[0].Protocols.Protocols[0]) + "://" + endpointItem[0].Endpoint
 	log.Printf("[DEBUG] Instantiate OSS client using endpoint: %#v", endpoint)
-	client, err := oss.New(endpoint, c.AccessKey, c.SecretKey)
+	client, err := oss.New(endpoint, c.AccessKey, c.SecretKey, oss.UserAgent(getUserAgent()))
+
 	return client, err
+}
+
+func getUserAgent() string {
+	return fmt.Sprintf("HashiCorp-Terraform-v%s", terraform.VersionString())
 }

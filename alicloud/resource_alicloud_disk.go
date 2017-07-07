@@ -41,7 +41,7 @@ func resourceAliyunDisk() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateDiskCategory,
-				Default:      "cloud",
+				Default:      "cloud_efficiency",
 			},
 
 			"size": &schema.Schema{
