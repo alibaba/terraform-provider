@@ -49,6 +49,10 @@ const (
 	RamInstanceNotFound   = "Forbidden.InstanceNotFound"
 	AliyunGoClientFailure = "AliyunGoClientFailure"
 
+	// dns
+	RecordForbiddenDNSChange = "RecordForbidden.DNSChange"
+	FobiddenNotEmptyGroup    = "Fobidden.NotEmptyGroup"
+
 	//unknown Error
 	UnknownError = "UnknownError"
 )
