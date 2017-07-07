@@ -287,8 +287,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	enable = true
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.n1.medium"
-	io_optimized = "optimized"
+	instance_type = "ecs.n4.large"
 	system_disk_category = "cloud_efficiency"
 	internet_charge_type = "PayByTraffic"
 	internet_max_bandwidth_out = 10
