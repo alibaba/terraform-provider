@@ -42,8 +42,12 @@ func validateInstanceProtocol(v interface{}, k string) (ws []string, errors []er
 // ecs
 func validateDiskCategory(v interface{}, k string) (ws []string, errors []error) {
 	category := ecs.DiskCategory(v.(string))
-	if category != ecs.DiskCategoryCloud && category != ecs.DiskCategoryCloudEfficiency && category != ecs.DiskCategoryCloudSSD {
-		errors = append(errors, fmt.Errorf("%s must be one of %s %s %s", k, ecs.DiskCategoryCloud, ecs.DiskCategoryCloudEfficiency, ecs.DiskCategoryCloudSSD))
+	if _, ok := SupportedDiskCategory[category]; !ok {
+		var valid []string
+		for key := range SupportedDiskCategory {
+			valid = append(valid, string(key))
+		}
+		errors = append(errors, fmt.Errorf("%s must be one of %s", k, strings.Join(valid, ", ")))
 	}
 
 	return
