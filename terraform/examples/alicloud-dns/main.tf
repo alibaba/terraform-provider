@@ -15,5 +15,4 @@ resource "alicloud_dns_record" "record" {
   host_record = "alimailskajdh"
   type = "CNAME"
   value = "mail.mxhichind.com"
-  count = "${var.count}"
 }
