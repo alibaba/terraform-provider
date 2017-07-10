@@ -49,6 +49,7 @@ func resourceAlicloudDnsRecord() *schema.Resource {
 			"routing": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ValidateFunc: validateDomainRecordLine,
 				Default:  "default",
 			},
 			"status": {
@@ -75,6 +76,10 @@ func resourceAlicloudDnsRecordCreate(d *schema.ResourceData, meta interface{}) e
 
 	if _, ok := d.GetOk("priority"); !ok && args.Type == dns.MXRecord {
 		return fmt.Errorf("MXRecord needs priority param")
+	}
+
+	if v, ok := d.GetOk("routing"); ok && v != "default" && args.Type == dns.ForwordURLRecord {
+		return fmt.Errorf("The ForwordURLRecord only support default line.")
 	}
 
 	response, err := conn.AddDomainRecord(args)

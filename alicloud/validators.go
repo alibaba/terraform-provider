@@ -701,3 +701,11 @@ func validateRR(v interface{}, k string) (ws []string, errors []error) {
 	}
 	return
 }
+
+func validateDomainRecordLine(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "default" && value != "telecom" && value != "unicom" && value != "mobile" && value != "oversea" && value != "edu" {
+		errors = append(errors, fmt.Errorf("Record parsing line must be one of [default, telecom, unicom, mobile, oversea, edu]."))
+	}
+	return
+}
