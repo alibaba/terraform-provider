@@ -28,5 +28,5 @@ variable "rule_adjust_size" {
 }
 
 variable "schedule_launch_time" {
-  default = "2017-04-01T01:59Z"
+  default = "2017-07-07T04:22Z"
 }
