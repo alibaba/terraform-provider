@@ -190,7 +190,7 @@ func (c *Config) ossConn() (*oss.Client, error) {
 }
 
 func (c *Config) dnsConn() (*dns.Client, error) {
-	client := dns.NewClient(c.AccessKey, c.SecretKey)
+	client := dns.NewClientNew(c.AccessKey, c.SecretKey)
 	client.SetBusinessInfo(BusinessInfoKey)
 	client.SetUserAgent(getUserAgent())
 	return client, nil
