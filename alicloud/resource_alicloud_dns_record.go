@@ -47,9 +47,10 @@ func resourceAlicloudDnsRecord() *schema.Resource {
 				ValidateFunc: validateDomainRecordPriority,
 			},
 			"routing": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "default",
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateDomainRecordLine,
+				Default:      "default",
 			},
 			"status": {
 				Type:     schema.TypeString,
@@ -75,6 +76,10 @@ func resourceAlicloudDnsRecordCreate(d *schema.ResourceData, meta interface{}) e
 
 	if _, ok := d.GetOk("priority"); !ok && args.Type == dns.MXRecord {
 		return fmt.Errorf("MXRecord needs priority param")
+	}
+
+	if v, ok := d.GetOk("routing"); ok && v != "default" && args.Type == dns.ForwordURLRecord {
+		return fmt.Errorf("The ForwordURLRecord only support default line.")
 	}
 
 	response, err := conn.AddDomainRecord(args)
@@ -139,10 +144,10 @@ func resourceAlicloudDnsRecordUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).dnsconn
 
-	args := &dns.DescribeDomainRecordInfoArgs{
+	args := &dns.DescribeDomainRecordInfoNewArgs{
 		RecordId: d.Id(),
 	}
-	response, err := conn.DescribeDomainRecordInfo(args)
+	response, err := conn.DescribeDomainRecordInfoNew(args)
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -151,7 +156,7 @@ func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	record := response.RecordType
+	record := response.RecordTypeNew
 	d.Set("host_record", record.RR)
 	d.Set("type", record.Type)
 	d.Set("value", record.Value)

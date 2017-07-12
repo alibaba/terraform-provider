@@ -11,7 +11,7 @@ import (
 )
 
 func TestAccAlicloudDnsRecord_basic(t *testing.T) {
-	var v dns.RecordType
+	var v dns.RecordTypeNew
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -44,7 +44,7 @@ func TestAccAlicloudDnsRecord_basic(t *testing.T) {
 
 }
 
-func testAccCheckDnsRecordExists(n string, record *dns.RecordType) resource.TestCheckFunc {
+func testAccCheckDnsRecordExists(n string, record *dns.RecordTypeNew) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -58,15 +58,15 @@ func testAccCheckDnsRecordExists(n string, record *dns.RecordType) resource.Test
 		client := testAccProvider.Meta().(*AliyunClient)
 		conn := client.dnsconn
 
-		request := &dns.DescribeDomainRecordInfoArgs{
+		request := &dns.DescribeDomainRecordInfoNewArgs{
 			RecordId: rs.Primary.ID,
 		}
 
-		response, err := conn.DescribeDomainRecordInfo(request)
+		response, err := conn.DescribeDomainRecordInfoNew(request)
 		log.Printf("[WARN] Domain record id %#v", rs.Primary.ID)
 
 		if err == nil {
-			*record = response.RecordType
+			*record = response.RecordTypeNew
 			return nil
 		}
 		return fmt.Errorf("Error finding domain record %#v", rs.Primary.ID)
@@ -84,11 +84,11 @@ func testAccCheckDnsRecordDestroy(s *terraform.State) error {
 		client := testAccProvider.Meta().(*AliyunClient)
 		conn := client.dnsconn
 
-		request := &dns.DescribeDomainRecordInfoArgs{
+		request := &dns.DescribeDomainRecordInfoNewArgs{
 			RecordId: rs.Primary.ID,
 		}
 
-		response, err := conn.DescribeDomainRecordInfo(request)
+		response, err := conn.DescribeDomainRecordInfoNew(request)
 
 		if response.RecordId != "" || err != nil {
 			return fmt.Errorf("Error Domain record still exist.")
