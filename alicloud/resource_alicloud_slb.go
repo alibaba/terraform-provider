@@ -247,12 +247,7 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 
 	if internet, ok := d.GetOk("internet"); ok && internet.(bool) {
 		slbArgs.AddressType = slb.InternetAddressType
-		//d.Set("internet", true)
 	}
-	//else {
-	//		slbArgs.AddressType = slb.IntranetAddressType
-	//		//d.Set("internet", false)
-	//	}
 
 	if v, ok := d.GetOk("internet_charge_type"); ok && v.(string) != "" {
 		slbArgs.InternetChargeType = slb.InternetChargeType(v.(string))

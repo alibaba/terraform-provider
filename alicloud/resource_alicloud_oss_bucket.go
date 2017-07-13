@@ -396,22 +396,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 			} else {
 				rule["enabled"] = false
 			}
-			//// ID
-			//if &lifecycleRule.ID != nil && lifecycleRule.ID != "" {
-			//	rule["id"] = lifecycleRule.ID
-			//}
-			//// Prefix
-			//if &lifecycleRule.Prefix != nil && lifecycleRule.Prefix != "" {
-			//	rule["prefix"] = lifecycleRule.Prefix
-			//}
-			//// Enabled
-			//if &lifecycleRule.Status != nil {
-			//	if LifecycleRuleStatus(lifecycleRule.Status) == ExpirationStatusEnabled {
-			//		rule["enabled"] = true
-			//	} else {
-			//		rule["enabled"] = false
-			//	}
-			//}
+
 			// expiration
 			if &lifecycleRule.Expiration != nil {
 				expiration := make([]map[string]interface{}, 0, 1)

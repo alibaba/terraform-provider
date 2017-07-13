@@ -104,7 +104,6 @@ resource "alicloud_vpc" "foo" {
 resource "alicloud_vswitch" "foo" {
   vpc_id = "${alicloud_vpc.foo.id}"
   cidr_block = "172.16.0.0/21"
-  //availability_zone = "${data.alicloud_zones.default.zones.0.id}"
-  availability_zone = "cn-beijing-a"
+  availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 }
 `
