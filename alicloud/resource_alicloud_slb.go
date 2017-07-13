@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"reflect"
 	"time"
 )
 
@@ -20,6 +21,9 @@ func resourceAliyunSlb() *schema.Resource {
 		Read:   resourceAliyunSlbRead,
 		Update: resourceAliyunSlbUpdate,
 		Delete: resourceAliyunSlbDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -238,15 +242,17 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 	slbArgs := &slb.CreateLoadBalancerArgs{
 		RegionId:         getRegion(d, meta),
 		LoadBalancerName: slbName,
+		AddressType:      slb.IntranetAddressType,
 	}
 
 	if internet, ok := d.GetOk("internet"); ok && internet.(bool) {
 		slbArgs.AddressType = slb.InternetAddressType
-		d.Set("internet", true)
-	} else {
-		slbArgs.AddressType = slb.IntranetAddressType
-		d.Set("internet", false)
+		//d.Set("internet", true)
 	}
+	//else {
+	//		slbArgs.AddressType = slb.IntranetAddressType
+	//		//d.Set("internet", false)
+	//	}
 
 	if v, ok := d.GetOk("internet_charge_type"); ok && v.(string) != "" {
 		slbArgs.InternetChargeType = slb.InternetChargeType(v.(string))
@@ -289,14 +295,21 @@ func resourceAliyunSlbRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", loadBalancer.LoadBalancerName)
 
 	if loadBalancer.AddressType == slb.InternetAddressType {
-		d.Set("internal", true)
+		d.Set("internet", true)
 	} else {
-		d.Set("internal", false)
+		d.Set("internet", false)
 	}
 	d.Set("internet_charge_type", loadBalancer.InternetChargeType)
 	d.Set("bandwidth", loadBalancer.Bandwidth)
 	d.Set("vswitch_id", loadBalancer.VSwitchId)
 	d.Set("address", loadBalancer.Address)
+
+	// Read Load Balancer
+	if listeners, err := readListerners(slbconn, loadBalancer); err != nil {
+		return fmt.Errorf("Error reading listeners: %#v", err)
+	} else {
+		d.Set("listener", listeners)
+	}
 
 	return nil
 }
@@ -612,4 +625,114 @@ func getHttpListenerArgs(loadBalancerId string, listener *Listener) (listenType 
 
 	httpArgs := slb.CreateLoadBalancerHTTPListenerArgs(httpListenerType)
 	return httpArgs, err
+}
+
+func readListerners(conn *slb.Client, loadBalancer *slb.LoadBalancerType) ([]map[string]interface{}, error) {
+	listeners := make([]map[string]interface{}, 0, len(loadBalancer.ListenerPortsAndProtocol.ListenerPortAndProtocol))
+	for _, port := range loadBalancer.ListenerPorts.ListenerPort {
+		http_ls, err := conn.DescribeLoadBalancerHTTPListenerAttribute(loadBalancer.LoadBalancerId, port)
+		if err != nil && !IsExceptedError(err, UnsupportedProtocalPort) {
+			return nil, fmt.Errorf("Error DescribeLoadBalancerHTTPListenerAttribute: %#v", err)
+		}
+		if http_ls != nil {
+			listeners = append(listeners, setListenerAttribute(http_ls, Http))
+		}
+
+		https_ls, err := conn.DescribeLoadBalancerHTTPSListenerAttribute(loadBalancer.LoadBalancerId, port)
+		if err != nil && !IsExceptedError(err, UnsupportedProtocalPort) {
+			return nil, fmt.Errorf("Error DescribeLoadBalancerHTTPSListenerAttribute: %#v", err)
+		}
+		if https_ls != nil {
+			listeners = append(listeners, setListenerAttribute(https_ls, Https))
+		}
+
+		tcp_ls, err := conn.DescribeLoadBalancerTCPListenerAttribute(loadBalancer.LoadBalancerId, port)
+		if err != nil && !IsExceptedError(err, UnsupportedProtocalPort) {
+			return nil, fmt.Errorf("Error DescribeLoadBalancerTCPListenerAttribute: %#v", err)
+		}
+		if tcp_ls != nil {
+			listeners = append(listeners, setListenerAttribute(tcp_ls, Tcp))
+		}
+
+		udp_ls, err := conn.DescribeLoadBalancerUDPListenerAttribute(loadBalancer.LoadBalancerId, port)
+		if err != nil && !IsExceptedError(err, UnsupportedProtocalPort) {
+			return nil, fmt.Errorf("Error DescribeLoadBalancerUDPListenerAttribute: %#v", err)
+		}
+		if udp_ls != nil {
+			listeners = append(listeners, setListenerAttribute(udp_ls, Udp))
+		}
+	}
+
+	return listeners, nil
+}
+
+func setListenerAttribute(listen interface{}, protocol Protocol) map[string]interface{} {
+	listener := make(map[string]interface{})
+	v := reflect.ValueOf(listen).Elem()
+
+	if val := v.FieldByName("BackendServerPort"); val.IsValid() {
+		listener["instance_port"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("ListenerPort"); val.IsValid() {
+		listener["lb_port"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("Bandwidth"); val.IsValid() {
+		listener["bandwidth"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("Scheduler"); val.IsValid() {
+		listener["scheduler"] = string(val.Interface().(slb.SchedulerType))
+	}
+
+	listener["lb_protocol"] = string(protocol)
+
+	if val := v.FieldByName("HealthCheck"); val.IsValid() {
+		listener["health_check"] = string(val.Interface().(slb.FlagType))
+	}
+	if val := v.FieldByName("StickySession"); val.IsValid() {
+		listener["sticky_session"] = string(val.Interface().(slb.FlagType))
+	}
+	if val := v.FieldByName("StickySessionType"); val.IsValid() {
+		listener["sticky_session_type"] = string(val.Interface().(slb.StickySessionType))
+	}
+	if val := v.FieldByName("CookieTimeout"); val.IsValid() {
+		listener["cookie_timeout"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("Cookie"); val.IsValid() {
+		listener["cookie"] = val.Interface().(string)
+	}
+	if val := v.FieldByName("PersistenceTimeout"); val.IsValid() {
+		listener["persistence_timeout"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("HealthCheckType"); val.IsValid() {
+		listener["health_check_type"] = string(val.Interface().(slb.HealthCheckType))
+	}
+	if val := v.FieldByName("HealthCheckDomain"); val.IsValid() {
+		listener["health_check_domain"] = val.Interface().(string)
+	}
+	if val := v.FieldByName("HealthCheckConnectPort"); val.IsValid() {
+		listener["health_check_connect_port"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("HealthCheckURI"); val.IsValid() {
+		listener["health_check_uri"] = val.Interface().(string)
+	}
+	if val := v.FieldByName("HealthyThreshold"); val.IsValid() {
+		listener["healthy_threshold"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("UnhealthyThreshold"); val.IsValid() {
+		listener["unhealthy_threshold"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("HealthCheckTimeout"); val.IsValid() {
+		listener["health_check_timeout"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("HealthCheckInterval"); val.IsValid() {
+		listener["health_check_interval"] = val.Interface().(int)
+	}
+	if val := v.FieldByName("HealthCheckHttpCode"); val.IsValid() {
+		listener["health_check_http_code"] = string(val.Interface().(slb.HealthCheckHttpCodeType))
+	}
+	if val := v.FieldByName("ServerCertificateId"); val.IsValid() {
+		listener["ssl_certificate_id"] = val.Interface().(string)
+	}
+
+	return listener
 }

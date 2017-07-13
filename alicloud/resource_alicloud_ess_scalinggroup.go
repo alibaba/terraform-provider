@@ -16,6 +16,9 @@ func resourceAlicloudEssScalingGroup() *schema.Resource {
 		Read:   resourceAliyunEssScalingGroupRead,
 		Update: resourceAliyunEssScalingGroupUpdate,
 		Delete: resourceAliyunEssScalingGroupDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"min_size": &schema.Schema{
@@ -99,7 +102,7 @@ func resourceAliyunEssScalingGroupRead(d *schema.ResourceData, meta interface{})
 	d.Set("max_size", scaling.MaxSize)
 	d.Set("scaling_group_name", scaling.ScalingGroupName)
 	d.Set("default_cooldown", scaling.DefaultCooldown)
-	d.Set("removal_policies", scaling.RemovalPolicies)
+	d.Set("removal_policies", scaling.RemovalPolicies.RemovalPolicy)
 	d.Set("db_instance_ids", scaling.DBInstanceIds)
 	d.Set("loadbalancer_ids", scaling.LoadBalancerId)
 

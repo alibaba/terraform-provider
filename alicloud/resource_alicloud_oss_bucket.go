@@ -17,6 +17,9 @@ func resourceAlicloudOssBucket() *schema.Resource {
 		Read:   resourceAlicloudOssBucketRead,
 		Update: resourceAlicloudOssBucketUpdate,
 		Delete: resourceAlicloudOssBucketDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceAlicloudOssBucketImportState,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"bucket": &schema.Schema{
@@ -357,21 +360,19 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 		}
 		return fmt.Errorf("Error getting bucket referer: %#v", err)
 	}
-	if referers != nil && len(referers) > 0 {
-		rf := make(map[string]interface{})
-		// Allow empty
-		if v := referer.AllowEmptyReferer; &v != nil {
-			rf["allow_empty"] = v
-		}
-		// Referers
-		if v := referer.RefererList; &v != nil {
-			rf["referers"] = v
-		}
+	rf := make(map[string]interface{})
+	// Allow empty
+	if v := referer.AllowEmptyReferer; &v != nil {
+		rf["allow_empty"] = v
+	}
+	// Referers
+	if v := referer.RefererList; &v != nil {
+		rf["referers"] = v
+	}
 
-		referers = append(referers, rf)
-		if err := d.Set("referer_config", referers); err != nil {
-			return err
-		}
+	referers = append(referers, rf)
+	if err := d.Set("referer_config", referers); err != nil {
+		return err
 	}
 
 	// Read the lifecycle rule configuration
@@ -388,25 +389,32 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 
 		for _, lifecycleRule := range lifecycle.Rules {
 			rule := make(map[string]interface{})
-
-			// ID
-			if &lifecycleRule.ID != nil && lifecycleRule.ID != "" {
-				rule["id"] = lifecycleRule.ID
+			rule["id"] = lifecycleRule.ID
+			rule["prefix"] = lifecycleRule.Prefix
+			if LifecycleRuleStatus(lifecycleRule.Status) == ExpirationStatusEnabled {
+				rule["enabled"] = true
+			} else {
+				rule["enabled"] = false
 			}
-			// Prefix
-			if &lifecycleRule.Prefix != nil && lifecycleRule.Prefix != "" {
-				rule["prefix"] = lifecycleRule.Prefix
-			}
-			// Enabled
-			if &lifecycleRule.Status != nil {
-				if LifecycleRuleStatus(lifecycleRule.Status) == ExpirationStatusEnabled {
-					rule["enabled"] = true
-				} else {
-					rule["enabled"] = false
-				}
-			}
+			//// ID
+			//if &lifecycleRule.ID != nil && lifecycleRule.ID != "" {
+			//	rule["id"] = lifecycleRule.ID
+			//}
+			//// Prefix
+			//if &lifecycleRule.Prefix != nil && lifecycleRule.Prefix != "" {
+			//	rule["prefix"] = lifecycleRule.Prefix
+			//}
+			//// Enabled
+			//if &lifecycleRule.Status != nil {
+			//	if LifecycleRuleStatus(lifecycleRule.Status) == ExpirationStatusEnabled {
+			//		rule["enabled"] = true
+			//	} else {
+			//		rule["enabled"] = false
+			//	}
+			//}
 			// expiration
 			if &lifecycleRule.Expiration != nil {
+				expiration := make([]map[string]interface{}, 0, 1)
 				e := make(map[string]interface{})
 				if &lifecycleRule.Expiration.Date != nil {
 					e["date"] = (lifecycleRule.Expiration.Date).Format("2016-01-01")
@@ -414,6 +422,8 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 				if &lifecycleRule.Expiration.Days != nil {
 					e["days"] = int(lifecycleRule.Expiration.Days)
 				}
+				expiration = append(expiration, e)
+				rule["expiration"] = expiration
 			}
 			rules = append(rules, rule)
 		}
@@ -700,4 +710,11 @@ func resourceAlicloudOssBucketDelete(d *schema.ResourceData, meta interface{}) e
 
 		return nil
 	})
+}
+
+func resourceAlicloudOssBucketImportState(
+	d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	d.Set("logging_isenable", true)
+
+	return []*schema.ResourceData{d}, nil
 }

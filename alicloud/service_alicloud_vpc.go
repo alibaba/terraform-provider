@@ -3,6 +3,7 @@ package alicloud
 import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
+	"log"
 	"strings"
 )
 
@@ -104,14 +105,14 @@ func (client *AliyunClient) DescribeSnatEntry(snatTableId string, snatEntryId st
 func (client *AliyunClient) DescribeForwardEntry(forwardTableId string, forwardEntryId string) (ecs.ForwardTableEntrySetType, error) {
 
 	var resultFoward ecs.ForwardTableEntrySetType
-
+	log.Print("********* forid: %#v; entry id: %#v", forwardTableId, forwardEntryId)
 	args := &ecs.DescribeForwardTableEntriesArgs{
 		RegionId:       client.Region,
 		ForwardTableId: forwardTableId,
 	}
 
 	forwardEntries, _, err := client.vpcconn.DescribeForwardTableEntries(args)
-
+	log.Print("********* entries: %#v; error: %#v", forwardEntries, err)
 	//this special deal cause the DescribeSnatEntry can't find the records would be throw "cant find the snatTable error"
 	//so judge the snatEntries length priority
 	if len(forwardEntries) == 0 {
@@ -126,6 +127,7 @@ func (client *AliyunClient) DescribeForwardEntry(forwardTableId string, forwardE
 			findForward = true
 		}
 	}
+	log.Print("********* resultForward: %#v; find: %#v", resultFoward, findForward)
 	if !findForward {
 		return resultFoward, common.GetClientErrorFromString(NotFindForwardEntryByForwardId)
 	}

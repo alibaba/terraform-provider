@@ -14,6 +14,9 @@ func resourceAlicloudEssSchedule() *schema.Resource {
 		Read:   resourceAliyunEssScheduleRead,
 		Update: resourceAliyunEssScheduleUpdate,
 		Delete: resourceAliyunEssScheduleDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"scheduled_action": &schema.Schema{

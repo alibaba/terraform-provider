@@ -144,7 +144,7 @@ resource "alicloud_ess_scaling_rule" "foo" {
 
 resource "alicloud_ess_schedule" "foo" {
 	scheduled_action = "${alicloud_ess_scaling_rule.foo.ari}"
-	launch_time = "2017-05-12T08:18Z"
+	launch_time = "2017-07-12T07:18Z"
 	scheduled_task_name = "tf-foo"
 }
 `
