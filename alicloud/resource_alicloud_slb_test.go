@@ -26,19 +26,19 @@ func TestAccAlicloudSlb_basic(t *testing.T) {
 		},
 
 		// module name
-		IDRefreshName: "alicloud_slb.bindwidth",
+		IDRefreshName: "alicloud_slb.bandwidth",
 
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckSlbDestroy,
 		Steps: []resource.TestStep{
 			//test internet_charge_type is paybybandwidth
 			resource.TestStep{
-				Config: testAccSlbBindWidth,
+				Config: testAccSlbBandWidth,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckSlbExists("alicloud_slb.bindwidth", &slb),
+					testAccCheckSlbExists("alicloud_slb.bandwidth", &slb),
 					testCheckAttr(),
 					resource.TestCheckResourceAttr(
-						"alicloud_slb.bindwidth", "internet_charge_type", "paybybandwidth"),
+						"alicloud_slb.bandwidth", "internet_charge_type", "paybybandwidth"),
 				),
 			},
 		},
@@ -233,9 +233,9 @@ func testAccCheckSlbDestroy(s *terraform.State) error {
 	return nil
 }
 
-const testAccSlbBindWidth = `
-resource "alicloud_slb" "bindwidth" {
-  name = "tf_test_slb_bindwidth"
+const testAccSlbBandWidth = `
+resource "alicloud_slb" "bandwidth" {
+  name = "tf_test_slb_bandwidth"
   internet_charge_type = "paybybandwidth"
   bandwidth = 5
   internet = true

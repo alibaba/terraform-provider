@@ -104,14 +104,12 @@ func (client *AliyunClient) DescribeSnatEntry(snatTableId string, snatEntryId st
 func (client *AliyunClient) DescribeForwardEntry(forwardTableId string, forwardEntryId string) (ecs.ForwardTableEntrySetType, error) {
 
 	var resultFoward ecs.ForwardTableEntrySetType
-
 	args := &ecs.DescribeForwardTableEntriesArgs{
 		RegionId:       client.Region,
 		ForwardTableId: forwardTableId,
 	}
 
 	forwardEntries, _, err := client.vpcconn.DescribeForwardTableEntries(args)
-
 	//this special deal cause the DescribeSnatEntry can't find the records would be throw "cant find the snatTable error"
 	//so judge the snatEntries length priority
 	if len(forwardEntries) == 0 {

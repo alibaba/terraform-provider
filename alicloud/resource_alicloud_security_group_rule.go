@@ -233,33 +233,32 @@ func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*
 	args := &ecs.AuthorizeSecurityGroupArgs{
 		RegionId: getRegion(d, meta),
 	}
-
-	if v := d.Get("ip_protocol").(string); v != "" {
-		args.IpProtocol = ecs.IpProtocol(v)
+	if v, ok := d.GetOk("ip_protocol"); ok {
+		args.IpProtocol = ecs.IpProtocol(v.(string))
 	}
 
-	if v := d.Get("port_range").(string); v != "" {
-		args.PortRange = v
+	if v, ok := d.GetOk("port_range"); ok {
+		args.PortRange = v.(string)
 	}
 
-	if v := d.Get("policy").(string); v != "" {
-		args.Policy = ecs.PermissionPolicy(v)
+	if v, ok := d.GetOk("policy"); ok {
+		args.Policy = ecs.PermissionPolicy(v.(string))
 	}
 
-	if v := d.Get("priority").(int); v != 0 {
-		args.Priority = v
+	if v, ok := d.GetOk("priority"); ok {
+		args.Priority = v.(int)
 	}
 
-	if v := d.Get("cidr_ip").(string); v != "" {
-		args.SourceCidrIp = v
+	if v, ok := d.GetOk("cidr_ip"); ok {
+		args.SourceCidrIp = v.(string)
 	}
 
-	if v := d.Get("source_security_group_id").(string); v != "" {
-		args.SourceGroupId = v
+	if v, ok := d.GetOk("source_security_group_id"); ok {
+		args.SourceGroupId = v.(string)
 	}
 
-	if v := d.Get("source_group_owner_account").(string); v != "" {
-		args.SourceGroupOwnerAccount = v
+	if v, ok := d.GetOk("source_group_owner_account"); ok {
+		args.SourceGroupOwnerAccount = v.(string)
 	}
 
 	sgId := d.Get("security_group_id").(string)
@@ -274,14 +273,14 @@ func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*
 		return nil, fmt.Errorf("Error get security group %s error: %#v", sgId, err)
 	}
 
-	if v := d.Get("nic_type").(string); v != "" {
+	if v, ok := d.GetOk("nic_type"); ok {
 		if (group != nil && group.VpcId != "") || args.SourceGroupId != "" {
-			if GroupRuleNicType(v) != GroupRuleIntranet {
+			if GroupRuleNicType(v.(string)) != GroupRuleIntranet {
 				return nil, fmt.Errorf("When security group in the vpc or authorizing permission for source security group, " +
 					"the nic_type must be 'intranet'.")
 			}
 		}
-		args.NicType = ecs.NicType(v)
+		args.NicType = ecs.NicType(v.(string))
 	}
 
 	args.SecurityGroupId = sgId
@@ -296,32 +295,32 @@ func buildAliyunSecurityEgressArgs(d *schema.ResourceData, meta interface{}) (*e
 		RegionId: getRegion(d, meta),
 	}
 
-	if v := d.Get("ip_protocol").(string); v != "" {
-		args.IpProtocol = ecs.IpProtocol(v)
+	if v, ok := d.GetOk("ip_protocol"); ok {
+		args.IpProtocol = ecs.IpProtocol(v.(string))
 	}
 
-	if v := d.Get("port_range").(string); v != "" {
-		args.PortRange = v
+	if v, ok := d.GetOk("port_range"); ok {
+		args.PortRange = v.(string)
 	}
 
-	if v := d.Get("policy").(string); v != "" {
-		args.Policy = ecs.PermissionPolicy(v)
+	if v, ok := d.GetOk("policy"); ok {
+		args.Policy = ecs.PermissionPolicy(v.(string))
 	}
 
-	if v := d.Get("priority").(int); v != 0 {
-		args.Priority = v
+	if v, ok := d.GetOk("priority"); ok {
+		args.Priority = v.(int)
 	}
 
-	if v := d.Get("cidr_ip").(string); v != "" {
-		args.DestCidrIp = v
+	if v, ok := d.GetOk("cidr_ip"); ok {
+		args.DestCidrIp = v.(string)
 	}
 
-	if v := d.Get("source_security_group_id").(string); v != "" {
-		args.DestGroupId = v
+	if v, ok := d.GetOk("source_security_group_id"); ok {
+		args.DestGroupId = v.(string)
 	}
 
-	if v := d.Get("source_group_owner_account").(string); v != "" {
-		args.DestGroupOwnerAccount = v
+	if v, ok := d.GetOk("source_group_owner_account"); ok {
+		args.DestGroupOwnerAccount = v.(string)
 	}
 
 	sgId := d.Get("security_group_id").(string)
@@ -336,14 +335,14 @@ func buildAliyunSecurityEgressArgs(d *schema.ResourceData, meta interface{}) (*e
 		return nil, fmt.Errorf("Error get security group %s error: %#v", sgId, err)
 	}
 
-	if v := d.Get("nic_type").(string); v != "" {
+	if v, ok := d.GetOk("nic_type"); ok {
 		if (group != nil && group.VpcId != "") || args.DestGroupId != "" {
-			if GroupRuleNicType(v) != GroupRuleIntranet {
+			if GroupRuleNicType(v.(string)) != GroupRuleIntranet {
 				return nil, fmt.Errorf("When security group in the vpc or authorizing permission for destination security group, " +
 					"the nic_type must be 'intranet'.")
 			}
 		}
-		args.NicType = ecs.NicType(v)
+		args.NicType = ecs.NicType(v.(string))
 	}
 
 	args.SecurityGroupId = sgId

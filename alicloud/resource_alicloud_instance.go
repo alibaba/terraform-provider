@@ -20,6 +20,9 @@ func resourceAliyunInstance() *schema.Resource {
 		Read:   resourceAliyunInstanceRead,
 		Update: resourceAliyunInstanceUpdate,
 		Delete: resourceAliyunInstanceDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"availability_zone": &schema.Schema{
@@ -190,8 +193,6 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	d.SetId(instanceID)
 
-	d.Set("password", d.Get("password"))
-
 	// after instance created, its status is pending,
 	// so we need to wait it become to stopped and then start it
 	if err := conn.WaitForInstanceAsyn(d.Id(), ecs.Stopped, defaultTimeout); err != nil {
@@ -237,10 +238,6 @@ func resourceAliyunRunInstance(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(instanceIds[0])
-
-	d.Set("password", d.Get("password"))
-	d.Set("system_disk_category", d.Get("system_disk_category"))
-	d.Set("system_disk_size", d.Get("system_disk_size"))
 
 	// after instance created, its status change from pending, starting to running
 	if err := conn.WaitForInstanceAsyn(d.Id(), ecs.Running, defaultTimeout); err != nil {
@@ -291,23 +288,37 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("instance_type", instance.InstanceType)
 	d.Set("system_disk_category", disk.Category)
 	d.Set("system_disk_size", disk.Size)
+	d.Set("password", d.Get("password"))
+	d.Set("internet_max_bandwidth_out", instance.InternetMaxBandwidthOut)
+	d.Set("internet_max_bandwidth_in", instance.InternetMaxBandwidthIn)
+	d.Set("instance_charge_type", instance.InstanceChargeType)
 
 	// In Classic network, internet_charge_type is valid in any case, and its default value is 'PayByBanwidth'.
 	// In VPC network, internet_charge_type is valid when instance has public ip, and its default value is 'PayByBanwidth'.
 	d.Set("internet_charge_type", instance.InternetChargeType)
 
-	if d.Get("allocate_public_ip").(bool) {
+	if len(instance.PublicIpAddress.IpAddress) > 0 {
 		d.Set("public_ip", instance.PublicIpAddress.IpAddress[0])
+	} else {
+		d.Set("public_ip", "")
 	}
 
-	if d.Get("subnet_id").(string) != "" || d.Get("vswitch_id").(string) != "" {
-		ipAddress := instance.VpcAttributes.PrivateIpAddress.IpAddress[0]
-		d.Set("private_ip", ipAddress)
-		d.Set("subnet_id", instance.VpcAttributes.VSwitchId)
-		d.Set("vswitch_id", instance.VpcAttributes.VSwitchId)
+	d.Set("subnet_id", instance.VpcAttributes.VSwitchId)
+	d.Set("vswitch_id", instance.VpcAttributes.VSwitchId)
+
+	if len(instance.VpcAttributes.PrivateIpAddress.IpAddress) > 0 {
+		d.Set("private_ip", instance.VpcAttributes.PrivateIpAddress.IpAddress[0])
 	} else {
-		ipAddress := strings.Join(ecs.IpAddressSetType(instance.InnerIpAddress).IpAddress, ",")
-		d.Set("private_ip", ipAddress)
+		d.Set("private_ip", strings.Join(ecs.IpAddressSetType(instance.InnerIpAddress).IpAddress, ","))
+	}
+
+	sgs := make([]string, 0, len(instance.SecurityGroupIds.SecurityGroupId))
+	for _, sg := range instance.SecurityGroupIds.SecurityGroupId {
+		sgs = append(sgs, sg)
+	}
+	log.Printf("[DEBUG] Setting Security Group Ids: %#v", sgs)
+	if err := d.Set("security_groups", sgs); err != nil {
+		return err
 	}
 
 	if d.Get("user_data").(string) != "" {

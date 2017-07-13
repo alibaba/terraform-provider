@@ -12,6 +12,9 @@ func resourceAliyunRouteEntry() *schema.Resource {
 		Create: resourceAliyunRouteEntryCreate,
 		Read:   resourceAliyunRouteEntryRead,
 		Delete: resourceAliyunRouteEntryDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"router_id": &schema.Schema{
@@ -63,7 +66,6 @@ func resourceAliyunRouteEntryCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	// route_table_id:router_id:destination_cidrblock:nexthop_type:nexthop_id
 	d.SetId(rtId + ":" + rId + ":" + cidr + ":" + nt + ":" + ni)
-	d.Set("router_id", rId)
 
 	if err := conn.WaitForAllRouteEntriesAvailable(rId, rtId, defaultTimeout); err != nil {
 		return fmt.Errorf("WaitFor route entry got error: %#v", err)
@@ -75,7 +77,7 @@ func resourceAliyunRouteEntryRead(d *schema.ResourceData, meta interface{}) erro
 	client := meta.(*AliyunClient)
 	parts := strings.Split(d.Id(), ":")
 	rtId := parts[0]
-	//rId := parts[1]
+	rId := parts[1]
 	cidr := parts[2]
 	nexthop_type := parts[3]
 	nexthop_id := parts[4]
@@ -90,6 +92,7 @@ func resourceAliyunRouteEntryRead(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error route entry: %#v", err)
 	}
 
+	d.Set("router_id", rId)
 	d.Set("route_table_id", en.RouteTableId)
 	d.Set("destination_cidrblock", en.DestinationCidrBlock)
 	d.Set("nexthop_type", en.NextHopType)
