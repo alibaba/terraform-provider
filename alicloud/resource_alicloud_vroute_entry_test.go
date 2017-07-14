@@ -167,12 +167,11 @@ resource "alicloud_instance" "foo" {
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	allocate_public_ip = true
 
-	# series II
+	# series III
 	instance_charge_type = "PostPaid"
-	instance_type = "ecs.n1.small"
+	instance_type = "ecs.n4.small"
 	internet_charge_type = "PayByTraffic"
 	internet_max_bandwidth_out = 5
-	io_optimized = "optimized"
 
 	system_disk_category = "cloud_efficiency"
 	image_id = "ubuntu_140405_64_40G_cloudinit_20161115.vhd"

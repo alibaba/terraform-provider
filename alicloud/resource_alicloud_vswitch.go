@@ -17,6 +17,9 @@ func resourceAliyunSubnet() *schema.Resource {
 		Read:   resourceAliyunSwitchRead,
 		Update: resourceAliyunSwitchUpdate,
 		Delete: resourceAliyunSwitchDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"availability_zone": &schema.Schema{
@@ -88,6 +91,7 @@ func resourceAliyunSwitchRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
 
 	args := &ecs.DescribeVSwitchesArgs{
+		RegionId:  getRegion(d, meta),
 		VpcId:     d.Get("vpc_id").(string),
 		VSwitchId: d.Id(),
 	}

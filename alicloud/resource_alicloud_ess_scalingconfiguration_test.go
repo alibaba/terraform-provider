@@ -34,7 +34,7 @@ func TestAccAlicloudEssScalingConfiguration_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_ess_scaling_configuration.foo",
 						"instance_type",
-						"ecs.s2.large"),
+						"ecs.n4.large"),
 					resource.TestMatchResourceAttr(
 						"alicloud_ess_scaling_configuration.foo",
 						"image_id",
@@ -71,7 +71,7 @@ func TestAccAlicloudEssScalingConfiguration_multiConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_ess_scaling_configuration.bar",
 						"instance_type",
-						"ecs.s2.large"),
+						"ecs.n4.large"),
 					resource.TestMatchResourceAttr(
 						"alicloud_ess_scaling_configuration.bar",
 						"image_id",
@@ -108,7 +108,7 @@ func SkipTestAccAlicloudEssScalingConfiguration_active(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_ess_scaling_configuration.bar",
 						"instance_type",
-						"ecs.s2.large"),
+						"ecs.n4.large"),
 					resource.TestMatchResourceAttr(
 						"alicloud_ess_scaling_configuration.bar",
 						"image_id",
@@ -128,7 +128,7 @@ func SkipTestAccAlicloudEssScalingConfiguration_active(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_ess_scaling_configuration.bar",
 						"instance_type",
-						"ecs.s2.large"),
+						"ecs.n4.large"),
 					resource.TestMatchResourceAttr(
 						"alicloud_ess_scaling_configuration.bar",
 						"image_id",
@@ -165,7 +165,7 @@ func SkipTestAccAlicloudEssScalingConfiguration_enable(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_ess_scaling_configuration.foo",
 						"instance_type",
-						"ecs.s2.large"),
+						"ecs.n4.large"),
 					resource.TestMatchResourceAttr(
 						"alicloud_ess_scaling_configuration.foo",
 						"image_id",
@@ -185,7 +185,7 @@ func SkipTestAccAlicloudEssScalingConfiguration_enable(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_ess_scaling_configuration.foo",
 						"instance_type",
-						"ecs.s2.large"),
+						"ecs.n4.large"),
 					resource.TestMatchResourceAttr(
 						"alicloud_ess_scaling_configuration.foo",
 						"image_id",
@@ -285,8 +285,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	scaling_group_id = "${alicloud_ess_scaling_group.foo.id}"
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.s2.large"
-	io_optimized = "optimized"
+	instance_type = "ecs.n4.large"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 }
 `
@@ -323,8 +322,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	scaling_group_id = "${alicloud_ess_scaling_group.foo.id}"
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.s2.large"
-	io_optimized = "optimized"
+	instance_type = "ecs.n4.large"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 }
 
@@ -332,8 +330,7 @@ resource "alicloud_ess_scaling_configuration" "bar" {
 	scaling_group_id = "${alicloud_ess_scaling_group.foo.id}"
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.s2.large"
-	io_optimized = "optimized"
+	instance_type = "ecs.n4.large"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 }
 `
@@ -371,8 +368,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	active = true
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.s2.large"
-	io_optimized = "optimized"
+	instance_type = "ecs.n4.large"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 }
 `
@@ -410,8 +406,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	active = false
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.s2.large"
-	io_optimized = "optimized"
+	instance_type = "ecs.n4.large"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 }
 `
@@ -449,8 +444,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	enable = true
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.s2.large"
-	io_optimized = "optimized"
+	instance_type = "ecs.n4.large"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 }
 `
@@ -488,8 +482,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	enable = false
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.s2.large"
-	io_optimized = "optimized"
+	instance_type = "ecs.n4.large"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 }
 `

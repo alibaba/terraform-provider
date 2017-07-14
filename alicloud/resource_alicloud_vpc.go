@@ -16,6 +16,9 @@ func resourceAliyunVpc() *schema.Resource {
 		Read:   resourceAliyunVpcRead,
 		Update: resourceAliyunVpcUpdate,
 		Delete: resourceAliyunVpcDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"cidr_block": &schema.Schema{
@@ -90,7 +93,6 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(vpc.VpcId)
-	d.Set("router_table_id", vpc.RouteTableId)
 
 	err = ecsconn.WaitForVpcAvailable(args.RegionId, vpc.VpcId, 60)
 	if err != nil {
@@ -118,6 +120,15 @@ func resourceAliyunVpcRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", vpc.VpcName)
 	d.Set("description", vpc.Description)
 	d.Set("router_id", vpc.VRouterId)
+	vrouters, _, err := client.vpcconn.DescribeVRouters(&ecs.DescribeVRoutersArgs{
+		VRouterId: vpc.VRouterId,
+		RegionId:  getRegion(d, meta),
+	})
+	if len(vrouters) > 0 && len(vrouters[0].RouteTableIds.RouteTableId) > 0 {
+		d.Set("router_table_id", vrouters[0].RouteTableIds.RouteTableId[0])
+	} else {
+		d.Set("router_table_id", "")
+	}
 
 	return nil
 }

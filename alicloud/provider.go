@@ -64,6 +64,9 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_slb_attachment":    resourceAliyunSlbAttachment(),
 			"alicloud_oss_bucket":        resourceAlicloudOssBucket(),
 			"alicloud_oss_bucket_object": resourceAlicloudOssBucketObject(),
+			"alicloud_dns_record":        resourceAlicloudDnsRecord(),
+			"alicloud_dns":               resourceAlicloudDns(),
+			"alicloud_dns_group":         resourceAlicloudDnsGroup(),
 		},
 
 		ConfigureFunc: providerConfigure,

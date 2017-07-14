@@ -1,4 +1,16 @@
-## 1.1.3 (unreleased)
+## 1.1.4 (unreleased)
+
+## 1.1.3 (July 14, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_dns` ([#167](https://github.com/alibaba/terraform-provider/pull/167))
+  * **New Resource:** `alicloud_dns_group` ([#167](https://github.com/alibaba/terraform-provider/pull/167))
+  * **New Resource:** `alicloud_dns_record` ([#167](https://github.com/alibaba/terraform-provider/pull/167))
+
+IMPROVEMENTS:
+
+  * add terraform provider import function ([#172](https://github.com/alibaba/terraform-provider/pull/172))
+  * filter instance types of ess and retain series III ([#168](https://github.com/alibaba/terraform-provider/pull/168))
 
 ## 1.1.2 (July 7, 2017)
 IMPROVEMENTS:

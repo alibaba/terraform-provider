@@ -8,6 +8,7 @@ import (
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/dns"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -627,6 +628,84 @@ func validateOssBucketObjectServerSideEncryption(v interface{}, k string) (ws []
 	if ServerSideEncryptionAes256 != value {
 		errors = append(errors, fmt.Errorf(
 			"%q must be a valid value, expected %s", k, ServerSideEncryptionAes256))
+	}
+	return
+}
+
+func validateDomainName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if vp := strings.Split(value, "."); len(vp) > 1 {
+		mainDomain := strings.Join(vp[:len(vp)-1], ".")
+		if len(mainDomain) > 63 || len(mainDomain) < 1 {
+			errors = append(errors, fmt.Errorf("Main domain cannot be longer than 63 characters or less than 1 character"))
+		}
+	}
+
+	if strings.HasSuffix(value, ".sh") || strings.HasSuffix(value, ".tel") {
+		errors = append(errors, fmt.Errorf("Domain ends with .sh or .tel is not supported."))
+	}
+
+	if strings.HasPrefix(value, "-") || strings.HasSuffix(value, "-") {
+		errors = append(errors, fmt.Errorf("Domain name is invalid, it can not starts or ends with '-'"))
+	}
+	return
+}
+
+func validateDomainRecordType(v interface{}, k string) (ws []string, errors []error) {
+	// Valid Record types
+	// A, NS, MX, TXT, CNAME, SRV, AAAA, REDIRECT_URL, FORWORD_URL
+	validTypes := map[string]string{
+		dns.ARecord:           "",
+		dns.NSRecord:          "",
+		dns.MXRecord:          "",
+		dns.TXTRecord:         "",
+		dns.CNAMERecord:       "",
+		dns.SRVRecord:         "",
+		dns.AAAARecord:        "",
+		dns.RedirectURLRecord: "",
+		dns.ForwordURLRecord:  "",
+	}
+
+	value := v.(string)
+	if _, ok := validTypes[value]; !ok {
+		errors = append(errors, fmt.Errorf("%q must be one of [A, NS, MX, TXT, CNAME, SRV, AAAA, REDIRECT_URL, FORWORD_URL]", k))
+	}
+	return
+}
+
+func validateDomainRecordPriority(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if value > 10 || value < 1 {
+		errors = append(errors, fmt.Errorf("%q value is 1-10.", k))
+	}
+	return
+}
+
+func validateRR(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if strings.HasPrefix(value, "-") || strings.HasSuffix(value, "-") {
+		errors = append(errors, fmt.Errorf("RR is invalid, it can not starts or ends with '-'"))
+	}
+
+	if len(value) > 253 {
+		errors = append(errors, fmt.Errorf("RR can not longer than 253 characters."))
+	}
+
+	for _, part := range strings.Split(value, ".") {
+		if len(part) > 63 {
+			errors = append(errors, fmt.Errorf("Each part of RR split with . can not longer than 63 characters."))
+			return
+		}
+	}
+	return
+}
+
+func validateDomainRecordLine(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "default" && value != "telecom" && value != "unicom" && value != "mobile" && value != "oversea" && value != "edu" {
+		errors = append(errors, fmt.Errorf("Record parsing line must be one of [default, telecom, unicom, mobile, oversea, edu]."))
 	}
 	return
 }

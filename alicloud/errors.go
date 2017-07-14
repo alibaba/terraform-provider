@@ -22,7 +22,8 @@ const (
 	InstanceIncorrectStatus = "IncorrectInstanceStatus"
 	HaVipIncorrectStatus    = "IncorrectHaVipStatus"
 	// slb
-	LoadBalancerNotFound = "InvalidLoadBalancerId.NotFound"
+	LoadBalancerNotFound    = "InvalidLoadBalancerId.NotFound"
+	UnsupportedProtocalPort = "UnsupportedOperationonfixedprotocalport"
 
 	// security_group
 	InvalidInstanceIdAlreadyExists = "InvalidInstanceId.AlreadyExists"
@@ -49,6 +50,10 @@ const (
 	RamInstanceNotFound   = "Forbidden.InstanceNotFound"
 	AliyunGoClientFailure = "AliyunGoClientFailure"
 
+	// dns
+	RecordForbiddenDNSChange = "RecordForbidden.DNSChange"
+	FobiddenNotEmptyGroup    = "Fobidden.NotEmptyGroup"
+
 	//unknown Error
 	UnknownError = "UnknownError"
 )
@@ -67,6 +72,14 @@ func NotFoundError(err error) bool {
 	if e, ok := err.(*common.Error); ok &&
 		(e.Code == InstanceNotFound || e.Code == RamInstanceNotFound ||
 			strings.Contains(strings.ToLower(e.Message), MessageInstanceNotFound)) {
+		return true
+	}
+
+	return false
+}
+
+func IsExceptedError(err error, expectCode string) bool {
+	if e, ok := err.(*common.Error); ok && e.Code == expectCode {
 		return true
 	}
 

@@ -724,6 +724,7 @@ resource "alicloud_instance" "foo" {
 	# cn-beijing
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 
 	# series III
 	instance_type = "ecs.n4.large"

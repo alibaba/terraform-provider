@@ -17,6 +17,9 @@ func resourceAliyunDisk() *schema.Resource {
 		Read:   resourceAliyunDiskRead,
 		Update: resourceAliyunDiskUpdate,
 		Delete: resourceAliyunDiskDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"availability_zone": &schema.Schema{

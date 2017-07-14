@@ -188,7 +188,7 @@ resource "alicloud_vpc" "foo" {
 resource "alicloud_vswitch" "foo" {
 	vpc_id = "${alicloud_vpc.foo.id}"
 	cidr_block = "172.16.0.0/21"
-	availability_zone = "${data.alicloud_zones.default.zones.2.id}"
+	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 }
 
 resource "alicloud_nat_gateway" "foo" {
@@ -198,19 +198,19 @@ resource "alicloud_nat_gateway" "foo" {
 	bandwidth_packages = [{
 	  ip_count = 1
 	  bandwidth = 5
-	  zone = "${data.alicloud_zones.default.zones.2.id}"
+	  zone = "${data.alicloud_zones.default.zones.0.id}"
 	}, {
 	  ip_count = 2
 	  bandwidth = 6
-	  zone = "${data.alicloud_zones.default.zones.2.id}"
+	  zone = "${data.alicloud_zones.default.zones.0.id}"
 	}, {
 	  ip_count = 3
 	  bandwidth = 7
-	  zone = "${data.alicloud_zones.default.zones.2.id}"
+	  zone = "${data.alicloud_zones.default.zones.0.id}"
 	}, {
 	  ip_count = 1
 	  bandwidth = 8
-	  zone = "${data.alicloud_zones.default.zones.2.id}"
+	  zone = "${data.alicloud_zones.default.zones.0.id}"
 	}]
 	depends_on = [
     	"alicloud_vswitch.foo"]
