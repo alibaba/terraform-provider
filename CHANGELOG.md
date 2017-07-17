@@ -1,5 +1,10 @@
 ## 1.1.4 (unreleased)
 
+## 1.1.4 (July 17, 2017)
+BUG FIXES:
+
+  * fix diff error when authorizing security group rules ([#175](https://github.com/alibaba/terraform-provider/pull/175))
+
 ## 1.1.3 (July 14, 2017)
 FEATURES:
 
