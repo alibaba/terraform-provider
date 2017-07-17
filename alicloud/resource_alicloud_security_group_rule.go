@@ -122,7 +122,13 @@ func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interfac
 			direction, autherr)
 	}
 
-	d.SetId(sgId + ":" + direction + ":" + ptl + ":" + port + ":" + nicType)
+	var cidr_ip string
+	if ip, ok := d.GetOk("cidr_ip"); ok {
+		cidr_ip = ip.(string)
+	} else {
+		cidr_ip = d.Get("source_security_group_id").(string)
+	}
+	d.SetId(sgId + ":" + direction + ":" + ptl + ":" + port + ":" + nicType + ":" + cidr_ip)
 
 	return resourceAliyunSecurityGroupRuleRead(d, meta)
 }
@@ -135,7 +141,8 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 	ip_protocol := parts[2]
 	port_range := parts[3]
 	nic_type := parts[4]
-	rule, err := client.DescribeSecurityGroupRule(sgId, direction, nic_type, ip_protocol, port_range)
+	cidr_ip := parts[5]
+	rules, err := client.DescribeSecurityByAttr(sgId, direction, nic_type)
 
 	if err != nil {
 		if NotFoundError(err) {
@@ -143,6 +150,26 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 			return nil
 		}
 		return fmt.Errorf("Error SecurityGroup rule: %#v", err)
+	}
+
+	// Filter security group rule according to its attribute
+	var rule ecs.PermissionType
+	for _, ru := range rules.Permissions.Permission {
+		if strings.ToLower(string(ru.IpProtocol)) == ip_protocol && ru.PortRange == port_range {
+			cidr := ru.SourceCidrIp
+			if GroupRuleDirection(direction) == GroupRuleIngress && cidr == "" {
+				cidr = ru.SourceGroupId
+			}
+			if GroupRuleDirection(direction) == GroupRuleEgress {
+				if cidr = ru.DestCidrIp; cidr == "" {
+					cidr = ru.DestCidrIp
+				}
+			}
+			if cidr == cidr_ip {
+				rule = ru
+				break
+			}
+		}
 	}
 
 	d.Set("type", rule.Direction)
@@ -217,16 +244,6 @@ func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interfac
 
 }
 
-func checkCidrAndSourceGroupId(cidrIp, sourceGroupId string) error {
-	if cidrIp == "" && sourceGroupId == "" {
-		return fmt.Errorf("Either cidr_ip or source_security_group_id is required.")
-	}
-
-	if cidrIp != "" && sourceGroupId != "" {
-		return fmt.Errorf("You should set only one value of cidr_ip or source_security_group_id.")
-	}
-	return nil
-}
 func buildAliyunSecurityIngressArgs(d *schema.ResourceData, meta interface{}) (*ecs.AuthorizeSecurityGroupArgs, error) {
 	conn := meta.(*AliyunClient).ecsconn
 
