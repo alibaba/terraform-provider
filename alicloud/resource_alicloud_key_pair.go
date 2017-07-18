@@ -13,7 +13,6 @@ func resourceAlicloudKeyPair() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAlicloudKeyPairCreate,
 		Read:   resourceAlicloudKeyPairRead,
-		Update: nil,
 		Delete: resourceAlicloudKeyPairDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -47,15 +46,14 @@ func resourceAlicloudKeyPair() *schema.Resource {
 					}
 				},
 			},
-			"finger_print": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"key_file": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  "alicloud_keypair.pem",
+			},
+			"finger_print": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -94,7 +92,9 @@ func resourceAlicloudKeyPairCreate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		d.SetId(keypair.KeyPairName)
-		ioutil.WriteFile(d.Get("key_file").(string), []byte(keypair.PrivateKeyBody), 444)
+		if file, ok := d.GetOk("key_file"); ok {
+			ioutil.WriteFile(file.(string), []byte(keypair.PrivateKeyBody), 444)
+		}
 	}
 
 	return resourceAlicloudKeyPairRead(d, meta)

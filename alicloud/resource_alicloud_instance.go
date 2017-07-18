@@ -133,6 +133,7 @@ func resourceAliyunInstance() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateInstanceChargeType,
+				Default:      common.PostPaid,
 			},
 			"period": &schema.Schema{
 				Type:     schema.TypeInt,

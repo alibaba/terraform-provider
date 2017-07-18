@@ -32,7 +32,7 @@ func dataSourceAlicloudKeyPairs() *schema.Resource {
 			},
 
 			//Computed value
-			"keypairs": &schema.Schema{
+			"key_pairs": &schema.Schema{
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -62,11 +62,15 @@ func dataSourceAlicloudKeyPairs() *schema.Resource {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
-									"instance_type": {
+									"vswitch_id": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
-									"vswitch_id": {
+									"public_ip": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"private_ip": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
@@ -134,11 +138,22 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 		}
 		for _, inst := range instances {
 			if inst.KeyPairName != "" {
+				public_ip := inst.EipAddress.IpAddress
+				if public_ip == "" && len(inst.PublicIpAddress.IpAddress) > 0 {
+					public_ip = inst.PublicIpAddress.IpAddress[0]
+				}
+				var private_ip string
+				if len(inst.InnerIpAddress.IpAddress) > 0 {
+					private_ip = inst.InnerIpAddress.IpAddress[0]
+				} else if len(inst.VpcAttributes.PrivateIpAddress.IpAddress) > 0 {
+					private_ip = inst.VpcAttributes.PrivateIpAddress.IpAddress[0]
+				}
 				mapping := map[string]interface{}{
 					"instance_id":   inst.InstanceId,
 					"instance_name": inst.InstanceName,
-					"instance_type": inst.InstanceType,
 					"vswitch_id":    inst.VpcAttributes.VSwitchId,
+					"public_ip":     public_ip,
+					"private_ip":    private_ip,
 				}
 				if val, ok := keyPairsAttach[inst.KeyPairName]; ok {
 					val = append(val, mapping)
@@ -174,7 +189,7 @@ func keyPairsDescriptionAttributes(d *schema.ResourceData, keyPairs []ecs.KeyPai
 	}
 
 	d.SetId(dataResourceIdHash(names))
-	if err := d.Set("keypairs", s); err != nil {
+	if err := d.Set("key_pairs", s); err != nil {
 		return err
 	}
 

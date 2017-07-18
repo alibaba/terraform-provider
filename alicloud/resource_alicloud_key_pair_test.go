@@ -179,7 +179,7 @@ func testAccCheckKeyPairDestroy(s *terraform.State) error {
 			// Verify the error is what we want
 			return err
 		}
-		os.Remove("alicloud_keypair.pem")
+		os.Remove(rs.Primary.Attributes["key_file"])
 	}
 
 	return nil

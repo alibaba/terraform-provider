@@ -1,5 +1,5 @@
 variable "count" {
-  default = "1"
+  default = "2"
 }
 variable "count_format" {
   default = "%02d"
@@ -9,7 +9,7 @@ variable "image_id" {
 }
 
 variable "availability_zones" {
-  default = ""
+  default = "cn-beijing-a"
 }
 
 variable "role" {
@@ -34,7 +34,7 @@ variable "internet_charge_type" {
   default = "PayByTraffic"
 }
 variable "internet_max_bandwidth_out" {
-  default = 5
+  default = 10
 }
 
 variable "disk_category" {
@@ -44,6 +44,18 @@ variable "disk_size" {
   default = "40"
 }
 
+variable "disk_count" {
+  default = "4"
+}
+
 variable "nic_type" {
-  default = "internet"
+  default = "intranet"
+}
+
+variable "private_key_file" {
+  default = "alicloud_ssh_key.pem"
+}
+
+variable "key_name" {
+  default = "key-pair-from-terraform"
 }

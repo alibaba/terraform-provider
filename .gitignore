@@ -12,3 +12,4 @@ terraform.log
 glide.lock
 .DS_Store
 .idea
+*.pem
