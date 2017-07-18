@@ -113,16 +113,19 @@ func resourceAlicloudDBInstance() *schema.Resource {
 				// terraform does not support ValidateFunc of TypeList attr
 				// ValidateFunc: validateAllowedStringValue([]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}),
 				Optional: true,
+				Computed:true,
 			},
 			"preferred_backup_time": &schema.Schema{
 				Type:         schema.TypeString,
 				ValidateFunc: validateAllowedStringValue(rds.BACKUP_TIME),
 				Optional:     true,
+				Computed:true,
 			},
 			"backup_retention_period": &schema.Schema{
 				Type:         schema.TypeInt,
 				ValidateFunc: validateIntegerInRange(7, 730),
 				Optional:     true,
+				Computed:true,
 			},
 
 			"security_ips": &schema.Schema{
@@ -419,7 +422,6 @@ func resourceAlicloudDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("instance_network_type", instance.InstanceNetworkType)
 	d.Set("instance_charge_type", instance.PayType)
 	d.Set("period", d.Get("period"))
-	d.Set("period_type", d.Get("period_type"))
 	d.Set("vswitch_id", instance.VSwitchId)
 
 	// Read DB account name
