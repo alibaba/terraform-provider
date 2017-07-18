@@ -162,6 +162,12 @@ func resourceAliyunInstance() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"key_name": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"tags": tagsSchema(),
 		},
 	}
@@ -292,6 +298,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("internet_max_bandwidth_out", instance.InternetMaxBandwidthOut)
 	d.Set("internet_max_bandwidth_in", instance.InternetMaxBandwidthIn)
 	d.Set("instance_charge_type", instance.InstanceChargeType)
+	d.Set("key_name", instance.KeyPairName)
 
 	// In Classic network, internet_charge_type is valid in any case, and its default value is 'PayByBanwidth'.
 	// In VPC network, internet_charge_type is valid when instance has public ip, and its default value is 'PayByBanwidth'.
@@ -511,6 +518,33 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.SetPartial("security_groups")
 	}
 
+	if d.HasChange("key_name") && !d.IsNewResource() {
+		d.SetPartial("key_name")
+		o, n := d.GetChange("key_name")
+		os := o.(string)
+		ns := n.(string)
+		instance_ids := convertListToJsonString(append(make([]interface{}, 0, 1), d.Id()))
+		if ns == "" {
+			err := conn.DetachKeyPair(&ecs.DetachKeyPairArgs{
+				RegionId:    getRegion(d, meta),
+				KeyPairName: os,
+				InstanceIds: instance_ids,
+			})
+			if err != nil {
+				return fmt.Errorf("Error Detach KeyPair: %#v", err)
+			}
+		} else {
+			err := conn.AttachKeyPair(&ecs.AttachKeyPairArgs{
+				RegionId:    getRegion(d, meta),
+				KeyPairName: ns,
+				InstanceIds: instance_ids,
+			})
+			if err != nil {
+				return fmt.Errorf("Error Attach KeyPair: %#v", err)
+			}
+		}
+	}
+
 	d.Partial(false)
 	return resourceAliyunInstanceRead(d, meta)
 }
@@ -576,7 +610,6 @@ func buildAliyunRunInstancesArgs(d *schema.ResourceData, meta interface{}) (*ecs
 
 	subnetValue := d.Get("subnet_id").(string)
 	vswitchValue := d.Get("vswitch_id").(string)
-	//networkValue := d.Get("instance_network_type").(string)
 
 	// because runInstance is not compatible with createInstance, force NetworkType value to classic
 	if subnetValue == "" && vswitchValue == "" {
@@ -686,6 +719,10 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 
 	if v := d.Get("user_data").(string); v != "" {
 		args.UserData = v
+	}
+
+	if v := d.Get("key_name").(string); v != "" {
+		args.KeyPairName = v
 	}
 
 	return args, nil
