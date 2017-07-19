@@ -167,6 +167,7 @@ func resourceAliyunInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 
 			"tags": tagsSchema(),
@@ -517,33 +518,6 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		d.SetPartial("security_groups")
-	}
-
-	if d.HasChange("key_name") && !d.IsNewResource() {
-		d.SetPartial("key_name")
-		o, n := d.GetChange("key_name")
-		os := o.(string)
-		ns := n.(string)
-		instance_ids := convertListToJsonString(append(make([]interface{}, 0, 1), d.Id()))
-		if ns == "" {
-			err := conn.DetachKeyPair(&ecs.DetachKeyPairArgs{
-				RegionId:    getRegion(d, meta),
-				KeyPairName: os,
-				InstanceIds: instance_ids,
-			})
-			if err != nil {
-				return fmt.Errorf("Error Detach KeyPair: %#v", err)
-			}
-		} else {
-			err := conn.AttachKeyPair(&ecs.AttachKeyPairArgs{
-				RegionId:    getRegion(d, meta),
-				KeyPairName: ns,
-				InstanceIds: instance_ids,
-			})
-			if err != nil {
-				return fmt.Errorf("Error Attach KeyPair: %#v", err)
-			}
-		}
 	}
 
 	d.Partial(false)

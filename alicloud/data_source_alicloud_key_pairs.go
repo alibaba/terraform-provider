@@ -2,7 +2,6 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
@@ -52,30 +51,7 @@ func dataSourceAlicloudKeyPairs() *schema.Resource {
 						"instances": {
 							Type:     schema.TypeList,
 							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"instance_id": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"instance_name": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"vswitch_id": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"public_ip": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"private_ip": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-								},
-							},
+							Elem:     &schema.Resource{Schema: outputInstancesSchema()},
 						},
 					},
 				},
@@ -99,12 +75,8 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 		args.KeyPairFingerPrint = fingerPrint.(string)
 	}
 	var keyPairs []ecs.KeyPairItemType
-	pagination := common.Pagination{
-		PageSize: 50,
-	}
-	pagenumber := 1
+	pagination := getPagination(1, 50)
 	for true {
-		pagination.PageNumber = pagenumber
 		args.Pagination = pagination
 		results, _, err := conn.DescribeKeyPairs(args)
 		if err != nil {
@@ -118,7 +90,7 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 		if len(results) < pagination.PageSize {
 			break
 		}
-		pagenumber += 1
+		pagination.PageNumber += 1
 	}
 
 	if len(keyPairs) < 1 {
@@ -126,12 +98,11 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	keyPairsAttach := make(map[string][]map[string]interface{})
-	pagenumber = 1
+	pagination.PageNumber = 1
 	for true {
-		pagination.PageNumber = pagenumber
-		args.Pagination = pagination
 		instances, _, err := conn.DescribeInstances(&ecs.DescribeInstancesArgs{
-			RegionId: getRegion(d, meta),
+			RegionId:   getRegion(d, meta),
+			Pagination: pagination,
 		})
 		if err != nil {
 			return fmt.Errorf("Error DescribeInstances: %#v", err)
@@ -149,11 +120,12 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 					private_ip = inst.VpcAttributes.PrivateIpAddress.IpAddress[0]
 				}
 				mapping := map[string]interface{}{
-					"instance_id":   inst.InstanceId,
-					"instance_name": inst.InstanceName,
-					"vswitch_id":    inst.VpcAttributes.VSwitchId,
-					"public_ip":     public_ip,
-					"private_ip":    private_ip,
+					"availability_zone": inst.ZoneId,
+					"instance_id":       inst.InstanceId,
+					"instance_name":     inst.InstanceName,
+					"vswitch_id":        inst.VpcAttributes.VSwitchId,
+					"public_ip":         public_ip,
+					"private_ip":        private_ip,
 				}
 				if val, ok := keyPairsAttach[inst.KeyPairName]; ok {
 					val = append(val, mapping)
@@ -166,7 +138,7 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 		if len(instances) < pagination.PageSize {
 			break
 		}
-		pagenumber += 1
+		pagination.PageNumber += 1
 	}
 
 	return keyPairsDescriptionAttributes(d, keyPairs, keyPairsAttach)

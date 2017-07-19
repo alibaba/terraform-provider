@@ -13,7 +13,6 @@ func resourceAlicloudKeyPairAttachment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAlicloudKeyPairAttachmentCreate,
 		Read:   resourceAlicloudKeyPairAttachmentRead,
-		Update: resourceAlicloudKeyPairAttachmentUpdate,
 		Delete: resourceAlicloudKeyPairAttachmentDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -24,19 +23,43 @@ func resourceAlicloudKeyPairAttachment() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateKeyPairName,
+				ForceNew:     true,
 			},
 			"instance_ids": &schema.Schema{
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Optional: true,
+				Required: true,
+				ForceNew: true,
 			},
 		},
 	}
 }
 
 func resourceAlicloudKeyPairAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
+	conn := meta.(*AliyunClient).ecsconn
+	instanceIds := convertListToJsonString(d.Get("instance_ids").(*schema.Set).List())
 
-	return resourceAlicloudKeyPairAttachmentUpdate(d, meta)
+	args := &ecs.AttachKeyPairArgs{
+		RegionId:    getRegion(d, meta),
+		KeyPairName: d.Get("key_name").(string),
+		InstanceIds: instanceIds,
+	}
+	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
+		if er := conn.AttachKeyPair(args); er != nil {
+			if IsExceptedError(er, KeyPairServiceUnavailable) {
+				return resource.RetryableError(fmt.Errorf("Key Pair is attaching and gets an error: %#v -- try again...", er))
+			}
+			return resource.NonRetryableError(fmt.Errorf("Error Attach KeyPair: %#v", er))
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+	d.SetId(d.Get("key_name").(string) + ":" + instanceIds)
+
+	return resourceAlicloudKeyPairAttachmentRead(d, meta)
 }
 
 func resourceAlicloudKeyPairAttachmentRead(d *schema.ResourceData, meta interface{}) error {
@@ -60,62 +83,33 @@ func resourceAlicloudKeyPairAttachmentRead(d *schema.ResourceData, meta interfac
 		return nil
 	}
 
-	return fmt.Errorf("Unable to find key pair within: %#v", keypairs)
-}
-
-func resourceAlicloudKeyPairAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
-
-	d.Partial(true)
-
-	update := false
-	if d.HasChange("key_name") {
-		d.SetPartial("key_name")
-		update = true
-	}
-
-	instanceIds := convertListToJsonString(d.Get("instance_ids").(*schema.Set).List())
-	if d.HasChange("instance_ids") {
-		d.SetPartial("instance_ids")
-		update = true
-	}
-
-	if update {
-		args := &ecs.AttachKeyPairArgs{
-			RegionId:    getRegion(d, meta),
-			KeyPairName: d.Get("key_name").(string),
-			InstanceIds: instanceIds,
-		}
-		err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-			if er := conn.AttachKeyPair(args); er != nil {
-				if IsExceptedError(er, KeyPairServiceUnavailable) {
-					return resource.RetryableError(fmt.Errorf("Key Pair is attaching and gets an error: %#v -- try again...", er))
-				}
-				return resource.NonRetryableError(fmt.Errorf("Error Attach KeyPair: %#v", er))
-			}
-			return nil
-		})
-
-		if err != nil {
-			return err
-		}
-	}
-	d.Partial(false)
-
-	d.SetId(d.Get("key_name").(string) + ":" + instanceIds)
-
-	return resourceAlicloudKeyPairAttachmentRead(d, meta)
+	return fmt.Errorf("Unable to find key pair %s in the current account.", keyname)
 }
 
 func resourceAlicloudKeyPairAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+	client := meta.(*AliyunClient)
 	keyname := strings.Split(d.Id(), ":")[0]
 	instanceIds := strings.Split(d.Id(), ":")[1]
 
-	err := conn.DetachKeyPair(&ecs.DetachKeyPairArgs{
-		RegionId:    getRegion(d, meta),
-		KeyPairName: keyname,
-		InstanceIds: instanceIds,
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
+		err := client.ecsconn.DetachKeyPair(&ecs.DetachKeyPairArgs{
+			RegionId:    getRegion(d, meta),
+			KeyPairName: keyname,
+			InstanceIds: instanceIds,
+		})
+		if err != nil {
+			return resource.NonRetryableError(fmt.Errorf("Error DetachKeyPair:%#v", err))
+		}
+
+		instance_ids, _, err := client.QueryInstancesWithKeyPair(getRegion(d, meta), instanceIds, d.Id())
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		if len(instance_ids) > 0 {
+			instanceIds = convertListToJsonString(instance_ids)
+			return resource.RetryableError(fmt.Errorf("There is still attached instances -- try again to detach them."))
+		}
+
+		return nil
 	})
-	return err
 }

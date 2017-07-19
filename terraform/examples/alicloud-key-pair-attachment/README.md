@@ -1,27 +1,18 @@
 ### ECS Example
 
-The example launches ECS instance, disk, and attached the disk on ECS. the count parameter in variables.tf can let you create specify number ECS instances.
+The example launches a keypair and a keypair attachment, and use them can attach one keypair to launched ECS instances. Besides, the example also launches other resources, such as vpc, vswitch, disk and so on.
+The count parameter in variables.tf can let you create specify number ECS instances.
 
 ### Get up and running
 
 * Planning phase
 
-		terraform plan 
-    		var.availability_zones
-  				Enter a value: {var.availability_zones}  /*cn-beijing-b*/
-	    	var.datacenter
-	    		Enter a value: {datacenter}
-	    	....
+		terraform plan
 
 * Apply phase
 
-		terraform apply 
-		    var.availability_zones
-  				Enter a value: {var.availability_zones}  /*cn-beijing-b*/
-	    	var.datacenter
-	    		Enter a value: {datacenter}
-	    	....
+		terraform apply
 
-* Destroy 
+* Destroy
 
 		terraform destroy

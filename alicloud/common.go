@@ -115,3 +115,9 @@ const (
 	InstanceTypeFamilyKey = ResourceKeyType("instanceTypeFamilies")
 	DiskCategoryKey       = ResourceKeyType("diskCatetories")
 )
+
+func getPagination(pageNumber, pageSize int) (pagination common.Pagination) {
+	pagination.PageSize = pageSize
+	pagination.PageNumber = pageNumber
+	return
+}

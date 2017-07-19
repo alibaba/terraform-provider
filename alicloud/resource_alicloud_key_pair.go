@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"io/ioutil"
 	"strings"
+	"time"
 )
 
 func resourceAlicloudKeyPair() *schema.Resource {
@@ -93,7 +94,7 @@ func resourceAlicloudKeyPairCreate(d *schema.ResourceData, meta interface{}) err
 
 		d.SetId(keypair.KeyPairName)
 		if file, ok := d.GetOk("key_file"); ok {
-			ioutil.WriteFile(file.(string), []byte(keypair.PrivateKeyBody), 444)
+			ioutil.WriteFile(file.(string), []byte(keypair.PrivateKeyBody), 400)
 		}
 	}
 
@@ -125,11 +126,52 @@ func resourceAlicloudKeyPairRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAlicloudKeyPairDelete(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+	client := meta.(*AliyunClient)
 
-	err := conn.DeleteKeyPairs(&ecs.DeleteKeyPairsArgs{
-		RegionId:     getRegion(d, meta),
-		KeyPairNames: convertListToJsonString(append(make([]interface{}, 0, 1), d.Id())),
+	instance_ids, _, err := client.QueryInstancesWithKeyPair(getRegion(d, meta), "", d.Id())
+	if err != nil {
+		return err
+	}
+	detachArgs := &ecs.DetachKeyPairArgs{
+		RegionId:    getRegion(d, meta),
+		KeyPairName: d.Id(),
+	}
+
+	return resource.Retry(5*time.Minute, func() *resource.RetryError {
+
+		// Detach keypair from its all instances before removing it.
+		if len(instance_ids) > 0 {
+			detachArgs.InstanceIds = convertListToJsonString(instance_ids)
+			if err := client.ecsconn.DetachKeyPair(detachArgs); err != nil {
+				return resource.NonRetryableError(fmt.Errorf("Error DetachKeyPair:%#v", err))
+			}
+		}
+		instance_ids, _, err = client.QueryInstancesWithKeyPair(getRegion(d, meta), "", d.Id())
+		if err != nil {
+			return resource.NonRetryableError(err)
+		}
+		if len(instance_ids) > 0 {
+			return resource.RetryableError(fmt.Errorf("There is still attached instances -- try again to detach them."))
+		}
+
+		err := client.ecsconn.DeleteKeyPairs(&ecs.DeleteKeyPairsArgs{
+			RegionId:     getRegion(d, meta),
+			KeyPairNames: convertListToJsonString(append(make([]interface{}, 0, 1), d.Id())),
+		})
+		if err != nil {
+			if IsExceptedError(err, KeyPairNotFound) {
+				return nil
+			}
+		}
+
+		keypairs, _, err := client.ecsconn.DescribeKeyPairs(&ecs.DescribeKeyPairsArgs{
+			RegionId:    getRegion(d, meta),
+			KeyPairName: d.Id(),
+		})
+		if len(keypairs) > 0 {
+			return resource.RetryableError(fmt.Errorf("Key Pair still exists - trying again."))
+		}
+
+		return nil
 	})
-	return err
 }
