@@ -551,6 +551,31 @@ func TestAccAlicloudInstance_vpcRule(t *testing.T) {
 	})
 }
 
+func TestAccAlicloudInstance_keyPair(t *testing.T) {
+	var instance ecs.InstanceAttributesType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		IDRefreshName: "alicloud_instance.key_pair",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckInstanceKeyPair,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.key_pair", &instance),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.key_pair",
+						"key_name",
+						"key_pair_for_instance_test"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckInstanceExists(n string, i *ecs.InstanceAttributesType) resource.TestCheckFunc {
 	providers := []*schema.Provider{testAccProvider}
 	return testAccCheckInstanceExistsWithProviders(n, i, &providers)
@@ -1313,5 +1338,47 @@ resource "alicloud_instance" "update_image" {
   	password = "Test12345"
   	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	vswitch_id = "${alicloud_vswitch.foo.id}"
+}
+`
+const testAccCheckInstanceKeyPair = `
+data "alicloud_images" "ubuntu" {
+	most_recent = true
+	owners = "system"
+	name_regex = "^ubuntu_14\\w{1,5}[64]{1}.*"
+}
+
+resource "alicloud_vpc" "foo" {
+	name = "tf_test_image"
+	cidr_block = "10.1.0.0/21"
+}
+
+resource "alicloud_vswitch" "foo" {
+	vpc_id = "${alicloud_vpc.foo.id}"
+	cidr_block = "10.1.1.0/24"
+	availability_zone = "cn-beijing-a"
+}
+
+resource "alicloud_security_group" "tf_test_foo" {
+	name = "tf_test_foo"
+	description = "foo"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_key_pair" "key_pair" {
+  key_name = "key_pair_for_instance_test"
+}
+
+resource "alicloud_instance" "key_pair" {
+	image_id = "${data.alicloud_images.ubuntu.images.0.id}"
+	availability_zone = "cn-beijing-a"
+  	system_disk_category = "cloud_efficiency"
+  	system_disk_size = 60
+
+  	instance_type = "ecs.n4.small"
+  	instance_name = "with_key_pair"
+  	password = "Test12345"
+  	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+	vswitch_id = "${alicloud_vswitch.foo.id}"
+	key_name = "${alicloud_key_pair.key_pair.id}"
 }
 `

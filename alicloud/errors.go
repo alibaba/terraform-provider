@@ -36,6 +36,8 @@ const (
 	NotFindSnatEntryBySnatId             = "NotFindSnatEntryBySnatId"
 	NotFindForwardEntryByForwardId       = "NotFindForwardEntryByForwardId"
 
+	// vpc
+	VpcQuotaExceeded = "QuotaExceeded.Vpc"
 	// vswitch
 	VswitcInvalidRegionId = "InvalidRegionId.NotFound"
 
@@ -56,6 +58,10 @@ const (
 
 	//unknown Error
 	UnknownError = "UnknownError"
+
+	// keypair error
+	KeyPairNotFound           = "InvalidKeyPair.NotFound"
+	KeyPairServiceUnavailable = "ServiceUnavailable"
 )
 
 func GetNotFoundErrorFromString(str string) error {

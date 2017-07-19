@@ -85,6 +85,22 @@ func expandStringList(configured []interface{}) []string {
 	return vs
 }
 
+// Convert the result for an array and returns a Json string
+func convertListToJsonString(configured []interface{}) string {
+	if len(configured) < 1 {
+		return ""
+	}
+	result := "["
+	for i, v := range configured {
+		result += "\"" + v.(string) + "\""
+		if i < len(configured)-1 {
+			result += ","
+		}
+	}
+	result += "]"
+	return result
+}
+
 const ServerSideEncryptionAes256 = "AES256"
 
 var SupportedDiskCategory = map[ecs.DiskCategory]ecs.DiskCategory{
@@ -99,3 +115,9 @@ const (
 	InstanceTypeFamilyKey = ResourceKeyType("instanceTypeFamilies")
 	DiskCategoryKey       = ResourceKeyType("diskCatetories")
 )
+
+func getPagination(pageNumber, pageSize int) (pagination common.Pagination) {
+	pagination.PageSize = pageSize
+	pagination.PageNumber = pageNumber
+	return
+}

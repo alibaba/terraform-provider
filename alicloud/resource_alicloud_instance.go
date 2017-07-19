@@ -133,6 +133,7 @@ func resourceAliyunInstance() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateInstanceChargeType,
+				Default:      common.PostPaid,
 			},
 			"period": &schema.Schema{
 				Type:     schema.TypeInt,
@@ -159,6 +160,13 @@ func resourceAliyunInstance() *schema.Resource {
 			"user_data": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
+			},
+
+			"key_name": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 
@@ -292,6 +300,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("internet_max_bandwidth_out", instance.InternetMaxBandwidthOut)
 	d.Set("internet_max_bandwidth_in", instance.InternetMaxBandwidthIn)
 	d.Set("instance_charge_type", instance.InstanceChargeType)
+	d.Set("key_name", instance.KeyPairName)
 
 	// In Classic network, internet_charge_type is valid in any case, and its default value is 'PayByBanwidth'.
 	// In VPC network, internet_charge_type is valid when instance has public ip, and its default value is 'PayByBanwidth'.
@@ -576,7 +585,6 @@ func buildAliyunRunInstancesArgs(d *schema.ResourceData, meta interface{}) (*ecs
 
 	subnetValue := d.Get("subnet_id").(string)
 	vswitchValue := d.Get("vswitch_id").(string)
-	//networkValue := d.Get("instance_network_type").(string)
 
 	// because runInstance is not compatible with createInstance, force NetworkType value to classic
 	if subnetValue == "" && vswitchValue == "" {
@@ -686,6 +694,10 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 
 	if v := d.Get("user_data").(string); v != "" {
 		args.UserData = v
+	}
+
+	if v := d.Get("key_name").(string); v != "" {
+		args.KeyPairName = v
 	}
 
 	return args, nil
