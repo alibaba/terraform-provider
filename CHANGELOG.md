@@ -1,4 +1,16 @@
-## 1.1.4 (unreleased)
+## 1.1.6 (unreleased)
+
+## 1.1.5 (July 20, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_key_pair` ([#177](https://github.com/alibaba/terraform-provider/pull/177))
+  * **New Resource:** `alicloud_key_pair_attachment` ([#177](https://github.com/alibaba/terraform-provider/pull/177))
+  * **New DataSource:** `alicloud_key_pairs` ([#177](https://github.com/alibaba/terraform-provider/pull/177))
+
+IMPROVEMENTS:
+
+  * add keypair for alicloud_instance ([#177](https://github.com/alibaba/terraform-provider/pull/177))
+  * set some field as computed for rds ([#178](https://github.com/alibaba/terraform-provider/pull/178))
 
 ## 1.1.4 (July 17, 2017)
 BUG FIXES:
