@@ -2,7 +2,6 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -80,7 +79,10 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 	err = resource.Retry(3*time.Minute, func() *resource.RetryError {
 		resp, err := ecsconn.CreateVpc(args)
 		if err != nil {
-			if e, ok := err.(*common.Error); ok && (e.StatusCode == 400 || e.Code == UnknownError) {
+			if IsExceptedError(err, VpcQuotaExceeded) {
+				return resource.NonRetryableError(fmt.Errorf("The number of VPC has quota has reached the quota limit in your account, and please use existing VPCs or remove some of them."))
+			}
+			if IsExceptedError(err, UnknownError) {
 				return resource.RetryableError(fmt.Errorf("Vpc is still creating result from some unknown error -- try again"))
 			}
 			return resource.NonRetryableError(err)
@@ -89,7 +91,7 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("Create vpc got an error :%#v", err)
+		return fmt.Errorf("Create vpc got an error :%s", err)
 	}
 
 	d.SetId(vpc.VpcId)

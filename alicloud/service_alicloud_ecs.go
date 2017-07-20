@@ -431,3 +431,35 @@ func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Reg
 	}
 	return familiesWithGeneration, nil
 }
+
+func (client *AliyunClient) QueryInstancesWithKeyPair(region common.Region, instanceIds, keypair string) ([]interface{}, []ecs.InstanceAttributesType, error) {
+	var instance_ids []interface{}
+	var instanceList []ecs.InstanceAttributesType
+
+	conn := client.ecsconn
+	args := &ecs.DescribeInstancesArgs{
+		RegionId: region,
+	}
+	pagination := getPagination(1, 50)
+	for true {
+		if instanceIds != "" {
+			args.InstanceIds = instanceIds
+		}
+		args.Pagination = pagination
+		instances, _, err := conn.DescribeInstances(args)
+		if err != nil {
+			return nil, nil, fmt.Errorf("Error DescribeInstances: %#v", err)
+		}
+		for _, inst := range instances {
+			if inst.KeyPairName == keypair {
+				instance_ids = append(instance_ids, inst.InstanceId)
+				instanceList = append(instanceList, inst)
+			}
+		}
+		if len(instances) < pagination.PageSize {
+			break
+		}
+		pagination.PageNumber += 1
+	}
+	return instance_ids, instanceList, nil
+}
