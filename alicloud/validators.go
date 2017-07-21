@@ -1,10 +1,13 @@
 package alicloud
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
+	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/denverdino/aliyungo/common"
@@ -12,8 +15,6 @@ import (
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/schema"
-	"regexp"
-	"time"
 )
 
 // common
@@ -137,7 +138,7 @@ func validateSecurityRuleType(v interface{}, k string) (ws []string, errors []er
 func validateSecurityRuleIpProtocol(v interface{}, k string) (ws []string, errors []error) {
 	pt := GroupRuleIpProtocol(v.(string))
 	if pt != GroupRuleTcp && pt != GroupRuleUdp && pt != GroupRuleIcmp && pt != GroupRuleGre && pt != GroupRuleAll {
-		errors = append(errors, fmt.Errorf("%s must be one of %s %s %s %s %s", k,
+		errors = append(errors, fmt.Errorf("%s must be one of %s, %s, %s, %s and %s", k,
 			GroupRuleTcp, GroupRuleUdp, GroupRuleIcmp, GroupRuleGre, GroupRuleAll))
 	}
 
@@ -730,5 +731,154 @@ func validateKeyPairPrefix(v interface{}, k string) (ws []string, errors []error
 			"%q cannot be longer than 100 characters, name is limited to 128", k))
 	}
 
+	return
+}
+
+func validateRamName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 64 {
+		errors = append(errors, fmt.Errorf("%q can not be longer than 64 characters.", k))
+	}
+
+	pattern := `^[a-zA-Z0-9\.@\-_]+$`
+	if match, _ := regexp.Match(pattern, []byte(value)); !match {
+		errors = append(errors, fmt.Errorf("%q is invalid.", k))
+	}
+	return
+}
+
+func validateRamDisplayName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	pattern := `^[a-zA-Z0-9\.@\-\p{Han}]{1,12}$`
+	if match, _ := regexp.Match(pattern, []byte(value)); !match {
+		errors = append(errors, fmt.Errorf("%q is invalid.", k))
+	}
+	return
+}
+
+func validateComment(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 128 {
+		errors = append(errors, fmt.Errorf("%q can not be longer than 128 characters.", k))
+	}
+	return
+}
+
+func validateRamDesc(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 1024 {
+		errors = append(errors, fmt.Errorf("%q can not be longer than 1024 characters.", k))
+	}
+	return
+}
+
+func validateRamPolicyName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 128 {
+		errors = append(errors, fmt.Errorf("%q can not be longer than 128 characters.", k))
+	}
+
+	pattern := `^[a-zA-Z0-9\-]+$`
+	if match, _ := regexp.Match(pattern, []byte(value)); !match {
+		errors = append(errors, fmt.Errorf("%q is invalid.", k))
+	}
+	return
+}
+
+func validateRamPolicyDoc(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 2048 || len(value) < 1 {
+		errors = append(errors, fmt.Errorf("%q can not be longer than 2048 characters or less than 1 characters.", k))
+		return
+	}
+
+	if value[:1] != "{" {
+		errors = append(errors, fmt.Errorf("%q contains an invalid JSON policy", k))
+		return
+	}
+	if _, err := normalizeJsonString(v); err != nil {
+		errors = append(errors, fmt.Errorf("%q contains an invalid JSON: %s", k, err))
+	}
+	return
+}
+
+// Takes a value containing JSON string and passes it through
+// the JSON parser to normalize it, returns either a parsing
+// error or normalized JSON string.
+func normalizeJsonString(jsonString interface{}) (string, error) {
+	var j interface{}
+
+	if jsonString == nil || jsonString.(string) == "" {
+		return "", nil
+	}
+
+	s := jsonString.(string)
+
+	err := json.Unmarshal([]byte(s), &j)
+	if err != nil {
+		return s, err
+	}
+
+	// The error is intentionally ignored here to allow empty policies to passthrough validation.
+	// This covers any interpolated values
+	bytes, _ := json.Marshal(j)
+
+	return string(bytes[:]), nil
+}
+
+func validateJsonString(v interface{}, k string) (ws []string, errors []error) {
+	if _, err := normalizeJsonString(v); err != nil {
+		errors = append(errors, fmt.Errorf("%q contains an invalid JSON: %s", k, err))
+	}
+	if strings.Contains(v.(string), " ") || strings.Contains(v.(string), "\n") {
+		errors = append(errors, fmt.Errorf("%q can not contain any space or newline character.", k))
+	}
+	return
+}
+
+func validatePolicyType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if value != "System" && value != "Custom" {
+		errors = append(errors, fmt.Errorf("%q must be 'System' or 'Custom'.", k))
+	}
+	return
+}
+
+func validateRamGroupName(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 64 {
+		errors = append(errors, fmt.Errorf("%q can not be longer than 64 characters.", k))
+	}
+
+	pattern := `^[a-zA-Z0-9\-]+$`
+	if match, _ := regexp.Match(pattern, []byte(value)); !match {
+		errors = append(errors, fmt.Errorf("%q is invalid.", k))
+	}
+	return
+}
+
+func validateRamAlias(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if len(value) > 32 || len(value) < 2 {
+		errors = append(errors, fmt.Errorf("%q can not be longer than 32 or less than 2 characters.", k))
+	}
+	return
+}
+
+func validateRamAKStatus(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if value != "Active" && value != "Inactive" {
+		errors = append(errors, fmt.Errorf("%q must be 'Active' or 'Inactive'.", k))
+	}
 	return
 }
