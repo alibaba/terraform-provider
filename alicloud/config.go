@@ -9,6 +9,7 @@ import (
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/ess"
 	"github.com/denverdino/aliyungo/location"
+	"github.com/denverdino/aliyungo/ram"
 	"github.com/denverdino/aliyungo/rds"
 	"github.com/denverdino/aliyungo/slb"
 
@@ -36,6 +37,7 @@ type AliyunClient struct {
 	slbconn    *slb.Client
 	ossconn    *oss.Client
 	dnsconn    *dns.Client
+	ramconn    ram.RamClientInterface
 }
 
 // Client for AliyunClient
@@ -83,6 +85,10 @@ func (c *Config) Client() (*AliyunClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	ramconn, err := c.ramConn()
+	if err != nil {
+		return nil, err
+	}
 
 	return &AliyunClient{
 		Region:     c.Region,
@@ -94,6 +100,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 		essconn:    essconn,
 		ossconn:    ossconn,
 		dnsconn:    dnsconn,
+		ramconn:    ramconn,
 	}, nil
 }
 
@@ -193,6 +200,11 @@ func (c *Config) dnsConn() (*dns.Client, error) {
 	client := dns.NewClientNew(c.AccessKey, c.SecretKey)
 	client.SetBusinessInfo(BusinessInfoKey)
 	client.SetUserAgent(getUserAgent())
+	return client, nil
+}
+
+func (c *Config) ramConn() (ram.RamClientInterface, error) {
+	client := ram.NewClient(c.AccessKey, c.SecretKey)
 	return client, nil
 }
 
