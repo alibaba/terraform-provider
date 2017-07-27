@@ -1,4 +1,19 @@
-## 1.1.6 (unreleased)
+## 1.1.7 (unreleased)
+
+## 1.1.6 (July 27, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_ram_user` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_group` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_access_key` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_alias` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_group_membership` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_group_policy` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_group_policy_attachment` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_login_profile` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_role` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_role_policy_attachment` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
+  * **New Resource:** `alicloud_ram_user_policy_attachment` ([#181](https://github.com/alibaba/terraform-provider/pull/181))
 
 ## 1.1.5 (July 20, 2017)
 FEATURES:

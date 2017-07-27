@@ -138,7 +138,7 @@ func validateSecurityRuleType(v interface{}, k string) (ws []string, errors []er
 func validateSecurityRuleIpProtocol(v interface{}, k string) (ws []string, errors []error) {
 	pt := GroupRuleIpProtocol(v.(string))
 	if pt != GroupRuleTcp && pt != GroupRuleUdp && pt != GroupRuleIcmp && pt != GroupRuleGre && pt != GroupRuleAll {
-		errors = append(errors, fmt.Errorf("%s must be one of %s %s %s %s %s", k,
+		errors = append(errors, fmt.Errorf("%s must be one of %s, %s, %s, %s and %s", k,
 			GroupRuleTcp, GroupRuleUdp, GroupRuleIcmp, GroupRuleGre, GroupRuleAll))
 	}
 
