@@ -16,6 +16,9 @@ func resourceAlicloudDns() *schema.Resource {
 		Read:   resourceAlicloudDnsRead,
 		Update: resourceAlicloudDnsUpdate,
 		Delete: resourceAlicloudDnsDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -50,7 +53,7 @@ func resourceAlicloudDnsCreate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("AddDomain got an error: %#v", err)
 	}
 
-	d.SetId(response.DomainId)
+	d.SetId(response.DomainName)
 	return resourceAlicloudDnsUpdate(d, meta)
 }
 
@@ -81,7 +84,7 @@ func resourceAlicloudDnsRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).dnsconn
 
 	args := &dns.DescribeDomainInfoArgs{
-		DomainName: d.Get("name").(string),
+		DomainName: d.Id(),
 	}
 
 	domain, err := conn.DescribeDomainInfo(args)
@@ -103,7 +106,7 @@ func resourceAlicloudDnsDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).dnsconn
 
 	args := &dns.DeleteDomainArgs{
-		DomainName: d.Get("name").(string),
+		DomainName: d.Id(),
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {

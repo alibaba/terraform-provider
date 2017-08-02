@@ -14,6 +14,9 @@ func resourceAlicloudRamGroup() *schema.Resource {
 		Read:   resourceAlicloudRamGroupRead,
 		Update: resourceAlicloudRamGroupUpdate,
 		Delete: resourceAlicloudRamGroupDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"group_name": &schema.Schema{
@@ -58,7 +61,9 @@ func resourceAlicloudRamGroupUpdate(d *schema.ResourceData, meta interface{}) er
 
 	d.Partial(true)
 
-	args := ram.GroupUpdateRequest{}
+	args := ram.GroupUpdateRequest{
+		GroupName: d.Id(),
+	}
 	attributeUpdate := false
 
 	if d.HasChange("group_name") && !d.IsNewResource() {
@@ -67,8 +72,6 @@ func resourceAlicloudRamGroupUpdate(d *schema.ResourceData, meta interface{}) er
 		args.NewGroupName = nv.(string)
 		d.SetPartial("group_name")
 		attributeUpdate = true
-	} else {
-		args.GroupName = d.Get("group_name").(string)
 	}
 
 	if d.HasChange("comments") {
@@ -91,7 +94,7 @@ func resourceAlicloudRamGroupRead(d *schema.ResourceData, meta interface{}) erro
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.GroupQueryRequest{
-		GroupName: d.Get("group_name").(string),
+		GroupName: d.Id(),
 	}
 
 	response, err := conn.GetGroup(args)
@@ -112,7 +115,7 @@ func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) er
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.GroupQueryRequest{
-		GroupName: d.Get("group_name").(string),
+		GroupName: d.Id(),
 	}
 
 	if d.Get("force").(bool) {

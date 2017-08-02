@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/denverdino/aliyungo/common"
@@ -16,6 +17,9 @@ func resourceAlicloudDnsRecord() *schema.Resource {
 		Read:   resourceAlicloudDnsRecordRead,
 		Update: resourceAlicloudDnsRecordUpdate,
 		Delete: resourceAlicloudDnsRecordDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": &schema.Schema{
@@ -157,11 +161,14 @@ func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	record := response.RecordTypeNew
+	ttl, _ := strconv.Atoi(record.TTL)
+	priority, _ := strconv.Atoi(record.Priority)
+	d.Set("ttl", ttl)
+	d.Set("priority", priority)
+	d.Set("name", record.DomainName)
 	d.Set("host_record", record.RR)
 	d.Set("type", record.Type)
 	d.Set("value", record.Value)
-	d.Set("ttl", record.TTL)
-	d.Set("priority", record.Priority)
 	d.Set("routing", record.Line)
 	d.Set("status", record.Status)
 	d.Set("locked", record.Locked)

@@ -14,6 +14,9 @@ func resourceAlicloudRamLoginProfile() *schema.Resource {
 		Read:   resourceAlicloudRamLoginProfileRead,
 		Update: resourceAlicloudRamLoginProfileUpdate,
 		Delete: resourceAlicloudRamLoginProfileDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"user_name": &schema.Schema{
@@ -65,7 +68,7 @@ func resourceAlicloudRamLoginProfileUpdate(d *schema.ResourceData, meta interfac
 	d.Partial(true)
 
 	args := ram.ProfileRequest{
-		UserName: d.Get("user_name").(string),
+		UserName: d.Id(),
 		Password: d.Get("password").(string),
 	}
 	attributeUpdate := false
@@ -101,7 +104,7 @@ func resourceAlicloudRamLoginProfileRead(d *schema.ResourceData, meta interface{
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.UserQueryRequest{
-		UserName: d.Get("user_name").(string),
+		UserName: d.Id(),
 	}
 
 	response, err := conn.GetLoginProfile(args)
@@ -123,7 +126,7 @@ func resourceAlicloudRamLoginProfileDelete(d *schema.ResourceData, meta interfac
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.UserQueryRequest{
-		UserName: d.Get("user_name").(string),
+		UserName: d.Id(),
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
