@@ -59,7 +59,6 @@ func resourceAlicloudDBInstance() *schema.Resource {
 				ValidateFunc: validateAllowedIntValue([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 24, 36}),
 				Optional:     true,
 				ForceNew:     true,
-				Default:      1,
 			},
 
 			"zone_id": &schema.Schema{
@@ -102,7 +101,6 @@ func resourceAlicloudDBInstance() *schema.Resource {
 			},
 			"master_user_password": &schema.Schema{
 				Type:      schema.TypeString,
-				ForceNew:  true,
 				Optional:  true,
 				Sensitive: true,
 			},
@@ -113,16 +111,19 @@ func resourceAlicloudDBInstance() *schema.Resource {
 				// terraform does not support ValidateFunc of TypeList attr
 				// ValidateFunc: validateAllowedStringValue([]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}),
 				Optional: true,
+				Computed: true,
 			},
 			"preferred_backup_time": &schema.Schema{
 				Type:         schema.TypeString,
 				ValidateFunc: validateAllowedStringValue(rds.BACKUP_TIME),
 				Optional:     true,
+				Computed:     true,
 			},
 			"backup_retention_period": &schema.Schema{
 				Type:         schema.TypeInt,
 				ValidateFunc: validateIntegerInRange(7, 730),
 				Optional:     true,
+				Computed:     true,
 			},
 
 			"security_ips": &schema.Schema{
@@ -361,6 +362,14 @@ func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
+	if d.HasChange("master_user_password") && !d.IsNewResource() {
+		d.SetPartial("master_user_password")
+		if _, err := client.rdsconn.ResetAccountPassword(d.Id(), d.Get("master_user_name").(string), d.Get("master_user_password").(string)); err != nil {
+			return fmt.Errorf("Error reset db account password error: %#v", err)
+		}
+
+	}
+
 	d.Partial(false)
 	return resourceAlicloudDBInstanceRead(d, meta)
 }
@@ -419,7 +428,6 @@ func resourceAlicloudDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("instance_network_type", instance.InstanceNetworkType)
 	d.Set("instance_charge_type", instance.PayType)
 	d.Set("period", d.Get("period"))
-	d.Set("period_type", d.Get("period_type"))
 	d.Set("vswitch_id", instance.VSwitchId)
 
 	// Read DB account name
