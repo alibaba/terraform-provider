@@ -1,4 +1,11 @@
-## 1.1.7 (unreleased)
+## 1.1.8 (unreleased)
+
+## 1.1.7 (August 4, 2017)
+BUG FIXES:
+  * fix creating rds failed result from Error Code changed ([#191](https://github.com/alibaba/terraform-provider/pull/191))
+
+IMPROVEMENTS:
+  * add resetting rds password function ([#191](https://github.com/alibaba/terraform-provider/pull/191))
 
 ## 1.1.6 (July 27, 2017)
 FEATURES:
