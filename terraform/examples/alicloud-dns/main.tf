@@ -1,3 +1,21 @@
+data "alicloud_dns_domains" "domain" {
+  domain_name_regex = "^hegu"
+  output_file = "domains.txt"
+}
+
+data "alicloud_dns_domain_groups" "group" {
+  name_regex = "^y[A-Za-z]+"
+  output_file = "groups.txt"
+}
+
+data "alicloud_dns_domain_records" "record" {
+  domain_name = "heguimin.top"
+  is_locked = false
+  type = "A"
+  host_record_regex = "^@"
+  output_file = "records.txt"
+}
+
 resource "alicloud_dns_group" "group" {
   name = "${var.group_name}"
   count = "${var.count}"
