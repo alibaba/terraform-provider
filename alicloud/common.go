@@ -121,3 +121,5 @@ func getPagination(pageNumber, pageSize int) (pagination common.Pagination) {
 	pagination.PageNumber = pageNumber
 	return
 }
+
+const CharityPageUrl = "http://promotion.alicdn.com/help/oss/error.html"

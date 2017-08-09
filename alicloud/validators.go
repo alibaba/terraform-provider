@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/denverdino/aliyungo/cdn"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/denverdino/aliyungo/ecs"
@@ -903,5 +904,128 @@ func validateContainerClusterNamePrefix(v interface{}, k string) (ws []string, e
 			"%q cannot be longer than 38 characters, name is limited to 64", k))
 	}
 
+func validateCdnChargeType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if value != "PayByTraffic" && value != "PayByBandwidth" {
+		errors = append(errors, fmt.Errorf("%q must be 'PayByTraffic' or 'PayByBandwidth'.", k))
+	}
+	return
+}
+
+func validateCdnType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	for _, val := range cdn.CdnTypes {
+		if val == value {
+			return
+		}
+	}
+	errors = append(errors, fmt.Errorf("%q must be one of %v.", k, cdn.CdnTypes))
+	return
+}
+
+func validateCdnSourceType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	for _, val := range cdn.SourceTypes {
+		if val == value {
+			return
+		}
+	}
+	errors = append(errors, fmt.Errorf("%q must be one of %v.", k, cdn.SourceTypes))
+	return
+}
+
+func validateCdnScope(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	for _, val := range cdn.Scopes {
+		if val == value {
+			return
+		}
+	}
+	errors = append(errors, fmt.Errorf("%q must be one of %v.", k, cdn.Scopes))
+	return
+}
+
+func validateCdnSourcePort(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if value != 80 && value != 443 {
+		errors = append(errors, fmt.Errorf("%q must be one 80 or 443.", k))
+	}
+	return
+}
+
+func validateCdnHttpHeader(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	for _, val := range cdn.HeaderKeys {
+		if val == value {
+			return
+		}
+	}
+	errors = append(errors, fmt.Errorf("%q must be one of %v.", k, cdn.HeaderKeys))
+	return
+}
+
+func validateCacheType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "suffix" && value != "path" {
+		errors = append(errors, fmt.Errorf("%q must be 'suffix' or 'path'.", k))
+	}
+	return
+}
+
+func validateCdnEnable(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "on" && value != "off" {
+		errors = append(errors, fmt.Errorf("%q must be 'on' or 'off'.", k))
+	}
+	return
+}
+
+func validateCdnHashKeyArg(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if strings.Contains(value, ",") {
+		errors = append(errors, fmt.Errorf("%q can not contains any ','.", k))
+	}
+	return
+}
+
+func validateCdnPage404Type(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "default" && value != "charity" && value != "other" {
+		errors = append(errors, fmt.Errorf("%q must be one of ['default', 'charity', 'other'].", k))
+	}
+	return
+}
+
+func validateCdnRedirectType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "Off" && value != "Http" && value != "Https" {
+		errors = append(errors, fmt.Errorf("%q must be one of ['Off', 'Http', 'Https'].", k))
+	}
+	return
+}
+
+func validateCdnReferType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "block" && value != "allow" {
+		errors = append(errors, fmt.Errorf("%q must be 'block' or 'allow'.", k))
+	}
+	return
+}
+
+func validateCdnAuthType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "no_auth" && value != "type_a" && value != "type_b" && value != "type_c" {
+		errors = append(errors, fmt.Errorf("%q must be one of ['no_auth', 'type_a', 'type_b', 'type_c']", k))
+	}
+	return
+}
+
+func validateCdnAuthKey(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	pattern := `^[a-zA-Z0-9]{6,32}$`
+	if match, _ := regexp.Match(pattern, []byte(value)); !match {
+		errors = append(errors, fmt.Errorf("%q can only consists of alphanumeric characters and can not be longer than 32 or less than 6 characters.", k))
+	}
 	return
 }

@@ -87,6 +87,9 @@ const (
 
 	// Container
 	ErrorClusterNotFound = "ErrorClusterNotFound"
+	
+  // cdn
+	ServiceBusy = "ServiceBusy"
 )
 
 func GetNotFoundErrorFromString(str string) error {
