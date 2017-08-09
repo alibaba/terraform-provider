@@ -84,6 +84,9 @@ const (
 	// keypair error
 	KeyPairNotFound           = "InvalidKeyPair.NotFound"
 	KeyPairServiceUnavailable = "ServiceUnavailable"
+
+	// cdn
+	ServiceBusy = "ServiceBusy"
 )
 
 func GetNotFoundErrorFromString(str string) error {

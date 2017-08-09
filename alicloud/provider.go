@@ -89,6 +89,7 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_ram_user_policy_attachment":  resourceAlicloudRamUserPolicyAtatchment(),
 			"alicloud_ram_role_policy_attachment":  resourceAlicloudRamRolePolicyAttachment(),
 			"alicloud_ram_group_policy_attachment": resourceAlicloudRamGroupPolicyAtatchment(),
+			"alicloud_cdn_domain":                  resourceAlicloudCdnDomain(),
 		},
 
 		ConfigureFunc: providerConfigure,
