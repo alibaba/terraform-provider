@@ -81,11 +81,14 @@ const (
 	//unknown Error
 	UnknownError = "UnknownError"
 
-	// keypair error
+	// Keypair error
 	KeyPairNotFound           = "InvalidKeyPair.NotFound"
 	KeyPairServiceUnavailable = "ServiceUnavailable"
 
-	// cdn
+	// Container
+	ErrorClusterNotFound = "ErrorClusterNotFound"
+	
+  // cdn
 	ServiceBusy = "ServiceBusy"
 )
 
@@ -110,7 +113,7 @@ func NotFoundError(err error) bool {
 }
 
 func IsExceptedError(err error, expectCode string) bool {
-	if e, ok := err.(*common.Error); ok && e.Code == expectCode {
+	if e, ok := err.(*common.Error); ok && (e.Code == expectCode || strings.Contains(e.Message, expectCode)) {
 		return true
 	}
 
