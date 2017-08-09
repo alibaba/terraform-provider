@@ -97,7 +97,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 	if err != nil {
 		return nil, err
 	}
-  cdnconn, err := c.cdnConn()
+	cdnconn, err := c.cdnConn()
 	if err != nil {
 		return nil, err
 	}

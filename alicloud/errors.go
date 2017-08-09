@@ -87,8 +87,8 @@ const (
 
 	// Container
 	ErrorClusterNotFound = "ErrorClusterNotFound"
-	
-  // cdn
+
+	// cdn
 	ServiceBusy = "ServiceBusy"
 )
 

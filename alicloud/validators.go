@@ -904,6 +904,9 @@ func validateContainerClusterNamePrefix(v interface{}, k string) (ws []string, e
 			"%q cannot be longer than 38 characters, name is limited to 64", k))
 	}
 
+	return
+}
+
 func validateCdnChargeType(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 
