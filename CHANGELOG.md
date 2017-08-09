@@ -1,4 +1,20 @@
-## 1.1.8 (unreleased)
+## 1.1.9 (unreleased)
+
+## 1.1.8 (August 9, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_container_cluster` ([#197](https://github.com/alibaba/terraform-provider/pull/197))
+  * **New Resource:** `alicloud_cdn_domain` ([#198](https://github.com/alibaba/terraform-provider/pull/198))
+  * **New DataSource:** `alicloud_dns_domains` ([#187](https://github.com/alibaba/terraform-provider/pull/187))
+  * **New DataSource:** `alicloud_dns_domain_groups` ([#187](https://github.com/alibaba/terraform-provider/pull/187))
+  * **New DataSource:** `alicloud_dns_domin_records` ([#187](https://github.com/alibaba/terraform-provider/pull/187))
+  * **New DataSource:** `alicloud_ram_account_alias` ([#187](https://github.com/alibaba/terraform-provider/pull/187))
+  * **New DataSource:** `alicloud_ram_groups` ([#187](https://github.com/alibaba/terraform-provider/pull/187))
+  * **New DataSource:** `alicloud_dns_policies` ([#187](https://github.com/alibaba/terraform-provider/pull/187))
+  * **New DataSource:** `alicloud_dns_roles` ([#187](https://github.com/alibaba/terraform-provider/pull/187))
+  * **New DataSource:** `alicloud_dns_users` ([#187](https://github.com/alibaba/terraform-provider/pull/187))
+IMPROVEMENTS:
+  * sort data source alicloud zones ([#197](https://github.com/alibaba/terraform-provider/pull/197))
 
 ## 1.1.7 (August 4, 2017)
 BUG FIXES:
