@@ -16,6 +16,9 @@ func resourceAlicloudRamRole() *schema.Resource {
 		Read:   resourceAlicloudRamRoleRead,
 		Update: resourceAlicloudRamRoleUpdate,
 		Delete: resourceAlicloudRamRoleDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"role_name": &schema.Schema{
@@ -71,7 +74,7 @@ func resourceAlicloudRamRoleCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("CreateRole got an error: %#v", err)
 	}
 
-	d.SetId(response.Role.RoleId)
+	d.SetId(response.Role.RoleName)
 	return resourceAlicloudRamRoleUpdate(d, meta)
 }
 
@@ -81,7 +84,7 @@ func resourceAlicloudRamRoleUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(true)
 
 	args := ram.UpdateRoleRequest{
-		RoleName: d.Get("role_name").(string),
+		RoleName: d.Id(),
 	}
 
 	if d.HasChange("assume_role_policy") && !d.IsNewResource() {
@@ -100,7 +103,7 @@ func resourceAlicloudRamRoleRead(d *schema.ResourceData, meta interface{}) error
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.RoleQueryRequest{
-		RoleName: d.Get("role_name").(string),
+		RoleName: d.Id(),
 	}
 
 	response, err := conn.GetRole(args)
@@ -126,7 +129,7 @@ func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) err
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.RoleQueryRequest{
-		RoleName: d.Get("role_name").(string),
+		RoleName: d.Id(),
 	}
 
 	if d.Get("force").(bool) {
@@ -143,7 +146,7 @@ func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) err
 						PolicyName: v.PolicyName,
 						PolicyType: v.PolicyType,
 					},
-					RoleName: d.Get("role_name").(string),
+					RoleName: d.Id(),
 				})
 				if err != nil && !RamEntityNotExist(err) {
 					return fmt.Errorf("Error detach Policy from Role %s: %#v", d.Id(), err)

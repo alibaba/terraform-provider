@@ -15,6 +15,9 @@ func resourceAlicloudRamUser() *schema.Resource {
 		Read:   resourceAlicloudRamUserRead,
 		Update: resourceAlicloudRamUserUpdate,
 		Delete: resourceAlicloudRamUserDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"user_name": &schema.Schema{
@@ -67,7 +70,7 @@ func resourceAlicloudRamUserCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("CreateUser got an error: %#v", err)
 	}
 
-	d.SetId(response.User.UserId)
+	d.SetId(response.User.UserName)
 	return resourceAlicloudRamUserUpdate(d, meta)
 }
 
@@ -77,8 +80,8 @@ func resourceAlicloudRamUserUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(true)
 
 	args := ram.UpdateUserRequest{
-		UserName:    d.Get("user_name").(string),
-		NewUserName: d.Get("user_name").(string),
+		UserName:    d.Id(),
+		NewUserName: d.Id(),
 	}
 	attributeUpdate := false
 
@@ -128,7 +131,7 @@ func resourceAlicloudRamUserRead(d *schema.ResourceData, meta interface{}) error
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.UserQueryRequest{
-		UserName: d.Get("user_name").(string),
+		UserName: d.Id(),
 	}
 
 	response, err := conn.GetUser(args)
@@ -142,7 +145,6 @@ func resourceAlicloudRamUserRead(d *schema.ResourceData, meta interface{}) error
 
 	user := response.User
 	d.Set("user_name", user.UserName)
-	d.Set("new_user_name", user.UserName)
 	d.Set("display_name", user.DisplayName)
 	d.Set("mobile", user.MobilePhone)
 	d.Set("email", user.Email)
@@ -154,7 +156,7 @@ func resourceAlicloudRamUserRead(d *schema.ResourceData, meta interface{}) error
 func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
 
-	userName := d.Get("user_name").(string)
+	userName := d.Id()
 	args := ram.UserQueryRequest{
 		UserName: userName,
 	}

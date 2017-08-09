@@ -14,6 +14,9 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 		Read:   resourceAlicloudRamPolicyRead,
 		Update: resourceAlicloudRamPolicyUpdate,
 		Delete: resourceAlicloudRamPolicyDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"policy_name": &schema.Schema{
@@ -55,7 +58,7 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 				Computed: true,
 			},
 			"attachment_count": &schema.Schema{
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 		},
@@ -80,7 +83,6 @@ func resourceAlicloudRamPolicyCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	d.SetId(response.Policy.PolicyName)
-	d.Set("policy_type", response.Policy.PolicyType)
 	return resourceAlicloudRamPolicyUpdate(d, meta)
 }
 
@@ -91,7 +93,7 @@ func resourceAlicloudRamPolicyUpdate(d *schema.ResourceData, meta interface{}) e
 	if d.HasChange("policy_document") && !d.IsNewResource() {
 		d.SetPartial("policy_document")
 		args := ram.PolicyRequest{
-			PolicyName:     d.Get("policy_name").(string),
+			PolicyName:     d.Id(),
 			PolicyDocument: d.Get("policy_document").(string),
 			SetAsDefault:   "true",
 		}
@@ -109,8 +111,8 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.PolicyRequest{
-		PolicyType: d.Get("policy_type").(string),
-		PolicyName: d.Get("policy_name").(string),
+		PolicyName: d.Id(),
+		PolicyType: "Custom",
 	}
 
 	policyResp, err := conn.GetPolicy(args)
@@ -144,11 +146,11 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.PolicyRequest{
-		PolicyName: d.Get("policy_name").(string),
+		PolicyName: d.Id(),
 	}
 
 	if d.Get("force").(bool) {
-		args.PolicyType = d.Get("policy_type").(string)
+		args.PolicyType = "Custom"
 
 		// list and detach entities for this policy
 		response, err := conn.ListEntitiesForPolicy(args)
