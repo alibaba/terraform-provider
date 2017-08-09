@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/denverdino/aliyungo/cdn"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/denverdino/aliyungo/ecs"
@@ -13,6 +14,7 @@ import (
 	"github.com/denverdino/aliyungo/rds"
 	"github.com/denverdino/aliyungo/slb"
 
+	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform/terraform"
 	"log"
 	"strings"
@@ -38,6 +40,8 @@ type AliyunClient struct {
 	ossconn    *oss.Client
 	dnsconn    *dns.Client
 	ramconn    ram.RamClientInterface
+	csconn     *cs.Client
+	cdnconn    *cdn.CdnClient
 }
 
 // Client for AliyunClient
@@ -89,6 +93,14 @@ func (c *Config) Client() (*AliyunClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	csconn, err := c.csConn()
+	if err != nil {
+		return nil, err
+	}
+	cdnconn, err := c.cdnConn()
+	if err != nil {
+		return nil, err
+	}
 
 	return &AliyunClient{
 		Region:     c.Region,
@@ -101,6 +113,8 @@ func (c *Config) Client() (*AliyunClient, error) {
 		ossconn:    ossconn,
 		dnsconn:    dnsconn,
 		ramconn:    ramconn,
+		csconn:     csconn,
+		cdnconn:    cdnconn,
 	}, nil
 }
 
@@ -205,6 +219,19 @@ func (c *Config) dnsConn() (*dns.Client, error) {
 
 func (c *Config) ramConn() (ram.RamClientInterface, error) {
 	client := ram.NewClient(c.AccessKey, c.SecretKey)
+	return client, nil
+}
+
+func (c *Config) csConn() (*cs.Client, error) {
+	client := cs.NewClient(c.AccessKey, c.SecretKey)
+	client.SetUserAgent(getUserAgent())
+	return client, nil
+}
+
+func (c *Config) cdnConn() (*cdn.CdnClient, error) {
+	client := cdn.NewClient(c.AccessKey, c.SecretKey)
+	client.SetBusinessInfo(BusinessInfoKey)
+	client.SetUserAgent(getUserAgent())
 	return client, nil
 }
 

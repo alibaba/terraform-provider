@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 	"reflect"
+	"sort"
 )
 
 func dataSourceAlicloudZones() *schema.Resource {
@@ -84,7 +85,9 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	if val, ok := validData[ZoneKey]; ok {
 		zones = val.(map[string]ecs.ZoneType)
 	}
-	var zoneTypes []ecs.ZoneType
+
+	zoneTypes := make(map[string]ecs.ZoneType)
+	var zoneIds []string
 	for _, zone := range zones {
 
 		if len(zone.AvailableInstanceTypes.InstanceTypes) == 0 {
@@ -102,15 +105,24 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		if len(zone.AvailableDiskCategories.DiskCategories) == 0 || (diskType != "" && !constraints(zone.AvailableDiskCategories.DiskCategories, diskType)) {
 			continue
 		}
-		zoneTypes = append(zoneTypes, zone)
+		zoneTypes[zone.ZoneId] = zone
+		zoneIds = append(zoneIds, zone.ZoneId)
 	}
 
 	if len(zoneTypes) < 1 {
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
-	log.Printf("[DEBUG] alicloud_zones - Zones found: %#v", zoneTypes)
-	return zonesDescriptionAttributes(d, zoneTypes)
+	// Sort zones before reading
+	sort.Strings(zoneIds)
+
+	var newZoneTypes []ecs.ZoneType
+	for _, id := range zoneIds {
+		newZoneTypes = append(newZoneTypes, zoneTypes[id])
+	}
+
+	log.Printf("[DEBUG] alicloud_zones - Zones found: %#v", newZoneTypes)
+	return zonesDescriptionAttributes(d, newZoneTypes)
 }
 
 // check array constraints str
