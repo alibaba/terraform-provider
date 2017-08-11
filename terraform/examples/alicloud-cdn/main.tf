@@ -1,45 +1,34 @@
 resource "alicloud_cdn_domain" "domain" {
-  domain_name = "www.xxxxxx.com"
-  cdn_type = "web"
-  source_type = "domain"
-  sources = [
-    "xxx.com",
-    "xxxx.net",
-    "xxxxx.cn",
-  ]
+  domain_name = "${var.domain_name}"
+  cdn_type = "${var.cdn_type}"
+  source_type = "${var.source_type}"
+  sources = "${var.sources}"
 
   // configs
-  optimize_enable = "off"
-  page_compress_enable = "off"
-  range_enable = "off"
-  video_seek_enable = "off"
-  block_ips = [
-    "1.2.3.4",
-    "111.222.111.111",
-  ]
+  optimize_enable = "${var.enable}"
+  page_compress_enable = "${var.enable}"
+  range_enable = "${var.enable}"
+  video_seek_enable = "${var.enable}"
+  block_ips = "${var.block_ips}"
   parameter_filter_config = [
     {
-      enable = "on"
-      hash_key_args = [
-        "youyouyou",
-        "checkitout"]
+      enable = "${var.enable}"
+      hash_key_args = "${var.hash_key_args}"
     }]
   page_404_config = [
     {
-      page_type = "other"
-      custom_page_url = "http://www.xxxxxx.com/notfound/"
+      page_type = "${var.page_type}"
+      custom_page_url = "http://${var.domain_name}/notfound/"
     }]
   refer_config = [
     {
-      refer_type = "block"
-      refer_list = [
-        "www.xxxx.com",
-        "www.xxxx.net"]
-      allow_empty = "off"
+      refer_type = "${var.refer_type}"
+      refer_list = "${var.refer_list}"
+      allow_empty = "${var.enable}"
     }]
   auth_config = [
     {
-      auth_type = "type_a"
+      auth_type = "${var.auth_type}"
       master_key = "helloworld1"
       slave_key = "helloworld2"
     }]
