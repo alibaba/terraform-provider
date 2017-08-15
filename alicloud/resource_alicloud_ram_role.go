@@ -7,7 +7,6 @@ import (
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
 )
 
 func resourceAlicloudRamRole() *schema.Resource {
@@ -21,13 +20,13 @@ func resourceAlicloudRamRole() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"role_name": &schema.Schema{
+			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRamName,
 			},
-			"account_ids": &schema.Schema{
+			"ram_users": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
@@ -39,8 +38,7 @@ func resourceAlicloudRamRole() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					ValidateFunc: validateRamRoleService,
+					Type: schema.TypeString,
 				},
 				Set: schema.HashString,
 			},
@@ -49,6 +47,12 @@ func resourceAlicloudRamRole() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRamDesc,
+			},
+			"version": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "1",
+				ValidateFunc: validatePolicyDocVersion,
 			},
 			"force": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -59,6 +63,10 @@ func resourceAlicloudRamRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"document": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -66,17 +74,17 @@ func resourceAlicloudRamRole() *schema.Resource {
 func resourceAlicloudRamRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
 
-	accountIds, idsOk := d.GetOk("account_ids")
+	ramUsers, usersOk := d.GetOk("ram_users")
 	services, servicesOk := d.GetOk("services")
-	if !idsOk && !servicesOk {
-		return fmt.Errorf("At least one of 'account_ids' and 'services' must be set.")
+	if !usersOk && !servicesOk {
+		return fmt.Errorf("At least one of 'ram_users' and 'services' must be set.")
 	}
-	rolePolicyDocument, err := AssembleRolePolicyDocument(accountIds.(*schema.Set).List(), services.(*schema.Set).List())
+	rolePolicyDocument, err := AssembleRolePolicyDocument(ramUsers.(*schema.Set).List(), services.(*schema.Set).List(), d.Get("version").(string))
 	if err != nil {
 		return err
 	}
 	args := ram.RoleRequest{
-		RoleName:                 d.Get("role_name").(string),
+		RoleName:                 d.Get("name").(string),
 		AssumeRolePolicyDocument: rolePolicyDocument,
 	}
 	if v, ok := d.GetOk("description"); ok && v.(string) != "" {
@@ -102,17 +110,21 @@ func resourceAlicloudRamRoleUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	attributeUpdate := false
-	if d.HasChange("account_ids") {
-		d.SetPartial("account_ids")
+	if d.HasChange("ram_users") {
+		d.SetPartial("ram_users")
 		attributeUpdate = true
 	}
 	if d.HasChange("services") {
 		d.SetPartial("services")
 		attributeUpdate = true
 	}
+	if d.HasChange("version") {
+		d.SetPartial("version")
+		attributeUpdate = true
+	}
 
 	if !d.IsNewResource() && attributeUpdate {
-		policyDocument, err := AssembleRolePolicyDocument(d.Get("account_ids").(*schema.Set).List(), d.Get("services").(*schema.Set).List())
+		policyDocument, err := AssembleRolePolicyDocument(d.Get("ram_users").(*schema.Set).List(), d.Get("services").(*schema.Set).List(), d.Get("version").(string))
 		if err != nil {
 			return err
 		}
@@ -142,30 +154,21 @@ func resourceAlicloudRamRoleRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	role := response.Role
-	rolePolicy, err := ParseRolePolicy(role.AssumeRolePolicyDocument)
+	rolePolicy, err := ParseRolePolicyDocument(role.AssumeRolePolicyDocument)
 	if err != nil {
 		return err
 	}
 	if len(rolePolicy.Statement) > 0 {
 		principal := rolePolicy.Statement[0].Principal
-		var accountIds []string
-		for _, v := range principal.RAM {
-			if parts := strings.Split(v, ":"); len(parts) > 1 {
-				accountIds = append(accountIds, parts[len(parts)-2])
-			}
-		}
-		var services []string
-		for _, v := range principal.Service {
-			if parts := strings.Split(v, "."); len(parts) > 0 {
-				services = append(services, parts[0])
-			}
-		}
-		d.Set("services", services)
-		d.Set("account_ids", accountIds)
+		d.Set("services", principal.Service)
+		d.Set("ram_users", principal.RAM)
 	}
+
+	d.Set("name", role.RoleName)
 	d.Set("arn", role.Arn)
-	d.Set("role_name", role.RoleName)
 	d.Set("description", role.Description)
+	d.Set("version", rolePolicy.Version)
+	d.Set("document", role.AssumeRolePolicyDocument)
 	return nil
 }
 
@@ -188,7 +191,7 @@ func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) err
 				_, err = conn.DetachPolicyFromRole(ram.AttachPolicyToRoleRequest{
 					PolicyRequest: ram.PolicyRequest{
 						PolicyName: v.PolicyName,
-						PolicyType: v.PolicyType,
+						PolicyType: ram.Type(v.PolicyType),
 					},
 					RoleName: d.Id(),
 				})

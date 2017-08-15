@@ -31,12 +31,8 @@ func TestAccAlicloudRamPolicy_basic(t *testing.T) {
 						"alicloud_ram_policy.policy", &v),
 					resource.TestCheckResourceAttr(
 						"alicloud_ram_policy.policy",
-						"policy_name",
+						"name",
 						"policyname"),
-					resource.TestCheckResourceAttr(
-						"alicloud_ram_policy.policy",
-						"policy_document",
-						"{\"Statement\": [{\"Action\": [\"ram:ListGroups\"], \"Effect\": \"Allow\", \"Resource\": [\"acs:ram:*:1307087942598154:group/*\"]}], \"Version\": \"1\"}"),
 					resource.TestCheckResourceAttr(
 						"alicloud_ram_policy.policy",
 						"description",
@@ -64,7 +60,7 @@ func testAccCheckRamPolicyExists(n string, policy *ram.Policy) resource.TestChec
 
 		request := ram.PolicyRequest{
 			PolicyName: rs.Primary.ID,
-			PolicyType: rs.Primary.Attributes["policy_type"],
+			PolicyType: ram.Custom,
 		}
 
 		response, err := conn.GetPolicy(request)
@@ -91,7 +87,7 @@ func testAccCheckRamPolicyDestroy(s *terraform.State) error {
 
 		request := ram.PolicyRequest{
 			PolicyName: rs.Primary.ID,
-			PolicyType: rs.Primary.Attributes["policy_type"],
+			PolicyType: ram.Custom,
 		}
 
 		_, err := conn.GetPolicy(request)
@@ -108,8 +104,17 @@ func testAccCheckRamPolicyDestroy(s *terraform.State) error {
 
 const testAccRamPolicyConfig = `
 resource "alicloud_ram_policy" "policy" {
-  policy_name = "policyname"
-  policy_document = "{\"Statement\": [{\"Action\": [\"ram:ListGroups\"], \"Effect\": \"Allow\", \"Resource\": [\"acs:ram:*:1307087942598154:group/*\"]}], \"Version\": \"1\"}"
+  name = "policyname"
+  statement = [
+    {
+      effect = "Deny"
+      action = [
+        "oss:ListObjects",
+        "oss:ListObjects"]
+      resource = [
+        "acs:oss:*:*:mybucket",
+        "acs:oss:*:*:mybucket/*"]
+    }]
   description = "this is a policy test"
   force = true
 }`

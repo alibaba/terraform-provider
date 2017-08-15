@@ -31,7 +31,7 @@ func TestAccAlicloudRamGroup_basic(t *testing.T) {
 						"alicloud_ram_group.group", &v),
 					resource.TestCheckResourceAttr(
 						"alicloud_ram_group.group",
-						"group_name",
+						"name",
 						"groupname"),
 					resource.TestCheckResourceAttr(
 						"alicloud_ram_group.group",
@@ -59,7 +59,7 @@ func testAccCheckRamGroupExists(n string, group *ram.Group) resource.TestCheckFu
 		conn := client.ramconn
 
 		request := ram.GroupQueryRequest{
-			GroupName: rs.Primary.Attributes["group_name"],
+			GroupName: rs.Primary.Attributes["name"],
 		}
 
 		response, err := conn.GetGroup(request)
@@ -85,7 +85,7 @@ func testAccCheckRamGroupDestroy(s *terraform.State) error {
 		conn := client.ramconn
 
 		request := ram.GroupQueryRequest{
-			GroupName: rs.Primary.Attributes["group_name"],
+			GroupName: rs.Primary.Attributes["name"],
 		}
 
 		_, err := conn.GetGroup(request)
@@ -102,7 +102,7 @@ func testAccCheckRamGroupDestroy(s *terraform.State) error {
 
 const testAccRamGroupConfig = `
 resource "alicloud_ram_group" "group" {
-  group_name = "groupname"
+  name = "groupname"
   comments = "group comments"
   force=true
 }`

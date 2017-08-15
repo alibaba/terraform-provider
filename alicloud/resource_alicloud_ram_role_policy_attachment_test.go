@@ -110,22 +110,31 @@ func testAccCheckRamRolePolicyAttachmentDestroy(s *terraform.State) error {
 
 const testAccRamRolePolicyAttachmentConfig = `
 resource "alicloud_ram_policy" "policy" {
-  policy_name = "policyname"
-  policy_document = "{\"Statement\": [{\"Action\": [\"ram:ListGroups\"], \"Effect\": \"Allow\", \"Resource\": [\"acs:ram:*:1307087942598154:group/*\"]}], \"Version\": \"1\"}"
+  name = "policyname"
+  statement = [
+    {
+      effect = "Deny"
+      action = [
+        "oss:ListObjects",
+        "oss:ListObjects"]
+      resource = [
+        "acs:oss:*:*:mybucket",
+        "acs:oss:*:*:mybucket/*"]
+    }]
   description = "this is a policy test"
   force = true
 }
 
 resource "alicloud_ram_role" "role" {
-  role_name = "rolename"
-  services = ["apigateway", "ecs"]
-  account_ids = ["${your_account_id}", "${other_account_id}"]
+  name = "rolename"
+  services = ["apigateway.aliyuncs.com", "ecs.aliyuncs.com"]
+  ram_users = ["acs:ram::${your_account_id}:root", "acs:ram::${other_account_id}:user/username"]
   description = "this is a test"
   force = true
 }
 
 resource "alicloud_ram_role_policy_attachment" "attach" {
-  policy_name = "${alicloud_ram_policy.policy.policy_name}"
-  role_name = "${alicloud_ram_role.role.role_name}"
-  policy_type = "${alicloud_ram_policy.policy.policy_type}"
+  policy_name = "${alicloud_ram_policy.policy.name}"
+  role_name = "${alicloud_ram_role.role.name}"
+  policy_type = "${alicloud_ram_policy.policy.type}"
 }`
