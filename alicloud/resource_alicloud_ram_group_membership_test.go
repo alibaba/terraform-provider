@@ -111,7 +111,7 @@ func testAccCheckRamGroupMembershipDestroy(s *terraform.State) error {
 
 		if len(response.Users.User) > 0 {
 			for _, v := range response.Users.User {
-				for _, u := range rs.Primary.Meta["users"].([]string) {
+				for _, u := range rs.Primary.Meta["user_names"].([]string) {
 					if v.UserName == u {
 						return fmt.Errorf("Error membership still exist.")
 					}
@@ -147,5 +147,5 @@ resource "alicloud_ram_group" "group" {
 
 resource "alicloud_ram_group_membership" "membership" {
   group_name = "${alicloud_ram_group.group.group_name}"
-  users = ["${alicloud_ram_user.user.user_name}", "${alicloud_ram_user.user1.user_name}"]
+  user_names = ["${alicloud_ram_user.user.user_name}", "${alicloud_ram_user.user1.user_name}"]
 }`

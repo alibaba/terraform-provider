@@ -1032,3 +1032,11 @@ func validateCdnAuthKey(v interface{}, k string) (ws []string, errors []error) {
 	}
 	return
 }
+
+func validateRamRoleService(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "ecs" && value != "mts" && value != "oas" && value != "log" && value != "apigateway" && value != "pipeline" {
+		errors = append(errors, fmt.Errorf("%q must be one of ['mts', 'oas', 'log', 'apigateway', 'ecs', 'pipeline'].", k))
+	}
+	return
+}

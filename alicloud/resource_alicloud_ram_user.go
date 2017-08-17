@@ -48,10 +48,6 @@ func resourceAlicloudRamUser() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validateComment,
 			},
-			"create_date": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -149,7 +145,6 @@ func resourceAlicloudRamUserRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("mobile", user.MobilePhone)
 	d.Set("email", user.Email)
 	d.Set("comments", user.Comments)
-	d.Set("create_date", user.CreateDate)
 	return nil
 }
 
