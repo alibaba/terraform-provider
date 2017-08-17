@@ -289,7 +289,7 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 		validZones = append(validZones, zone.ZoneId)
 	}
 	if zoneId != "" && !valid {
-		return nil, fmt.Errorf("Availablity zone %s is not supported in the region %s. Expected availablity zones: %s.",
+		return nil, fmt.Errorf("Availability zone %s is not supported in the region %s. Expected availability zones: %s.",
 			zoneId, getRegion(d, meta), strings.Join(validZones, ", "))
 	}
 
