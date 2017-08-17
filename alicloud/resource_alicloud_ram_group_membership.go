@@ -23,7 +23,7 @@ func resourceAlicloudRamGroupMembership() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateRamGroupName,
 			},
-			"users": &schema.Schema{
+			"user_names": &schema.Schema{
 				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Schema{
@@ -40,7 +40,7 @@ func resourceAlicloudRamGroupMembershipCreate(d *schema.ResourceData, meta inter
 	conn := meta.(*AliyunClient).ramconn
 
 	group := d.Get("group_name").(string)
-	users := expandStringList(d.Get("users").(*schema.Set).List())
+	users := expandStringList(d.Get("user_names").(*schema.Set).List())
 
 	err := addUsersToGroup(conn, users, group)
 	if err != nil {
@@ -61,9 +61,9 @@ func resourceAlicloudRamGroupMembershipUpdate(d *schema.ResourceData, meta inter
 
 	d.Partial(true)
 
-	if d.HasChange("users") && !d.IsNewResource() {
-		d.SetPartial("users")
-		o, n := d.GetChange("users")
+	if d.HasChange("user_names") && !d.IsNewResource() {
+		d.SetPartial("user_names")
+		o, n := d.GetChange("user_names")
 		if o == nil {
 			o = new(schema.Set)
 		}
@@ -113,7 +113,7 @@ func resourceAlicloudRamGroupMembershipRead(d *schema.ResourceData, meta interfa
 	}
 
 	d.Set("group_name", args.GroupName)
-	if err := d.Set("users", users); err != nil {
+	if err := d.Set("user_names", users); err != nil {
 		return fmt.Errorf("Error setting user list from group membership (%s), error: %#v", args.GroupName, err)
 	}
 
@@ -123,7 +123,7 @@ func resourceAlicloudRamGroupMembershipRead(d *schema.ResourceData, meta interfa
 func resourceAlicloudRamGroupMembershipDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
 
-	users := expandStringList(d.Get("users").(*schema.Set).List())
+	users := expandStringList(d.Get("user_names").(*schema.Set).List())
 	group := d.Get("group_name").(string)
 
 	if err := removeUsersFromGroup(conn, users, group); err != nil {

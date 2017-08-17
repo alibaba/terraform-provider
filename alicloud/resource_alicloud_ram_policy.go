@@ -49,14 +49,6 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"create_date": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"update_date": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"attachment_count": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -133,8 +125,6 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("policy_name", policy.PolicyName)
 	d.Set("policy_type", policy.PolicyType)
 	d.Set("description", policy.Description)
-	d.Set("create_date", policy.CreateDate)
-	d.Set("update_date", policy.UpdateDate)
 	d.Set("default_version", policy.DefaultVersion)
 	d.Set("attachment_count", policy.AttachmentCount)
 	d.Set("policy_document", policyVersionResp.PolicyVersion.PolicyDocument)

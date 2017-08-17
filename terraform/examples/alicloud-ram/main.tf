@@ -59,13 +59,14 @@ resource "alicloud_ram_group" "group" {
 
 resource "alicloud_ram_group_membership" "membership" {
   group_name = "${alicloud_ram_group.group.group_name}"
-  users = [
+  user_names = [
     "${alicloud_ram_user.user.user_name}"]
 }
 
 resource "alicloud_ram_role" "role" {
   role_name = "${var.role_name}"
-  assume_role_policy = "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"RAM\":[\"acs:ram::1307087942598154:root\"]}}],\"Version\":\"1\"}"
+  services = ["apigateway", "ecs"]
+//  account_ids = ["${your_account_id}", "${other_account_id}"]
   description = "this is a role test."
   force = true
 }

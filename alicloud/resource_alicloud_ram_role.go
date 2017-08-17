@@ -2,12 +2,12 @@ package alicloud
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"strings"
 )
 
 func resourceAlicloudRamRole() *schema.Resource {
@@ -27,10 +27,22 @@ func resourceAlicloudRamRole() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateRamName,
 			},
-			"assume_role_policy": &schema.Schema{
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validateJsonString,
+			"account_ids": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Set: schema.HashString,
+			},
+			"services": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type:         schema.TypeString,
+					ValidateFunc: validateRamRoleService,
+				},
+				Set: schema.HashString,
 			},
 			"description": &schema.Schema{
 				Type:         schema.TypeString,
@@ -47,23 +59,25 @@ func resourceAlicloudRamRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"create_date": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"update_date": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
 
 func resourceAlicloudRamRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
+
+	accountIds, idsOk := d.GetOk("account_ids")
+	services, servicesOk := d.GetOk("services")
+	if !idsOk && !servicesOk {
+		return fmt.Errorf("At least one of 'account_ids' and 'services' must be set.")
+	}
+	rolePolicyDocument, err := AssembleRolePolicyDocument(accountIds.(*schema.Set).List(), services.(*schema.Set).List())
+	if err != nil {
+		return err
+	}
 	args := ram.RoleRequest{
 		RoleName:                 d.Get("role_name").(string),
-		AssumeRolePolicyDocument: d.Get("assume_role_policy").(string),
+		AssumeRolePolicyDocument: rolePolicyDocument,
 	}
 	if v, ok := d.GetOk("description"); ok && v.(string) != "" {
 		args.Description = v.(string)
@@ -87,9 +101,22 @@ func resourceAlicloudRamRoleUpdate(d *schema.ResourceData, meta interface{}) err
 		RoleName: d.Id(),
 	}
 
-	if d.HasChange("assume_role_policy") && !d.IsNewResource() {
-		d.SetPartial("assume_role_policy")
-		args.NewAssumeRolePolicyDocument = d.Get("assume_role_policy").(string)
+	attributeUpdate := false
+	if d.HasChange("account_ids") {
+		d.SetPartial("account_ids")
+		attributeUpdate = true
+	}
+	if d.HasChange("services") {
+		d.SetPartial("services")
+		attributeUpdate = true
+	}
+
+	if !d.IsNewResource() && attributeUpdate {
+		policyDocument, err := AssembleRolePolicyDocument(d.Get("account_ids").(*schema.Set).List(), d.Get("services").(*schema.Set).List())
+		if err != nil {
+			return err
+		}
+		args.NewAssumeRolePolicyDocument = policyDocument
 		if _, err := conn.UpdateRole(args); err != nil {
 			return fmt.Errorf("UpdateRole got an error: %v", err)
 		}
@@ -115,13 +142,30 @@ func resourceAlicloudRamRoleRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	role := response.Role
+	rolePolicy, err := ParseRolePolicy(role.AssumeRolePolicyDocument)
+	if err != nil {
+		return err
+	}
+	if len(rolePolicy.Statement) > 0 {
+		principal := rolePolicy.Statement[0].Principal
+		var accountIds []string
+		for _, v := range principal.RAM {
+			if parts := strings.Split(v, ":"); len(parts) > 1 {
+				accountIds = append(accountIds, parts[len(parts)-2])
+			}
+		}
+		var services []string
+		for _, v := range principal.Service {
+			if parts := strings.Split(v, "."); len(parts) > 0 {
+				services = append(services, parts[0])
+			}
+		}
+		d.Set("services", services)
+		d.Set("account_ids", accountIds)
+	}
 	d.Set("arn", role.Arn)
 	d.Set("role_name", role.RoleName)
-	d.Set("create_date", role.CreateDate)
-	d.Set("update_date", role.UpdateDate)
 	d.Set("description", role.Description)
-	rolePolicy := strings.Replace(strings.Replace(role.AssumeRolePolicyDocument, "\n", "", -1), " ", "", -1)
-	d.Set("assume_role_policy", rolePolicy)
 	return nil
 }
 

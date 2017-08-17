@@ -118,7 +118,8 @@ resource "alicloud_ram_policy" "policy" {
 
 resource "alicloud_ram_role" "role" {
   role_name = "rolename"
-  assume_role_policy = "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":[\"ecs.aliyuncs.com\"]}}],\"Version\":\"1\"}"
+  services = ["apigateway", "ecs"]
+  account_ids = ["${your_account_id}", "${other_account_id}"]
   description = "this is a test"
   force = true
 }
