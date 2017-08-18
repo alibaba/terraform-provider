@@ -30,8 +30,8 @@ func resourceAlicloudDns() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"dns_server": {
-				Type:     schema.TypeList,
+			"dns_server": &schema.Schema{
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

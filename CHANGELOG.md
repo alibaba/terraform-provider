@@ -1,4 +1,13 @@
-## 1.1.9 (unreleased)
+## 1.2.0 (unreleased)
+
+## 1.1.9 (August 18, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_ram_role_attachment` ([#204](https://github.com/alibaba/terraform-provider/pull/204))
+
+IMPROVEMENTS:
+  * improve RAM role and policy's document. ([#204](https://github.com/alibaba/terraform-provider/pull/204))
+  * modify some word misspellings. ([#205](https://github.com/alibaba/terraform-provider/pull/205))
 
 ## 1.1.8 (August 9, 2017)
 FEATURES:

@@ -48,7 +48,7 @@ func testAccCheckRamGroupPolicyAttachmentExists(n string, policy *ram.Policy, gr
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No Atatchment ID is set")
+			return fmt.Errorf("No Attachment ID is set")
 		}
 
 		client := testAccProvider.Meta().(*AliyunClient)
@@ -99,7 +99,7 @@ func testAccCheckRamGroupPolicyAttachmentDestroy(s *terraform.State) error {
 
 		if len(response.Policies.Policy) > 0 {
 			for _, v := range response.Policies.Policy {
-				if v.PolicyName == rs.Primary.Attributes["policy_name"] && v.PolicyType == rs.Primary.Attributes["policy_type"] {
+				if v.PolicyName == rs.Primary.Attributes["name"] && v.PolicyType == rs.Primary.Attributes["policy_type"] {
 					return fmt.Errorf("Error attachment still exist.")
 				}
 			}
@@ -110,20 +110,29 @@ func testAccCheckRamGroupPolicyAttachmentDestroy(s *terraform.State) error {
 
 const testAccRamGroupPolicyAttachmentConfig = `
 resource "alicloud_ram_policy" "policy" {
-  policy_name = "policyname"
-  policy_document = "{\"Statement\": [{\"Action\": [\"ram:ListGroups\"], \"Effect\": \"Allow\", \"Resource\": [\"acs:ram:*:1307087942598154:group/*\"]}], \"Version\": \"1\"}"
+  name = "policyname"
+  statement = [
+    {
+      effect = "Deny"
+      action = [
+        "oss:ListObjects",
+        "oss:ListObjects"]
+      resource = [
+        "acs:oss:*:*:mybucket",
+        "acs:oss:*:*:mybucket/*"]
+    }]
   description = "this is a policy test"
   force = true
 }
 
 resource "alicloud_ram_group" "group" {
-  group_name = "groupname"
+  name = "groupname"
   comments = "group comments"
   force=true
 }
 
 resource "alicloud_ram_group_policy_attachment" "attach" {
-  policy_name = "${alicloud_ram_policy.policy.policy_name}"
-  group_name = "${alicloud_ram_group.group.group_name}"
-  policy_type = "${alicloud_ram_policy.policy.policy_type}"
+  policy_name = "${alicloud_ram_policy.policy.name}"
+  group_name = "${alicloud_ram_group.group.name}"
+  policy_type = "${alicloud_ram_policy.policy.type}"
 }`

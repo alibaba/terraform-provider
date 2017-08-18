@@ -113,7 +113,7 @@ func testAccCheckRamAccessKeyDestroy(s *terraform.State) error {
 
 const testAccRamAccessKeyConfig = `
 resource "alicloud_ram_user" "user" {
-  user_name = "username"
+  name = "username"
   display_name = "displayname"
   mobile = "86-18888888888"
   email = "hello.uuu@aaa.com"
@@ -121,7 +121,7 @@ resource "alicloud_ram_user" "user" {
 }
 
 resource "alicloud_ram_access_key" "ak" {
-  user_name = "${alicloud_ram_user.user.user_name}"
+  user_name = "${alicloud_ram_user.user.name}"
   status = "Active"
   secret_file = "/hello.txt"
 }`

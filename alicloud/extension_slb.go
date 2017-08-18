@@ -49,7 +49,7 @@ func expandListeners(configured []interface{}) ([]*Listener, error) {
 	listeners := make([]*Listener, 0, len(configured))
 
 	// Loop over our configured listeners and create
-	// an array of aws-sdk-go compatabile objects
+	// an array of aws-sdk-go compatible objects
 	for _, lRaw := range configured {
 		data := lRaw.(map[string]interface{})
 

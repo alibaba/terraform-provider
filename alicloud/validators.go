@@ -14,6 +14,7 @@ import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/denverdino/aliyungo/ecs"
+	"github.com/denverdino/aliyungo/ram"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -791,24 +792,6 @@ func validateRamPolicyName(v interface{}, k string) (ws []string, errors []error
 	return
 }
 
-func validateRamPolicyDoc(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-
-	if len(value) > 2048 || len(value) < 1 {
-		errors = append(errors, fmt.Errorf("%q can not be longer than 2048 characters or less than 1 characters.", k))
-		return
-	}
-
-	if value[:1] != "{" {
-		errors = append(errors, fmt.Errorf("%q contains an invalid JSON policy", k))
-		return
-	}
-	if _, err := normalizeJsonString(v); err != nil {
-		errors = append(errors, fmt.Errorf("%q contains an invalid JSON: %s", k, err))
-	}
-	return
-}
-
 // Takes a value containing JSON string and passes it through
 // the JSON parser to normalize it, returns either a parsing
 // error or normalized JSON string.
@@ -844,10 +827,10 @@ func validateJsonString(v interface{}, k string) (ws []string, errors []error) {
 }
 
 func validatePolicyType(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
+	value := ram.Type(v.(string))
 
-	if value != "System" && value != "Custom" {
-		errors = append(errors, fmt.Errorf("%q must be 'System' or 'Custom'.", k))
+	if value != ram.System && value != ram.Custom {
+		errors = append(errors, fmt.Errorf("%q must be '%s' or '%s'.", k, ram.System, ram.Custom))
 	}
 	return
 }
@@ -1029,6 +1012,14 @@ func validateCdnAuthKey(v interface{}, k string) (ws []string, errors []error) {
 	pattern := `^[a-zA-Z0-9]{6,32}$`
 	if match, _ := regexp.Match(pattern, []byte(value)); !match {
 		errors = append(errors, fmt.Errorf("%q can only consists of alphanumeric characters and can not be longer than 32 or less than 6 characters.", k))
+	}
+	return
+}
+
+func validatePolicyDocVersion(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "1" {
+		errors = append(errors, fmt.Errorf("%q can only be '1' so far.", k))
 	}
 	return
 }

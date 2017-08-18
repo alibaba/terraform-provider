@@ -99,7 +99,7 @@ func dataSourceAlicloudRamGroupsRead(d *schema.ResourceData, meta interface{}) e
 			if !nameOk || !typeOk {
 				return fmt.Errorf("If 'type' value is 'policy', you must set 'policy_name' and 'policy_type' at one time.")
 			} else {
-				resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: policyType.(string)})
+				resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: ram.Type(policyType.(string))})
 				if err != nil {
 					return fmt.Errorf("ListEntitiesForPolicy got an error: %#v", err)
 				}

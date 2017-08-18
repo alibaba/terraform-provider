@@ -43,7 +43,7 @@ func resourceAlicloudRamUserPolicyAttachmentCreate(d *schema.ResourceData, meta 
 	args := ram.AttachPolicyRequest{
 		PolicyRequest: ram.PolicyRequest{
 			PolicyName: d.Get("policy_name").(string),
-			PolicyType: d.Get("policy_type").(string),
+			PolicyType: ram.Type(d.Get("policy_type").(string)),
 		},
 		UserName: d.Get("user_name").(string),
 	}
@@ -52,7 +52,7 @@ func resourceAlicloudRamUserPolicyAttachmentCreate(d *schema.ResourceData, meta 
 		return fmt.Errorf("AttachPolicyToUser got an error: %#v", err)
 	}
 
-	d.SetId("user" + args.PolicyName + args.PolicyType + args.UserName)
+	d.SetId("user" + args.PolicyName + string(args.PolicyType) + args.UserName)
 	return resourceAlicloudRamUserPolicyAttachmentRead(d, meta)
 }
 
@@ -89,7 +89,7 @@ func resourceAlicloudRamUserPolicyAttachmentDelete(d *schema.ResourceData, meta 
 	args := ram.AttachPolicyRequest{
 		PolicyRequest: ram.PolicyRequest{
 			PolicyName: d.Get("policy_name").(string),
-			PolicyType: d.Get("policy_type").(string),
+			PolicyType: ram.Type(d.Get("policy_type").(string)),
 		},
 		UserName: d.Get("user_name").(string),
 	}

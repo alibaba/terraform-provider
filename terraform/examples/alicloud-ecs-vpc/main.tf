@@ -39,4 +39,16 @@ resource "alicloud_disk_attachment" "instance-attachment" {
   instance_id = "${element(alicloud_instance.instance.*.id, count.index)}"
 }
 
+resource "alicloud_ram_role" "role" {
+  name = "rolename"
+  services = ["ecs.aliyuncs.com"]
+  description = "this is a test"
+  force = true
+}
+
+
+resource "alicloud_ram_role_attachment" "attach" {
+  role_name = "${alicloud_ram_role.role.name}"
+  instance_ids = ["${alicloud_instance.instance.*.id}"]
+}
 

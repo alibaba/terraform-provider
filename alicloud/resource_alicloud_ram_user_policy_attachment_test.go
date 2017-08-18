@@ -48,7 +48,7 @@ func testAccCheckRamUserPolicyAttachmentExists(n string, policy *ram.Policy, use
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No Atatchment ID is set")
+			return fmt.Errorf("No Attachment ID is set")
 		}
 
 		client := testAccProvider.Meta().(*AliyunClient)
@@ -110,14 +110,23 @@ func testAccCheckRamUserPolicyAttachmentDestroy(s *terraform.State) error {
 
 const testAccRamUserPolicyAttachmentConfig = `
 resource "alicloud_ram_policy" "policy" {
-  policy_name = "policyname"
-  policy_document = "{\"Statement\": [{\"Action\": [\"ram:ListGroups\"], \"Effect\": \"Allow\", \"Resource\": [\"acs:ram:*:1307087942598154:group/*\"]}], \"Version\": \"1\"}"
+  name = "policyname"
+  statement = [
+    {
+      effect = "Deny"
+      action = [
+        "oss:ListObjects",
+        "oss:ListObjects"]
+      resource = [
+        "acs:oss:*:*:mybucket",
+        "acs:oss:*:*:mybucket/*"]
+    }]
   description = "this is a policy test"
   force = true
 }
 
 resource "alicloud_ram_user" "user" {
-  user_name = "username"
+  name = "username"
   display_name = "displayname"
   mobile = "86-18888888888"
   email = "hello.uuu@aaa.com"
@@ -125,7 +134,7 @@ resource "alicloud_ram_user" "user" {
 }
 
 resource "alicloud_ram_user_policy_attachment" "attach" {
-  policy_name = "${alicloud_ram_policy.policy.policy_name}"
-  user_name = "${alicloud_ram_user.user.user_name}"
-  policy_type = "${alicloud_ram_policy.policy.policy_type}"
+  policy_name = "${alicloud_ram_policy.policy.name}"
+  user_name = "${alicloud_ram_user.user.name}"
+  policy_type = "${alicloud_ram_policy.policy.type}"
 }`
