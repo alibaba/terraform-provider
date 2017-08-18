@@ -2,10 +2,11 @@ package alicloud
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"time"
 )
 
 func resourceAlicloudRamPolicy() *schema.Resource {
@@ -19,16 +20,45 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"policy_name": &schema.Schema{
+			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRamPolicyName,
 			},
-			"policy_document": &schema.Schema{
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validateRamPolicyDoc,
+			"statement": &schema.Schema{
+				Type:     schema.TypeSet,
+				Required: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"effect": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+							ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+								value := Effect(v.(string))
+								if value != Allow && value != Deny {
+									errors = append(errors, fmt.Errorf(
+										"%q must be '%s' or '%s'.", k, Allow, Deny))
+								}
+								return
+							},
+						},
+						"action": &schema.Schema{
+							Type:     schema.TypeSet,
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"resource": &schema.Schema{
+							Type:     schema.TypeSet,
+							Required: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
 			},
 			"description": &schema.Schema{
 				Type:         schema.TypeString,
@@ -36,24 +66,22 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateRamDesc,
 			},
+			"version": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "1",
+				ValidateFunc: validatePolicyDocVersion,
+			},
 			"force": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
-			"default_version": &schema.Schema{
+			"type": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"policy_type": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"create_date": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"update_date": &schema.Schema{
+			"document": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -68,9 +96,14 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 func resourceAlicloudRamPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
 
+	document, err := AssemblePolicyDocument(d.Get("statement").(*schema.Set).List(), d.Get("version").(string))
+	if err != nil {
+		return err
+	}
+
 	args := ram.PolicyRequest{
-		PolicyName:     d.Get("policy_name").(string),
-		PolicyDocument: d.Get("policy_document").(string),
+		PolicyName:     d.Get("name").(string),
+		PolicyDocument: document,
 	}
 
 	if v, ok := d.GetOk("description"); ok && v.(string) != "" {
@@ -90,13 +123,28 @@ func resourceAlicloudRamPolicyUpdate(d *schema.ResourceData, meta interface{}) e
 	conn := meta.(*AliyunClient).ramconn
 	d.Partial(true)
 
-	if d.HasChange("policy_document") && !d.IsNewResource() {
-		d.SetPartial("policy_document")
-		args := ram.PolicyRequest{
-			PolicyName:     d.Id(),
-			PolicyDocument: d.Get("policy_document").(string),
-			SetAsDefault:   "true",
+	args := ram.PolicyRequest{
+		PolicyName:   d.Id(),
+		SetAsDefault: "true",
+	}
+
+	attributeUpdate := false
+	if d.HasChange("statement") {
+		d.SetPartial("statement")
+		attributeUpdate = true
+	}
+	if d.HasChange("version") {
+		d.SetPartial("version")
+		attributeUpdate = true
+	}
+
+	if !d.IsNewResource() && attributeUpdate {
+		document, err := AssemblePolicyDocument(d.Get("statement").(*schema.Set).List(), d.Get("version").(string))
+		if err != nil {
+			return err
 		}
+		args.PolicyDocument = document
+
 		if _, err := conn.CreatePolicyVersion(args); err != nil {
 			return fmt.Errorf("Error updating policy %s: %#v", d.Id(), err)
 		}
@@ -112,7 +160,7 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 
 	args := ram.PolicyRequest{
 		PolicyName: d.Id(),
-		PolicyType: "Custom",
+		PolicyType: ram.Custom,
 	}
 
 	policyResp, err := conn.GetPolicy(args)
@@ -130,14 +178,18 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("GetPolicyVersion got an error: %#v", err)
 	}
 
-	d.Set("policy_name", policy.PolicyName)
-	d.Set("policy_type", policy.PolicyType)
+	policyDocument, err := ParsePolicyDocument(policyVersionResp.PolicyVersion.PolicyDocument)
+	if err != nil {
+		return err
+	}
+
+	d.Set("name", policy.PolicyName)
+	d.Set("type", policy.PolicyType)
 	d.Set("description", policy.Description)
-	d.Set("create_date", policy.CreateDate)
-	d.Set("update_date", policy.UpdateDate)
-	d.Set("default_version", policy.DefaultVersion)
 	d.Set("attachment_count", policy.AttachmentCount)
-	d.Set("policy_document", policyVersionResp.PolicyVersion.PolicyDocument)
+	d.Set("version", policyDocument.Version)
+	d.Set("statement", policyDocument.Statement)
+	d.Set("document", policyVersionResp.PolicyVersion.PolicyDocument)
 
 	return nil
 }
@@ -150,7 +202,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if d.Get("force").(bool) {
-		args.PolicyType = "Custom"
+		args.PolicyType = ram.Custom
 
 		// list and detach entities for this policy
 		response, err := conn.ListEntitiesForPolicy(args)

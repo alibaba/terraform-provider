@@ -31,12 +31,8 @@ func TestAccAlicloudRamRole_basic(t *testing.T) {
 						"alicloud_ram_role.role", &v),
 					resource.TestCheckResourceAttr(
 						"alicloud_ram_role.role",
-						"role_name",
+						"name",
 						"rolename"),
-					resource.TestCheckResourceAttr(
-						"alicloud_ram_role.role",
-						"assume_role_policy",
-						"{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":[\"ecs.aliyuncs.com\"]}}],\"Version\":\"1\"}"),
 					resource.TestCheckResourceAttr(
 						"alicloud_ram_role.role",
 						"description",
@@ -63,7 +59,7 @@ func testAccCheckRamRoleExists(n string, role *ram.Role) resource.TestCheckFunc 
 		conn := client.ramconn
 
 		request := ram.RoleQueryRequest{
-			RoleName: rs.Primary.Attributes["role_name"],
+			RoleName: rs.Primary.Attributes["name"],
 		}
 
 		response, err := conn.GetRole(request)
@@ -89,7 +85,7 @@ func testAccCheckRamRoleDestroy(s *terraform.State) error {
 		conn := client.ramconn
 
 		request := ram.RoleQueryRequest{
-			RoleName: rs.Primary.Attributes["role_name"],
+			RoleName: rs.Primary.Attributes["name"],
 		}
 
 		_, err := conn.GetRole(request)
@@ -106,8 +102,9 @@ func testAccCheckRamRoleDestroy(s *terraform.State) error {
 
 const testAccRamRoleConfig = `
 resource "alicloud_ram_role" "role" {
-  role_name = "rolename"
-  assume_role_policy = "{\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":[\"ecs.aliyuncs.com\"]}}],\"Version\":\"1\"}"
+  name = "rolename"
+  services = ["apigateway.aliyuncs.com", "ecs.aliyuncs.com"]
+  ram_users = ["acs:ram::${your_account_id}:root", "acs:ram::${other_account_id}:user/username"]
   description = "this is a test"
   force = true
 }`

@@ -33,10 +33,6 @@ func resourceAlicloudRamAccessKey() *schema.Resource {
 				Default:      "Active",
 				ValidateFunc: validateRamAKStatus,
 			},
-			"create_date": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -107,7 +103,6 @@ func resourceAlicloudRamAccessKeyRead(d *schema.ResourceData, meta interface{}) 
 
 	for _, v := range accessKeys {
 		if v.AccessKeyId == d.Id() {
-			d.Set("create_date", v.CreateDate)
 			d.Set("status", v.Status)
 			return nil
 		}

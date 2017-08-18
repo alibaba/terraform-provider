@@ -19,7 +19,7 @@ func resourceAlicloudRamGroup() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"group_name": &schema.Schema{
+			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRamGroupName,
@@ -43,7 +43,7 @@ func resourceAlicloudRamGroupCreate(d *schema.ResourceData, meta interface{}) er
 
 	args := ram.GroupRequest{
 		Group: ram.Group{
-			GroupName: d.Get("group_name").(string),
+			GroupName: d.Get("name").(string),
 		},
 	}
 
@@ -66,11 +66,11 @@ func resourceAlicloudRamGroupUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	attributeUpdate := false
 
-	if d.HasChange("group_name") && !d.IsNewResource() {
-		ov, nv := d.GetChange("group_name")
+	if d.HasChange("name") && !d.IsNewResource() {
+		ov, nv := d.GetChange("name")
 		args.GroupName = ov.(string)
 		args.NewGroupName = nv.(string)
-		d.SetPartial("group_name")
+		d.SetPartial("name")
 		attributeUpdate = true
 	}
 
@@ -106,7 +106,7 @@ func resourceAlicloudRamGroupRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	group := response.Group
-	d.Set("group_name", group.GroupName)
+	d.Set("name", group.GroupName)
 	d.Set("comments", group.Comments)
 	return nil
 }
@@ -147,7 +147,7 @@ func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) er
 			for _, v := range policies {
 				_, err = conn.DetachPolicyFromGroup(ram.AttachPolicyToGroupRequest{
 					PolicyRequest: ram.PolicyRequest{
-						PolicyType: v.PolicyType,
+						PolicyType: ram.Type(v.PolicyType),
 						PolicyName: v.PolicyName,
 					},
 					GroupName: args.GroupName,

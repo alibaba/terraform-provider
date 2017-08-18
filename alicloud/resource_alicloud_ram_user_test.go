@@ -106,7 +106,7 @@ func testAccCheckRamUserDestroy(s *terraform.State) error {
 
 const testAccRamUserConfig = `
 resource "alicloud_ram_user" "user" {
-  user_name = "username"
+  name = "username"
   display_name = "displayname"
   mobile = "86-18888888888"
   email = "hello.uuu@aaa.com"

@@ -43,7 +43,7 @@ func resourceAlicloudRamRolePolicyAttachmentCreate(d *schema.ResourceData, meta 
 	args := ram.AttachPolicyToRoleRequest{
 		PolicyRequest: ram.PolicyRequest{
 			PolicyName: d.Get("policy_name").(string),
-			PolicyType: d.Get("policy_type").(string),
+			PolicyType: ram.Type(d.Get("policy_type").(string)),
 		},
 		RoleName: d.Get("role_name").(string),
 	}
@@ -51,7 +51,7 @@ func resourceAlicloudRamRolePolicyAttachmentCreate(d *schema.ResourceData, meta 
 	if _, err := conn.AttachPolicyToRole(args); err != nil {
 		return fmt.Errorf("AttachPolicyToRole got an error: %#v", err)
 	}
-	d.SetId("role" + args.PolicyName + args.PolicyType + args.RoleName)
+	d.SetId("role" + args.PolicyName + string(args.PolicyType) + args.RoleName)
 
 	return resourceAlicloudRamRolePolicyAttachmentRead(d, meta)
 }
@@ -89,7 +89,7 @@ func resourceAlicloudRamRolePolicyAttachmentDelete(d *schema.ResourceData, meta 
 	args := ram.AttachPolicyToRoleRequest{
 		PolicyRequest: ram.PolicyRequest{
 			PolicyName: d.Get("policy_name").(string),
-			PolicyType: d.Get("policy_type").(string),
+			PolicyType: ram.Type(d.Get("policy_type").(string)),
 		},
 		RoleName: d.Get("role_name").(string),
 	}

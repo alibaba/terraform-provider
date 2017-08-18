@@ -193,7 +193,7 @@ func ramPoliciesDecriptionAttributes(d *schema.ResourceData, policies []ram.Poli
 	for _, policy := range policies {
 		resp, err := conn.GetPolicyVersionNew(ram.PolicyRequest{
 			PolicyName: policy.PolicyName,
-			PolicyType: policy.PolicyType,
+			PolicyType: ram.Type(policy.PolicyType),
 			VersionId:  policy.DefaultVersion,
 		})
 		if err != nil {

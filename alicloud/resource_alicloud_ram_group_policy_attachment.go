@@ -43,7 +43,7 @@ func resourceAlicloudRamGroupPolicyAttachmentCreate(d *schema.ResourceData, meta
 	args := ram.AttachPolicyToGroupRequest{
 		PolicyRequest: ram.PolicyRequest{
 			PolicyName: d.Get("policy_name").(string),
-			PolicyType: d.Get("policy_type").(string),
+			PolicyType: ram.Type(d.Get("policy_type").(string)),
 		},
 		GroupName: d.Get("group_name").(string),
 	}
@@ -51,7 +51,7 @@ func resourceAlicloudRamGroupPolicyAttachmentCreate(d *schema.ResourceData, meta
 	if _, err := conn.AttachPolicyToGroup(args); err != nil {
 		return fmt.Errorf("AttachPolicyToGroup got an error: %#v", err)
 	}
-	d.SetId("group" + args.PolicyName + args.PolicyType + args.GroupName)
+	d.SetId("group" + args.PolicyName + string(args.PolicyType) + args.GroupName)
 
 	return resourceAlicloudRamGroupPolicyAttachmentRead(d, meta)
 }
@@ -92,7 +92,7 @@ func resourceAlicloudRamGroupPolicyAttachmentDelete(d *schema.ResourceData, meta
 	args := ram.AttachPolicyToGroupRequest{
 		PolicyRequest: ram.PolicyRequest{
 			PolicyName: d.Get("policy_name").(string),
-			PolicyType: d.Get("policy_type").(string),
+			PolicyType: ram.Type(d.Get("policy_type").(string)),
 		},
 		GroupName: d.Get("group_name").(string),
 	}
