@@ -84,7 +84,7 @@ func dataSourceAlicloudRamRolesRead(d *schema.ResourceData, meta interface{}) er
 	policyName, nameOk := d.GetOk("policy_name")
 	policyType, typeOk := d.GetOk("policy_type")
 	if nameOk && typeOk {
-		resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: policyType.(string)})
+		resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: ram.Type(policyType.(string))})
 		if err != nil {
 			return fmt.Errorf("ListEntitiesForPolicy got an error: %#v", err)
 		}

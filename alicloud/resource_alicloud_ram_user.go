@@ -20,7 +20,7 @@ func resourceAlicloudRamUser() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"user_name": &schema.Schema{
+			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRamName,
@@ -57,7 +57,7 @@ func resourceAlicloudRamUserCreate(d *schema.ResourceData, meta interface{}) err
 
 	args := ram.UserRequest{
 		User: ram.User{
-			UserName: d.Get("user_name").(string),
+			UserName: d.Get("name").(string),
 		},
 	}
 
@@ -81,11 +81,11 @@ func resourceAlicloudRamUserUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 	attributeUpdate := false
 
-	if d.HasChange("user_name") && !d.IsNewResource() {
-		ov, nv := d.GetChange("user_name")
+	if d.HasChange("name") && !d.IsNewResource() {
+		ov, nv := d.GetChange("name")
 		args.UserName = ov.(string)
 		args.NewUserName = nv.(string)
-		d.SetPartial("user_name")
+		d.SetPartial("name")
 		attributeUpdate = true
 	}
 
@@ -140,7 +140,7 @@ func resourceAlicloudRamUserRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	user := response.User
-	d.Set("user_name", user.UserName)
+	d.Set("name", user.UserName)
 	d.Set("display_name", user.DisplayName)
 	d.Set("mobile", user.MobilePhone)
 	d.Set("email", user.Email)
@@ -184,7 +184,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 				_, err = conn.DetachPolicyFromUser(ram.AttachPolicyRequest{
 					PolicyRequest: ram.PolicyRequest{
 						PolicyName: v.PolicyName,
-						PolicyType: v.PolicyType,
+						PolicyType: ram.Type(v.PolicyType),
 					},
 					UserName: userName,
 				})

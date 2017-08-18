@@ -90,6 +90,11 @@ const (
 
 	// cdn
 	ServiceBusy = "ServiceBusy"
+
+	//
+	InvalidRamRoleNotFound       = "InvalidRamRole.NotFound"
+	RoleAttachmentUnExpectedJson = "unexpected end of JSON input"
+	InvalidInstanceIdNotFound    = "InvalidInstanceId.NotFound"
 )
 
 func GetNotFoundErrorFromString(str string) error {
