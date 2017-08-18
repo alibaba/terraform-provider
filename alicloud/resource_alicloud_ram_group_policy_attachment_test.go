@@ -48,7 +48,7 @@ func testAccCheckRamGroupPolicyAttachmentExists(n string, policy *ram.Policy, gr
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No Atatchment ID is set")
+			return fmt.Errorf("No Attachment ID is set")
 		}
 
 		client := testAccProvider.Meta().(*AliyunClient)
