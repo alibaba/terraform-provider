@@ -14,17 +14,10 @@ func dataSourceAlicloudRamUsers() *schema.Resource {
 		Read: dataSourceAlicloudRamUsersRead,
 
 		Schema: map[string]*schema.Schema{
-			"type": {
+			"name_regex": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					if value != "group" && value != "policy" {
-						errors = append(errors, fmt.Errorf("%q must be 'group' or 'policy'.", k))
-					}
-					return
-				},
 			},
 			"group_name": {
 				Type:         schema.TypeString,
@@ -44,11 +37,6 @@ func dataSourceAlicloudRamUsers() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validatePolicyType,
 			},
-			"user_name_regex": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -60,11 +48,11 @@ func dataSourceAlicloudRamUsers() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"user_id": {
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"user_name": {
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -85,79 +73,95 @@ func dataSourceAlicloudRamUsers() *schema.Resource {
 
 func dataSourceAlicloudRamUsersRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
-	var allUsers []ram.User
+	allUsers := []interface{}{}
 
-	if v, ok := d.GetOk("type"); ok {
-		// users for this group
-		if v.(string) == "group" {
-			if v, ok = d.GetOk("group_name"); !ok {
-				return fmt.Errorf("If 'type' value is 'group', you must set 'group_name' at one time.")
-			} else {
-				resp, err := conn.ListUsersForGroup(ram.GroupQueryRequest{GroupName: v.(string)})
-				if err != nil {
-					return fmt.Errorf("ListUsersForGroup got an error: %#v", err)
-				}
-				allUsers = append(allUsers, resp.Users.User...)
-			}
-		}
+	allUsersMap := make(map[string]interface{})
+	groupFilterUsersMap := make(map[string]interface{})
+	policyFilterUsersMap := make(map[string]interface{})
 
-		// users which has this policy
-		if v.(string) == "policy" {
-			policyName, nameOk := d.GetOk("policy_name")
-			policyType, typeOk := d.GetOk("policy_type")
-			if !nameOk || !typeOk {
-				return fmt.Errorf("If 'type' value is 'policy', you must set 'policy_name' and 'policy_type' at one time.")
-			} else {
-				resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: ram.Type(policyType.(string))})
-				if err != nil {
-					return fmt.Errorf("ListEntitiesForPolicy got an error: %#v", err)
-				}
-				allUsers = append(allUsers, resp.Users.User...)
-			}
-		}
-	} else {
-		args := ram.ListUserRequest{}
-		for {
-			resp, err := conn.ListUsers(args)
-			if err != nil {
-				return fmt.Errorf("ListUsers got an error: %#v", err)
-			}
-			allUsers = append(allUsers, resp.Users.User...)
-			if !resp.IsTruncated {
-				break
-			}
-			args.Marker = resp.Marker
-		}
+	dataMap := []map[string]interface{}{}
+
+	groupName, groupNameOk := d.GetOk("group_name")
+	policyName, policyNameOk := d.GetOk("policy_name")
+	policyType, policyTypeOk := d.GetOk("policy_type")
+	nameRegex, nameRegexOk := d.GetOk("name_regex")
+
+	if policyTypeOk && !policyNameOk {
+		return fmt.Errorf("You must set 'policy_name' at one time when you set 'policy_type'.")
 	}
 
-	var filteredUsers []ram.User
-	if v, ok := d.GetOk("user_name_regex"); ok && v.(string) != "" {
-		r := regexp.MustCompile(v.(string))
-		for _, user := range allUsers {
-			if r.MatchString(user.UserName) {
-				filteredUsers = append(filteredUsers, user)
-			}
+	// all users
+	args := ram.ListUserRequest{}
+	for {
+		resp, err := conn.ListUsers(args)
+		if err != nil {
+			return fmt.Errorf("ListUsers got an error: %#v", err)
 		}
-	} else {
-		filteredUsers = allUsers
+		for _, v := range resp.Users.User {
+			if nameRegexOk {
+				r := regexp.MustCompile(nameRegex.(string))
+				if !r.MatchString(v.UserName) {
+					continue
+				}
+			}
+			allUsersMap[v.UserName] = v
+		}
+		if !resp.IsTruncated {
+			break
+		}
+		args.Marker = resp.Marker
 	}
 
-	if len(filteredUsers) < 1 {
+	// users for group
+	if groupNameOk {
+		resp, err := conn.ListUsersForGroup(ram.GroupQueryRequest{GroupName: groupName.(string)})
+		if err != nil {
+			return fmt.Errorf("ListUsersForGroup got an error: %#v", err)
+		}
+
+		for _, v := range resp.Users.User {
+			groupFilterUsersMap[v.UserName] = v
+		}
+		dataMap = append(dataMap, groupFilterUsersMap)
+	}
+
+	// users which attach with this policy
+	if policyNameOk {
+		pType := ram.System
+		if policyTypeOk {
+			pType = ram.Type(policyType.(string))
+		}
+		resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: pType})
+		if err != nil {
+			return fmt.Errorf("ListEntitiesForPolicy got an error: %#v", err)
+		}
+
+		for _, v := range resp.Users.User {
+			policyFilterUsersMap[v.UserName] = v
+		}
+		dataMap = append(dataMap, policyFilterUsersMap)
+	}
+
+	// GetIntersection of each map
+	allUsers = GetIntersection(dataMap, allUsersMap)
+
+	if len(allUsers) < 1 {
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
 	log.Printf("[DEBUG] alicloud_ram_users - Users found: %#v", allUsers)
 
-	return ramUsersDecriptionAttributes(d, filteredUsers, meta)
+	return ramUsersDescriptionAttributes(d, allUsers)
 }
 
-func ramUsersDecriptionAttributes(d *schema.ResourceData, users []ram.User, meta interface{}) error {
+func ramUsersDescriptionAttributes(d *schema.ResourceData, users []interface{}) error {
 	var ids []string
 	var s []map[string]interface{}
-	for _, user := range users {
+	for _, v := range users {
+		user := v.(ram.User)
 		mapping := map[string]interface{}{
-			"user_id":         user.UserId,
-			"user_name":       user.UserName,
+			"id":              user.UserId,
+			"name":            user.UserName,
 			"create_date":     user.CreateDate,
 			"last_login_date": user.LastLoginDate,
 		}

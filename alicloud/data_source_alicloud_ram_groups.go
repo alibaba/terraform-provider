@@ -13,17 +13,10 @@ func dataSourceAlicloudRamGroups() *schema.Resource {
 		Read: dataSourceAlicloudRamGroupsRead,
 
 		Schema: map[string]*schema.Schema{
-			"type": {
+			"name_regex": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					value := v.(string)
-					if value != "user" && value != "policy" {
-						errors = append(errors, fmt.Errorf("%q must be 'user' or 'policy'.", k))
-					}
-					return
-				},
 			},
 			"user_name": {
 				Type:         schema.TypeString,
@@ -43,11 +36,6 @@ func dataSourceAlicloudRamGroups() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validatePolicyType,
 			},
-			"group_name_regex": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -59,7 +47,7 @@ func dataSourceAlicloudRamGroups() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"group_name": {
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -76,83 +64,98 @@ func dataSourceAlicloudRamGroups() *schema.Resource {
 
 func dataSourceAlicloudRamGroupsRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
-	var allGroups []ram.Group
+	allGroups := []interface{}{}
 
-	if v, ok := d.GetOk("type"); ok {
-		// groups for this user
-		if v.(string) == "user" {
-			if v, ok = d.GetOk("user_name"); !ok {
-				return fmt.Errorf("If 'type' value is 'user', you must set 'user_name' at one time.")
-			} else {
-				resp, err := conn.ListGroupsForUser(ram.UserQueryRequest{UserName: v.(string)})
-				if err != nil {
-					return fmt.Errorf("ListGroupsForUser got an error: %#v", err)
-				}
-				allGroups = append(allGroups, resp.Groups.Group...)
-			}
-		}
+	allGroupsMap := make(map[string]interface{})
+	userFilterGroupsMap := make(map[string]interface{})
+	policyFilterGroupsMap := make(map[string]interface{})
 
-		// groups which has this policy
-		if v.(string) == "policy" {
-			policyName, nameOk := d.GetOk("policy_name")
-			policyType, typeOk := d.GetOk("policy_type")
-			if !nameOk || !typeOk {
-				return fmt.Errorf("If 'type' value is 'policy', you must set 'policy_name' and 'policy_type' at one time.")
-			} else {
-				resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: ram.Type(policyType.(string))})
-				if err != nil {
-					return fmt.Errorf("ListEntitiesForPolicy got an error: %#v", err)
-				}
-				allGroups = append(allGroups, resp.Groups.Group...)
-			}
-		}
-	} else {
-		args := ram.GroupListRequest{}
-		for {
-			resp, err := conn.ListGroup(args)
-			if err != nil {
-				return fmt.Errorf("ListGroup got an error: %#v", err)
-			}
-			allGroups = append(allGroups, resp.Groups.Group...)
-			if !resp.IsTruncated {
-				break
-			}
-			args.Marker = resp.Marker
-		}
+	dataMap := []map[string]interface{}{}
+
+	userName, userNameOk := d.GetOk("user_name")
+	policyName, policyNameOk := d.GetOk("policy_name")
+	policyType, policyTypeOk := d.GetOk("policy_type")
+	nameRegex, nameRegexOk := d.GetOk("name_regex")
+
+	if policyTypeOk && !policyNameOk {
+		return fmt.Errorf("You must set 'policy_name' at one time when you set 'policy_type'.")
 	}
 
-	var filteredGroups []ram.Group
-	if v, ok := d.GetOk("group_name_regex"); ok && v.(string) != "" {
-		r := regexp.MustCompile(v.(string))
-
-		for _, group := range allGroups {
-			if r.MatchString(group.GroupName) {
-				filteredGroups = append(filteredGroups, group)
-			}
+	// groups filtered by name_regex
+	args := ram.GroupListRequest{}
+	for {
+		resp, err := conn.ListGroup(args)
+		if err != nil {
+			return fmt.Errorf("ListGroup got an error: %#v", err)
 		}
-	} else {
-		filteredGroups = allGroups[:]
+		for _, v := range resp.Groups.Group {
+			if nameRegexOk {
+				r := regexp.MustCompile(nameRegex.(string))
+				if !r.MatchString(v.GroupName) {
+					continue
+				}
+			}
+			allGroupsMap[v.GroupName] = v
+		}
+		if !resp.IsTruncated {
+			break
+		}
+		args.Marker = resp.Marker
 	}
 
-	if len(filteredGroups) < 1 {
+	// groups for user
+	if userNameOk {
+		resp, err := conn.ListGroupsForUser(ram.UserQueryRequest{UserName: userName.(string)})
+		if err != nil {
+			return fmt.Errorf("ListGroupsForUser got an error: %#v", err)
+		}
+
+		for _, v := range resp.Groups.Group {
+			userFilterGroupsMap[v.GroupName] = v
+		}
+		dataMap = append(dataMap, userFilterGroupsMap)
+	}
+
+	// groups which attach with this policy
+	if policyNameOk {
+		pType := ram.System
+		if policyTypeOk {
+			pType = ram.Type(policyType.(string))
+		}
+		resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: pType})
+		if err != nil {
+			return fmt.Errorf("ListEntitiesForPolicy got an error: %#v", err)
+		}
+
+		for _, v := range resp.Groups.Group {
+			policyFilterGroupsMap[v.GroupName] = v
+		}
+		dataMap = append(dataMap, policyFilterGroupsMap)
+	}
+
+	// GetIntersection of each map
+	allGroups = GetIntersection(dataMap, allGroupsMap)
+
+	if len(allGroups) < 1 {
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
 	log.Printf("[DEBUG] alicloud_ram_groups - Groups found: %#v", allGroups)
 
-	return ramGroupsDecriptionAttributes(d, filteredGroups, meta)
+	return ramGroupsDescriptionAttributes(d, allGroups)
 }
 
-func ramGroupsDecriptionAttributes(d *schema.ResourceData, groups []ram.Group, meta interface{}) error {
+func ramGroupsDescriptionAttributes(d *schema.ResourceData, groups []interface{}) error {
 	var ids []string
 	var s []map[string]interface{}
-	for _, group := range groups {
+	for _, v := range groups {
+		group := v.(ram.Group)
 		mapping := map[string]interface{}{
-			"group_name": group.GroupName,
-			"comments":   group.Comments,
+			"name":     group.GroupName,
+			"comments": group.Comments,
 		}
 		log.Printf("[DEBUG] alicloud_ram_groups - adding group: %v", mapping)
-		ids = append(ids, group.GroupName)
+		ids = append(ids, v.(ram.Group).GroupName)
 		s = append(s, mapping)
 	}
 

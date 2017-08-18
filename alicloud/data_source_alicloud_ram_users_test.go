@@ -17,7 +17,7 @@ func TestAccAlicloudRamUsersDataSource_for_group(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudDataSourceID("data.alicloud_ram_users.user"),
 					resource.TestCheckResourceAttr("data.alicloud_ram_users.user", "users.#", "1"),
-					resource.TestCheckResourceAttr("data.alicloud_ram_users.user", "users.0.user_name", "yu"),
+					resource.TestCheckResourceAttr("data.alicloud_ram_users.user", "users.0.name", "yu"),
 				),
 			},
 		},
@@ -36,8 +36,8 @@ func TestAccAlicloudRamUsersDataSource_for_policy(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudDataSourceID("data.alicloud_ram_users.user"),
 					resource.TestCheckResourceAttr("data.alicloud_ram_users.user", "users.#", "1"),
-					resource.TestCheckResourceAttr("data.alicloud_ram_users.user", "users.0.user_name", "user3"),
-					resource.TestCheckResourceAttr("data.alicloud_ram_users.user", "users.0.user_id", "279233601570976655"),
+					resource.TestCheckResourceAttr("data.alicloud_ram_users.user", "users.0.name", "user3"),
+					resource.TestCheckResourceAttr("data.alicloud_ram_users.user", "users.0.id", "279233601570976655"),
 				),
 			},
 		},
@@ -99,5 +99,5 @@ data "alicloud_ram_users" "user" {
 
 const testAccCheckAlicloudRamGroupsDataSourceUserNameRegexConfig = `
 data "alicloud_ram_users" "user" {
-  user_name_regex = "^yu"
+  name_regex = "^yu"
 }`

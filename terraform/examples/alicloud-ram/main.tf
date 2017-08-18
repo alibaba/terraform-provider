@@ -4,29 +4,28 @@ data "alicloud_ram_account_alias" "alias" {
 
 data "alicloud_ram_groups" "group" {
   output_file = "groups.txt"
-  type = "user"
   user_name = "user1"
-  group_name_regex = "^group[0-9]*"
+  name_regex = "^group[0-9]*"
 }
 
 data "alicloud_ram_users" "user" {
   output_file = "users.txt"
-  type = "policy"
+  group_name = "group1"
   policy_name = "AliyunACSDefaultAccess"
   policy_type = "Custom"
-  user_name_regex = "^user"
+  name_regex = "^user"
 }
 
 data "alicloud_ram_policies" "policy" {
   output_file = "policies.txt"
-  type = "user"
   user_name = "user1"
-  policy_type = "System"
+  group_name = "group1"
+  type = "System"
 }
 
 data "alicloud_ram_roles" "role" {
   output_file = "roles.txt"
-  role_name_regex = ".*test.*"
+  name_regex = ".*test.*"
   policy_name = "AliyunACSDefaultAccess"
   policy_type = "Custom"
 }
