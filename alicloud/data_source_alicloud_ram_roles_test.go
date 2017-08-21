@@ -17,9 +17,9 @@ func TestAccAlicloudRamRolesDataSource_for_policy(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudDataSourceID("data.alicloud_ram_roles.role"),
 					resource.TestCheckResourceAttr("data.alicloud_ram_roles.role", "roles.#", "1"),
-					resource.TestCheckResourceAttr("data.alicloud_ram_roles.role", "roles.0.role_name", "testrole"),
+					resource.TestCheckResourceAttr("data.alicloud_ram_roles.role", "roles.0.name", "testrole"),
 					resource.TestCheckResourceAttr("data.alicloud_ram_roles.role", "roles.0.arn", "acs:ram::1307087942598154:role/testrole"),
-					resource.TestCheckResourceAttr("data.alicloud_ram_roles.role", "roles.0.role_id", "345148520161269882"),
+					resource.TestCheckResourceAttr("data.alicloud_ram_roles.role", "roles.0.id", "345148520161269882"),
 				),
 			},
 		},
@@ -74,5 +74,5 @@ data "alicloud_ram_roles" "role" {
 
 const testAccCheckAlicloudRamRolesDataSourceRoleNameRegexConfig = `
 data "alicloud_ram_roles" "role" {
-  role_name_regex = "^test"
+  name_regex = "^test"
 }`

@@ -149,3 +149,26 @@ func (client *AliyunClient) JudgeRolePolicyPrincipal(roleName string) error {
 	}
 	return fmt.Errorf("Role policy services must contains 'ecs.aliyuncs.com', Now is \n%v.", resp.Role.AssumeRolePolicyDocument)
 }
+
+func GetIntersection(dataMap []map[string]interface{}, allDataMap map[string]interface{}) (allData []interface{}) {
+	if len(dataMap) == 1 {
+		allDataMap = dataMap[0]
+	} else {
+		for _, v := range dataMap {
+			if len(v) > 0 {
+				for key := range allDataMap {
+					if _, ok := v[key]; !ok {
+						allDataMap[key] = nil
+					}
+				}
+			}
+		}
+	}
+
+	for _, v := range allDataMap {
+		if v != nil {
+			allData = append(allData, v)
+		}
+	}
+	return
+}
