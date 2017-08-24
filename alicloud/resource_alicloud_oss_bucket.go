@@ -224,13 +224,21 @@ func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Printf("[DEBUG] OSS bucket create: %#v, using endpoint: %#v", bucket, ossconn.Config.Endpoint)
 
+	err = ossconn.CreateBucket(bucket)
+	if err != nil {
+		return fmt.Errorf("Error creating OSS bucket: %#v", err)
+	}
+
 	retryErr := resource.Retry(3*time.Minute, func() *resource.RetryError {
-		log.Printf("[DEBUG] Trying to create new OSS bucket: %#v", bucket)
-		err := ossconn.CreateBucket(bucket)
+		isExist, err := ossconn.IsBucketExist(bucket)
 
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
+		if !isExist {
+			return resource.RetryableError(fmt.Errorf("Trying to ensure new OSS bucket %#v has been created successfully.", bucket))
+		}
+
 		return nil
 	})
 
