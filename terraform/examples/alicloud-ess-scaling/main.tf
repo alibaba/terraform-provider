@@ -35,3 +35,27 @@ resource "alicloud_ess_scaling_configuration" "config" {
   instance_type = "${var.ecs_instance_type}"
   security_group_id = "${alicloud_security_group.sg.id}"
 }
+
+resource "alicloud_instance" "instance" {
+  image_id = "${data.alicloud_images.ecs_image.images.0.id}"
+  count = 2
+
+  system_disk_category = "cloud_ssd"
+  system_disk_size = 80
+
+  instance_type = "${var.ecs_instance_type}"
+  internet_charge_type = "PayByBandwidth"
+  security_groups = ["${alicloud_security_group.sg.id}"]
+  instance_name = "test_instance"
+
+  tags {
+    foo = "bar"
+    work = "test"
+  }
+}
+
+
+resource "alicloud_ess_scaling_group_instances_attachment" "attach" {
+  scaling_group_id = "${alicloud_ess_scaling_group.scaling.id}"
+  instance_ids = ["${alicloud_instance.instance.*.id}"]
+}

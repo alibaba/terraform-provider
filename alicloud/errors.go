@@ -44,6 +44,10 @@ const (
 	// ess
 	InvalidScalingGroupIdNotFound               = "InvalidScalingGroupId.NotFound"
 	IncorrectScalingConfigurationLifecycleState = "IncorrectScalingConfigurationLifecycleState"
+	IncorrectScalingGroupStatus                 = "IncorrectScalingGroupStatus"
+	ScalingActivityInProgress                   = "ScalingActivityInProgress"
+	IncorrectLoadBalancerStatus                 = "IncorrectLoadBalancerStatus"
+	IncorrectDBInstanceStatus                   = "IncorrectDBInstanceStatus"
 
 	// oss
 	OssBucketNotFound = "NoSuchBucket"
