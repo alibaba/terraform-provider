@@ -723,6 +723,9 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	}
 
 	if v := d.Get("role_name").(string); v != "" {
+		if vswitchValue == "" {
+			return nil, fmt.Errorf("Role name only supported for VPC instance.")
+		}
 		args.RamRoleName = v
 	}
 
