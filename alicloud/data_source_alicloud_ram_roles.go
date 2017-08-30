@@ -14,6 +14,11 @@ func dataSourceAlicloudRamRoles() *schema.Resource {
 		Read: dataSourceAlicloudRamRolesRead,
 
 		Schema: map[string]*schema.Schema{
+			"name_regex": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"policy_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -26,11 +31,6 @@ func dataSourceAlicloudRamRoles() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validatePolicyType,
 			},
-			"role_name_regex": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -42,11 +42,11 @@ func dataSourceAlicloudRamRoles() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"role_id": {
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"role_name": {
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -79,56 +79,73 @@ func dataSourceAlicloudRamRoles() *schema.Resource {
 
 func dataSourceAlicloudRamRolesRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
-	var allRoles []ram.Role
+	allRoles := []interface{}{}
 
-	policyName, nameOk := d.GetOk("policy_name")
-	policyType, typeOk := d.GetOk("policy_type")
-	if nameOk && typeOk {
-		resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: ram.Type(policyType.(string))})
+	allRolesMap := make(map[string]interface{})
+	policyFilterRolesMap := make(map[string]interface{})
+
+	dataMap := []map[string]interface{}{}
+
+	policyName, policyNameOk := d.GetOk("policy_name")
+	policyType, policyTypeOk := d.GetOk("policy_type")
+	nameRegex, nameRegexOk := d.GetOk("name_regex")
+
+	if policyTypeOk && !policyNameOk {
+		return fmt.Errorf("You must set 'policy_name' at one time when you set 'policy_type'.")
+	}
+
+	// all roles
+	resp, err := conn.ListRoles()
+	if err != nil {
+		return fmt.Errorf("ListRoles got an error: %#v", err)
+	}
+	for _, v := range resp.Roles.Role {
+		if nameRegexOk {
+			r := regexp.MustCompile(nameRegex.(string))
+			if !r.MatchString(v.RoleName) {
+				continue
+			}
+		}
+		allRolesMap[v.RoleName] = v
+	}
+
+	// roles which attach with this policy
+	if policyNameOk {
+		pType := ram.System
+		if policyTypeOk {
+			pType = ram.Type(policyType.(string))
+		}
+		resp, err := conn.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: pType})
 		if err != nil {
 			return fmt.Errorf("ListEntitiesForPolicy got an error: %#v", err)
 		}
-		allRoles = append(allRoles, resp.Roles.Role...)
 
-	} else if !nameOk && !typeOk {
-		resp, err := conn.ListRoles()
-		if err != nil {
-			return fmt.Errorf("ListRoles got an error: %#v", err)
+		for _, v := range resp.Roles.Role {
+			policyFilterRolesMap[v.RoleName] = v
 		}
-		allRoles = append(allRoles, resp.Roles.Role...)
-	} else {
-		return fmt.Errorf("you must set 'policy_name' and 'policy_type' at the same time.")
+		dataMap = append(dataMap, policyFilterRolesMap)
 	}
 
-	var filteredRoles []ram.Role
-	if v, ok := d.GetOk("role_name_regex"); ok && v.(string) != "" {
-		r := regexp.MustCompile(v.(string))
+	// GetIntersection of each map
+	allRoles = GetIntersection(dataMap, allRolesMap)
 
-		for _, role := range allRoles {
-			if r.MatchString(role.RoleName) {
-				filteredRoles = append(filteredRoles, role)
-			}
-		}
-	} else {
-		filteredRoles = allRoles
-	}
-
-	if len(filteredRoles) < 1 {
+	if len(allRoles) < 1 {
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
 	log.Printf("[DEBUG] alicloud_ram_roles - Roles found: %#v", allRoles)
 
-	return ramRolesDecriptionAttributes(d, filteredRoles, meta)
+	return ramRolesDescriptionAttributes(d, allRoles)
 }
 
-func ramRolesDecriptionAttributes(d *schema.ResourceData, roles []ram.Role, meta interface{}) error {
+func ramRolesDescriptionAttributes(d *schema.ResourceData, roles []interface{}) error {
 	var ids []string
 	var s []map[string]interface{}
-	for _, role := range roles {
+	for _, v := range roles {
+		role := v.(ram.Role)
 		mapping := map[string]interface{}{
-			"role_id":                     role.RoleId,
-			"role_name":                   role.RoleName,
+			"id":                          role.RoleId,
+			"name":                        role.RoleName,
 			"arn":                         role.Arn,
 			"description":                 role.Description,
 			"create_date":                 role.CreateDate,

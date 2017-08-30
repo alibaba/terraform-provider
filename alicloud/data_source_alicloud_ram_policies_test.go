@@ -120,20 +120,17 @@ func TestAccAlicloudRamPoliciesDataSource_policy_type(t *testing.T) {
 
 const testAccCheckAlicloudRamPoliciessDataSourceForGroupConfig = `
 data "alicloud_ram_policies" "policy" {
-  type = "group"
   group_name = "group2"
 }`
 
 const testAccCheckAlicloudRamPoliciessDataSourceForRoleConfig = `
 data "alicloud_ram_policies" "policy" {
-  type = "role"
   role_name = "testrole"
-  policy_type = "Custom"
+  type = "Custom"
 }`
 
 const testAccCheckAlicloudRamPoliciessDataSourceForUserConfig = `
 data "alicloud_ram_policies" "policy" {
-  type = "user"
   user_name = "user1"
 }`
 
@@ -143,10 +140,10 @@ data "alicloud_ram_policies" "policy" {
 
 const testAccCheckAlicloudRamPoliciessDataSourcePolicyNameRegexConfig = `
 data "alicloud_ram_policies" "policy" {
-  policy_name_regex = ".*Full.*"
+  name_regex = ".*Full.*"
 }`
 
 const testAccCheckAlicloudRamPoliciessDataSourcePolicyTypeConfig = `
 data "alicloud_ram_policies" "policy" {
-  policy_type = "Custom"
+  type = "Custom"
 }`

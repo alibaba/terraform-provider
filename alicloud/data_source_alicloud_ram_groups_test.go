@@ -17,7 +17,7 @@ func TestAccAlicloudRamGroupsDataSource_for_user(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudDataSourceID("data.alicloud_ram_groups.group"),
 					resource.TestCheckResourceAttr("data.alicloud_ram_groups.group", "groups.#", "1"),
-					resource.TestCheckResourceAttr("data.alicloud_ram_groups.group", "groups.0.group_name", "group3"),
+					resource.TestCheckResourceAttr("data.alicloud_ram_groups.group", "groups.0.name", "group3"),
 					resource.TestCheckResourceAttr("data.alicloud_ram_groups.group", "groups.0.comments", "33"),
 				),
 			},
@@ -37,7 +37,7 @@ func TestAccAlicloudRamGroupsDataSource_for_policy(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudDataSourceID("data.alicloud_ram_groups.group"),
 					resource.TestCheckResourceAttr("data.alicloud_ram_groups.group", "groups.#", "1"),
-					resource.TestCheckResourceAttr("data.alicloud_ram_groups.group", "groups.0.group_name", "group1"),
+					resource.TestCheckResourceAttr("data.alicloud_ram_groups.group", "groups.0.name", "group1"),
 					resource.TestCheckResourceAttr("data.alicloud_ram_groups.group", "groups.0.comments", "1"),
 				),
 			},
@@ -83,13 +83,11 @@ func TestAccAlicloudRamGroupsDataSource_group_name_regex(t *testing.T) {
 
 const testAccCheckAlicloudRamGroupsDataSourceForUserConfig = `
 data "alicloud_ram_groups" "group" {
-  type = "user"
   user_name = "user1"
 }`
 
 const testAccCheckAlicloudRamGroupsDataSourceForPolicyConfig = `
 data "alicloud_ram_groups" "group" {
-  type = "policy"
   policy_name = "AliyunMobileTestingFullAccess"
   policy_type = "System"
 }`
@@ -100,5 +98,5 @@ data "alicloud_ram_groups" "group" {
 
 const testAccCheckAlicloudRamGroupsDataSourceGroupNameRegexConfig = `
 data "alicloud_ram_groups" "group" {
-  group_name_regex = "^group"
+  name_regex = "^group"
 }`
