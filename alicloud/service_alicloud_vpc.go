@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+const Negative = ecs.Spec("Negative")
+
 func (client *AliyunClient) DescribeEipAddress(allocationId string) (*ecs.EipAddressSetType, error) {
 
 	args := ecs.DescribeEipAddressesArgs{

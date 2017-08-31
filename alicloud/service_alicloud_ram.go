@@ -62,15 +62,8 @@ func ParsePolicyDocument(policyDocument string) (Policy, error) {
 }
 
 func AssembleRolePolicyDocument(ramUser, service []interface{}, version string) (string, error) {
-	services := []string{}
-	for _, v := range service {
-		services = append(services, v.(string))
-	}
-
-	users := []string{}
-	for _, user := range ramUser {
-		users = append(users, user.(string))
-	}
+	services := expandStringList(service)
+	users := expandStringList(ramUser)
 
 	statement := RolePolicyStatement{
 		Effect: Allow,
@@ -99,14 +92,8 @@ func AssemblePolicyDocument(document []interface{}, version string) (string, err
 	for _, v := range document {
 		doc := v.(map[string]interface{})
 
-		var actions []string
-		for _, v := range doc["action"].(*schema.Set).List() {
-			actions = append(actions, v.(string))
-		}
-		var resources []string
-		for _, v := range doc["resource"].(*schema.Set).List() {
-			resources = append(resources, v.(string))
-		}
+		actions := expandStringList(doc["action"].(*schema.Set).List())
+		resources := expandStringList(doc["resource"].(*schema.Set).List())
 
 		statement := PolicyStatement{
 			Effect:   Effect(doc["effect"].(string)),
