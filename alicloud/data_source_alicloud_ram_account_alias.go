@@ -31,7 +31,7 @@ func dataSourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interfac
 	d.SetId(resp.AccountAlias)
 	d.Set("account_alias", resp.AccountAlias)
 
-	if output, ok := d.GetOk("output_file"); ok && output != nil {
+	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		s := map[string]interface{}{"account_alias": resp.AccountAlias}
 		writeToFile(output.(string), s)
 	}

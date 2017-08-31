@@ -79,6 +79,10 @@ func dataSourceAlicloudVpcs() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"route_table_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -123,6 +127,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	var filteredVpcsTemp []ecs.VpcSetType
+	var route_tables []string
 
 	for _, vpc := range allVpcs {
 		if cidrBlock, ok := d.GetOk("cidr_block"); ok && vpc.CidrBlock != cidrBlock.(string) {
@@ -139,6 +144,19 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 
 		if vswitchId, ok := d.GetOk("vswitch_id"); ok && !vpcVswitchIdListContains(vpc.VSwitchIds.VSwitchId, vswitchId.(string)) {
 			continue
+		}
+
+		vrouters, _, err := meta.(*AliyunClient).vpcconn.DescribeVRouters(&ecs.DescribeVRoutersArgs{
+			VRouterId: vpc.VRouterId,
+			RegionId:  getRegion(d, meta),
+		})
+		if err != nil {
+			return fmt.Errorf("Error DescribVRouters by vrouter_id %s: %#v", vpc.VRouterId, err)
+		}
+		if len(vrouters) > 0 && len(vrouters[0].RouteTableIds.RouteTableId) > 0 {
+			route_tables = append(route_tables, vrouters[0].RouteTableIds.RouteTableId[0])
+		} else {
+			route_tables = append(route_tables, "")
 		}
 
 		filteredVpcsTemp = append(filteredVpcsTemp, vpc)
@@ -164,7 +182,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] alicloud_vpc - VPCs found: %#v", allVpcs)
 
-	return vpcsDecriptionAttributes(d, filteredVpcsTemp, meta)
+	return vpcsDecriptionAttributes(d, filteredVpcsTemp, route_tables, meta)
 }
 func vpcVswitchIdListContains(vswitchIdList []string, vswitchId string) bool {
 	for _, idListItem := range vswitchIdList {
@@ -174,21 +192,22 @@ func vpcVswitchIdListContains(vswitchIdList []string, vswitchId string) bool {
 	}
 	return false
 }
-func vpcsDecriptionAttributes(d *schema.ResourceData, vpcSetTypes []ecs.VpcSetType, meta interface{}) error {
+func vpcsDecriptionAttributes(d *schema.ResourceData, vpcSetTypes []ecs.VpcSetType, route_tables []string, meta interface{}) error {
 	var ids []string
 	var s []map[string]interface{}
-	for _, vpc := range vpcSetTypes {
+	for index, vpc := range vpcSetTypes {
 		mapping := map[string]interface{}{
-			"id":            vpc.VpcId,
-			"region_id":     vpc.RegionId,
-			"status":        vpc.Status,
-			"vpc_name":      vpc.VpcName,
-			"vswitch_ids":   vpc.VSwitchIds.VSwitchId,
-			"cidr_block":    vpc.CidrBlock,
-			"vrouter_id":    vpc.VRouterId,
-			"description":   vpc.Description,
-			"is_default":    vpc.IsDefault,
-			"creation_time": vpc.CreationTime.String(),
+			"id":             vpc.VpcId,
+			"region_id":      vpc.RegionId,
+			"status":         vpc.Status,
+			"vpc_name":       vpc.VpcName,
+			"vswitch_ids":    vpc.VSwitchIds.VSwitchId,
+			"cidr_block":     vpc.CidrBlock,
+			"vrouter_id":     vpc.VRouterId,
+			"route_table_id": route_tables[index],
+			"description":    vpc.Description,
+			"is_default":     vpc.IsDefault,
+			"creation_time":  vpc.CreationTime.String(),
 		}
 		log.Printf("[DEBUG] alicloud_vpc - adding vpc: %v", mapping)
 		ids = append(ids, vpc.VpcId)
@@ -201,7 +220,7 @@ func vpcsDecriptionAttributes(d *schema.ResourceData, vpcSetTypes []ecs.VpcSetTy
 	}
 
 	// create a json file in current directory and write data source to it.
-	if output, ok := d.GetOk("output_file"); ok && output != nil {
+	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}
 	return nil

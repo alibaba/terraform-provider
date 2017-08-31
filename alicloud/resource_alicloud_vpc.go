@@ -59,6 +59,11 @@ func resourceAliyunVpc() *schema.Resource {
 				Computed: true,
 			},
 			"router_table_id": &schema.Schema{
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "Attribute router_table_id has been deprecated and replaced with route_table_id.",
+			},
+			"route_table_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -128,8 +133,10 @@ func resourceAliyunVpcRead(d *schema.ResourceData, meta interface{}) error {
 	})
 	if len(vrouters) > 0 && len(vrouters[0].RouteTableIds.RouteTableId) > 0 {
 		d.Set("router_table_id", vrouters[0].RouteTableIds.RouteTableId[0])
+		d.Set("route_table_id", vrouters[0].RouteTableIds.RouteTableId[0])
 	} else {
 		d.Set("router_table_id", "")
+		d.Set("route_table_id", "")
 	}
 
 	return nil
