@@ -18,9 +18,10 @@ func resourceAliyunRouteEntry() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"router_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:       schema.TypeString,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "Attribute router_id has been deprecated and suggest removing it from your template.",
 			},
 			"route_table_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -51,7 +52,6 @@ func resourceAliyunRouteEntryCreate(d *schema.ResourceData, meta interface{}) er
 	conn := meta.(*AliyunClient).ecsconn
 
 	rtId := d.Get("route_table_id").(string)
-	rId := d.Get("router_id").(string)
 	cidr := d.Get("destination_cidrblock").(string)
 	nt := d.Get("nexthop_type").(string)
 	ni := d.Get("nexthop_id").(string)
@@ -65,9 +65,18 @@ func resourceAliyunRouteEntryCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	}
 	// route_table_id:router_id:destination_cidrblock:nexthop_type:nexthop_id
-	d.SetId(rtId + ":" + rId + ":" + cidr + ":" + nt + ":" + ni)
+	table, err := meta.(*AliyunClient).QueryRouteTableById(rtId)
 
-	if err := conn.WaitForAllRouteEntriesAvailable(rId, rtId, defaultTimeout); err != nil {
+	if err != nil {
+		if NotFoundError(err) {
+			d.SetId("")
+			return nil
+		}
+		return fmt.Errorf("Error query route entry: %#v", err)
+	}
+	d.SetId(rtId + ":" + table.VRouterId + ":" + cidr + ":" + nt + ":" + ni)
+
+	if err := conn.WaitForAllRouteEntriesAvailable(table.VRouterId, rtId, defaultTimeout); err != nil {
 		return fmt.Errorf("WaitFor route entry got error: %#v", err)
 	}
 	return resourceAliyunRouteEntryRead(d, meta)

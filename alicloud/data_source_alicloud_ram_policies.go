@@ -223,7 +223,7 @@ func ramPoliciesDescriptionAttributes(d *schema.ResourceData, policies []interfa
 	}
 
 	// create a json file in current directory and write data source to it.
-	if output, ok := d.GetOk("output_file"); ok && output != nil {
+	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}
 	return nil

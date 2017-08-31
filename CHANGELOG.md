@@ -1,5 +1,13 @@
 ## 1.2.0 (unreleased)
 
+## 1.1.10 (August 31, 2017)
+IMPROVEMENTS:
+  * add role_name for instance ([#216](https://github.com/alibaba/terraform-provider/pull/216))
+  * deprecate router_id from `alicloud_route_entry` ([#219](https://github.com/alibaba/terraform-provider/pull/219))
+  * modify router_table_id to route_table_id in `alicloud_vpc` ([#219](https://github.com/alibaba/terraform-provider/pull/219))
+  * add route_table_id output in `data.alicloud_vpcs` ([#219](https://github.com/alibaba/terraform-provider/pull/219))
+  * modify 'output != nil' to 'output.(string) != ""' to fix bug for all datasource ([#219](https://github.com/alibaba/terraform-provider/pull/219))
+
 ## 1.1.9 (August 18, 2017)
 FEATURES:
 

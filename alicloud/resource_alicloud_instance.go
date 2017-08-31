@@ -162,6 +162,11 @@ func resourceAliyunInstance() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"role_name": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 
 			"key_name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -340,6 +345,27 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 			log.Printf("[ERROR] DescribeUserData for instance got error: %#v", err)
 		}
 		d.Set("user_data", userDataHashSum(ud.UserData))
+	}
+
+	if d.Get("role_name").(string) != "" {
+		for {
+			response, err := conn.DescribeInstanceRamRole(&ecs.AttachInstancesArgs{
+				RegionId:    getRegion(d, meta),
+				InstanceIds: convertListToJsonString([]interface{}{d.Id()}),
+			})
+			if err != nil {
+				if IsExceptedError(err, RoleAttachmentUnExpectedJson) {
+					continue
+				}
+				log.Printf("[ERROR] DescribeInstanceRamRole for instance got error: %#v", err)
+			}
+
+			if len(response.InstanceRamRoleSets.InstanceRamRoleSet) == 0 {
+				return fmt.Errorf("No Ram role for instance found.")
+			}
+			d.Set("role_name", response.InstanceRamRoleSets.InstanceRamRoleSet[0].RamRoleName)
+			break
+		}
 	}
 
 	tags, _, err := conn.DescribeTags(&ecs.DescribeTagsArgs{
@@ -694,6 +720,13 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 
 	if v := d.Get("user_data").(string); v != "" {
 		args.UserData = v
+	}
+
+	if v := d.Get("role_name").(string); v != "" {
+		if vswitchValue == "" {
+			return nil, fmt.Errorf("Role name only supported for VPC instance.")
+		}
+		args.RamRoleName = v
 	}
 
 	if v := d.Get("key_name").(string); v != "" {
