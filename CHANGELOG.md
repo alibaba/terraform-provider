@@ -1,5 +1,9 @@
 ## 1.2.0 (unreleased)
 
+## 1.1.11 (unreleased)
+BUG FIXES:
+  * fix security group egress rules diff bug ([#223](https://github.com/alibaba/terraform-provider/pull/223))
+
 ## 1.1.10 (August 31, 2017)
 IMPROVEMENTS:
   * add role_name for instance ([#216](https://github.com/alibaba/terraform-provider/pull/216))

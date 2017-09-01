@@ -162,7 +162,7 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 			}
 			if GroupRuleDirection(direction) == GroupRuleEgress {
 				if cidr = ru.DestCidrIp; cidr == "" {
-					cidr = ru.DestCidrIp
+					cidr = ru.DestGroupId
 				}
 			}
 			if cidr == cidr_ip {

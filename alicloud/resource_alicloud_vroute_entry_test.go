@@ -136,7 +136,6 @@ resource "alicloud_vswitch" "foo" {
 }
 
 resource "alicloud_route_entry" "foo" {
-	router_id = "${alicloud_vpc.foo.router_id}"
 	route_table_id = "${alicloud_vpc.foo.route_table_id}"
 	destination_cidrblock = "172.11.1.1/32"
 	nexthop_type = "Instance"
