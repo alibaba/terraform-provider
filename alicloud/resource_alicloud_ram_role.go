@@ -29,18 +29,28 @@ func resourceAlicloudRamRole() *schema.Resource {
 			"ram_users": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set: schema.HashString,
+				Set:           schema.HashString,
+				ConflictsWith: []string{"document"},
 			},
 			"services": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-				Set: schema.HashString,
+				Set:           schema.HashString,
+				ConflictsWith: []string{"document"},
+			},
+			"document": &schema.Schema{
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"ram_users", "services", "version"},
 			},
 			"description": &schema.Schema{
 				Type:         schema.TypeString,
@@ -49,10 +59,11 @@ func resourceAlicloudRamRole() *schema.Resource {
 				ValidateFunc: validateRamDesc,
 			},
 			"version": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "1",
-				ValidateFunc: validatePolicyDocVersion,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Default:       "1",
+				ConflictsWith: []string{"document"},
+				ValidateFunc:  validatePolicyDocVersion,
 			},
 			"force": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -63,10 +74,6 @@ func resourceAlicloudRamRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"document": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -74,21 +81,9 @@ func resourceAlicloudRamRole() *schema.Resource {
 func resourceAlicloudRamRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
 
-	ramUsers, usersOk := d.GetOk("ram_users")
-	services, servicesOk := d.GetOk("services")
-	if !usersOk && !servicesOk {
-		return fmt.Errorf("At least one of 'ram_users' and 'services' must be set.")
-	}
-	rolePolicyDocument, err := AssembleRolePolicyDocument(ramUsers.(*schema.Set).List(), services.(*schema.Set).List(), d.Get("version").(string))
+	args, err := buildAlicloudRamRoleCreateArgs(d, meta)
 	if err != nil {
 		return err
-	}
-	args := ram.RoleRequest{
-		RoleName:                 d.Get("name").(string),
-		AssumeRolePolicyDocument: rolePolicyDocument,
-	}
-	if v, ok := d.GetOk("description"); ok && v.(string) != "" {
-		args.Description = v.(string)
 	}
 
 	response, err := conn.CreateRole(args)
@@ -105,30 +100,12 @@ func resourceAlicloudRamRoleUpdate(d *schema.ResourceData, meta interface{}) err
 
 	d.Partial(true)
 
-	args := ram.UpdateRoleRequest{
-		RoleName: d.Id(),
-	}
-
-	attributeUpdate := false
-	if d.HasChange("ram_users") {
-		d.SetPartial("ram_users")
-		attributeUpdate = true
-	}
-	if d.HasChange("services") {
-		d.SetPartial("services")
-		attributeUpdate = true
-	}
-	if d.HasChange("version") {
-		d.SetPartial("version")
-		attributeUpdate = true
+	args, attributeUpdate, err := buildAlicloudRamRoleUpdateArgs(d, meta)
+	if err != nil {
+		return err
 	}
 
 	if !d.IsNewResource() && attributeUpdate {
-		policyDocument, err := AssembleRolePolicyDocument(d.Get("ram_users").(*schema.Set).List(), d.Get("services").(*schema.Set).List(), d.Get("version").(string))
-		if err != nil {
-			return err
-		}
-		args.NewAssumeRolePolicyDocument = policyDocument
 		if _, err := conn.UpdateRole(args); err != nil {
 			return fmt.Errorf("UpdateRole got an error: %v", err)
 		}
@@ -210,4 +187,70 @@ func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) err
 		}
 		return nil
 	})
+}
+
+func buildAlicloudRamRoleCreateArgs(d *schema.ResourceData, meta interface{}) (ram.RoleRequest, error) {
+
+	args := ram.RoleRequest{
+		RoleName: d.Get("name").(string),
+	}
+
+	ramUsers, usersOk := d.GetOk("ram_users")
+	services, servicesOk := d.GetOk("services")
+	document, documentOk := d.GetOk("document")
+
+	if !usersOk && !servicesOk && !documentOk {
+		return ram.RoleRequest{}, fmt.Errorf("At least one of 'ram_users', 'services' or 'document' must be set.")
+	}
+
+	if documentOk {
+		args.AssumeRolePolicyDocument = document.(string)
+	} else {
+		rolePolicyDocument, err := AssembleRolePolicyDocument(ramUsers.(*schema.Set).List(), services.(*schema.Set).List(), d.Get("version").(string))
+		if err != nil {
+			return ram.RoleRequest{}, err
+		}
+		args.AssumeRolePolicyDocument = rolePolicyDocument
+	}
+
+	if v, ok := d.GetOk("description"); ok && v.(string) != "" {
+		args.Description = v.(string)
+	}
+
+	return args, nil
+}
+
+func buildAlicloudRamRoleUpdateArgs(d *schema.ResourceData, meta interface{}) (ram.UpdateRoleRequest, bool, error) {
+	args := ram.UpdateRoleRequest{
+		RoleName: d.Id(),
+	}
+
+	attributeUpdate := false
+
+	if d.HasChange("document") {
+		d.SetPartial("document")
+		attributeUpdate = true
+		args.NewAssumeRolePolicyDocument = d.Get("document").(string)
+
+	} else if d.HasChange("ram_users") || d.HasChange("services") || d.HasChange("version") {
+		attributeUpdate = true
+
+		if d.HasChange("ram_users") {
+			d.SetPartial("ram_users")
+		}
+		if d.HasChange("services") {
+			d.SetPartial("services")
+		}
+		if d.HasChange("version") {
+			d.SetPartial("version")
+		}
+
+		document, err := AssembleRolePolicyDocument(d.Get("ram_users").(*schema.Set).List(), d.Get("services").(*schema.Set).List(), d.Get("version").(string))
+		if err != nil {
+			return ram.UpdateRoleRequest{}, attributeUpdate, err
+		}
+		args.NewAssumeRolePolicyDocument = document
+	}
+
+	return args, attributeUpdate, nil
 }

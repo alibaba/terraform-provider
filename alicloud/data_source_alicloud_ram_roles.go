@@ -62,6 +62,10 @@ func dataSourceAlicloudRamRoles() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"document": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"create_date": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -135,14 +139,16 @@ func dataSourceAlicloudRamRolesRead(d *schema.ResourceData, meta interface{}) er
 
 	log.Printf("[DEBUG] alicloud_ram_roles - Roles found: %#v", allRoles)
 
-	return ramRolesDescriptionAttributes(d, allRoles)
+	return ramRolesDescriptionAttributes(d, meta, allRoles)
 }
 
-func ramRolesDescriptionAttributes(d *schema.ResourceData, roles []interface{}) error {
+func ramRolesDescriptionAttributes(d *schema.ResourceData, meta interface{}, roles []interface{}) error {
 	var ids []string
 	var s []map[string]interface{}
 	for _, v := range roles {
 		role := v.(ram.Role)
+		conn := meta.(*AliyunClient).ramconn
+		resp, _ := conn.GetRole(ram.RoleQueryRequest{RoleName: role.RoleName})
 		mapping := map[string]interface{}{
 			"id":                          role.RoleId,
 			"name":                        role.RoleName,
@@ -150,7 +156,8 @@ func ramRolesDescriptionAttributes(d *schema.ResourceData, roles []interface{}) 
 			"description":                 role.Description,
 			"create_date":                 role.CreateDate,
 			"update_date":                 role.UpdateDate,
-			"assume_role_policy_document": role.AssumeRolePolicyDocument,
+			"assume_role_policy_document": resp.Role.AssumeRolePolicyDocument,
+			"document":                    resp.Role.AssumeRolePolicyDocument,
 		}
 		log.Printf("[DEBUG] alicloud_ram_roles - adding role: %v", mapping)
 		ids = append(ids, role.RoleId)
