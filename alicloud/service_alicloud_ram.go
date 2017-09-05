@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/denverdino/aliyungo/ram"
-	"github.com/hashicorp/terraform/helper/schema"
 )
 
 type Effect string
@@ -34,8 +33,8 @@ type RolePolicy struct {
 
 type PolicyStatement struct {
 	Effect   Effect
-	Action   []string
-	Resource []string
+	Action   interface{}
+	Resource interface{}
 }
 
 type Policy struct {
@@ -52,13 +51,33 @@ func ParseRolePolicyDocument(policyDocument string) (RolePolicy, error) {
 	return policy, nil
 }
 
-func ParsePolicyDocument(policyDocument string) (Policy, error) {
-	var policy Policy
-	err := json.Unmarshal([]byte(policyDocument), &policy)
+func ParsePolicyDocument(policyDocument string) (statement []map[string]interface{}, version string, err error) {
+	policy := Policy{}
+	err = json.Unmarshal([]byte(policyDocument), &policy)
 	if err != nil {
-		return Policy{}, err
+		return
 	}
-	return policy, nil
+
+	version = policy.Version
+	statement = make([]map[string]interface{}, 0, len(policy.Statement))
+	for _, v := range policy.Statement {
+		item := make(map[string]interface{})
+
+		item["effect"] = v.Effect
+		if val, ok := v.Action.([]interface{}); ok {
+			item["action"] = val
+		} else {
+			item["action"] = []interface{}{v.Action}
+		}
+
+		if val, ok := v.Resource.([]interface{}); ok {
+			item["resource"] = val
+		} else {
+			item["resource"] = []interface{}{v.Resource}
+		}
+		statement = append(statement, item)
+	}
+	return
 }
 
 func AssembleRolePolicyDocument(ramUser, service []interface{}, version string) (string, error) {
@@ -92,8 +111,8 @@ func AssemblePolicyDocument(document []interface{}, version string) (string, err
 	for _, v := range document {
 		doc := v.(map[string]interface{})
 
-		actions := expandStringList(doc["action"].(*schema.Set).List())
-		resources := expandStringList(doc["resource"].(*schema.Set).List())
+		actions := expandStringList(doc["action"].([]interface{}))
+		resources := expandStringList(doc["resource"].([]interface{}))
 
 		statement := PolicyStatement{
 			Effect:   Effect(doc["effect"].(string)),
