@@ -463,26 +463,3 @@ func (client *AliyunClient) QueryInstancesWithKeyPair(region common.Region, inst
 	}
 	return instance_ids, instanceList, nil
 }
-
-func GetAllRouterInterfaceSpec() (specifications []string) {
-	specifications = append(specifications, string(ecs.Large1), string(ecs.Large2),
-		string(ecs.Small1), string(ecs.Small2), string(ecs.Small5), string(ecs.Middle1),
-		string(ecs.Middle2), string(ecs.Middle5), string(Negative))
-	return
-}
-
-func (client *AliyunClient) JudgeRegionValidation(key string, region common.Region) error {
-	regions, err := client.ecsconn.DescribeRegions()
-	if err != nil {
-		return fmt.Errorf("DescribeRegions got an error: %#v", err)
-	}
-
-	var rs []string
-	for _, v := range regions {
-		if v.RegionId == region {
-			return nil
-		}
-		rs = append(rs, string(v.RegionId))
-	}
-	return fmt.Errorf("'%s' is invalid. Expected on %v.", key, strings.Join(rs, ", "))
-}

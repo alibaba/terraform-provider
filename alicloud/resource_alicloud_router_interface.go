@@ -44,7 +44,7 @@ func resourceAlicloudRouterInterface() *schema.Resource {
 			},
 			"specification": &schema.Schema{
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validateAllowedStringValue(GetAllRouterInterfaceSpec()),
 			},
 			"access_point_id": &schema.Schema{
@@ -249,6 +249,26 @@ func buildAlicloudRouterInterfaceCreateArgs(d *schema.ResourceData, meta interfa
 			return nil, fmt.Errorf("'opposite_access_point_id':required field is not set when 'opposite_router_type' is 'VBR'.")
 		}
 		args.OppositeAccessPointId = v.(string)
+	}
+
+	if args.Role == ecs.AcceptingSide {
+		if args.Spec == "" {
+			args.Spec = Negative
+		} else if args.Spec != Negative {
+			return nil, fmt.Errorf("'specification': valid value is only '%s' when 'role' is 'AcceptingSide'.", Negative)
+		}
+	} else if oppositeRegion == getRegion(d, meta) {
+		if args.RouterType == ecs.VRouter {
+			if args.Spec != ecs.Large2 {
+				return nil, fmt.Errorf("'specification': valid value is only '%s' when 'role' is 'InitiatingSide' and 'region' is equal to 'opposite_region' and 'router_type' is 'VRouter'.", ecs.Large2)
+			}
+		} else {
+			if args.Spec != ecs.Middle1 && args.Spec != ecs.Middle2 && args.Spec != ecs.Middle5 && args.Spec != ecs.Large1 {
+				return nil, fmt.Errorf("'specification': valid values are '%s', '%s', '%s' and '%s' when 'role' is 'InitiatingSide' and 'region' is equal to 'opposite_region' and 'router_type' is 'VBR'.", ecs.Large1, ecs.Middle1, ecs.Middle2, ecs.Middle5)
+			}
+		}
+	} else if args.Spec == ecs.Large2 {
+		return nil, fmt.Errorf("The 'specification' can not be '%s' when 'role' is 'InitiatingSide' and 'region' is not equal to 'opposite_region'.", ecs.Large2)
 	}
 
 	return args, nil
