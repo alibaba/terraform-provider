@@ -225,3 +225,10 @@ func (client *AliyunClient) GetVpcIdByVSwitchId(vswitchId string) (vpcId string,
 
 	return "", &common.Error{ErrorResponse: common.ErrorResponse{Message: Notfound}}
 }
+
+func GetAllRouterInterfaceSpec() (specifications []string) {
+	specifications = append(specifications, string(ecs.Large1), string(ecs.Large2),
+		string(ecs.Small1), string(ecs.Small2), string(ecs.Small5), string(ecs.Middle1),
+		string(ecs.Middle2), string(ecs.Middle5), string(Negative))
+	return
+}
