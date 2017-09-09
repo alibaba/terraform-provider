@@ -1,6 +1,9 @@
 package alicloud
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -123,3 +126,19 @@ func getPagination(pageNumber, pageSize int) (pagination common.Pagination) {
 }
 
 const CharityPageUrl = "http://promotion.alicdn.com/help/oss/error.html"
+
+func (client *AliyunClient) JudgeRegionValidation(key string, region common.Region) error {
+	regions, err := client.ecsconn.DescribeRegions()
+	if err != nil {
+		return fmt.Errorf("DescribeRegions got an error: %#v", err)
+	}
+
+	var rs []string
+	for _, v := range regions {
+		if v.RegionId == region {
+			return nil
+		}
+		rs = append(rs, string(v.RegionId))
+	}
+	return fmt.Errorf("'%s' is invalid. Expected on %v.", key, strings.Join(rs, ", "))
+}

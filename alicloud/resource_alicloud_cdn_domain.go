@@ -98,7 +98,7 @@ func resourceAlicloudCdnDomain() *schema.Resource {
 							ValidateFunc: validateCdnEnable,
 						},
 						"hash_key_args": &schema.Schema{
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Optional: true,
 							Computed: true,
 							Elem: &schema.Schema{
@@ -148,7 +148,7 @@ func resourceAlicloudCdnDomain() *schema.Resource {
 							ValidateFunc: validateCdnReferType,
 						},
 						"refer_list": {
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Required: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -271,10 +271,7 @@ func resourceAlicloudCdnDomainCreate(d *schema.ResourceData, meta interface{}) e
 
 	if args.CdnType != cdn.LiveStream {
 		if v, ok := d.GetOk("sources"); ok && v.(*schema.Set).Len() > 0 {
-			var sources []string
-			for _, val := range v.(*schema.Set).List() {
-				sources = append(sources, val.(string))
-			}
+			sources := expandStringList(v.(*schema.Set).List())
 			args.Sources = strings.Join(sources, ",")
 		} else {
 			return fmt.Errorf("Sources is required when 'cdn_type' is not 'liveStream'.")
@@ -313,10 +310,7 @@ func resourceAlicloudCdnDomainUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 		if d.HasChange("sources") {
 			d.SetPartial("sources")
-			var sources []string
-			for _, v := range d.Get("sources").(*schema.Set).List() {
-				sources = append(sources, v.(string))
-			}
+			sources := expandStringList(d.Get("sources").(*schema.Set).List())
 			args.Sources = strings.Join(sources, ",")
 			attributeUpdate = true
 		}
@@ -340,10 +334,7 @@ func resourceAlicloudCdnDomainUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("block_ips") {
 		d.SetPartial("block_ips")
-		var blockIps []string
-		for _, v := range d.Get("block_ips").(*schema.Set).List() {
-			blockIps = append(blockIps, v.(string))
-		}
+		blockIps := expandStringList(d.Get("block_ips").(*schema.Set).List())
 		args := cdn.IpBlackRequest{DomainName: d.Id(), BlockIps: strings.Join(blockIps, ",")}
 		if _, err := conn.SetIpBlackListConfig(args); err != nil {
 			return err
@@ -558,11 +549,8 @@ func queryStringConfigUpdate(conn *cdn.CdnClient, d *schema.ResourceData) error 
 	val := valSet.List()[0].(map[string]interface{})
 	d.SetPartial("parameter_filter_config")
 	args.Enable = val["enable"].(string)
-	if v, ok := val["hash_key_args"]; ok && v.(*schema.Set).Len() > 0 {
-		var hashKeyArgs []string
-		for _, val := range v.(*schema.Set).List() {
-			hashKeyArgs = append(hashKeyArgs, val.(string))
-		}
+	if v, ok := val["hash_key_args"]; ok && len(v.([]interface{})) > 0 {
+		hashKeyArgs := expandStringList(v.([]interface{}))
 		args.HashKeyArgs = strings.Join(hashKeyArgs, ",")
 	}
 	if _, err := conn.SetIgnoreQueryStringConfig(args); err != nil {
@@ -624,11 +612,8 @@ func referConfigUpdate(conn *cdn.CdnClient, d *schema.ResourceData) error {
 	d.SetPartial("refer_config")
 	args.ReferType = val["refer_type"].(string)
 	args.AllowEmpty = val["allow_empty"].(string)
-	if v, ok := val["refer_list"]; ok && v.(*schema.Set).Len() > 0 {
-		var referList []string
-		for _, val := range v.(*schema.Set).List() {
-			referList = append(referList, val.(string))
-		}
+	if v, ok := val["refer_list"]; ok && len(v.([]interface{})) > 0 {
+		referList := expandStringList(v.([]interface{}))
 		args.ReferList = strings.Join(referList, ",")
 	}
 	if _, err := conn.SetRefererConfig(args); err != nil {

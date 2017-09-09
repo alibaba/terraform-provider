@@ -28,7 +28,8 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 			},
 			"statement": &schema.Schema{
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"effect": &schema.Schema{
@@ -44,20 +45,34 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 							},
 						},
 						"action": &schema.Schema{
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Required: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 						"resource": &schema.Schema{
-							Type:     schema.TypeSet,
+							Type:     schema.TypeList,
 							Required: true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
 						},
 					},
+				},
+				ConflictsWith: []string{"document"},
+			},
+			"document": &schema.Schema{
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"statement", "version"},
+				ValidateFunc: func(v interface{}, k string) (ws []string, es []error) {
+					value := v.(string)
+					if len(value) > 2048 {
+						es = append(es, fmt.Errorf("%q can not be longer than 2048 characters.", k))
+					}
+					return
 				},
 			},
 			"description": &schema.Schema{
@@ -67,10 +82,11 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 				ValidateFunc: validateRamDesc,
 			},
 			"version": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "1",
-				ValidateFunc: validatePolicyDocVersion,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Default:       "1",
+				ConflictsWith: []string{"document"},
+				ValidateFunc:  validatePolicyDocVersion,
 			},
 			"force": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -78,10 +94,6 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 				Default:  false,
 			},
 			"type": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"document": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -96,18 +108,9 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 func resourceAlicloudRamPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
 
-	document, err := AssemblePolicyDocument(d.Get("statement").(*schema.Set).List(), d.Get("version").(string))
+	args, err := buildAlicloudRamPolicyCreateArgs(d, meta)
 	if err != nil {
 		return err
-	}
-
-	args := ram.PolicyRequest{
-		PolicyName:     d.Get("name").(string),
-		PolicyDocument: document,
-	}
-
-	if v, ok := d.GetOk("description"); ok && v.(string) != "" {
-		args.Description = v.(string)
 	}
 
 	response, err := conn.CreatePolicy(args)
@@ -123,28 +126,12 @@ func resourceAlicloudRamPolicyUpdate(d *schema.ResourceData, meta interface{}) e
 	conn := meta.(*AliyunClient).ramconn
 	d.Partial(true)
 
-	args := ram.PolicyRequest{
-		PolicyName:   d.Id(),
-		SetAsDefault: "true",
-	}
-
-	attributeUpdate := false
-	if d.HasChange("statement") {
-		d.SetPartial("statement")
-		attributeUpdate = true
-	}
-	if d.HasChange("version") {
-		d.SetPartial("version")
-		attributeUpdate = true
+	args, attributeUpdate, err := buildAlicloudRamPolicyUpdateArgs(d, meta)
+	if err != nil {
+		return err
 	}
 
 	if !d.IsNewResource() && attributeUpdate {
-		document, err := AssemblePolicyDocument(d.Get("statement").(*schema.Set).List(), d.Get("version").(string))
-		if err != nil {
-			return err
-		}
-		args.PolicyDocument = document
-
 		if _, err := conn.CreatePolicyVersion(args); err != nil {
 			return fmt.Errorf("Error updating policy %s: %#v", d.Id(), err)
 		}
@@ -178,7 +165,7 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("GetPolicyVersion got an error: %#v", err)
 	}
 
-	policyDocument, err := ParsePolicyDocument(policyVersionResp.PolicyVersion.PolicyDocument)
+	statement, version, err := ParsePolicyDocument(policyVersionResp.PolicyVersion.PolicyDocument)
 	if err != nil {
 		return err
 	}
@@ -187,8 +174,8 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("type", policy.PolicyType)
 	d.Set("description", policy.Description)
 	d.Set("attachment_count", policy.AttachmentCount)
-	d.Set("version", policyDocument.Version)
-	d.Set("statement", policyDocument.Statement)
+	d.Set("version", version)
+	d.Set("statement", statement)
 	d.Set("document", policyVersionResp.PolicyVersion.PolicyDocument)
 
 	return nil
@@ -275,4 +262,68 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 		}
 		return nil
 	})
+}
+
+func buildAlicloudRamPolicyCreateArgs(d *schema.ResourceData, meta interface{}) (ram.PolicyRequest, error) {
+	var document string
+
+	doc, docOk := d.GetOk("document")
+	statement, statementOk := d.GetOk("statement")
+
+	if !docOk && !statementOk {
+		return ram.PolicyRequest{}, fmt.Errorf("One of 'document' and 'statement' must be specified.")
+	}
+
+	if docOk {
+		document = doc.(string)
+	} else {
+		doc, err := AssemblePolicyDocument(statement.(*schema.Set).List(), d.Get("version").(string))
+		if err != nil {
+			return ram.PolicyRequest{}, err
+		}
+		document = doc
+	}
+
+	args := ram.PolicyRequest{
+		PolicyName:     d.Get("name").(string),
+		PolicyDocument: document,
+	}
+
+	if v, ok := d.GetOk("description"); ok && v.(string) != "" {
+		args.Description = v.(string)
+	}
+
+	return args, nil
+}
+
+func buildAlicloudRamPolicyUpdateArgs(d *schema.ResourceData, meta interface{}) (ram.PolicyRequest, bool, error) {
+	args := ram.PolicyRequest{
+		PolicyName:   d.Id(),
+		SetAsDefault: "true",
+	}
+
+	attributeUpdate := false
+	if d.HasChange("document") {
+		d.SetPartial("document")
+		attributeUpdate = true
+		args.PolicyDocument = d.Get("document").(string)
+
+	} else if d.HasChange("statement") || d.HasChange("version") {
+		attributeUpdate = true
+
+		if d.HasChange("statement") {
+			d.SetPartial("statement")
+		}
+		if d.HasChange("version") {
+			d.SetPartial("version")
+		}
+
+		document, err := AssemblePolicyDocument(d.Get("statement").(*schema.Set).List(), d.Get("version").(string))
+		if err != nil {
+			return ram.PolicyRequest{}, attributeUpdate, err
+		}
+		args.PolicyDocument = document
+	}
+
+	return args, attributeUpdate, nil
 }

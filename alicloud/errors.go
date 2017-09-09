@@ -96,6 +96,9 @@ const (
 	InvalidRamRoleNotFound       = "InvalidRamRole.NotFound"
 	RoleAttachmentUnExpectedJson = "unexpected end of JSON input"
 	InvalidInstanceIdNotFound    = "InvalidInstanceId.NotFound"
+
+	RouterInterfaceIncorrectStatus                        = "IncorrectStatus"
+	DependencyViolationRouterInterfaceReferedByRouteEntry = "DependencyViolation.RouterInterfaceReferedByRouteEntry"
 )
 
 func GetNotFoundErrorFromString(str string) error {
