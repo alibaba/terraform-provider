@@ -69,4 +69,6 @@
 * This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/denverdino/aliyungo/blob/master/LICENSE.txt) for the full license text.
 
 #### 参考
-* Terraform官方文档：https://www.terraform.io/intro/
+* [Terraform 官方文档](https://www.terraform.io/docs/providers/alicloud/index.html)
+* [Terraform Provider Alicloud 最新文档](http://47.95.33.19:4567/docs/providers/alicloud/)
+* [Terraform Provider Alicloud 最新文档 Github](https://github.com/alibaba/terraform-provider-docs)

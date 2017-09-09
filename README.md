@@ -62,6 +62,7 @@ eu-central-1
 ap-northeast-1
 us-west-1
 ```
+For more about the regions and availability zones, use data source `alicloud_regions` and `alicloud_zones`.
 
 #### Support products
 * [ECS](https://www.aliyun.com/product/ecs)
@@ -72,7 +73,15 @@ us-west-1
 * [RDS](https://www.aliyun.com/product/rds)
 * [ESS](https://www.aliyun.com/product/ess)
 * [OSS](https://www.aliyun.com/product/oss)
+* [RAM](https://www.aliyun.com/product/ram)
+* [CDN](https://www.aliyun.com/product/cdn)
+* [DNS](https://wanwang.aliyun.com/domain/dns)
 
+#### Documents
+The latest supported product document as follows:
+* [Terraform Docs](https://www.terraform.io/docs/providers/alicloud/index.html)
+* [Terraform Provider Alicloud Docs](http://47.95.33.19:4567/docs/providers/alicloud/)
+* [Github](https://github.com/alibaba/terraform-provider-docs)
 
 #### Common problems
 

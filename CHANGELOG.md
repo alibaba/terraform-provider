@@ -1,6 +1,13 @@
-## 1.2.0 (unreleased)
+## 1.3.0 (unreleased)
 
-## 1.1.11 (unreleased)
+## 1.2.0 (September 9, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_router_interface` ([#228](https://github.com/alibaba/terraform-provider/pull/228))
+
+IMPROVEMENTS:
+  * remove runinstance api ([#227](https://github.com/alibaba/terraform-provider/pull/227))
+
 BUG FIXES:
   * fix security group egress rules diff bug ([#223](https://github.com/alibaba/terraform-provider/pull/223))
 
