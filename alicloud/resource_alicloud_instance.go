@@ -67,10 +67,10 @@ func resourceAliyunInstance() *schema.Resource {
 			},
 
 			"internet_charge_type": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      common.PayByTraffic,
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 				ValidateFunc: validateInternetChargeType,
 			},
 			"internet_max_bandwidth_in": &schema.Schema{
@@ -261,12 +261,8 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("instance_charge_type", instance.InstanceChargeType)
 	d.Set("key_name", instance.KeyPairName)
 
-	// In VPC network, internet_charge_type is "" when instance has not public ip.
-	internet_charge_type_input := d.Get("internet_charge_type").(string)
+	// In VPC network, internet_charge_type is "" when instance without public ip.
 	d.Set("internet_charge_type", instance.InternetChargeType)
-	if instance.VpcAttributes.VSwitchId != "" && instance.InternetChargeType == "" {
-		d.Set("internet_charge_type", internet_charge_type_input)
-	}
 
 	if len(instance.PublicIpAddress.IpAddress) > 0 {
 		d.Set("public_ip", instance.PublicIpAddress.IpAddress[0])
