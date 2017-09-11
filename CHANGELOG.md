@@ -1,5 +1,10 @@
 ## 1.3.0 (unreleased)
 
+## 1.2.1 (September 11, 2017)
+BUG FIXES:
+  * fix internet_charge_type diff bug ([#235](https://github.com/alibaba/terraform-provider/pull/235))
+  * fix dns marshal bug ([#237](https://github.com/alibaba/terraform-provider/pull/237))
+
 ## 1.2.0 (September 9, 2017)
 FEATURES:
 

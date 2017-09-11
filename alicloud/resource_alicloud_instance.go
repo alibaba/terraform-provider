@@ -67,10 +67,10 @@ func resourceAliyunInstance() *schema.Resource {
 			},
 
 			"internet_charge_type": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
 				ValidateFunc: validateInternetChargeType,
 			},
 			"internet_max_bandwidth_in": &schema.Schema{
