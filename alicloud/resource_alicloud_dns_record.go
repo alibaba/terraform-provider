@@ -161,9 +161,8 @@ func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	record := response.RecordTypeNew
-	ttl, _ := strconv.Atoi(record.TTL)
 	priority, _ := strconv.Atoi(record.Priority)
-	d.Set("ttl", ttl)
+	d.Set("ttl", record.TTL)
 	d.Set("priority", priority)
 	d.Set("name", record.DomainName)
 	d.Set("host_record", record.RR)
