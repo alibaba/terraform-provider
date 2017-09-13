@@ -46,7 +46,11 @@ func resourceAlicloudEssScalingConfiguration() *schema.Resource {
 			"io_optimized": &schema.Schema{
 				Type:       schema.TypeString,
 				Optional:   true,
-				Deprecated: "Attribute io_optimized is deprecated on instance resource. All the launched alicloud instances are IO optimized. Suggest to remove it from your template.",
+				Deprecated: "Attribute io_optimized has been deprecated on instance resource. All the launched alicloud instances will be IO optimized. Suggest to remove it from your template.",
+			},
+			"is_outdated": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"security_group_id": &schema.Schema{
 				Type:     schema.TypeString,
@@ -81,7 +85,7 @@ func resourceAlicloudEssScalingConfiguration() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				Computed:     true,
+				Default:      ecs.DiskCategoryCloudEfficiency,
 				ValidateFunc: validateDiskCategory,
 			},
 			"data_disk": &schema.Schema{
@@ -106,7 +110,7 @@ func resourceAlicloudEssScalingConfiguration() *schema.Resource {
 						"device": &schema.Schema{
 							Type:       schema.TypeString,
 							Optional:   true,
-							Deprecated: "Attribute device is deprecated on disk attachment resource. Suggest to remove it from your template.",
+							Deprecated: "Attribute device has been deprecated on disk attachment resource. Suggest to remove it from your template.",
 						},
 					},
 				},
@@ -124,7 +128,7 @@ func resourceAlicloudEssScalingConfiguration() *schema.Resource {
 func resourceAliyunEssScalingConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
 
 	// Ensure instance_type is generation three
-	_, err := meta.(*AliyunClient).CheckParameterValidity(d, meta)
+	validData, err := meta.(*AliyunClient).CheckParameterValidity(d, meta)
 	if err != nil {
 		return err
 	}
@@ -132,6 +136,10 @@ func resourceAliyunEssScalingConfigurationCreate(d *schema.ResourceData, meta in
 	args, err := buildAlicloudEssScalingConfigurationArgs(d, meta)
 	if err != nil {
 		return err
+	}
+
+	if validData[IoOptimizedKey].(ecs.IoOptimized) == ecs.IoOptimizedOptimized {
+		args.IoOptimized = ecs.IoOptimizedOptimized
 	}
 
 	essconn := meta.(*AliyunClient).essconn
@@ -263,7 +271,6 @@ func buildAlicloudEssScalingConfigurationArgs(d *schema.ResourceData, meta inter
 		ScalingGroupId:  d.Get("scaling_group_id").(string),
 		ImageId:         d.Get("image_id").(string),
 		InstanceType:    d.Get("instance_type").(string),
-		IoOptimized:     ecs.IoOptimizedOptimized,
 		SecurityGroupId: d.Get("security_group_id").(string),
 	}
 

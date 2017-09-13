@@ -1,5 +1,11 @@
 ## 1.3.0 (unreleased)
 
+## 1.2.2 (September 13, 2017)
+IMPROVMENTS:
+  * validate instance type ([#238](https://github.com/alibaba/terraform-provider/pull/238))
+BUG FIXES:
+  * set ess system disk category default([#238](https://github.com/alibaba/terraform-provider/pull/238))
+
 ## 1.2.1 (September 11, 2017)
 BUG FIXES:
   * fix internet_charge_type diff bug ([#235](https://github.com/alibaba/terraform-provider/pull/235))
