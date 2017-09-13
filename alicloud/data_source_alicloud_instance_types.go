@@ -32,6 +32,10 @@ func dataSourceAlicloudInstanceTypes() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"is_outdated": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -89,7 +93,10 @@ func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{
 	}
 
 	validInstanceTypes := make(map[string]string)
-	if val, ok := validData[InstanceTypeKey]; ok {
+	if val, ok := validData[UpgradedInstanceTypeKey]; ok {
+		validInstanceTypes = val.(map[string]string)
+	}
+	if val, ok := validData[OutdatedInstanceTypeKey]; d.Get("is_outdated").(bool) && ok {
 		validInstanceTypes = val.(map[string]string)
 	}
 

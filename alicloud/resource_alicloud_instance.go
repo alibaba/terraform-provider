@@ -39,6 +39,7 @@ func resourceAliyunInstance() *schema.Resource {
 			"instance_type": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 
 			"security_groups": &schema.Schema{
@@ -97,12 +98,15 @@ func resourceAliyunInstance() *schema.Resource {
 			"io_optimized": &schema.Schema{
 				Type:       schema.TypeString,
 				Optional:   true,
-				Deprecated: "Attribute io_optimized is deprecated on instance resource. All the launched alicloud instances are IO optimized. Suggest to remove it from your template.",
+				Deprecated: "Attribute io_optimized has been deprecated on instance resource. All the launched alicloud instances will be IO optimized. Suggest to remove it from your template.",
 			},
-
+			"is_outdated": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"system_disk_category": &schema.Schema{
 				Type:         schema.TypeString,
-				Default:      "cloud_efficiency",
+				Default:      ecs.DiskCategoryCloudEfficiency,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateDiskCategory,
@@ -184,7 +188,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	conn := meta.(*AliyunClient).ecsconn
 
 	// Ensure instance_type is generation three
-	_, err := meta.(*AliyunClient).CheckParameterValidity(d, meta)
+	validData, err := meta.(*AliyunClient).CheckParameterValidity(d, meta)
 	if err != nil {
 		return err
 	}
@@ -193,6 +197,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
+	args.IoOptimized = validData[IoOptimizedKey].(ecs.IoOptimized)
 
 	instanceID, err := conn.CreateInstance(args)
 	if err != nil {
@@ -215,7 +220,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Start instance got error: %#v", err)
 	}
 
-	if err := conn.WaitForInstanceAsyn(d.Id(), ecs.Running, defaultTimeout); err != nil {
+	if err := conn.WaitForInstanceAsyn(d.Id(), ecs.Running, 500); err != nil {
 		return fmt.Errorf("WaitForInstance %s got error: %#v", ecs.Running, err)
 	}
 
@@ -468,8 +473,8 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 
-		// Start instance sometimes costs more than 6 minutes when os type is centos.
-		if err := conn.WaitForInstance(d.Id(), ecs.Running, 400); err != nil {
+		// Start instance sometimes costs more than 8 minutes when os type is centos.
+		if err := conn.WaitForInstance(d.Id(), ecs.Running, 500); err != nil {
 			return fmt.Errorf("WaitForInstance got error: %#v", err)
 		}
 
