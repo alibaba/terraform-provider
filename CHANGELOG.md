@@ -1,5 +1,14 @@
 ## 1.3.0 (unreleased)
 
+## 1.2.4 (September 29, 2017)
+BUG FIXES:
+  * fix OSS bucket bug([#241](https://github.com/denverdino/aliyungo/pull/241))
+
+
+## 1.2.3 (September 21, 2017)
+BUG FIXES:
+  * fix SDK bug([#186](https://github.com/denverdino/aliyungo/pull/186))
+
 ## 1.2.2 (September 13, 2017)
 IMPROVMENTS:
   * validate instance type ([#238](https://github.com/alibaba/terraform-provider/pull/238))
