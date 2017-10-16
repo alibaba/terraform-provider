@@ -1,5 +1,13 @@
 ## 1.3.0 (unreleased)
 
+## 1.2.5 (October 16, 2017)
+IMPROVMENTS:
+  * add nexthop type 'RouterInterface' ([#252](https://github.com/alibaba/terraform-provider/pull/252))
+
+BUG FIXES:
+  * fix route entry creating and deleting bug([#252](https://github.com/denverdino/aliyungo/pull/252))
+  * fix security group rule creating defect([#252](https://github.com/denverdino/aliyungo/pull/252))
+
 ## 1.2.4 (September 29, 2017)
 BUG FIXES:
   * fix OSS bucket bug([#241](https://github.com/denverdino/aliyungo/pull/241))
