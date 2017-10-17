@@ -330,7 +330,11 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 					instanceTypeObject = mapInstanceTypes[key]
 					break
 				}
-				validInstanceTypes = append(validInstanceTypes, fmt.Sprintf("%s(%dCPU,%.0fGB)", key, value.CpuCoreCount, value.MemorySize))
+				core := "Core"
+				if value.CpuCoreCount > 1 {
+					core = "Cores"
+				}
+				validInstanceTypes = append(validInstanceTypes, fmt.Sprintf("%s(%d%s,%.0fGB)", key, value.CpuCoreCount, core, value.MemorySize))
 			}
 			if instanceTypeObject.InstanceTypeId == "" {
 				if zoneId == "" {
@@ -359,10 +363,14 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 						return nil, err
 					}
 					for _, value := range mapInstanceTypes {
+						core := "Core"
+						if value.CpuCoreCount > 1 {
+							core = "Cores"
+						}
 						if instanceTypeObject.CpuCoreCount == value.CpuCoreCount {
-							expectedEqualCpus = append(expectedEqualCpus, fmt.Sprintf("%s(%dCPU,%.0fGB)", value.InstanceTypeId, value.CpuCoreCount, value.MemorySize))
+							expectedEqualCpus = append(expectedEqualCpus, fmt.Sprintf("%s(%d%s,%.0fGB)", value.InstanceTypeId, value.CpuCoreCount, core, value.MemorySize))
 						} else if instanceTypeObject.CpuCoreCount*2 == value.CpuCoreCount {
-							expectedEqualMoreCpus = append(expectedEqualMoreCpus, fmt.Sprintf("%s(%dCPU,%.0fGB)", value.InstanceTypeId, value.CpuCoreCount, value.MemorySize))
+							expectedEqualMoreCpus = append(expectedEqualMoreCpus, fmt.Sprintf("%s(%d%s,%.0fGB)", value.InstanceTypeId, value.CpuCoreCount, core, value.MemorySize))
 						}
 					}
 				}
@@ -372,8 +380,12 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 				}
 
 				if out, ok := d.GetOk("is_outdated"); !(ok && out.(bool)) {
-					return nil, fmt.Errorf("The current instance type %s(%dCPU,%.0fGB) has been outdated. Expect to use the upgraded instance types: %s. You can keep the instance type %s by setting 'is_outdated' to true.",
-						instanceType, instanceTypeObject.CpuCoreCount, instanceTypeObject.MemorySize, strings.Join(expectedInstanceTypes, ", "), instanceType)
+					core := "Core"
+					if instanceTypeObject.CpuCoreCount > 1 {
+						core = "Cores"
+					}
+					return nil, fmt.Errorf("The current instance type %s(%d%s,%.0fGB) has been outdated. Expect to use the upgraded instance types: %s. You can keep the instance type %s by setting 'is_outdated' to true.",
+						instanceType, instanceTypeObject.CpuCoreCount, core, instanceTypeObject.MemorySize, strings.Join(expectedInstanceTypes, ", "), instanceType)
 				} else {
 					// Check none io optimized and cloud
 					_, typeOk := NoneIoOptimizedInstanceType[instanceType]

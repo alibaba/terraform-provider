@@ -1,6 +1,13 @@
 ## 1.3.0 (unreleased)
 
-## 1.2.5 (October 16, 2017)
+## 1.2.6 (October 17, 2017)
+IMPROVMENTS:
+  * modify CPU to Core(s) and improve some test case ([#254](https://github.com/alibaba/terraform-provider/pull/254))
+
+BUG FIXES:
+  * fix datasource dns domain ttl type bug([#254](https://github.com/denverdino/aliyungo/pull/254))
+
+## 1.2.5 (October 17, 2017)
 IMPROVMENTS:
   * add nexthop type 'RouterInterface' ([#252](https://github.com/alibaba/terraform-provider/pull/252))
 
