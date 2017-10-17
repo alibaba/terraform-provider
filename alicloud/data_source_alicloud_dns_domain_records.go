@@ -91,7 +91,7 @@ func dataSourceAlicloudDnsDomainRecords() *schema.Resource {
 							Computed: true,
 						},
 						"ttl": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeFloat,
 							Computed: true,
 						},
 						"priority": {
