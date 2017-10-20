@@ -6,6 +6,7 @@ IMPROVMENTS:
 
 BUG FIXES:
   * fix datasource dns domain ttl type bug([#254](https://github.com/denverdino/aliyungo/pull/254))
+  * fix security group rule destroy failed bug([#259](https://github.com/denverdino/aliyungo/pull/254))
 
 ## 1.2.5 (October 17, 2017)
 IMPROVMENTS:
