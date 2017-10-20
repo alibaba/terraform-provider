@@ -7,7 +7,7 @@ variable "scaling_min_size" {
 }
 
 variable "scaling_max_size" {
-  default = 1
+  default = 5
 }
 
 variable "enable" {

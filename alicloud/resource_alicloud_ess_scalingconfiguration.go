@@ -242,12 +242,17 @@ func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta in
 		err := client.DeleteScalingConfigurationById(ids[0], ids[1])
 
 		if err != nil {
-			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == IncorrectScalingConfigurationLifecycleState {
-				return resource.NonRetryableError(
-					fmt.Errorf("Scaling configuration is active - please active another one and trying again."))
+			if IsExceptedError(err, IncorrectScalingConfigurationLifecycleState) {
+				err = client.DisableScalingConfigurationById(ids[0])
+				if err != nil {
+					return resource.NonRetryableError(err)
+				}
+				_, err = client.essconn.DeactivateScalingConfiguration(&ess.DeactivateScalingConfigurationArgs{ScalingConfigurationId: ids[1]})
+				if err != nil {
+					return resource.NonRetryableError(err)
+				}
 			}
-			if e.ErrorResponse.Code != InvalidScalingGroupIdNotFound {
+			if IsExceptedError(err, InvalidScalingGroupIdNotFound) {
 				return resource.RetryableError(
 					fmt.Errorf("Scaling configuration in use - trying again while it is deleted."))
 			}
