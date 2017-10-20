@@ -222,29 +222,36 @@ func (client *AliyunClient) DescribeSecurity(securityGroupId string) (*ecs.Descr
 	return client.ecsconn.DescribeSecurityGroupAttribute(args)
 }
 
-func (client *AliyunClient) DescribeSecurityByAttr(securityGroupId, direction, nicType string) (*ecs.DescribeSecurityGroupAttributeResponse, error) {
-
-	args := &ecs.DescribeSecurityGroupAttributeArgs{
+func (client *AliyunClient) DescribeSecurityGroupRule(groupId, direction, ipProtocol, portRange, nicType, cidr_ip, policy string, priority int) (*ecs.PermissionType, error) {
+	rules, err := client.ecsconn.DescribeSecurityGroupAttribute(&ecs.DescribeSecurityGroupAttributeArgs{
 		RegionId:        client.Region,
-		SecurityGroupId: securityGroupId,
+		SecurityGroupId: groupId,
 		Direction:       direction,
 		NicType:         ecs.NicType(nicType),
-	}
+	})
 
-	return client.ecsconn.DescribeSecurityGroupAttribute(args)
-}
-
-func (client *AliyunClient) DescribeSecurityGroupRule(securityGroupId, direction, nicType, ipProtocol, portRange string) (*ecs.PermissionType, error) {
-	sg, err := client.DescribeSecurityByAttr(securityGroupId, direction, nicType)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, p := range sg.Permissions.Permission {
-		if strings.ToLower(string(p.IpProtocol)) == ipProtocol && p.PortRange == portRange {
-			return &p, nil
+	for _, ru := range rules.Permissions.Permission {
+		if strings.ToLower(string(ru.IpProtocol)) == ipProtocol && ru.PortRange == portRange {
+			cidr := ru.SourceCidrIp
+			if GroupRuleDirection(direction) == GroupRuleIngress && cidr == "" {
+				cidr = ru.SourceGroupId
+			}
+			if GroupRuleDirection(direction) == GroupRuleEgress {
+				if cidr = ru.DestCidrIp; cidr == "" {
+					cidr = ru.DestGroupId
+				}
+			}
+
+			if cidr == cidr_ip && strings.ToLower(string(ru.Policy)) == policy && ru.Priority == priority {
+				return &ru, nil
+			}
 		}
 	}
+
 	return nil, GetNotFoundErrorFromString("Security group rule not found")
 
 }
