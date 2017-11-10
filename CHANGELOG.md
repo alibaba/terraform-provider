@@ -1,5 +1,11 @@
 ## 1.3.0 (unreleased)
 
+## 1.2.7 (November 10, 2017)
+IMPROVMENTS:
+  * add keypair, ram and userdata for ess scaling configuration ([#265](https://github.com/alibaba/terraform-provider/pull/265))
+  * add force_delete to delete scaling configuration when only one configuration is existing ([#265](https://github.com/alibaba/terraform-provider/pull/265))
+  * add substitute to active another scaling configuration ([#265](https://github.com/alibaba/terraform-provider/pull/265))
+  
 ## 1.2.6 (October 17, 2017)
 IMPROVMENTS:
   * modify CPU to Core(s) and improve some test case ([#254](https://github.com/alibaba/terraform-provider/pull/254))
