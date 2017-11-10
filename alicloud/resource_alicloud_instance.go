@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"encoding/base64"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -668,15 +667,4 @@ func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.Cre
 	}
 
 	return args, nil
-}
-
-func userDataHashSum(user_data string) string {
-	// Check whether the user_data is not Base64 encoded.
-	// Always calculate hash of base64 decoded value since we
-	// check against double-encoding when setting it
-	v, base64DecodeError := base64.StdEncoding.DecodeString(user_data)
-	if base64DecodeError != nil {
-		v = []byte(user_data)
-	}
-	return string(v)
 }
