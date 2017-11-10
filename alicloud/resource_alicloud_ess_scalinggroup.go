@@ -2,12 +2,9 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ess"
-	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"strings"
-	"time"
 )
 
 func resourceAlicloudEssScalingGroup() *schema.Resource {
@@ -115,58 +112,46 @@ func resourceAliyunEssScalingGroupUpdate(d *schema.ResourceData, meta interface{
 	args := &ess.ModifyScalingGroupArgs{
 		ScalingGroupId: d.Id(),
 	}
+	d.Partial(true)
 
 	if d.HasChange("scaling_group_name") {
 		args.ScalingGroupName = d.Get("scaling_group_name").(string)
+		d.SetPartial("scaling_group_name")
 	}
 
 	if d.HasChange("min_size") {
 		args.MinSize = d.Get("min_size").(int)
+		d.SetPartial("min_size")
 	}
 
 	if d.HasChange("max_size") {
 		args.MaxSize = d.Get("max_size").(int)
+		d.SetPartial("max_size")
 	}
 
 	if d.HasChange("default_cooldown") {
 		args.DefaultCooldown = d.Get("default_cooldown").(int)
+		d.SetPartial("default_cooldown")
 	}
 
 	if d.HasChange("removal_policies") {
 		policyStrings := d.Get("removal_policies").([]interface{})
 		args.RemovalPolicy = expandStringList(policyStrings)
+		d.SetPartial("removal_policies")
 	}
 
 	if _, err := conn.ModifyScalingGroup(args); err != nil {
 		return err
 	}
 
+	d.Partial(false)
+
 	return resourceAliyunEssScalingGroupRead(d, meta)
 }
 
 func resourceAliyunEssScalingGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
 
-	return resource.Retry(2*time.Minute, func() *resource.RetryError {
-		err := client.DeleteScalingGroupById(d.Id())
-
-		if err != nil {
-			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code != InvalidScalingGroupIdNotFound {
-				return resource.RetryableError(fmt.Errorf("Scaling group in use - trying again while it is deleted."))
-			}
-		}
-
-		_, err = client.DescribeScalingGroupById(d.Id())
-		if err != nil {
-			if NotFoundError(err) {
-				return nil
-			}
-			return resource.NonRetryableError(err)
-		}
-
-		return resource.RetryableError(fmt.Errorf("Scaling group in use - trying again while it is deleted."))
-	})
+	return meta.(*AliyunClient).DeleteScalingGroupById(d.Id())
 }
 
 func buildAlicloudEssScalingGroupArgs(d *schema.ResourceData, meta interface{}) (*ess.CreateScalingGroupArgs, error) {
