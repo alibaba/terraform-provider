@@ -278,6 +278,9 @@ func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 		}
 
 		if len(remove) > 0 {
+			if err := conn.WaitForInstanceAsyn(d.Id(), rds.Running, 600); err != nil {
+				return fmt.Errorf("WaitForInstance %s got error: %#v", rds.Running, err)
+			}
 			for _, db := range remove {
 				dbm, _ := db.(map[string]interface{})
 				if err := conn.DeleteDatabase(d.Id(), dbm["db_name"].(string)); err != nil {
@@ -287,6 +290,9 @@ func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 		}
 
 		if len(add) > 0 {
+			if err := conn.WaitForInstanceAsyn(d.Id(), rds.Running, 600); err != nil {
+				return fmt.Errorf("WaitForInstance %s got error: %#v", rds.Running, err)
+			}
 			for _, db := range add {
 				dbm, _ := db.(map[string]interface{})
 				dbName := dbm["db_name"].(string)
@@ -300,7 +306,7 @@ func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 		}
 
 		if err := conn.WaitForAllDatabase(d.Id(), allDbs, rds.Running, 600); err != nil {
-			return fmt.Errorf("Failure create database %#v", err)
+			return fmt.Errorf("Wait for all databases %s: %#v", rds.Running, err)
 		}
 
 		if user := d.Get("master_user_name").(string); user != "" {
