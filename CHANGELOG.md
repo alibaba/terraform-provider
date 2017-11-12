@@ -1,5 +1,9 @@
 ## 1.3.0 (unreleased)
 
+## 1.2.8 (November 12, 2017)
+IMPROVMENTS:
+  * add WaitForInstanceAsyn to ensure correct status before creating or deleting database([#267](https://github.com/alibaba/terraform-provider/pull/267))
+
 ## 1.2.7 (November 10, 2017)
 IMPROVMENTS:
   * add keypair, ram and userdata for ess scaling configuration ([#265](https://github.com/alibaba/terraform-provider/pull/265))
