@@ -6,6 +6,7 @@ import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
+	"log"
 	"strings"
 )
 
@@ -302,11 +303,11 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 	// Retrieve series instance type family
 	ioOptimized := ecs.IoOptimizedOptimized
 	var expectedFamilies []string
-	outdatedFamiliesMap, expectedFamiliesMap, err := client.FetchSpecifiedInstanceTypeFamily(getRegion(d, meta), zoneId, []string{GenerationOne, GenerationTwo}, zones)
+	mapOutdatedInstanceFamilies, mapUpgradedInstanceFamilies, err := client.FetchSpecifiedInstanceTypeFamily(getRegion(d, meta), zoneId, []string{GenerationOne, GenerationTwo}, zones)
 	if err != nil {
 		return nil, err
 	}
-	for key := range expectedFamiliesMap {
+	for key := range mapUpgradedInstanceFamilies {
 		expectedFamilies = append(expectedFamilies, key)
 	}
 
@@ -316,21 +317,72 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 	} else if insType, ok := d.GetOk("instance_type"); ok {
 		instanceType = insType.(string)
 	}
+
+	validData := make(map[ResourceKeyType]interface{})
+	mapZones := make(map[string]ecs.ZoneType)
+	mapSupportedInstanceTypes := make(map[string]string)
+	mapUpgradedInstanceTypes := make(map[string]string)
+	mapOutdatedInstanceTypes := make(map[string]string)
+	mapOutdatedDiskCategories := make(map[ecs.DiskCategory]ecs.DiskCategory)
+	mapDiskCategories := make(map[ecs.DiskCategory]ecs.DiskCategory)
+	for _, zone := range zones {
+		//Filter and get all instance types in the zones
+		for _, insType := range zone.AvailableInstanceTypes.InstanceTypes {
+			if _, ok := mapSupportedInstanceTypes[insType]; !ok {
+				insTypeSplit := strings.Split(insType, DOT_SEPARATED)
+				mapSupportedInstanceTypes[insType] = string(insTypeSplit[0] + DOT_SEPARATED + insTypeSplit[1])
+			}
+		}
+		if len(zone.AvailableDiskCategories.DiskCategories) < 1 {
+			continue
+		}
+		//Filter and get all instance types in the zones
+		for _, category := range zone.AvailableDiskCategories.DiskCategories {
+			if _, ok := SupportedDiskCategory[category]; ok {
+				mapDiskCategories[category] = category
+			}
+			if _, ok := OutdatedDiskCategory[category]; ok {
+				mapOutdatedDiskCategories[category] = category
+			}
+		}
+		resources := zone.AvailableResources.ResourcesInfo
+		if len(resources) < 1 {
+			continue
+		}
+		mapZones[zone.ZoneId] = zone
+	}
+	//separate all instance types according generation 3 in the zones
+	for key, _ := range mapSupportedInstanceTypes {
+		find := false
+		for out, _ := range mapOutdatedInstanceFamilies {
+			if strings.Contains(key, out) {
+				mapOutdatedInstanceTypes[key] = out
+				mapSupportedInstanceTypes[key] = out
+				find = true
+				break
+			}
+		}
+		if find {
+			continue
+		}
+		for upgrade, _ := range mapUpgradedInstanceFamilies {
+			if strings.Contains(key, upgrade) {
+				mapUpgradedInstanceTypes[key] = upgrade
+				mapSupportedInstanceTypes[key] = upgrade
+				break
+			}
+		}
+	}
+
 	if instanceType != "" {
 
-		instanceTypeSplit := strings.Split(instanceType, DOT_SEPARATED)
-		prefix := string(instanceTypeSplit[0] + DOT_SEPARATED + instanceTypeSplit[1])
 		var instanceTypeObject ecs.InstanceTypeItemType
-		_, outdatedOk := outdatedFamiliesMap[prefix]
-		_, expectedOk := expectedFamiliesMap[prefix]
-		if outdatedOk || expectedOk {
-			mapInstanceTypes, err := client.FetchSpecifiedInstanceTypesByFamily(zoneId, prefix, zones)
+		if targetFamily, ok := mapSupportedInstanceTypes[instanceType]; ok {
+			mapInstanceTypes, err := client.FetchSpecifiedInstanceTypesByFamily(zoneId, targetFamily, zones)
 			if err != nil {
 				return nil, err
 			}
-			if value, ok := mapInstanceTypes[instanceType]; ok {
-				instanceTypeObject = value
-			}
+
 			var validInstanceTypes []string
 			for key, value := range mapInstanceTypes {
 				if instanceType == key {
@@ -346,16 +398,19 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 			if instanceTypeObject.InstanceTypeId == "" {
 				if zoneId == "" {
 					return nil, fmt.Errorf("Instance type %s is not supported in the region %s. Expected instance types of family %s: %s.",
-						instanceType, getRegion(d, meta), prefix, strings.Join(validInstanceTypes, ", "))
+						instanceType, getRegion(d, meta), targetFamily, strings.Join(validInstanceTypes, ", "))
 				}
 				return nil, fmt.Errorf("Instance type %s is not supported in the availability zone %s. Expected instance types of family %s: %s.",
-					instanceType, zoneId, prefix, strings.Join(validInstanceTypes, ", "))
+					instanceType, zoneId, targetFamily, strings.Join(validInstanceTypes, ", "))
 			}
 
 			outDisk := false
 			if disk, ok := d.GetOk("system_disk_category"); ok {
 				_, outDisk = OutdatedDiskCategory[ecs.DiskCategory(disk.(string))]
 			}
+
+			_, outdatedOk := mapOutdatedInstanceTypes[instanceType]
+			_, expectedOk := mapUpgradedInstanceTypes[instanceType]
 
 			if expectedOk && outDisk {
 				return nil, fmt.Errorf("Instance type %s can't support 'cloud' as instance system disk. "+
@@ -364,7 +419,7 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 			if outdatedOk {
 				var expectedEqualCpus []string
 				var expectedEqualMoreCpus []string
-				for _, fam := range expectedFamilies {
+				for _, fam := range mapUpgradedInstanceTypes {
 					mapInstanceTypes, err := client.FetchSpecifiedInstanceTypesByFamily(zoneId, fam, zones)
 					if err != nil {
 						return nil, err
@@ -396,8 +451,8 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 				} else {
 					// Check none io optimized and cloud
 					_, typeOk := NoneIoOptimizedInstanceType[instanceType]
-					_, famOk := NoneIoOptimizedFamily[prefix]
-					_, halfOk := HalfIoOptimizedFamily[prefix]
+					_, famOk := NoneIoOptimizedFamily[targetFamily]
+					_, halfOk := HalfIoOptimizedFamily[targetFamily]
 					if typeOk || famOk {
 						if outDisk {
 							ioOptimized = ecs.IoOptimizedNone
@@ -418,8 +473,8 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 
 		} else {
 			var validFamilies []string
-			for key := range expectedFamiliesMap {
-				validFamilies = append(validFamilies, key)
+			for _, fam := range mapUpgradedInstanceTypes {
+				validFamilies = append(validFamilies, fam)
 			}
 
 			if len(validFamilies) < 1 {
@@ -428,20 +483,20 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 			}
 			if zoneId == "" {
 				return nil, fmt.Errorf("Instance type family %s is not supported in the region %s. Expected instance type families: %s.",
-					prefix, getRegion(d, meta), strings.Join(validFamilies, ", "))
+					targetFamily, getRegion(d, meta), strings.Join(validFamilies, ", "))
 			}
 			return nil, fmt.Errorf("Instance type family %s is not supported in the availability zone %s. Expected instance type families: %s.",
-				prefix, zoneId, strings.Join(validFamilies, ", "))
+				targetFamily, zoneId, strings.Join(validFamilies, ", "))
 		}
 	}
 
 	if instanceTypeFamily, ok := d.GetOk("instance_type_family"); ok {
 
-		_, outdatedOk := outdatedFamiliesMap[instanceTypeFamily.(string)]
-		_, expectedOk := expectedFamiliesMap[instanceTypeFamily.(string)]
+		_, outdatedOk := mapOutdatedInstanceFamilies[instanceTypeFamily.(string)]
+		_, expectedOk := mapUpgradedInstanceFamilies[instanceTypeFamily.(string)]
 		if outdatedOk || !expectedOk {
 			var validFamilies []string
-			for key := range expectedFamiliesMap {
+			for key := range mapUpgradedInstanceFamilies {
 				validFamilies = append(validFamilies, key)
 			}
 			if len(validFamilies) < 1 {
@@ -457,52 +512,12 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 		}
 	}
 
-	validData := make(map[ResourceKeyType]interface{})
-	mapZones := make(map[string]ecs.ZoneType)
-	mapSupportedInstanceTypes := make(map[string]string)
-	mapUpgradedInstanceTypes := make(map[string]string)
-	mapOutdatedInstanceTypes := make(map[string]string)
-	mapOutdatedDiskCategories := make(map[ecs.DiskCategory]ecs.DiskCategory)
-	mapDiskCategories := make(map[ecs.DiskCategory]ecs.DiskCategory)
-	for _, zone := range zones {
-		//var validInstanceTypes []string
-		for _, insType := range zone.AvailableInstanceTypes.InstanceTypes {
-			insTypeSplit := strings.Split(insType, DOT_SEPARATED)
-			prefix := string(insTypeSplit[0] + DOT_SEPARATED + insTypeSplit[1])
-			if _, ok := outdatedFamiliesMap[prefix]; ok {
-				mapOutdatedInstanceTypes[insType] = prefix
-			}
-			if _, ok := expectedFamiliesMap[prefix]; ok {
-				mapUpgradedInstanceTypes[insType] = prefix
-			}
-			mapSupportedInstanceTypes[insType] = prefix
-		}
-		if len(zone.AvailableDiskCategories.DiskCategories) < 1 {
-			continue
-		}
-		//var validDiskCategories []ecs.DiskCategory
-		for _, category := range zone.AvailableDiskCategories.DiskCategories {
-			if _, ok := SupportedDiskCategory[category]; ok {
-				mapDiskCategories[category] = category
-			}
-			if _, ok := OutdatedDiskCategory[category]; ok {
-				mapOutdatedDiskCategories[category] = category
-			}
-		}
-		resources := zone.AvailableResources.ResourcesInfo
-		if len(resources) < 1 {
-			continue
-		}
-		mapZones[zone.ZoneId] = zone
-
-	}
-
 	validData[ZoneKey] = mapZones
 	validData[InstanceTypeKey] = mapSupportedInstanceTypes
 	validData[UpgradedInstanceTypeKey] = mapUpgradedInstanceTypes
 	validData[OutdatedInstanceTypeKey] = mapOutdatedInstanceTypes
-	validData[UpgradedInstanceTypeFamilyKey] = expectedFamiliesMap
-	validData[OutdatedInstanceTypeFamilyKey] = outdatedFamiliesMap
+	validData[UpgradedInstanceTypeFamilyKey] = mapUpgradedInstanceFamilies
+	validData[OutdatedInstanceTypeFamilyKey] = mapOutdatedInstanceFamilies
 	validData[OutdatedDiskCategoryKey] = mapOutdatedDiskCategories
 	validData[DiskCategoryKey] = mapDiskCategories
 	validData[IoOptimizedKey] = ioOptimized
@@ -512,14 +527,16 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 
 func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Region, zoneId string, generations []string, all_zones []ecs.ZoneType) (map[string]ecs.InstanceTypeFamily, map[string]ecs.InstanceTypeFamily, error) {
 	// Describe specified series instance type families
-	outdatedFamiliesMap := make(map[string]ecs.InstanceTypeFamily)
-	upgradedFamiliesMap := make(map[string]ecs.InstanceTypeFamily)
+	mapOutdatedInstanceFamilies := make(map[string]ecs.InstanceTypeFamily)
+	mapUpgradedInstanceFamilies := make(map[string]ecs.InstanceTypeFamily)
 	response, err := client.ecsconn.DescribeInstanceTypeFamilies(&ecs.DescribeInstanceTypeFamiliesArgs{
 		RegionId: regionId,
 	})
 	if err != nil {
 		return nil, nil, fmt.Errorf("Error DescribeInstanceTypeFamilies: %#v.", err)
 	}
+	log.Printf("All the instance families in the region %s: %#v", regionId, response)
+
 	tempOutdatedMap := make(map[string]string)
 	for _, gen := range generations {
 		tempOutdatedMap[gen] = gen
@@ -527,10 +544,10 @@ func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Reg
 
 	for _, family := range response.InstanceTypeFamilies.InstanceTypeFamily {
 		if _, ok := tempOutdatedMap[family.Generation]; ok {
-			outdatedFamiliesMap[family.InstanceTypeFamilyId] = family
+			mapOutdatedInstanceFamilies[family.InstanceTypeFamilyId] = family
 			continue
 		}
-		upgradedFamiliesMap[family.InstanceTypeFamilyId] = family
+		mapUpgradedInstanceFamilies[family.InstanceTypeFamilyId] = family
 	}
 
 	// Filter specified zone's instance type families, and make them fit for specified generation
@@ -542,10 +559,10 @@ func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Reg
 				for _, resource := range zone.AvailableResources.ResourcesInfo {
 					families := resource.InstanceTypeFamilies[ecs.SupportedInstanceTypeFamily]
 					for _, familyId := range families {
-						if val, ok := outdatedFamiliesMap[familyId]; ok {
+						if val, ok := mapOutdatedInstanceFamilies[familyId]; ok {
 							outdatedValidFamilies[familyId] = val
 						}
-						if val, ok := upgradedFamiliesMap[familyId]; ok {
+						if val, ok := mapUpgradedInstanceFamilies[familyId]; ok {
 							upgradedValidFamilies[familyId] = val
 						}
 					}
@@ -555,7 +572,9 @@ func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Reg
 			}
 		}
 	}
-	return outdatedFamiliesMap, upgradedFamiliesMap, nil
+	log.Printf("New generation instance families: %#v. Outdated instance families: %#v.",
+		mapUpgradedInstanceFamilies, mapOutdatedInstanceFamilies)
+	return mapOutdatedInstanceFamilies, mapUpgradedInstanceFamilies, nil
 }
 
 func (client *AliyunClient) FetchSpecifiedInstanceTypesByFamily(zoneId, instanceTypeFamily string, all_zones []ecs.ZoneType) (map[string]ecs.InstanceTypeItemType, error) {
@@ -566,6 +585,7 @@ func (client *AliyunClient) FetchSpecifiedInstanceTypesByFamily(zoneId, instance
 	if err != nil {
 		return nil, fmt.Errorf("Error DescribeInstanceTypes: %#v.", err)
 	}
+	log.Printf("All the instance types of family %s: %#v", instanceTypeFamily, types)
 	instanceTypes := make(map[string]ecs.InstanceTypeItemType)
 	for _, ty := range types {
 		instanceTypes[ty.InstanceTypeId] = ty
