@@ -3,3 +3,5 @@ import:
 - package: github.com/hashicorp/terraform
   version: 0.9.2
 - package: github.com/denverdino/aliyungo
+  vcs: git
+  version: 93005eba8e87d508055095587a71db7ce2478adf
