@@ -46,9 +46,10 @@ func resourceAlicloudContainerCluster() *schema.Resource {
 				ForceNew: true,
 			},
 			"instance_type": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateInstanceType,
 			},
 			"vswitch_id": &schema.Schema{
 				Type:     schema.TypeString,
