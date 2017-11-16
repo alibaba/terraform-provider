@@ -1,5 +1,11 @@
 ## 1.3.0 (unreleased)
 
+## 1.2.9 (November 16, 2017)
+IMPROVMENTS:
+  * fix retriving instance types bug: ([#270](https://github.com/alibaba/terraform-provider/pull/270))
+  * add tags for ESS: ([#274](https://github.com/alibaba/terraform-provider/pull/274))
+
+
 ## 1.2.8 (November 12, 2017)
 IMPROVMENTS:
   * add WaitForInstanceAsyn to ensure correct status before creating or deleting database([#267](https://github.com/alibaba/terraform-provider/pull/267))

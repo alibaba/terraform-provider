@@ -36,9 +36,10 @@ func resourceAliyunInstance() *schema.Resource {
 			},
 
 			"instance_type": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateInstanceType,
 			},
 
 			"security_groups": &schema.Schema{

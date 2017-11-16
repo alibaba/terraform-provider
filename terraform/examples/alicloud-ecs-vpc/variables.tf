@@ -9,22 +9,17 @@ variable "image_id" {
 }
 
 variable "role" {
+  default = "example-ecs-vpc"
 }
-variable "datacenter" {
-}
+
 variable "short_name" {
   default = "hi"
 }
-variable "ecs_type" {
-}
+
 variable "ecs_password" {
   default = "Test12345"
 }
-variable "availability_zones" {
-}
-variable "security_groups" {
-  type    = "list"
-}
+
 variable "ssh_username" {
   default = "root"
 }
@@ -56,6 +51,26 @@ variable "disk_size" {
   default = "40"
 }
 
-variable "vswitch_id" {
-  default = ""
+variable "vpc_name" {
+  description = "The vpc name used to launch a new vpc."
+  default = "TF-VPC"
+}
+variable "vpc_cidr" {
+  description = "The cidr block used to launch a new vpc."
+  default = "172.16.0.0/12"
+}
+
+variable "vswitch_name" {
+  description = "The vswitch name used to launch a new vswitch."
+  default = "TF_VSwitch"
+}
+variable "vswitch_cidr" {
+  description = "The cidr block used to launch a new vswitch."
+  default = "172.16.0.0/16"
+}
+
+# Security Group variables
+variable "sg_name" {
+  description = "The security group name used to launch a new security group."
+  default = "TF_Security_Group"
 }
