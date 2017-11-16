@@ -1,5 +1,10 @@
 ## 1.3.0 (unreleased)
 
+## 1.2.10 (November 16, 2017)
+IMPROVMENTS:
+  * fix slb listener max healthy check timeout and interval: ([#276](https://github.com/alibaba/terraform-provider/pull/276))
+
+
 ## 1.2.9 (November 16, 2017)
 IMPROVMENTS:
   * fix retriving instance types bug: ([#270](https://github.com/alibaba/terraform-provider/pull/270))
