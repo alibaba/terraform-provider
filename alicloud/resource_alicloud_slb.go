@@ -178,13 +178,15 @@ func resourceAliyunSlb() *schema.Resource {
 
 						"health_check_timeout": &schema.Schema{
 							Type:         schema.TypeInt,
-							ValidateFunc: validateIntegerInRange(1, 50),
+							ValidateFunc: validateIntegerInRange(1, 300),
 							Optional:     true,
+							Default:      5,
 						},
 						"health_check_interval": &schema.Schema{
 							Type:         schema.TypeInt,
-							ValidateFunc: validateIntegerInRange(1, 5),
+							ValidateFunc: validateIntegerInRange(1, 50),
 							Optional:     true,
+							Default:      2,
 						},
 						//http & https & tcp
 						"health_check_http_code": &schema.Schema{
