@@ -39,9 +39,10 @@ func resourceAlicloudEssScalingConfiguration() *schema.Resource {
 				Required: true,
 			},
 			"instance_type": &schema.Schema{
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				Type:         schema.TypeString,
+				ForceNew:     true,
+				Required:     true,
+				ValidateFunc: validateInstanceType,
 			},
 			"io_optimized": &schema.Schema{
 				Type:       schema.TypeString,
@@ -150,6 +151,12 @@ func resourceAlicloudEssScalingConfiguration() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+			},
+
+			"tags": &schema.Schema{
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: true,
 			},
 		},
 	}
@@ -334,6 +341,7 @@ func resourceAliyunEssScalingConfigurationRead(d *schema.ResourceData, meta inte
 	d.Set("key_name", c.KeyPairName)
 	d.Set("user_data", userDataHashSum(c.UserData))
 	d.Set("force_delete", d.Get("force_delete").(bool))
+	d.Set("tags", essTagsToMap(c.Tags.Tag))
 
 	return nil
 }
@@ -464,6 +472,14 @@ func buildAlicloudEssScalingConfigurationArgs(d *schema.ResourceData, meta inter
 
 	if v, ok := d.GetOk("user_data"); ok && v.(string) != "" {
 		args.UserData = v.(string)
+	}
+
+	if v, ok := d.GetOk("tags"); ok {
+		tags := "{"
+		for key, value := range v.(map[string]interface{}) {
+			tags += "\"" + key + "\"" + ":" + "\"" + value.(string) + "\"" + ","
+		}
+		args.Tags = strings.TrimSuffix(tags, ",") + "}"
 	}
 
 	return args, nil

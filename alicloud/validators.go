@@ -17,6 +17,7 @@ import (
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/schema"
+	"log"
 )
 
 // common
@@ -1032,6 +1033,16 @@ func validateRouterInterfaceDescription(v interface{}, k string) (ws []string, e
 
 	if strings.HasPrefix(value, "http://") || strings.HasPrefix(value, "https://") {
 		errors = append(errors, fmt.Errorf("%s cannot starts with http:// or https://", k))
+	}
+	return
+}
+
+func validateInstanceType(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	log.Printf("*********value:%#v", v)
+	if !strings.HasPrefix(value, "ecs.") {
+		log.Printf("*********value2:%#v", value)
+		errors = append(errors, fmt.Errorf("Invalid %q: %s. It must be 'ecs.' as prefix.", k, value))
 	}
 	return
 }

@@ -311,13 +311,6 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 		expectedFamilies = append(expectedFamilies, key)
 	}
 
-	var instanceType string
-	if insType, ok := d.GetOk("available_instance_type"); ok {
-		instanceType = insType.(string)
-	} else if insType, ok := d.GetOk("instance_type"); ok {
-		instanceType = insType.(string)
-	}
-
 	validData := make(map[ResourceKeyType]interface{})
 	mapZones := make(map[string]ecs.ZoneType)
 	mapSupportedInstanceTypes := make(map[string]string)
@@ -355,7 +348,7 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 	for key, _ := range mapSupportedInstanceTypes {
 		find := false
 		for out, _ := range mapOutdatedInstanceFamilies {
-			if strings.Contains(key, out) {
+			if strings.HasPrefix(key, out) {
 				mapOutdatedInstanceTypes[key] = out
 				mapSupportedInstanceTypes[key] = out
 				find = true
@@ -366,7 +359,7 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 			continue
 		}
 		for upgrade, _ := range mapUpgradedInstanceFamilies {
-			if strings.Contains(key, upgrade) {
+			if strings.HasPrefix(key, upgrade) {
 				mapUpgradedInstanceTypes[key] = upgrade
 				mapSupportedInstanceTypes[key] = upgrade
 				break
@@ -374,10 +367,19 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 		}
 	}
 
+	var instanceType string
+	if insType, ok := d.GetOk("available_instance_type"); ok {
+		instanceType = insType.(string)
+	} else if insType, ok := d.GetOk("instance_type"); ok {
+		instanceType = insType.(string)
+	}
 	if instanceType != "" {
-
+		if !strings.HasPrefix(instanceType, "ecs.") {
+			return nil, fmt.Errorf("Invalid instance_type: %s. Please modify it and try again.", instanceType)
+		}
 		var instanceTypeObject ecs.InstanceTypeItemType
-		if targetFamily, ok := mapSupportedInstanceTypes[instanceType]; ok {
+		targetFamily, ok := mapSupportedInstanceTypes[instanceType]
+		if ok {
 			mapInstanceTypes, err := client.FetchSpecifiedInstanceTypesByFamily(zoneId, targetFamily, zones)
 			if err != nil {
 				return nil, err
@@ -471,44 +473,23 @@ func (client *AliyunClient) CheckParameterValidity(d *schema.ResourceData, meta 
 				}
 			}
 
-		} else {
-			var validFamilies []string
-			for _, fam := range mapUpgradedInstanceTypes {
-				validFamilies = append(validFamilies, fam)
-			}
-
-			if len(validFamilies) < 1 {
-				return nil, fmt.Errorf("There is no available instance type in the current availability zone." +
-					"Please change availability zone or region and try again.")
-			}
-			if zoneId == "" {
-				return nil, fmt.Errorf("Instance type family %s is not supported in the region %s. Expected instance type families: %s.",
-					targetFamily, getRegion(d, meta), strings.Join(validFamilies, ", "))
-			}
-			return nil, fmt.Errorf("Instance type family %s is not supported in the availability zone %s. Expected instance type families: %s.",
-				targetFamily, zoneId, strings.Join(validFamilies, ", "))
+		} else if err := getExpectInstanceTypesAndFormatOut(zoneId, targetFamily, getRegion(d, meta), mapUpgradedInstanceFamilies); err != nil {
+			return nil, err
 		}
 	}
 
 	if instanceTypeFamily, ok := d.GetOk("instance_type_family"); ok {
 
+		if !strings.HasPrefix(instanceTypeFamily.(string), "ecs.") {
+			return nil, fmt.Errorf("Invalid instance_type_family: %s. Please modify it and try again.", instanceTypeFamily.(string))
+		}
+
 		_, outdatedOk := mapOutdatedInstanceFamilies[instanceTypeFamily.(string)]
 		_, expectedOk := mapUpgradedInstanceFamilies[instanceTypeFamily.(string)]
 		if outdatedOk || !expectedOk {
-			var validFamilies []string
-			for key := range mapUpgradedInstanceFamilies {
-				validFamilies = append(validFamilies, key)
+			if err := getExpectInstanceTypesAndFormatOut(zoneId, instanceTypeFamily.(string), getRegion(d, meta), mapUpgradedInstanceFamilies); err != nil {
+				return nil, err
 			}
-			if len(validFamilies) < 1 {
-				return nil, fmt.Errorf("There is no available instance type family in the current availability zone." +
-					"Please change availability zone or region and try again.")
-			}
-			if zoneId == "" {
-				return nil, fmt.Errorf("Instance type family %s is not supported in the region %s. Expected instance type families: %s.",
-					instanceTypeFamily, getRegion(d, meta), strings.Join(validFamilies, ", "))
-			}
-			return nil, fmt.Errorf("Instance type family %s is not supported in the availability zone %s. Expected instance type families: %s.",
-				instanceTypeFamily, zoneId, strings.Join(validFamilies, ", "))
 		}
 	}
 
@@ -572,7 +553,7 @@ func (client *AliyunClient) FetchSpecifiedInstanceTypeFamily(regionId common.Reg
 			}
 		}
 	}
-	log.Printf("New generation instance families: %#v. Outdated instance families: %#v.",
+	log.Printf("New generation instance families: %#v.\n Outdated instance families: %#v.",
 		mapUpgradedInstanceFamilies, mapOutdatedInstanceFamilies)
 	return mapOutdatedInstanceFamilies, mapUpgradedInstanceFamilies, nil
 }
@@ -610,6 +591,24 @@ func (client *AliyunClient) FetchSpecifiedInstanceTypesByFamily(zoneId, instance
 		}
 	}
 	return instanceTypes, nil
+}
+
+func getExpectInstanceTypesAndFormatOut(zoneId, instanceTypeFamily string, regionId common.Region, mapInstanceFamilies map[string]ecs.InstanceTypeFamily) error {
+	var validFamilies []string
+
+	for key := range mapInstanceFamilies {
+		validFamilies = append(validFamilies, key)
+	}
+	if len(validFamilies) < 1 {
+		return fmt.Errorf("There is no available instance type family in the current availability zone." +
+			"Please change availability zone or region and try again.")
+	}
+	if zoneId == "" {
+		return fmt.Errorf("Instance type family %s is not supported in the region %s. Expected instance type families: %s.",
+			instanceTypeFamily, regionId, strings.Join(validFamilies, ", "))
+	}
+	return fmt.Errorf("Instance type family %s is not supported in the availability zone %s. Expected instance type families: %s.",
+		instanceTypeFamily, zoneId, strings.Join(validFamilies, ", "))
 }
 
 func (client *AliyunClient) QueryInstancesWithKeyPair(region common.Region, instanceIds, keypair string) ([]interface{}, []ecs.InstanceAttributesType, error) {
