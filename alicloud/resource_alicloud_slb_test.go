@@ -85,7 +85,7 @@ func TestAccAlicloudSlb_listener(t *testing.T) {
 	testListener := func() resource.TestCheckFunc {
 		return func(*terraform.State) error {
 			listenerPorts := slb.ListenerPorts.ListenerPort[0]
-			if listenerPorts != 2001 {
+			if listenerPorts != 80 {
 				return fmt.Errorf("bad loadbalancer listener: %#v", listenerPorts)
 			}
 
@@ -279,7 +279,6 @@ resource "alicloud_slb" "listener" {
       "cookie" = "testslblistenercookie"
       "cookie_timeout" = 1800
       "health_check" = "on"
-      "health_check_domain" = "$_ip"
       "health_check_uri" = "/console"
       "health_check_connect_port" = 20
       "healthy_threshold" = 8
