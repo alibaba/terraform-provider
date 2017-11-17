@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"log"
 	"reflect"
 	"time"
 )
@@ -117,7 +116,6 @@ func resourceAliyunSlb() *schema.Resource {
 							Type:         schema.TypeInt,
 							ValidateFunc: validateSlbListenerCookieTimeout,
 							Optional:     true,
-							Default:      3600,
 						},
 						//http & https
 						"cookie": &schema.Schema{
@@ -166,19 +164,16 @@ func resourceAliyunSlb() *schema.Resource {
 							Type:         schema.TypeInt,
 							ValidateFunc: validateSlbListenerHealthCheckConnectPort,
 							Optional:     true,
-							Computed:     true,
 						},
 						"healthy_threshold": &schema.Schema{
 							Type:         schema.TypeInt,
 							ValidateFunc: validateIntegerInRange(1, 10),
 							Optional:     true,
-							Default:      3,
 						},
 						"unhealthy_threshold": &schema.Schema{
 							Type:         schema.TypeInt,
 							ValidateFunc: validateIntegerInRange(1, 10),
 							Optional:     true,
-							Default:      3,
 						},
 
 						"health_check_timeout": &schema.Schema{
@@ -202,7 +197,6 @@ func resourceAliyunSlb() *schema.Resource {
 								string(slb.HTTP_4XX),
 								string(slb.HTTP_5XX)}, ","),
 							Optional: true,
-							Default:  slb.HTTP_2XX,
 						},
 						//https
 						"ssl_certificate_id": &schema.Schema{
@@ -257,7 +251,7 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 		slbArgs.AddressType = slb.InternetAddressType
 	}
 
-	if v, ok := d.GetOk("internet_charge_type"); ok {
+	if v, ok := d.GetOk("internet_charge_type"); ok && v.(string) != "" {
 		slbArgs.InternetChargeType = slb.InternetChargeType(v.(string))
 	}
 
@@ -265,7 +259,7 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 		slbArgs.Bandwidth = v.(int)
 	}
 
-	if v, ok := d.GetOk("vswitch_id"); ok {
+	if v, ok := d.GetOk("vswitch_id"); ok && v.(string) != "" {
 		slbArgs.VSwitchId = v.(string)
 	}
 	slb, err := slbconn.CreateLoadBalancer(slbArgs)
@@ -447,92 +441,8 @@ func resourceAliyunSlbListenerHash(v interface{}) int {
 
 	buf.WriteString(fmt.Sprintf("%d-", m["bandwidth"].(int)))
 
-	http := Protocol(m["lb_protocol"].(string)) == Http
-	https := Protocol(m["lb_protocol"].(string)) == Https
-	tcp := Protocol(m["lb_protocol"].(string)) == Tcp
-	udp := Protocol(m["lb_protocol"].(string)) == Udp
-	health_check := false
-
-	if v, ok := m["scheduler"]; ok {
+	if v, ok := m["ssl_certificate_id"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-	}
-
-	if http || https {
-		if v, ok := m["sticky_session"]; ok {
-			buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-			if slb.FlagType(v.(string)) == slb.OnFlag {
-				if v, ok := m["sticky_session_type"]; ok {
-					buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-					if slb.StickySessionType(v.(string)) == slb.InsertStickySessionType {
-						if v, ok := m["cookie_timeout"]; ok {
-							buf.WriteString(fmt.Sprintf("%d-", v.(int)))
-						}
-					} else {
-						if v, ok := m["cookie"]; ok {
-							buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-						}
-					}
-				}
-			}
-		}
-
-		if v, ok := m["health_check"]; ok {
-			buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-			if slb.FlagType(v.(string)) == slb.OnFlag {
-				health_check = true
-			}
-		}
-	}
-
-	if health_check || tcp {
-		if v, ok := m["health_check_domain"]; ok {
-			buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-		}
-		if v, ok := m["health_check_uri"]; ok {
-			buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-		}
-		if v, ok := m["health_check_http_code"]; ok {
-			buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-		}
-	}
-
-	if tcp || udp {
-		if v, ok := m["persistence_timeout"]; ok {
-			buf.WriteString(fmt.Sprintf("%d-", v.(int)))
-		}
-	}
-
-	if tcp {
-		if v, ok := m["health_check_type"]; ok {
-			buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-		}
-	}
-
-	if https {
-		if v, ok := m["ssl_certificate_id"]; ok {
-			buf.WriteString(fmt.Sprintf("%s-", v.(string)))
-		}
-	}
-
-	if health_check || tcp || udp {
-		if v, ok := m["healthy_threshold"]; ok {
-			buf.WriteString(fmt.Sprintf("%d-", v.(int)))
-		}
-
-		if v, ok := m["unhealthy_threshold"]; ok {
-			buf.WriteString(fmt.Sprintf("%d-", v.(int)))
-		}
-
-		if v, ok := m["health_check_timeout"]; ok {
-			buf.WriteString(fmt.Sprintf("%d-", v.(int)))
-		}
-
-		if v, ok := m["health_check_interval"]; ok {
-			buf.WriteString(fmt.Sprintf("%d-", v.(int)))
-		}
-		if v, ok := m["health_check_connect_port"]; ok {
-			buf.WriteString(fmt.Sprintf("%d-", v.(int)))
-		}
 	}
 
 	return hashcode.String(buf.String())
@@ -544,15 +454,17 @@ func createListener(conn *slb.Client, loadBalancerId string, listener *Listener)
 		if err != nil {
 			if listenerType, ok := err.(*ListenerErr); ok {
 				if listenerType.ErrType == HealthCheckErrType {
-					return fmt.Errorf("'health_check_uri': required field is not set when the HealthCheck is %s.", slb.OnFlag)
+					return fmt.Errorf("When the HealthCheck is %s, then related HealthCheck parameter "+
+						"must have.", slb.OnFlag)
 				} else if listenerType.ErrType == StickySessionErrType {
-					return fmt.Errorf("'sticky_session_type': required field is not set when the StickySession is %s.", slb.OnFlag)
+					return fmt.Errorf("When the StickySession is %s, then StickySessionType parameter "+
+						"must have.", slb.OnFlag)
 				} else if listenerType.ErrType == CookieTimeOutErrType {
-					return fmt.Errorf("'cookie_timeout': required field is not set when the StickySession is %s "+
-						"and StickySessionType is %s.", slb.OnFlag, slb.InsertStickySessionType)
+					return fmt.Errorf("When the StickySession is %s and StickySessionType is %s, "+
+						"then CookieTimeout parameter must have.", slb.OnFlag, slb.InsertStickySessionType)
 				} else if listenerType.ErrType == CookieErrType {
-					return fmt.Errorf("'cookie': required field is not set when the StickySession is %s "+
-						"and StickySessionType is %s.", slb.OnFlag, slb.ServerStickySessionType)
+					return fmt.Errorf("When the StickySession is %s and StickySessionType is %s, "+
+						"then Cookie parameter must have.", slb.OnFlag, slb.ServerStickySessionType)
 				}
 				return fmt.Errorf("slb listener check errtype not found.")
 			}
@@ -643,10 +555,6 @@ func getUdpListenerArgs(loadBalancerId string, listener *Listener) slb.CreateLoa
 		PersistenceTimeout:        listener.PersistenceTimeout,
 		HealthCheckConnectTimeout: listener.HealthCheckTimeout,
 		HealthCheckInterval:       listener.HealthCheckInterval,
-		Scheduler:                 listener.Scheduler,
-		HealthCheckConnectPort:    listener.HealthCheckConnectPort,
-		HealthyThreshold:          listener.HealthyThreshold,
-		UnhealthyThreshold:        listener.UnhealthyThreshold,
 	}
 	return args
 }
@@ -654,7 +562,10 @@ func getUdpListenerArgs(loadBalancerId string, listener *Listener) slb.CreateLoa
 func getHttpListenerType(loadBalancerId string, listener *Listener) (listenType slb.HTTPListenerType, err error) {
 
 	if listener.HealthCheck == slb.OnFlag {
-		if listener.HealthCheckURI == "" {
+		if listener.HealthCheckURI == "" || listener.HealthCheckDomain == "" || listener.HealthCheckConnectPort == 0 ||
+			listener.HealthyThreshold == 0 || listener.UnhealthyThreshold == 0 || listener.HealthCheckTimeout == 0 ||
+			listener.HealthCheckHttpCode == "" || listener.HealthCheckInterval == 0 {
+
 			errMsg := errors.New("err: HealthCheck empty.")
 			return listenType, &ListenerErr{HealthCheckErrType, errMsg}
 		}
@@ -748,7 +659,7 @@ func readListerners(conn *slb.Client, loadBalancer *slb.LoadBalancerType) ([]map
 			listeners = append(listeners, setListenerAttribute(udp_ls, Udp))
 		}
 	}
-	log.Printf("Listeners set: %#v", listeners)
+
 	return listeners, nil
 }
 
@@ -808,9 +719,6 @@ func setListenerAttribute(listen interface{}, protocol Protocol) map[string]inte
 		listener["unhealthy_threshold"] = val.Interface().(int)
 	}
 	if val := v.FieldByName("HealthCheckTimeout"); val.IsValid() {
-		listener["health_check_timeout"] = val.Interface().(int)
-	}
-	if val := v.FieldByName("HealthCheckConnectTimeout"); val.IsValid() {
 		listener["health_check_timeout"] = val.Interface().(int)
 	}
 	if val := v.FieldByName("HealthCheckInterval"); val.IsValid() {
