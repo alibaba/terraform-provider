@@ -41,7 +41,6 @@ resource "alicloud_slb" "instance" {
         "cookie" = "testslblistenercookie"
         "cookie_timeout" = 86400
         "health_check" = "on"
-        "health_check_domain" = "$_ip"
         "health_check_uri" = "/console"
         "health_check_connect_port" = 20
         "healthy_threshold" = 8
