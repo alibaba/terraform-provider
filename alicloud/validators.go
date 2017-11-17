@@ -17,6 +17,7 @@ import (
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/schema"
+	"log"
 )
 
 // common
@@ -377,9 +378,9 @@ func validateSlbListenerCookie(v interface{}, k string) (ws []string, errors []e
 
 func validateSlbListenerCookieTimeout(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(int)
-	if value < 1 || value > 86400 {
+	if value < 0 || value > 86400 {
 		errors = append(errors, fmt.Errorf(
-			"%q must be a valid load balancer cookie timeout between 1 and 86400",
+			"%q must be a valid load balancer cookie timeout between 0 and 86400",
 			k))
 		return
 	}
@@ -399,8 +400,9 @@ func validateSlbListenerPersistenceTimeout(v interface{}, k string) (ws []string
 
 func validateSlbListenerHealthCheckDomain(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
-		if reg := regexp.MustCompile(`^[\w\-.]{1,80}$`); !reg.MatchString(value) {
-			errors = append(errors, fmt.Errorf("%q length is limited to 1-80 and only characters such as letters, digits, '-' and '.' are allowed", k))
+		//the len add "$_ip",so to max is 84
+		if len(value) < 1 || len(value) > 84 {
+			errors = append(errors, fmt.Errorf("%q cannot be longer than 84 characters", k))
 		}
 	}
 	return
@@ -1037,7 +1039,9 @@ func validateRouterInterfaceDescription(v interface{}, k string) (ws []string, e
 
 func validateInstanceType(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
+	log.Printf("*********value:%#v", v)
 	if !strings.HasPrefix(value, "ecs.") {
+		log.Printf("*********value2:%#v", value)
 		errors = append(errors, fmt.Errorf("Invalid %q: %s. It must be 'ecs.' as prefix.", k, value))
 	}
 	return

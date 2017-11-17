@@ -1,10 +1,5 @@
 ## 1.3.0 (unreleased)
 
-## 1.2.11 (November 17, 2017)
-IMPROVMENTS:
-  * fix slb listener diff can be run when change listener health parameters: ([#278](https://github.com/alibaba/terraform-provider/pull/278))
-
-
 ## 1.2.10 (November 16, 2017)
 IMPROVMENTS:
   * fix slb listener max healthy check timeout and interval: ([#276](https://github.com/alibaba/terraform-provider/pull/276))
