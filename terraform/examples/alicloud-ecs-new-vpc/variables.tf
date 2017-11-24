@@ -9,7 +9,7 @@ variable "alicloud_secret_key" {
 }
 variable "region" {
   description = "The region to launch resources."
-  default = ""
+  default = "cn-shanghai"
 }
 variable "availability_zone" {
   description = "The available zone to launch ecs instance and other resources."
@@ -121,7 +121,7 @@ variable "disk_tags" {
 
 variable "number_of_disks" {
   description = "The number of launching disks one time."
-  default = 0
+  default = 20
 }
 
 # Ecs instance variables
@@ -192,5 +192,5 @@ variable "instance_tags" {
 
 variable "number_of_instances" {
   description = "The number of launching instances one time."
-  default = 1
+  default = 20
 }
