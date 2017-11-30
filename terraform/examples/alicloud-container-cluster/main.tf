@@ -36,7 +36,6 @@ resource "alicloud_container_cluster" "cs_vpc" {
   disk_size = "${var.disk_size}"
   cidr_block = "${var.cidr_block}"
   image_id = "${data.alicloud_images.main.images.0.id}"
-//  image_id = "m-xx251ll"
   vswitch_id = "${alicloud_vswitch.main.id}"
 }
 

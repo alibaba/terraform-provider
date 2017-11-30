@@ -40,6 +40,10 @@ const (
 	VpcQuotaExceeded = "QuotaExceeded.Vpc"
 	// vswitch
 	VswitcInvalidRegionId = "InvalidRegionId.NotFound"
+	//vroute entry
+	IncorrectRouteEntryStatus = "IncorrectRouteEntryStatus"
+	TaskConflict              = "TaskConflict"
+	RouterEntryForbbiden      = "Forbbiden"
 
 	// ess
 	InvalidScalingGroupIdNotFound               = "InvalidScalingGroupId.NotFound"
