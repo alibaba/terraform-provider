@@ -21,6 +21,12 @@ IMPROVMENTS:
   * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
 
 
+## 1.2.11 (November 30, 2017)
+IMPROVMENTS:
+  * fix creating multiple route entries bug: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * add creating multiple vpcs and vswitches test case: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+
 ## 1.2.10 (November 16, 2017)
 IMPROVMENTS:
   * fix slb listener max healthy check timeout and interval: ([#276](https://github.com/alibaba/terraform-provider/pull/276))
