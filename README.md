@@ -76,6 +76,7 @@ For more about the regions and availability zones, use data source `alicloud_reg
 * [RAM](https://www.aliyun.com/product/ram)
 * [CDN](https://www.aliyun.com/product/cdn)
 * [DNS](https://wanwang.aliyun.com/domain/dns)
+* [Container](https://www.aliyun.com/product/containerservice)
 
 #### Documents
 The latest supported product document as follows:
@@ -116,4 +117,5 @@ sudo -E "PATH=$PATH" make all
 
 ### Refrence
 * Terraform Document: https://www.terraform.io/intro/
-* Terraform Alicloud Examples: https://github.com/mosuke5/terraform_for_alibabacloud_examples
+* Terraform Registry Of Alicloud: https://registry.terraform.io/modules/alibaba
+* Terraform Alicloud Examples: [Official Examples](https://github.com/terraform-providers/terraform-provider-alicloud/tree/master/examples) , [Other Examples](https://github.com/mosuke5/terraform_for_alibabacloud_examples)

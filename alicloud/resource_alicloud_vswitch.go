@@ -54,13 +54,12 @@ func resourceAliyunSwitchCreate(d *schema.ResourceData, meta interface{}) error 
 
 	conn := meta.(*AliyunClient).ecsconn
 
-	args, err := buildAliyunSwitchArgs(d, meta)
-	if err != nil {
-		return err
-	}
-
-	var vswitchID string
-	err = resource.Retry(3*time.Minute, func() *resource.RetryError {
+	var vswitchID, vpcID string
+	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
+		args, err := buildAliyunSwitchArgs(d, meta)
+		if err != nil {
+			return resource.NonRetryableError(fmt.Errorf("Building CreateVSwitchArgs got an error: %#v", err))
+		}
 		vswId, err := conn.CreateVSwitch(args)
 		if err != nil {
 			if e, ok := err.(*common.Error); ok && (e.StatusCode == 400 || e.Code == UnknownError) {
@@ -69,6 +68,7 @@ func resourceAliyunSwitchCreate(d *schema.ResourceData, meta interface{}) error 
 			return resource.NonRetryableError(err)
 		}
 		vswitchID = vswId
+		vpcID = args.VpcId
 		return nil
 	})
 
@@ -78,7 +78,7 @@ func resourceAliyunSwitchCreate(d *schema.ResourceData, meta interface{}) error 
 
 	d.SetId(vswitchID)
 
-	err = conn.WaitForVSwitchAvailable(args.VpcId, vswitchID, 60)
+	err = conn.WaitForVSwitchAvailable(vpcID, vswitchID, 300)
 	if err != nil {
 		return fmt.Errorf("WaitForVSwitchAvailable got a error: %s", err)
 	}
