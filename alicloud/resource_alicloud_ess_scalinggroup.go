@@ -120,17 +120,17 @@ func resourceAliyunEssScalingGroupUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	if d.HasChange("min_size") {
-		args.MinSize = d.Get("min_size").(int)
+		args.MinSize = d.Get("min_size").(*int)
 		d.SetPartial("min_size")
 	}
 
 	if d.HasChange("max_size") {
-		args.MaxSize = d.Get("max_size").(int)
+		args.MaxSize = d.Get("max_size").(*int)
 		d.SetPartial("max_size")
 	}
 
 	if d.HasChange("default_cooldown") {
-		args.DefaultCooldown = d.Get("default_cooldown").(int)
+		args.DefaultCooldown = d.Get("default_cooldown").(*int)
 		d.SetPartial("default_cooldown")
 	}
 
@@ -158,9 +158,9 @@ func buildAlicloudEssScalingGroupArgs(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*AliyunClient)
 	args := &ess.CreateScalingGroupArgs{
 		RegionId:        getRegion(d, meta),
-		MinSize:         d.Get("min_size").(int),
-		MaxSize:         d.Get("max_size").(int),
-		DefaultCooldown: d.Get("default_cooldown").(int),
+		MinSize:         d.Get("min_size").(*int),
+		MaxSize:         d.Get("max_size").(*int),
+		DefaultCooldown: d.Get("default_cooldown").(*int),
 	}
 
 	if v := d.Get("scaling_group_name").(string); v != "" {
