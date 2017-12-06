@@ -24,7 +24,8 @@ const (
 	// slb
 	LoadBalancerNotFound    = "InvalidLoadBalancerId.NotFound"
 	UnsupportedProtocalPort = "UnsupportedOperationonfixedprotocalport"
-
+	ListenerNotFound        = "The specified resource does not exist"
+	ListenerAlreadyExists   = "ListenerAlreadyExists"
 	// security_group
 	InvalidInstanceIdAlreadyExists = "InvalidInstanceId.AlreadyExists"
 	InvalidSecurityGroupIdNotFound = "InvalidSecurityGroupId.NotFound"
@@ -40,6 +41,10 @@ const (
 	VpcQuotaExceeded = "QuotaExceeded.Vpc"
 	// vswitch
 	VswitcInvalidRegionId = "InvalidRegionId.NotFound"
+	//vroute entry
+	IncorrectRouteEntryStatus = "IncorrectRouteEntryStatus"
+	TaskConflict              = "TaskConflict"
+	RouterEntryForbbiden      = "Forbbiden"
 
 	// ess
 	InvalidScalingGroupIdNotFound               = "InvalidScalingGroupId.NotFound"
