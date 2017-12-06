@@ -1,9 +1,10 @@
 ## 1.3.0 (unreleased)
 
-## 1.2.11 (November 17, 2017)
+## 1.2.11 (November 30, 2017)
 IMPROVMENTS:
-  * fix slb listener diff can be run when change listener health parameters: ([#278](https://github.com/alibaba/terraform-provider/pull/278))
-
+  * fix creating multiple route entries bug: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * add creating multiple vpcs and vswitches test case: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
 
 ## 1.2.10 (November 16, 2017)
 IMPROVMENTS:
