@@ -399,6 +399,9 @@ func validateSlbListenerPersistenceTimeout(v interface{}, k string) (ws []string
 
 func validateSlbListenerHealthCheckDomain(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
+		if value == "$_ip" {
+			errors = append(errors, fmt.Errorf("%q value '$_ip' has been deprecated, and empty string will replace it.", k))
+		}
 		if reg := regexp.MustCompile(`^[\w\-.]{1,80}$`); !reg.MatchString(value) {
 			errors = append(errors, fmt.Errorf("%q length is limited to 1-80 and only characters such as letters, digits, '-' and '.' are allowed", k))
 		}

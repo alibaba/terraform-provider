@@ -145,9 +145,7 @@ func (c *Config) ecsConn() (*ecs.Client, error) {
 	client.SetBusinessInfo(BusinessInfoKey)
 	client.SetUserAgent(getUserAgent())
 
-	_, err := client.DescribeRegions()
-
-	if err != nil {
+	if _, err := client.DescribeRegions(); err != nil {
 		return nil, err
 	}
 

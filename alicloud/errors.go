@@ -24,7 +24,8 @@ const (
 	// slb
 	LoadBalancerNotFound    = "InvalidLoadBalancerId.NotFound"
 	UnsupportedProtocalPort = "UnsupportedOperationonfixedprotocalport"
-
+	ListenerNotFound        = "The specified resource does not exist"
+	ListenerAlreadyExists   = "ListenerAlreadyExists"
 	// security_group
 	InvalidInstanceIdAlreadyExists = "InvalidInstanceId.AlreadyExists"
 	InvalidSecurityGroupIdNotFound = "InvalidSecurityGroupId.NotFound"

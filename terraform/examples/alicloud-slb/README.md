@@ -5,9 +5,9 @@ The example create SLB and additional listener, the listener parameter following
 ### SLB Listener parameter describe
 listener parameter | support protocol | value range | remark |
 ------------- | ------------- | ------------- |  ------------- |
-instance_port | http & https & tcp & udp | 1-65535 | the ecs instance port |
-lb_port | http & https & tcp & udp | 1-65535 | the slb linstener port |
-lb_protocol | http & https & tcp & udp | http or https or tcp or udp | |
+backend_port | http & https & tcp & udp | 1-65535 | the ecs instance port |
+frontend_port | http & https & tcp & udp | 1-65535 | the slb linstener port |
+protocol | http & https & tcp & udp | http or https or tcp or udp | |
 bandwidth | http & https & tcp & udp | -1 / 1-1000 | |
 scheduler | http & https & tcp & udp | wrr or wlc | |
 sticky_session | http & https | on or off | |
@@ -18,7 +18,7 @@ persistence_timeout | tcp & udp | 0-3600 | |
 health_check | http & https | on or off | | TCP and UDP listener's HealthCheck is always on
 health_check_type | tcp | tcp or http | if health_check is on, the value must have |
 health_check_domain | http & https & tcp | | one string which length is 1-80 and only allow letters, digits, '-' and '.' characters. When it is not set or empty,  Server Load Balancer uses the private network IP address of each backend server as Domain used for health check  |
-health_check_uri | http & https & tcp |  | example: /aliyun. if health_check is on, the value must have |
+health_check_uri | http & https & tcp |  | example: /aliyun. if health_check is on, the value must have . Default to "/"|
 health_check_connect_port | http & https & tcp & udp | 1-65535 | If the parameter is not set, the backend server port (BackendServerPort) will be used. |
 healthy_threshold | http & https & tcp & udp | 1-10 | default to 3 when the health_check is on |
 unhealthy_threshold | http & https & tcp & udp | 1-10 | default to 3 when the health_check is on |
