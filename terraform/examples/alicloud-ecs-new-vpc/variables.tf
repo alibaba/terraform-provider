@@ -121,7 +121,7 @@ variable "disk_tags" {
 
 variable "number_of_disks" {
   description = "The number of launching disks one time."
-  default = 20
+  default = 2
 }
 
 # Ecs instance variables
@@ -192,5 +192,5 @@ variable "instance_tags" {
 
 variable "number_of_instances" {
   description = "The number of launching instances one time."
-  default = 20
+  default = 2
 }

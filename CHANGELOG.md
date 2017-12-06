@@ -1,4 +1,12 @@
-## 1.3.0 (unreleased)
+## 1.4.0 (unreleased)
+
+## 1.3.0 (December 6, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_slb_listener` ([#290](https://github.com/alibaba/terraform-provider/pull/290))
+
+IMPROVMENTS:
+  * modify client and support endpoint: ([#290](https://github.com/alibaba/terraform-provider/pull/290))
 
 ## 1.2.11 (November 30, 2017)
 IMPROVMENTS:
