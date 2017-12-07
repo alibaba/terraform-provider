@@ -1,5 +1,10 @@
 ## 1.4.0 (unreleased)
 
+## 1.3.1 (December 7, 2017)
+
+IMPROVMENTS:
+  * fix slb attachment failed and heath_check_domain diff ignore: ([#296](https://github.com/alibaba/terraform-provider/pull/296))
+
 ## 1.3.0 (December 6, 2017)
 FEATURES:
 
@@ -20,6 +25,12 @@ IMPROVMENTS:
   * add creating multiple vpcs and vswitches test case: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
   * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
 
+
+## 1.2.11 (November 30, 2017)
+IMPROVMENTS:
+  * fix creating multiple route entries bug: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * add creating multiple vpcs and vswitches test case: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
 
 ## 1.2.10 (November 16, 2017)
 IMPROVMENTS:

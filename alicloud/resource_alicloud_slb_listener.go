@@ -356,6 +356,7 @@ func resourceAliyunSlbListenerUpdate(d *schema.ResourceData, meta interface{}) e
 	// http https tcp
 	if d.HasChange("health_check_domain") {
 		if domain, ok := d.GetOk("health_check_domain"); ok {
+			httpType.HealthCheckDomain = domain.(string)
 			tcpArgs.HealthCheckDomain = domain.(string)
 			d.SetPartial("health_check_domain")
 			update = true
