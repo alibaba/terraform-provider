@@ -227,7 +227,7 @@ func (client *AliyunClient) DescribeSecurityGroupRule(groupId, direction, ipProt
 	rules, err := client.ecsconn.DescribeSecurityGroupAttribute(&ecs.DescribeSecurityGroupAttributeArgs{
 		RegionId:        client.Region,
 		SecurityGroupId: groupId,
-		Direction:       direction,
+		Direction:       ecs.Direction(direction),
 		NicType:         ecs.NicType(nicType),
 	})
 
