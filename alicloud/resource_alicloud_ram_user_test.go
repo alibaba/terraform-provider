@@ -31,7 +31,7 @@ func TestAccAlicloudRamUser_basic(t *testing.T) {
 						"alicloud_ram_user.user", &v),
 					resource.TestCheckResourceAttr(
 						"alicloud_ram_user.user",
-						"user_name",
+						"name",
 						"username"),
 					resource.TestCheckResourceAttr(
 						"alicloud_ram_user.user",

@@ -1,5 +1,10 @@
 ## 1.4.0 (unreleased)
 
+## 1.3.1 (December 7, 2017)
+
+IMPROVMENTS:
+  * fix slb attachment failed and heath_check_domain diff ignore: ([#297](https://github.com/alibaba/terraform-provider/pull/297))
+
 ## 1.3.0 (December 6, 2017)
 FEATURES:
 
