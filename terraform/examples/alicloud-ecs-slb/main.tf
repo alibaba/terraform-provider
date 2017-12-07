@@ -1,3 +1,7 @@
+data "alicloud_zones" "zone" {
+  available_instance_type = "${var.ecs_type}"
+}
+
 resource "alicloud_security_group" "group" {
   name = "${var.short_name}"
   description = "New security group"
@@ -47,7 +51,7 @@ resource "alicloud_instance" "instance" {
   internet_max_bandwidth_out = "${var.internet_max_bandwidth_out}"
   password = "${var.ecs_password}"
   allocate_public_ip = "${var.allocate_public_ip}"
-  availability_zone = ""
+  availability_zone = "${data.alicloud_zones.zone.zones.0.id}"
   instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
 
