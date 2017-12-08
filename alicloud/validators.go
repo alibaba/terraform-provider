@@ -129,8 +129,8 @@ func validateSecurityGroupDescription(v interface{}, k string) (ws []string, err
 }
 
 func validateSecurityRuleType(v interface{}, k string) (ws []string, errors []error) {
-	rt := GroupRuleDirection(v.(string))
-	if rt != ecs.DirectionIngress && rt != ecs.DirectionEgress{
+	rt := ecs.Direction(v.(string))
+	if rt != ecs.DirectionIngress && rt != ecs.DirectionEgress {
 		errors = append(errors, fmt.Errorf("%s must be one of %s %s", k, ecs.DirectionIngress, ecs.DirectionEgress))
 	}
 

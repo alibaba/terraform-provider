@@ -238,10 +238,10 @@ func (client *AliyunClient) DescribeSecurityGroupRule(groupId, direction, ipProt
 	for _, ru := range rules.Permissions.Permission {
 		if strings.ToLower(string(ru.IpProtocol)) == ipProtocol && ru.PortRange == portRange {
 			cidr := ru.SourceCidrIp
-			if GroupRuleDirection(direction) == ecs.DirectionIngress && cidr == "" {
+			if ecs.Direction(direction) == ecs.DirectionIngress && cidr == "" {
 				cidr = ru.SourceGroupId
 			}
-			if GroupRuleDirection(direction) == ecs.DirectionEgress {
+			if ecs.Direction(direction) == ecs.DirectionEgress {
 				if cidr = ru.DestCidrIp; cidr == "" {
 					cidr = ru.DestGroupId
 				}
