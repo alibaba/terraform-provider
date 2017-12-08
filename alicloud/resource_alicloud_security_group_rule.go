@@ -110,13 +110,13 @@ func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interfac
 
 	var autherr error
 	switch GroupRuleDirection(direction) {
-	case GroupRuleIngress:
+	case ecs.DirectionIngress:
 		args, err := buildAliyunSecurityIngressArgs(d, meta)
 		if err != nil {
 			return err
 		}
 		autherr = conn.AuthorizeSecurityGroup(args)
-	case GroupRuleEgress:
+	case ecs.DirectionEgress:
 		args, err := buildAliyunSecurityEgressArgs(d, meta)
 		if err != nil {
 			return err
@@ -180,7 +180,7 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 	d.Set("priority", rule.Priority)
 	d.Set("security_group_id", sgId)
 	//support source and desc by type
-	if GroupRuleDirection(direction) == GroupRuleIngress {
+	if GroupRuleDirection(direction) == ecs.DirectionIngress {
 		d.Set("cidr_ip", rule.SourceCidrIp)
 		d.Set("source_security_group_id", rule.SourceGroupId)
 		d.Set("source_group_owner_account", rule.SourceGroupOwnerAccount)
@@ -196,7 +196,7 @@ func deleteSecurityGroupRule(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	ruleType := d.Get("type").(string)
 
-	if GroupRuleDirection(ruleType) == GroupRuleIngress {
+	if GroupRuleDirection(ruleType) == ecs.DirectionIngress {
 		args, err := buildAliyunSecurityIngressArgs(d, meta)
 		if err != nil {
 			return err
