@@ -227,7 +227,7 @@ func (client *AliyunClient) DescribeSecurityGroupRule(groupId, direction, ipProt
 	rules, err := client.ecsconn.DescribeSecurityGroupAttribute(&ecs.DescribeSecurityGroupAttributeArgs{
 		RegionId:        client.Region,
 		SecurityGroupId: groupId,
-		Direction:       direction,
+		Direction:       ecs.Direction(direction),
 		NicType:         ecs.NicType(nicType),
 	})
 
@@ -238,10 +238,10 @@ func (client *AliyunClient) DescribeSecurityGroupRule(groupId, direction, ipProt
 	for _, ru := range rules.Permissions.Permission {
 		if strings.ToLower(string(ru.IpProtocol)) == ipProtocol && ru.PortRange == portRange {
 			cidr := ru.SourceCidrIp
-			if GroupRuleDirection(direction) == GroupRuleIngress && cidr == "" {
+			if GroupRuleDirection(direction) == ecs.DirectionIngress && cidr == "" {
 				cidr = ru.SourceGroupId
 			}
-			if GroupRuleDirection(direction) == GroupRuleEgress {
+			if GroupRuleDirection(direction) == ecs.DirectionEgress {
 				if cidr = ru.DestCidrIp; cidr == "" {
 					cidr = ru.DestGroupId
 				}
