@@ -29,3 +29,11 @@ variable "role_name" {
 variable "policy_name" {
   default = "policytest"
 }
+
+variable "account_id" {
+  description = "The ID of your account."
+}
+
+variable "member_account_id" {
+  description = "The ID of your member's account."
+}
