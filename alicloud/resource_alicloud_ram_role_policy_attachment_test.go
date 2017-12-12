@@ -128,7 +128,7 @@ resource "alicloud_ram_policy" "policy" {
 resource "alicloud_ram_role" "role" {
   name = "rolename"
   services = ["apigateway.aliyuncs.com", "ecs.aliyuncs.com"]
-  ram_users = ["acs:ram::${your_account_id}:root", "acs:ram::${other_account_id}:user/username"]
+  ram_users = ["acs:ram::123456789:root", "acs:ram::1234567890:user/username"]
   description = "this is a test"
   force = true
 }

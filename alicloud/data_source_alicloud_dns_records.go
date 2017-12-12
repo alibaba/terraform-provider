@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-func dataSourceAlicloudDnsDomainRecords() *schema.Resource {
+func dataSourceAlicloudDnsRecords() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAlicloudDnsDomainRecordsRead,
+		Read: dataSourceAlicloudDnsRecordsRead,
 
 		Schema: map[string]*schema.Schema{
 			"domain_name": {
@@ -95,7 +95,7 @@ func dataSourceAlicloudDnsDomainRecords() *schema.Resource {
 							Computed: true,
 						},
 						"priority": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"line": {
@@ -117,7 +117,7 @@ func dataSourceAlicloudDnsDomainRecords() *schema.Resource {
 	}
 }
 
-func dataSourceAlicloudDnsDomainRecordsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAlicloudDnsRecordsRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).dnsconn
 
 	args := &dns.DescribeDomainRecordsNewArgs{
@@ -180,7 +180,7 @@ func dataSourceAlicloudDnsDomainRecordsRead(d *schema.ResourceData, meta interfa
 	if len(filteredRecords) < 1 {
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
-	log.Printf("[DEBUG] alicloud_dns_domain_records - Records found: %#v", allRecords)
+	log.Printf("[DEBUG] alicloud_dns_records - Records found: %#v", allRecords)
 
 	return recordsDecriptionAttributes(d, filteredRecords, meta)
 }
@@ -196,12 +196,12 @@ func recordsDecriptionAttributes(d *schema.ResourceData, recordTypes []dns.Recor
 			"host_record": record.RR,
 			"type":        record.Type,
 			"value":       record.Value,
-			"status":      record.Status,
+			"status":      strings.ToLower(record.Status),
 			"locked":      record.Locked,
 			"ttl":         record.TTL,
 			"priority":    record.Priority,
 		}
-		log.Printf("[DEBUG] alicloud_dns_domain_records - adding record: %v", mapping)
+		log.Printf("[DEBUG] alicloud_dns_records - adding record: %v", mapping)
 		ids = append(ids, record.RecordId)
 		s = append(s, mapping)
 	}

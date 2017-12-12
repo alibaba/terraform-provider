@@ -271,7 +271,7 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 				})
 
 				if err != nil {
-					fmt.Errorf("Describe ScalingConfigurations by scaling group %s got an error: %#v", sgId, err)
+					return fmt.Errorf("Describe ScalingConfigurations by scaling group %s got an error: %#v", sgId, err)
 				}
 				activeConfig := ""
 				var csIds []string

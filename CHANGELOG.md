@@ -1,4 +1,14 @@
-## 1.4.0 (unreleased)
+## 1.6.0 (unreleased)
+
+## 1.5.0 (December 12, 2017)
+
+IMPROVMENTS:
+  * deprecated ram_alias and add ram_account_alias ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+  * deprecated dns_domain_groups and add dns_groups ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+  * deprecated dns_domain_records and add dns_records ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+  * add slb listener importing test ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+  * fix dns records bug ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+
 
 ## 1.3.1 (December 7, 2017)
 
