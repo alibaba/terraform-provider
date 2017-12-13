@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAccAlicloudAccountAliasDataSource_basic(t *testing.T) {
+func TestAccAlicloudRamAccountAliasDataSource_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -15,8 +15,8 @@ func TestAccAlicloudAccountAliasDataSource_basic(t *testing.T) {
 			{
 				Config: testAccCheckAlicloudAccountAliasDataSourceBasic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAlicloudDataSourceID("data.alicloud_ram_account_alias.alias"),
-					resource.TestCheckResourceAttr("data.alicloud_ram_account_alias.alias", "account_alias", "1307087942598154"),
+					testAccCheckAlicloudDataSourceID("data.alicloud_ram_account_aliases.alias"),
+					resource.TestCheckResourceAttr("data.alicloud_ram_account_aliases.alias", "account_alias", "1307087942598154"),
 				),
 			},
 		},
@@ -24,5 +24,5 @@ func TestAccAlicloudAccountAliasDataSource_basic(t *testing.T) {
 }
 
 const testAccCheckAlicloudAccountAliasDataSourceBasic = `
-data "alicloud_ram_account_alias" "alias" {
+data "alicloud_ram_account_aliases" "alias" {
 }`

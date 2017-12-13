@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccAlicloudRamAlias_basic(t *testing.T) {
+func TestAccAlicloudRamAccountAlias_basic(t *testing.T) {
 	var v string
 
 	resource.Test(t, resource.TestCase{
@@ -17,18 +17,18 @@ func TestAccAlicloudRamAlias_basic(t *testing.T) {
 		},
 
 		// module name
-		IDRefreshName: "alicloud_ram_alias.alias",
+		IDRefreshName: "alicloud_ram_account_alias.alias",
 
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckRamAliasDestroy,
+		CheckDestroy: testAccCheckRamAccountAliasDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccRamAliasConfig,
+				Config: testAccRamAccountAliasConfig,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRamAliasExists(
-						"alicloud_ram_alias.alias", &v),
+					testAccCheckRamAccountAliasExists(
+						"alicloud_ram_account_alias.alias", &v),
 					resource.TestCheckResourceAttr(
-						"alicloud_ram_alias.alias",
+						"alicloud_ram_account_alias.alias",
 						"account_alias",
 						"hallo"),
 				),
@@ -38,7 +38,7 @@ func TestAccAlicloudRamAlias_basic(t *testing.T) {
 
 }
 
-func testAccCheckRamAliasExists(n string, alias *string) resource.TestCheckFunc {
+func testAccCheckRamAccountAliasExists(n string, alias *string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -62,10 +62,10 @@ func testAccCheckRamAliasExists(n string, alias *string) resource.TestCheckFunc 
 	}
 }
 
-func testAccCheckRamAliasDestroy(s *terraform.State) error {
+func testAccCheckRamAccountAliasDestroy(s *terraform.State) error {
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "alicloud_ram_alias" {
+		if rs.Type != "alicloud_ram_account_alias" {
 			continue
 		}
 
@@ -85,7 +85,7 @@ func testAccCheckRamAliasDestroy(s *terraform.State) error {
 	return nil
 }
 
-const testAccRamAliasConfig = `
-resource "alicloud_ram_alias" "alias" {
+const testAccRamAccountAliasConfig = `
+resource "alicloud_ram_account_alias" "alias" {
   account_alias = "hallo"
 }`
