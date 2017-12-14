@@ -38,6 +38,7 @@ terraform get
 # set the creds
 export ALICLOUD_ACCESS_KEY="***"
 export ALICLOUD_SECRET_KEY="***"
+export ALICLOUD_REGION="***"
 
 # you're good to start rocking
 # alicloud.tf contains the default example
