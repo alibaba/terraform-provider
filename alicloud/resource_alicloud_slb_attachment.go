@@ -2,8 +2,12 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/denverdino/aliyungo/slb"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"strings"
+	"time"
+	//"bytes"
 )
 
 func resourceAliyunSlbAttachment() *schema.Resource {
@@ -38,20 +42,15 @@ func resourceAliyunSlbAttachment() *schema.Resource {
 
 func resourceAliyunSlbAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
 
-	slbId := d.Get("slb_id").(string)
-
-	slbconn := meta.(*AliyunClient).slbconn
-
-	loadBalancer, err := slbconn.DescribeLoadBalancerAttribute(slbId)
+	loadBalancer, err := meta.(*AliyunClient).DescribeLoadBalancerAttribute(d.Get("slb_id").(string))
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return fmt.Errorf("Special SLB Id not found: %#v", err)
-		}
-
 		return err
 	}
 
+	if loadBalancer == nil {
+		d.SetId("")
+		return fmt.Errorf("Special SLB Id %s is not found in %#v.", d.Get("slb_id").(string), getRegion(d, meta))
+	}
 	d.SetId(loadBalancer.LoadBalancerId)
 
 	return resourceAliyunSlbAttachmentUpdate(d, meta)
@@ -59,14 +58,9 @@ func resourceAliyunSlbAttachmentCreate(d *schema.ResourceData, meta interface{})
 
 func resourceAliyunSlbAttachmentRead(d *schema.ResourceData, meta interface{}) error {
 
-	slbconn := meta.(*AliyunClient).slbconn
-	loadBalancer, err := slbconn.DescribeLoadBalancerAttribute(d.Id())
+	loadBalancer, err := meta.(*AliyunClient).DescribeLoadBalancerAttribute(d.Get("slb_id").(string))
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return nil
-		}
-		return fmt.Errorf("Read special SLB Id not found: %#v", err)
+		return err
 	}
 
 	if loadBalancer == nil {
@@ -104,22 +98,22 @@ func resourceAliyunSlbAttachmentUpdate(d *schema.ResourceData, meta interface{})
 		add := expandBackendServers(ns.Difference(os).List())
 
 		if len(add) > 0 {
-			_, err := slbconn.AddBackendServers(d.Id(), add)
-			if err != nil {
+			if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
+				_, err := slbconn.AddBackendServers(d.Id(), add)
+				if err != nil {
+					if IsExceptedError(err, ServiceIsConfiguring) {
+						return resource.RetryableError(fmt.Errorf("Load banalcer adds backend servers timeout and got an error: %#v.", err))
+					}
+					return resource.NonRetryableError(fmt.Errorf("Add backend servers got an error: %#v", err))
+				}
+				return nil
+			}); err != nil {
 				return err
 			}
 		}
-		if len(remove) > 0 {
-			removeBackendServers := make([]string, 0, len(remove))
-			for _, e := range remove {
-				removeBackendServers = append(removeBackendServers, e.ServerId)
-			}
-			_, err := slbconn.RemoveBackendServers(d.Id(), removeBackendServers)
-			if err != nil {
-				return err
-			}
+		if err := removeBackendServers(d, meta, remove); err != nil {
+			return err
 		}
-
 	}
 
 	return resourceAliyunSlbAttachmentRead(d, meta)
@@ -128,21 +122,30 @@ func resourceAliyunSlbAttachmentUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceAliyunSlbAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
 
-	slbconn := meta.(*AliyunClient).slbconn
 	o := d.Get("instances")
 	os := o.(*schema.Set)
 	remove := expandBackendServers(os.List())
 
-	if len(remove) > 0 {
-		removeBackendServers := make([]string, 0, len(remove))
-		for _, e := range remove {
+	return removeBackendServers(d, meta, remove)
+}
+
+func removeBackendServers(d *schema.ResourceData, meta interface{}, servers []slb.BackendServerType) error {
+	slbconn := meta.(*AliyunClient).slbconn
+	if len(servers) > 0 {
+		removeBackendServers := make([]string, 0, len(servers))
+		for _, e := range servers {
 			removeBackendServers = append(removeBackendServers, e.ServerId)
 		}
-		_, err := slbconn.RemoveBackendServers(d.Id(), removeBackendServers)
-		if err != nil {
-			return err
-		}
+		return resource.Retry(3*time.Minute, func() *resource.RetryError {
+			_, err := slbconn.RemoveBackendServers(d.Id(), removeBackendServers)
+			if err != nil {
+				if IsExceptedError(err, BackendServerconfiguring) {
+					return resource.RetryableError(fmt.Errorf("Load balancer removes backend servers timeout and got an error: %#v", err))
+				}
+				return resource.NonRetryableError(fmt.Errorf("Remove backend servers got an error: %#v", err))
+			}
+			return nil
+		})
 	}
-
 	return nil
 }

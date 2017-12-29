@@ -3,7 +3,6 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -68,16 +67,20 @@ func resourceAliyunSecurityGroupRead(d *schema.ResourceData, meta interface{}) e
 	}
 	//err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 	var sg *ecs.DescribeSecurityGroupAttributeResponse
-	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
+	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
 		group, e := conn.DescribeSecurityGroupAttribute(args)
-		if e != nil && !NotFoundError(e) {
+		if e != nil {
+			if IsExceptedError(e, InvalidSecurityGroupIdNotFound) {
+				sg = nil
+				return nil
+			}
 			return resource.NonRetryableError(fmt.Errorf("Error DescribeSecurityGroupAttribute: %#v", e))
 		}
 		if group != nil {
 			sg = group
 			return nil
 		}
-		return resource.RetryableError(fmt.Errorf("Security group is creating - try again while describe security group"))
+		return resource.RetryableError(fmt.Errorf("Create security group timeout and got an error: %#v", e))
 	})
 
 	if err != nil {
@@ -138,9 +141,8 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 		err := conn.DeleteSecurityGroup(getRegion(d, meta), d.Id())
 
 		if err != nil {
-			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == SgDependencyViolation {
-				return resource.RetryableError(fmt.Errorf("Security group in use - trying again while it is deleted."))
+			if IsExceptedError(err, SgDependencyViolation) {
+				return resource.RetryableError(fmt.Errorf("Delete security group timeout and got an error: %#v", err))
 			}
 		}
 
@@ -150,8 +152,7 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 		})
 
 		if err != nil {
-			e, _ := err.(*common.Error)
-			if e.ErrorResponse.Code == InvalidSecurityGroupIdNotFound {
+			if IsExceptedError(err, InvalidSecurityGroupIdNotFound) {
 				return nil
 			}
 			return resource.NonRetryableError(err)
@@ -159,7 +160,7 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 			return nil
 		}
 
-		return resource.RetryableError(fmt.Errorf("Security group in use - trying again while it is deleted."))
+		return resource.RetryableError(fmt.Errorf("Delete security group timeout and got an error: %#v", err))
 	})
 
 }

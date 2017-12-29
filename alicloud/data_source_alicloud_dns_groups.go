@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func dataSourceAlicloudDnsDomainGroups() *schema.Resource {
+func dataSourceAlicloudDnsGroups() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAlicloudDnsDomainGroupsRead,
+		Read: dataSourceAlicloudDnsGroupsRead,
 
 		Schema: map[string]*schema.Schema{
 			"name_regex": {
@@ -45,7 +45,7 @@ func dataSourceAlicloudDnsDomainGroups() *schema.Resource {
 	}
 }
 
-func dataSourceAlicloudDnsDomainGroupsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAlicloudDnsGroupsRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).dnsconn
 
 	args := &dns.DescribeDomainGroupsArgs{}
@@ -83,7 +83,7 @@ func dataSourceAlicloudDnsDomainGroupsRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
-	log.Printf("[DEBUG] alicloud_dns_domain_groups - Groups found: %#v", allGroups)
+	log.Printf("[DEBUG] alicloud_dns_groups - Groups found: %#v", allGroups)
 
 	return groupsDecriptionAttributes(d, filteredGroups, meta)
 }
@@ -96,7 +96,7 @@ func groupsDecriptionAttributes(d *schema.ResourceData, groupTypes []dns.DomainG
 			"group_id":   group.GroupId,
 			"group_name": group.GroupName,
 		}
-		log.Printf("[DEBUG] alicloud_dns_domain_groups - adding group: %v", mapping)
+		log.Printf("[DEBUG] alicloud_dns_groups - adding group: %v", mapping)
 		ids = append(ids, group.GroupId)
 		s = append(s, mapping)
 	}

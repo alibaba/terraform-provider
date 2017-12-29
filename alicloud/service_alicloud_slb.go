@@ -1,21 +1,25 @@
 package alicloud
 
 import (
+	"fmt"
 	"github.com/denverdino/aliyungo/slb"
 )
 
 func (client *AliyunClient) DescribeLoadBalancerAttribute(slbId string) (*slb.LoadBalancerType, error) {
-	loadBalancer, err := client.slbconn.DescribeLoadBalancerAttribute(slbId)
+
+	loadBalancers, err := client.slbconn.DescribeLoadBalancers(&slb.DescribeLoadBalancersArgs{
+		RegionId:       client.Region,
+		LoadBalancerId: slbId,
+	})
 	if err != nil {
-		if NotFoundError(err) {
-			return nil, nil
+		if IsExceptedError(err, LoadBalancerNotFound) {
+			return nil, fmt.Errorf("Special SLB Id not found: %#v", err)
 		}
-		return nil, err
-	}
 
-	if loadBalancer != nil {
-		return loadBalancer, nil
+		return nil, fmt.Errorf("DescribeLoadBalancers got an error: %#v", err)
 	}
-
-	return nil, nil
+	if len(loadBalancers) < 1 {
+		return nil, fmt.Errorf("Special SLB Id %s is not found in %#v.", slbId, client.Region)
+	}
+	return &loadBalancers[0], nil
 }

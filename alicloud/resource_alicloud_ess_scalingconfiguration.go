@@ -271,7 +271,7 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 				})
 
 				if err != nil {
-					fmt.Errorf("Describe ScalingConfigurations by scaling group %s got an error: %#v", sgId, err)
+					return fmt.Errorf("Describe ScalingConfigurations by scaling group %s got an error: %#v", sgId, err)
 				}
 				activeConfig := ""
 				var csIds []string
@@ -379,7 +379,7 @@ func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta in
 			}
 			if e.ErrorResponse.Code != InvalidScalingGroupIdNotFound {
 				return resource.RetryableError(
-					fmt.Errorf("Scaling configuration in use - trying again while it is deleted."))
+					fmt.Errorf("Delete scaling configuration timeout and got an error:%#v.", err))
 			}
 		}
 
@@ -404,7 +404,7 @@ func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta in
 		}
 
 		return resource.RetryableError(
-			fmt.Errorf("Scaling configuration in use - trying again while it is deleted."))
+			fmt.Errorf("Delete scaling configuration timeout and got an error:%#v.", err))
 	})
 }
 

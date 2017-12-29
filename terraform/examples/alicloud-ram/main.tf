@@ -1,5 +1,5 @@
-data "alicloud_ram_account_alias" "alias" {
-  output_file = "alias.txt"
+data "alicloud_ram_account_aliases" "alias" {
+  output_file = "aliases.txt"
 }
 
 data "alicloud_ram_groups" "group" {
@@ -68,8 +68,8 @@ resource "alicloud_ram_role" "role" {
     "apigateway.aliyuncs.com",
     "ecs.aliyuncs.com"]
   ram_users = [
-    "acs:ram::${your_account_id}:root",
-    "acs:ram::${other_account_id}:user/username"]
+    "acs:ram::${var.account_id}:root",
+    "acs:ram::${var.member_account_id}:user/username"]
   description = "this is a role test."
   force = true
 }
@@ -108,6 +108,6 @@ resource "alicloud_ram_role_policy_attachment" "attach" {
   policy_type = "${alicloud_ram_policy.policy.type}"
 }
 
-resource "alicloud_ram_alias" "alias" {
+resource "alicloud_ram_account_alias" "alias" {
   account_alias = "hallo"
 }

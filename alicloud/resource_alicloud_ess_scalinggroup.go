@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/denverdino/aliyungo/ess"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
 )
 
 func resourceAlicloudEssScalingGroup() *schema.Resource {
@@ -120,17 +119,20 @@ func resourceAliyunEssScalingGroupUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	if d.HasChange("min_size") {
-		args.MinSize = d.Get("min_size").(int)
+		minsize := d.Get("min_size").(int)
+		args.MinSize = &minsize
 		d.SetPartial("min_size")
 	}
 
 	if d.HasChange("max_size") {
-		args.MaxSize = d.Get("max_size").(int)
+		maxsize := d.Get("max_size").(int)
+		args.MaxSize = &maxsize
 		d.SetPartial("max_size")
 	}
 
 	if d.HasChange("default_cooldown") {
-		args.DefaultCooldown = d.Get("default_cooldown").(int)
+		cooldown := d.Get("default_cooldown").(int)
+		args.DefaultCooldown = &cooldown
 		d.SetPartial("default_cooldown")
 	}
 
@@ -157,11 +159,15 @@ func resourceAliyunEssScalingGroupDelete(d *schema.ResourceData, meta interface{
 func buildAlicloudEssScalingGroupArgs(d *schema.ResourceData, meta interface{}) (*ess.CreateScalingGroupArgs, error) {
 	client := meta.(*AliyunClient)
 	args := &ess.CreateScalingGroupArgs{
-		RegionId:        getRegion(d, meta),
-		MinSize:         d.Get("min_size").(int),
-		MaxSize:         d.Get("max_size").(int),
-		DefaultCooldown: d.Get("default_cooldown").(int),
+		RegionId: getRegion(d, meta),
 	}
+
+	minsize := d.Get("min_size").(int)
+	maxsize := d.Get("max_size").(int)
+	cooldown := d.Get("default_cooldown").(int)
+	args.MinSize = &minsize
+	args.MaxSize = &maxsize
+	args.DefaultCooldown = &cooldown
 
 	if v := d.Get("scaling_group_name").(string); v != "" {
 		args.ScalingGroupName = v
@@ -189,8 +195,7 @@ func buildAlicloudEssScalingGroupArgs(d *schema.ResourceData, meta interface{}) 
 
 	lbs, ok := d.GetOk("loadbalancer_ids")
 	if ok {
-		lbsStrings := lbs.([]interface{})
-		args.LoadBalancerId = strings.Join(expandStringList(lbsStrings), COMMA_SEPARATED)
+		args.LoadBalancerIds = convertListToJsonString(lbs.([]interface{}))
 	}
 
 	return args, nil

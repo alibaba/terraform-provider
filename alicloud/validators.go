@@ -17,7 +17,6 @@ import (
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/schema"
-	"log"
 )
 
 // common
@@ -130,9 +129,9 @@ func validateSecurityGroupDescription(v interface{}, k string) (ws []string, err
 }
 
 func validateSecurityRuleType(v interface{}, k string) (ws []string, errors []error) {
-	rt := GroupRuleDirection(v.(string))
-	if rt != GroupRuleIngress && rt != GroupRuleEgress {
-		errors = append(errors, fmt.Errorf("%s must be one of %s %s", k, GroupRuleIngress, GroupRuleEgress))
+	rt := ecs.Direction(v.(string))
+	if rt != ecs.DirectionIngress && rt != ecs.DirectionEgress {
+		errors = append(errors, fmt.Errorf("%s must be one of %s %s", k, ecs.DirectionIngress, ecs.DirectionEgress))
 	}
 
 	return
@@ -302,6 +301,25 @@ func validateInternetMaxBandWidthOut(v interface{}, k string) (ws []string, erro
 	return
 }
 
+func validateInstanceChargeTypePeriod(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if (value > 0 && value < 10) || (value > 11 && value < 61 && value%12 == 0) {
+		return
+	}
+	errors = append(errors, fmt.Errorf(
+		"%q must be a valid period, expected [1-9], 12, 24, 36, 48 or 60, got %d.", k, value))
+	return
+}
+func validateInstanceChargeTypePeriodUnit(v interface{}, k string) (ws []string, errors []error) {
+	unit := common.TimeType(v.(string))
+	if unit != common.Week && unit != common.Month {
+		errors = append(errors, fmt.Errorf(
+			"%q must contain a valid PeriodUnit, expected %s or %s, got %s.",
+			k, common.Week, common.Month, unit))
+	}
+	return
+}
+
 // SLB
 func validateSlbName(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
@@ -378,9 +396,9 @@ func validateSlbListenerCookie(v interface{}, k string) (ws []string, errors []e
 
 func validateSlbListenerCookieTimeout(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(int)
-	if value < 0 || value > 86400 {
+	if value < 1 || value > 86400 {
 		errors = append(errors, fmt.Errorf(
-			"%q must be a valid load balancer cookie timeout between 0 and 86400",
+			"%q must be a valid load balancer cookie timeout between 1 and 86400",
 			k))
 		return
 	}
@@ -400,9 +418,11 @@ func validateSlbListenerPersistenceTimeout(v interface{}, k string) (ws []string
 
 func validateSlbListenerHealthCheckDomain(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
-		//the len add "$_ip",so to max is 84
-		if len(value) < 1 || len(value) > 84 {
-			errors = append(errors, fmt.Errorf("%q cannot be longer than 84 characters", k))
+		if value == "$_ip" {
+			errors = append(errors, fmt.Errorf("%q value '$_ip' has been deprecated, and empty string will replace it.", k))
+		}
+		if reg := regexp.MustCompile(`^[\w\-.]{1,80}$`); !reg.MatchString(value) {
+			errors = append(errors, fmt.Errorf("%q length is limited to 1-80 and only characters such as letters, digits, '-' and '.' are allowed", k))
 		}
 	}
 	return
@@ -1039,9 +1059,7 @@ func validateRouterInterfaceDescription(v interface{}, k string) (ws []string, e
 
 func validateInstanceType(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
-	log.Printf("*********value:%#v", v)
 	if !strings.HasPrefix(value, "ecs.") {
-		log.Printf("*********value2:%#v", value)
 		errors = append(errors, fmt.Errorf("Invalid %q: %s. It must be 'ecs.' as prefix.", k, value))
 	}
 	return

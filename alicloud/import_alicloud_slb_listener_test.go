@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccAlicloudSlb_importBandwidth(t *testing.T) {
-	resourceName := "alicloud_slb.bandwidth"
+func TestAccAlicloudSlbListener_importHttp(t *testing.T) {
+	resourceName := "alicloud_slb_listener.http"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -15,7 +15,7 @@ func TestAccAlicloudSlb_importBandwidth(t *testing.T) {
 		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccSlbBandWidth,
+				Config: testAccSlbListenerHttp,
 			},
 
 			resource.TestStep{
@@ -27,8 +27,8 @@ func TestAccAlicloudSlb_importBandwidth(t *testing.T) {
 	})
 }
 
-func TestAccAlicloudSlb_importTraffic(t *testing.T) {
-	resourceName := "alicloud_slb.traffic"
+func TestAccAlicloudSlbListener_importTcp(t *testing.T) {
+	resourceName := "alicloud_slb_listener.tcp"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -36,7 +36,7 @@ func TestAccAlicloudSlb_importTraffic(t *testing.T) {
 		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccSlbTraffic,
+				Config: testAccSlbListenerTcp,
 			},
 
 			resource.TestStep{
@@ -48,8 +48,8 @@ func TestAccAlicloudSlb_importTraffic(t *testing.T) {
 	})
 }
 
-func TestAccAlicloudSlb_importVpc(t *testing.T) {
-	resourceName := "alicloud_slb.vpc"
+func TestAccAlicloudSlbListener_importUdp(t *testing.T) {
+	resourceName := "alicloud_slb_listener.udp"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -57,7 +57,7 @@ func TestAccAlicloudSlb_importVpc(t *testing.T) {
 		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccSlb4Vpc,
+				Config: testAccSlbListenerUdp,
 			},
 
 			resource.TestStep{

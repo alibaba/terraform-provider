@@ -6,11 +6,11 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func resourceAlicloudRamAlias() *schema.Resource {
+func resourceAlicloudRamAccountAlias() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAlicloudRamAliasCreate,
-		Read:   resourceAlicloudRamAliasRead,
-		Delete: resourceAlicloudRamAliasDelete,
+		Create: resourceAlicloudRamAccountAliasCreate,
+		Read:   resourceAlicloudRamAccountAliasRead,
+		Delete: resourceAlicloudRamAccountAliasDelete,
 
 		Schema: map[string]*schema.Schema{
 			"account_alias": &schema.Schema{
@@ -23,7 +23,7 @@ func resourceAlicloudRamAlias() *schema.Resource {
 	}
 }
 
-func resourceAlicloudRamAliasCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceAlicloudRamAccountAliasCreate(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
 
 	args := ram.AccountAliasRequest{
@@ -35,10 +35,10 @@ func resourceAlicloudRamAliasCreate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	d.SetId(args.AccountAlias)
-	return resourceAlicloudRamAliasRead(d, meta)
+	return resourceAlicloudRamAccountAliasRead(d, meta)
 }
 
-func resourceAlicloudRamAliasRead(d *schema.ResourceData, meta interface{}) error {
+func resourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
 
 	response, err := conn.GetAccountAlias()
@@ -50,7 +50,7 @@ func resourceAlicloudRamAliasRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceAlicloudRamAliasDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceAlicloudRamAccountAliasDelete(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ramconn
 
 	if _, err := conn.ClearAccountAlias(); err != nil {

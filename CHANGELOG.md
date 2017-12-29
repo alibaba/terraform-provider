@@ -1,4 +1,72 @@
-## 1.3.0 (unreleased)
+## 1.6.0 (unreleased)
+
+## 1.5.0 (December 29, 2017)
+
+IMPROVMENTS:
+  * support to modify instance spec including instnaceType, bandwidth ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+  * support to modify instance privateIp and vswitch ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+  * support to modify instance charge type ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+  * output more useful error message ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+
+BUG FIXES:
+  * fix SLB not found when describing SLB ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+
+## 1.3.3 (December 14, 2017)
+
+IMPROVMENTS:
+  * wait for SLB active before return back ([#310](https://github.com/alibaba/terraform-provider/pull/310))
+
+## 1.3.2 (December 13, 2017)
+
+IMPROVMENTS:
+  * deprecated ram_alias and add ram_account_alias ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+  * deprecated dns_domain_groups and add dns_groups ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+  * deprecated dns_domain_records and add dns_records ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+  * add slb listener importing test ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+
+BUG FIXES:
+  * fix dns records bug ([#305](https://github.com/alibaba/terraform-provider/pull/305))
+  * fix ESS bind SLB failed bug ([#308](https://github.com/alibaba/terraform-provider/pull/308))
+  * fix security group not found bug ([#308](https://github.com/alibaba/terraform-provider/pull/308))
+
+
+## 1.3.1 (December 7, 2017)
+
+IMPROVMENTS:
+  * fix slb attachment failed and heath_check_domain diff ignore: ([#296](https://github.com/alibaba/terraform-provider/pull/296))
+  * match sdk changes: ([#300](https://github.com/alibaba/terraform-provider/pull/300))
+
+## 1.3.1 (December 7, 2017)
+
+IMPROVMENTS:
+  * fix slb attachment failed and heath_check_domain diff ignore: ([#296](https://github.com/alibaba/terraform-provider/pull/296))
+
+## 1.3.0 (December 6, 2017)
+FEATURES:
+
+  * **New Resource:** `alicloud_slb_listener` ([#290](https://github.com/alibaba/terraform-provider/pull/290))
+
+IMPROVMENTS:
+  * modify client and support endpoint: ([#290](https://github.com/alibaba/terraform-provider/pull/290))
+
+## 1.2.11 (November 30, 2017)
+IMPROVMENTS:
+  * fix creating multiple route entries bug: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * add creating multiple vpcs and vswitches test case: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+
+## 1.2.11 (November 30, 2017)
+IMPROVMENTS:
+  * fix creating multiple route entries bug: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * add creating multiple vpcs and vswitches test case: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+
+
+## 1.2.11 (November 30, 2017)
+IMPROVMENTS:
+  * fix creating multiple route entries bug: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * add creating multiple vpcs and vswitches test case: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
+  * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
 
 ## 1.2.10 (November 16, 2017)
 IMPROVMENTS:

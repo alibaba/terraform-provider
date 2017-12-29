@@ -73,22 +73,21 @@ func resourceAliyunVpc() *schema.Resource {
 
 func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 
-	args, err := buildAliyunVpcArgs(d, meta)
-	if err != nil {
-		return err
-	}
-
 	ecsconn := meta.(*AliyunClient).ecsconn
 
 	var vpc *ecs.CreateVpcResponse
-	err = resource.Retry(3*time.Minute, func() *resource.RetryError {
+	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
+		args, err := buildAliyunVpcArgs(d, meta)
+		if err != nil {
+			return resource.NonRetryableError(fmt.Errorf("Building CreateVpcArgs got an error: %#v", err))
+		}
 		resp, err := ecsconn.CreateVpc(args)
 		if err != nil {
 			if IsExceptedError(err, VpcQuotaExceeded) {
 				return resource.NonRetryableError(fmt.Errorf("The number of VPC has quota has reached the quota limit in your account, and please use existing VPCs or remove some of them."))
 			}
 			if IsExceptedError(err, UnknownError) {
-				return resource.RetryableError(fmt.Errorf("Vpc is still creating result from some unknown error -- try again"))
+				return resource.RetryableError(fmt.Errorf("Create vpc timeout and got an error: %#v.", err))
 			}
 			return resource.NonRetryableError(err)
 		}
@@ -101,7 +100,7 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(vpc.VpcId)
 
-	err = ecsconn.WaitForVpcAvailable(args.RegionId, vpc.VpcId, 60)
+	err = ecsconn.WaitForVpcAvailable(getRegion(d, meta), d.Id(), 60)
 	if err != nil {
 		return fmt.Errorf("Timeout when WaitForVpcAvailable")
 	}
@@ -185,7 +184,7 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 		err := conn.DeleteVpc(d.Id())
 
 		if err != nil {
-			return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
+			return resource.RetryableError(fmt.Errorf("Delete VPC timeout and got an error: %#v.", err))
 		}
 
 		args := &ecs.DescribeVpcsArgs{
@@ -199,7 +198,7 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
+		return resource.RetryableError(fmt.Errorf("Delete VPC timeout and got an error: %#v.", err))
 	})
 }
 

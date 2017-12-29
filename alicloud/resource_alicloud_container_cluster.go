@@ -81,6 +81,10 @@ func resourceAlicloudContainerCluster() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"network_mode": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }

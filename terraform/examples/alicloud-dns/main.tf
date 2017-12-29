@@ -3,13 +3,13 @@ data "alicloud_dns_domains" "domain" {
   output_file = "domains.txt"
 }
 
-data "alicloud_dns_domain_groups" "group" {
+data "alicloud_dns_groups" "group" {
   name_regex = "^y[A-Za-z]+"
   output_file = "groups.txt"
 }
 
-data "alicloud_dns_domain_records" "record" {
-  domain_name = "heguimin.top"
+data "alicloud_dns_records" "record" {
+  domain_name = "${data.alicloud_dns_domains.domain.domains.0.domain_name}"
   is_locked = false
   type = "A"
   host_record_regex = "^@"
