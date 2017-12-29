@@ -36,11 +36,6 @@ IMPROVMENTS:
   * fix slb attachment failed and heath_check_domain diff ignore: ([#296](https://github.com/alibaba/terraform-provider/pull/296))
   * match sdk changes: ([#300](https://github.com/alibaba/terraform-provider/pull/300))
 
-## 1.3.1 (December 7, 2017)
-
-IMPROVMENTS:
-  * fix slb attachment failed and heath_check_domain diff ignore: ([#296](https://github.com/alibaba/terraform-provider/pull/296))
-
 ## 1.3.0 (December 6, 2017)
 FEATURES:
 
