@@ -28,6 +28,7 @@ const (
 	ListenerAlreadyExists    = "ListenerAlreadyExists"
 	ServiceIsConfiguring     = "ServiceIsConfiguring"
 	BackendServerconfiguring = "BackendServer.configuring"
+	SystemBusy               = "SystemBusy"
 	// security_group
 	InvalidInstanceIdAlreadyExists = "InvalidInstanceId.AlreadyExists"
 	InvalidSecurityGroupIdNotFound = "InvalidSecurityGroupId.NotFound"

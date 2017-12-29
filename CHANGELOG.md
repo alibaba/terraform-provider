@@ -1,5 +1,16 @@
 ## 1.6.0 (unreleased)
 
+## 1.5.0 (December 29, 2017)
+
+IMPROVMENTS:
+  * support to modify instance spec including instnaceType, bandwidth ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+  * support to modify instance privateIp and vswitch ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+  * support to modify instance charge type ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+  * output more useful error message ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+
+BUG FIXES:
+  * fix SLB not found when describing SLB ([#313](https://github.com/alibaba/terraform-provider/pull/313))
+
 ## 1.3.3 (December 14, 2017)
 
 IMPROVMENTS:

@@ -251,15 +251,9 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunSlbRead(d *schema.ResourceData, meta interface{}) error {
-	slbconn := meta.(*AliyunClient).slbconn
-	loadBalancer, err := slbconn.DescribeLoadBalancerAttribute(d.Id())
+	loadBalancer, err := meta.(*AliyunClient).DescribeLoadBalancerAttribute(d.Id())
 	if err != nil {
-		if IsExceptedError(err, LoadBalancerNotFound) {
-			d.SetId("")
-			return nil
-		}
-
-		return fmt.Errorf("Error describing load balancer failed: %#v", err)
+		return err
 	}
 
 	if loadBalancer == nil {
@@ -369,7 +363,7 @@ func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
 			return resource.NonRetryableError(fmt.Errorf("Error describing slb failed when deleting SLB: %#v", err))
 		}
 		if loadBalancer != nil {
-			return resource.RetryableError(fmt.Errorf("LoadBalancer in use - trying again while it deleted."))
+			return resource.RetryableError(fmt.Errorf("Delete load balancer timeout and got an error: %#v.", err))
 		}
 		return nil
 	})

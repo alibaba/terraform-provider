@@ -301,6 +301,25 @@ func validateInternetMaxBandWidthOut(v interface{}, k string) (ws []string, erro
 	return
 }
 
+func validateInstanceChargeTypePeriod(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(int)
+	if (value > 0 && value < 10) || (value > 11 && value < 61 && value%12 == 0) {
+		return
+	}
+	errors = append(errors, fmt.Errorf(
+		"%q must be a valid period, expected [1-9], 12, 24, 36, 48 or 60, got %d.", k, value))
+	return
+}
+func validateInstanceChargeTypePeriodUnit(v interface{}, k string) (ws []string, errors []error) {
+	unit := common.TimeType(v.(string))
+	if unit != common.Week && unit != common.Month {
+		errors = append(errors, fmt.Errorf(
+			"%q must contain a valid PeriodUnit, expected %s or %s, got %s.",
+			k, common.Week, common.Month, unit))
+	}
+	return
+}
+
 // SLB
 func validateSlbName(v interface{}, k string) (ws []string, errors []error) {
 	if value := v.(string); value != "" {
