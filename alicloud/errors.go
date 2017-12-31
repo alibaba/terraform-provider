@@ -17,6 +17,8 @@ const (
 	InstanceLockedForSecurity = "InstanceLockedForSecurity"
 	SystemDiskNotFound        = "SystemDiskNotFound"
 	DiskOperationConflict     = "OperationConflict"
+	DiskInternalError = "InternalError"
+	DiskInvalidOperation = "InvalidOperation.Conflict"
 	// eip
 	EipIncorrectStatus      = "IncorrectEipStatus"
 	InstanceIncorrectStatus = "IncorrectInstanceStatus"

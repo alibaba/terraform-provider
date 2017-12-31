@@ -349,17 +349,6 @@ func validateSlbInternetChargeType(v interface{}, k string) (ws []string, errors
 	return
 }
 
-func validateSlbBandwidth(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(int)
-	if value < 1 || value > 1000 {
-		errors = append(errors, fmt.Errorf(
-			"%q must be a valid load balancer bandwidth between 1 and 1000",
-			k))
-		return
-	}
-	return
-}
-
 func validateSlbListenerBandwidth(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(int)
 	if (value < 1 || value > 1000) && value != -1 {
