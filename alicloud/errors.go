@@ -17,8 +17,8 @@ const (
 	InstanceLockedForSecurity = "InstanceLockedForSecurity"
 	SystemDiskNotFound        = "SystemDiskNotFound"
 	DiskOperationConflict     = "OperationConflict"
-	DiskInternalError = "InternalError"
-	DiskInvalidOperation = "InvalidOperation.Conflict"
+	DiskInternalError         = "InternalError"
+	DiskInvalidOperation      = "InvalidOperation.Conflict"
 	// eip
 	EipIncorrectStatus      = "IncorrectEipStatus"
 	InstanceIncorrectStatus = "IncorrectInstanceStatus"
@@ -56,6 +56,16 @@ const (
 	IncorrectScalingConfigurationLifecycleState = "IncorrectScalingConfigurationLifecycleState"
 	IncorrectScalingGroupStatus                 = "IncorrectScalingGroupStatus"
 
+	// rds
+	InvalidDBNameNotFound                  = "InvalidDBName.NotFound"
+	InvalidDBInstanceNameNotFound          = "InvalidDBInstanceName.NotFound"
+	InvalidCurrentConnectionStringNotFound = "InvalidCurrentConnectionString.NotFound"
+	NetTypeExists                          = "NetTypeExists"
+	InvalidAccountNameDuplicate            = "InvalidAccountName.Duplicate"
+	InvalidAccountNameNotFound             = "InvalidAccountName.NotFound"
+	OperationDeniedDBInstanceStatus        = "OperationDenied.DBInstanceStatus"
+	InvalidConnectionStringDuplicate       = "InvalidConnectionString.Duplicate"
+	AtLeastOneNetTypeExists                = "AtLeastOneNetTypeExists"
 	// oss
 	OssBucketNotFound = "NoSuchBucket"
 	OssBodyNotFound   = "404 Not Found"

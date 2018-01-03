@@ -145,7 +145,7 @@ func testAccCheckSlbDestroy(s *terraform.State) error {
 		}
 
 		if err != nil {
-			if IsExceptedError(err, LoadBalancerNotFound ){
+			if IsExceptedError(err, LoadBalancerNotFound) {
 				return nil
 			}
 			return fmt.Errorf("DescribeLoadBalancerAttribute got an error: %#v", err)

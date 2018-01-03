@@ -24,10 +24,10 @@ func resourceAliyunInstance() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"availability_zone": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: zoneIdDiffSuppressFunc,
 			},
 
 			"image_id": &schema.Schema{
@@ -172,12 +172,6 @@ func resourceAliyunInstance() *schema.Resource {
 				Type:             schema.TypeBool,
 				Optional:         true,
 				Default:          false,
-				DiffSuppressFunc: ecsPostPaidDiffSuppressFunc,
-			},
-			"auto_pay": &schema.Schema{
-				Type:             schema.TypeBool,
-				Optional:         true,
-				Default:          true,
 				DiffSuppressFunc: ecsPostPaidDiffSuppressFunc,
 			},
 
@@ -763,7 +757,7 @@ func modifyInstanceChargeType(d *schema.ResourceData, meta interface{}) (bool, e
 			Period:           d.Get("period").(int),
 			PeriodUnit:       common.TimeType(d.Get("period_unit").(string)),
 			IncludeDataDisks: d.Get("include_data_disks").(bool),
-			AutoPay:          d.Get("auto_pay").(bool),
+			AutoPay:          true,
 			DryRun:           d.Get("dry_run").(bool),
 			ClientToken:      fmt.Sprintf("terraform-modify-instance-charge-type-%s", d.Id()),
 		}

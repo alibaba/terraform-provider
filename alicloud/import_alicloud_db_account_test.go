@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccAlicloudDBInstance_import(t *testing.T) {
-	resourceName := "alicloud_db_instance.foo"
+func TestAccAlicloudDBAccount_import(t *testing.T) {
+	resourceName := "alicloud_db_account.account"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -15,13 +15,14 @@ func TestAccAlicloudDBInstance_import(t *testing.T) {
 		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDBInstance_vpc,
+				Config: testAccDBAccount_basic,
 			},
 
 			resource.TestStep{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
 			},
 		},
 	})
