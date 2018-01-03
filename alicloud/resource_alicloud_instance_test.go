@@ -632,7 +632,7 @@ func TestAccAlicloudInstanceChargeType_update(t *testing.T) {
 			},
 
 			resource.TestStep{
-				Config: testAccCheckInstancePrivateIpUpdate,
+				Config: testAccCheckInstanceChargeTypeUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckInstanceExists("alicloud_instance.charge_type", &instance),
 					resource.TestCheckResourceAttr(

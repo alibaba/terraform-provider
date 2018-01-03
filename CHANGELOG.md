@@ -1,6 +1,15 @@
 ## 1.6.0 (unreleased)
 
-## 1.5.0 (December 29, 2017)
+## 1.5.0 (January 3, 2018)
+
+FEATURES:
+
+  * **New Resource:** `alicloud_db_account` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * **New Resource:** `alicloud_db_account_privilege` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * **New Resource:** `alicloud_db_backup_policy` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * **New Resource:** `alicloud_db_connection` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * **New Resource:** `alicloud_db_database` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+
 
 IMPROVMENTS:
   * support to modify instance spec including instnaceType, bandwidth ([#322](https://github.com/alibaba/terraform-provider/pull/322))
@@ -8,10 +17,13 @@ IMPROVMENTS:
   * support to modify instance charge type ([#322](https://github.com/alibaba/terraform-provider/pull/322))
   * output more useful error message ([#322](https://github.com/alibaba/terraform-provider/pull/322))
   * support to modify load balance internet attribute ([#323](https://github.com/alibaba/terraform-provider/pull/323))
+  * modify `alicloud_db_instance` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+
 
 BUG FIXES:
   * fix SLB not found when describing SLB ([#322](https://github.com/alibaba/terraform-provider/pull/322))
   * fix attaching disk failed ([#323](https://github.com/alibaba/terraform-provider/pull/323))
+  * fix dns record deleting failed ([#324](https://github.com/alibaba/terraform-provider/pull/324))
 
 ## 1.3.3 (December 14, 2017)
 
