@@ -53,7 +53,7 @@ func (client *AliyunClient) DescribeDatabaseAccount(instanceId, accountName stri
 	}
 
 	if len(resp.Accounts.DBInstanceAccount) < 1 {
-		return nil, GetNotFoundErrorFromString(fmt.Sprint("Data account %s is not found in the instance %s.", accountName, instanceId))
+		return nil, GetNotFoundErrorFromString(fmt.Sprintf("Data account %s is not found in the instance %s.", accountName, instanceId))
 	}
 	return &resp.Accounts.DBInstanceAccount[0], nil
 }
@@ -69,7 +69,7 @@ func (client *AliyunClient) DescribeDatabaseByName(instanceId, dbName string) (d
 	}
 
 	if len(resp.Databases.Database) < 1 {
-		return nil, GetNotFoundErrorFromString(fmt.Sprint("Database %s is not found in the instance %s.", dbName, instanceId))
+		return nil, GetNotFoundErrorFromString(fmt.Sprintf("Database %s is not found in the instance %s.", dbName, instanceId))
 	}
 	return &resp.Databases.Database[0], nil
 }

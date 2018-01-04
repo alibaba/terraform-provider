@@ -18,12 +18,14 @@ IMPROVMENTS:
   * output more useful error message ([#322](https://github.com/alibaba/terraform-provider/pull/322))
   * support to modify load balance internet attribute ([#323](https://github.com/alibaba/terraform-provider/pull/323))
   * modify `alicloud_db_instance` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * give import route entry tips when it already exist ([#325](https://github.com/alibaba/terraform-provider/pull/325))
 
 
 BUG FIXES:
   * fix SLB not found when describing SLB ([#322](https://github.com/alibaba/terraform-provider/pull/322))
   * fix attaching disk failed ([#323](https://github.com/alibaba/terraform-provider/pull/323))
   * fix dns record deleting failed ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * fix route entry cannot be deleted ([#325](https://github.com/alibaba/terraform-provider/pull/325))
 
 ## 1.3.3 (December 14, 2017)
 
