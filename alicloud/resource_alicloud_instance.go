@@ -27,7 +27,7 @@ func resourceAliyunInstance() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: zoneIdDiffSuppressFunc,
+				Computed: true,
 			},
 
 			"image_id": &schema.Schema{
