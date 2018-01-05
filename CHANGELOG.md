@@ -37,6 +37,12 @@ BUG FIXES:
   * modify security_token to Optional ([#328](https://github.com/alibaba/terraform-provider/pull/328))
 
 
+## 1.5.1 (January 5, 2018)
+
+BUG FIXES:
+  * roll back instance zone to compute ([#327](https://github.com/alibaba/terraform-provider/pull/327))
+
+
 ## 1.5.0 (January 3, 2018)
 
 FEATURES:
