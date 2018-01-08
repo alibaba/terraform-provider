@@ -1,5 +1,10 @@
 ## 1.6.0 (unreleased)
 
+## 1.5.2 (January 8, 2018)
+
+BUG FIXES:
+  * fix creating rds 'Prepaid' instance failed error  ([#329](https://github.com/alibaba/terraform-provider/pull/329))
+
 ## 1.5.1 (January 5, 2018)
 
 BUG FIXES:
