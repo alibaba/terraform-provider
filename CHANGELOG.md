@@ -2,6 +2,9 @@
 
 ## 1.5.3 (January 9, 2018)
 
+IMPROVMENTS:
+  * support to go version 1.8.1 for travis ([#334](https://github.com/alibaba/terraform-provider/pull/334))
+
 BUG FIXES:
   * fix getting OSS endpoint failed error  ([#332](https://github.com/alibaba/terraform-provider/pull/332))
   * fix describing dns record not found when deleting record ([#333](https://github.com/alibaba/terraform-provider/pull/333))
