@@ -40,7 +40,8 @@ BUG FIXES:
 ## 1.5.3 (January 9, 2018)
 
 BUG FIXES:
-  * fix getting OSS endpoint failed error  ([#330](https://github.com/alibaba/terraform-provider/pull/330))
+  * fix getting OSS endpoint failed error  ([#332](https://github.com/alibaba/terraform-provider/pull/332))
+  * fix describing dns record not found when deleting record ([#333](https://github.com/alibaba/terraform-provider/pull/333))
 
 
 ## 1.5.2 (January 8, 2018)
