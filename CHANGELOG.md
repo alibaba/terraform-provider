@@ -37,6 +37,12 @@ BUG FIXES:
   * modify security_token to Optional ([#328](https://github.com/alibaba/terraform-provider/pull/328))
 
 
+## 1.5.3 (January 9, 2018)
+
+BUG FIXES:
+  * fix getting OSS endpoint failed error  ([#330](https://github.com/alibaba/terraform-provider/pull/330))
+
+
 ## 1.5.2 (January 8, 2018)
 
 BUG FIXES:
