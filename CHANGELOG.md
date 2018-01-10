@@ -37,6 +37,11 @@ BUG FIXES:
   * modify security_token to Optional ([#328](https://github.com/alibaba/terraform-provider/pull/328))
 
 
+BUG FIXES:
+
+  * fix allocating RDS public connection conflict error ([#336](https://github.com/terraform-providers/terraform-provider-alicloud/pull/336))
+
+
 ## 1.5.3 (January 9, 2018)
 
 IMPROVMENTS:
