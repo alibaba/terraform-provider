@@ -1,4 +1,8 @@
-## 1.6.0 (unreleased)
+## 1.5.4 (unreleased)
+
+IMPROVMENTS:
+  * Standardize the order of imports packages ([#335](https://github.com/alibaba/terraform-provider/pull/335))
+
 
 ## 1.5.3 (January 9, 2018)
 
@@ -81,19 +85,6 @@ FEATURES:
 
 IMPROVMENTS:
   * modify client and support endpoint: ([#290](https://github.com/alibaba/terraform-provider/pull/290))
-
-## 1.2.11 (November 30, 2017)
-IMPROVMENTS:
-  * fix creating multiple route entries bug: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
-  * add creating multiple vpcs and vswitches test case: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
-  * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
-
-## 1.2.11 (November 30, 2017)
-IMPROVMENTS:
-  * fix creating multiple route entries bug: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
-  * add creating multiple vpcs and vswitches test case: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
-  * modify ess scaling group maxsize/minsize/default_cooldown type to int pointer: ([#286](https://github.com/alibaba/terraform-provider/pull/286))
-
 
 ## 1.2.11 (November 30, 2017)
 IMPROVMENTS:
