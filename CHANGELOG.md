@@ -2,6 +2,7 @@
 
 IMPROVMENTS:
 
+  * *New Resource*: _alicloud_slb_rule_ ([#340](https://github.com/alibaba/terraform-provider/pull/340))
   * *New Resource*: _alicloud_slb_server_group_ ([#339](https://github.com/alibaba/terraform-provider/pull/339))
   * Standardize the order of imports packages ([#335](https://github.com/alibaba/terraform-provider/pull/335))
   * Output tip message when international account create SLB failed ([#336](https://github.com/alibaba/terraform-provider/pull/336))
