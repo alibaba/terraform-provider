@@ -1,7 +1,8 @@
-## 1.5.4 (unreleased)
+## 1.6.0 (unreleased)
 
 IMPROVMENTS:
 
+  * *New Resource*: _alicloud_slb_server_group_ ([#339](https://github.com/alibaba/terraform-provider/pull/339))
   * Standardize the order of imports packages ([#335](https://github.com/alibaba/terraform-provider/pull/335))
   * Output tip message when international account create SLB failed ([#336](https://github.com/alibaba/terraform-provider/pull/336))
   * Support spot instance ([#338](https://github.com/alibaba/terraform-provider/pull/338))
