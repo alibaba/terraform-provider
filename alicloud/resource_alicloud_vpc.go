@@ -2,11 +2,12 @@ package alicloud
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
-	"time"
 )
 
 func resourceAliyunVpc() *schema.Resource {
@@ -87,7 +88,7 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 				return resource.NonRetryableError(fmt.Errorf("The number of VPC has quota has reached the quota limit in your account, and please use existing VPCs or remove some of them."))
 			}
 			if IsExceptedError(err, UnknownError) {
-				return resource.RetryableError(fmt.Errorf("Vpc is still creating result from some unknown error -- try again"))
+				return resource.RetryableError(fmt.Errorf("Create vpc timeout and got an error: %#v.", err))
 			}
 			return resource.NonRetryableError(err)
 		}
@@ -184,7 +185,7 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 		err := conn.DeleteVpc(d.Id())
 
 		if err != nil {
-			return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
+			return resource.RetryableError(fmt.Errorf("Delete VPC timeout and got an error: %#v.", err))
 		}
 
 		args := &ecs.DescribeVpcsArgs{
@@ -198,7 +199,7 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 
-		return resource.RetryableError(fmt.Errorf("Vpc in use - trying again while it is deleted."))
+		return resource.RetryableError(fmt.Errorf("Delete VPC timeout and got an error: %#v.", err))
 	})
 }
 

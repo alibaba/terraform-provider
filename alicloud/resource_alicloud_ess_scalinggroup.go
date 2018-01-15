@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+
 	"github.com/denverdino/aliyungo/ess"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -195,7 +196,6 @@ func buildAlicloudEssScalingGroupArgs(d *schema.ResourceData, meta interface{}) 
 
 	lbs, ok := d.GetOk("loadbalancer_ids")
 	if ok {
-		//lbsStrings := lbs.([]interface{})
 		args.LoadBalancerIds = convertListToJsonString(lbs.([]interface{}))
 	}
 

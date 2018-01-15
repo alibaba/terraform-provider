@@ -2,10 +2,11 @@ package alicloud
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/denverdino/aliyungo/ess"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"time"
 )
 
 func resourceAlicloudEssSchedule() *schema.Resource {
@@ -171,7 +172,7 @@ func resourceAliyunEssScheduleDelete(d *schema.ResourceData, meta interface{}) e
 		err := client.DeleteScheduleById(d.Id())
 
 		if err != nil {
-			return resource.RetryableError(fmt.Errorf("Scaling schedule in use - trying again while it is deleted."))
+			return resource.RetryableError(fmt.Errorf("Delete scaling schedule timeout and got an error:%#v.", err))
 		}
 
 		_, err = client.DescribeScheduleById(d.Id())
@@ -182,7 +183,7 @@ func resourceAliyunEssScheduleDelete(d *schema.ResourceData, meta interface{}) e
 			return resource.NonRetryableError(err)
 		}
 
-		return resource.RetryableError(fmt.Errorf("Scaling schedule in use - trying again while it is deleted."))
+		return resource.RetryableError(fmt.Errorf("Delete scaling schedule timeout and got an error:%#v.", err))
 	})
 }
 

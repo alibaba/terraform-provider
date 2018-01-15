@@ -2,13 +2,14 @@ package alicloud
 
 import (
 	"fmt"
+	"log"
+	"testing"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ess"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"log"
-	"testing"
 )
 
 func TestAccAlicloudEssScalingGroup_basic(t *testing.T) {
@@ -37,7 +38,7 @@ func TestAccAlicloudEssScalingGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_ess_scaling_group.foo", "scaling_group_name", "sg-for-test-config"),
 					resource.TestCheckResourceAttr(
-						"alicloud_ess_scaling_group.foo", "removal_policies.#", "2" ),
+						"alicloud_ess_scaling_group.foo", "removal_policies.#", "2"),
 				),
 			},
 		},

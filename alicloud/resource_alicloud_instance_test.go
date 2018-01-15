@@ -2,9 +2,8 @@ package alicloud
 
 import (
 	"fmt"
-	"testing"
-
 	"log"
+	"testing"
 
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -570,6 +569,101 @@ func TestAccAlicloudInstance_keyPair(t *testing.T) {
 						"alicloud_instance.key_pair",
 						"key_name",
 						"key_pair_for_instance_test"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAlicloudInstancePrivateIp_update(t *testing.T) {
+	var instance ecs.InstanceAttributesType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckInstancePrivateIp,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.private_ip", &instance),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.private_ip",
+						"private_ip",
+						"10.1.1.3"),
+				),
+			},
+
+			resource.TestStep{
+				Config: testAccCheckInstancePrivateIpUpdate,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.private_ip", &instance),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.private_ip",
+						"private_ip",
+						"10.1.2.3"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAlicloudInstanceChargeType_update(t *testing.T) {
+	var instance ecs.InstanceAttributesType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckInstanceChargeType,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.charge_type", &instance),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.charge_type",
+						"dry_run", "false"),
+				),
+			},
+
+			resource.TestStep{
+				Config: testAccCheckInstanceChargeTypeUpdate,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.charge_type", &instance),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.charge_type",
+						"dry_run", "true"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccAlicloudInstance_spot(t *testing.T) {
+	var instance ecs.InstanceAttributesType
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		IDRefreshName: "alicloud_instance.spot",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckSpotInstance,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckInstanceExists("alicloud_instance.spot", &instance),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.spot",
+						"spot_strategy", "SpotWithPriceLimit"),
+					resource.TestCheckResourceAttr(
+						"alicloud_instance.spot",
+						"spot_price_limit", "1.002"),
 				),
 			},
 		},
@@ -1380,5 +1474,209 @@ resource "alicloud_instance" "key_pair" {
   	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	key_name = "${alicloud_key_pair.key_pair.id}"
+}
+`
+const testAccCheckInstancePrivateIp = `
+data "alicloud_images" "ubuntu" {
+	most_recent = true
+	owners = "system"
+	name_regex = "^ubuntu_14\\w{1,5}[64]{1}.*"
+}
+
+data "alicloud_zones" "zones" {}
+
+resource "alicloud_vpc" "foo" {
+	name = "tf_test_change_private"
+	cidr_block = "10.1.0.0/21"
+}
+
+resource "alicloud_vswitch" "foo" {
+	vpc_id = "${alicloud_vpc.foo.id}"
+	cidr_block = "10.1.1.0/24"
+	availability_zone = "${data.alicloud_zones.zones.zones.0.id}"
+}
+
+resource "alicloud_vswitch" "bar" {
+	vpc_id = "${alicloud_vpc.foo.id}"
+	cidr_block = "10.1.2.0/24"
+	availability_zone = "${data.alicloud_zones.zones.zones.0.id}"
+}
+
+resource "alicloud_security_group" "group" {
+	name = "tf_test_private_ip"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "private_ip" {
+	image_id = "${data.alicloud_images.ubuntu.images.0.id}"
+  	system_disk_category = "cloud_efficiency"
+  	system_disk_size = 40
+
+  	instance_type = "ecs.n4.small"
+  	instance_name = "with_private_ip"
+  	security_groups = ["${alicloud_security_group.group.id}"]
+	vswitch_id = "${alicloud_vswitch.foo.id}"
+	private_ip = "10.1.1.3"
+}
+`
+
+const testAccCheckInstancePrivateIpUpdate = `
+data "alicloud_images" "ubuntu" {
+	most_recent = true
+	owners = "system"
+	name_regex = "^ubuntu_14\\w{1,5}[64]{1}.*"
+}
+
+data "alicloud_zones" "zones" {}
+
+resource "alicloud_vpc" "foo" {
+	name = "tf_test_change_private"
+	cidr_block = "10.1.0.0/21"
+}
+
+resource "alicloud_vswitch" "foo" {
+	vpc_id = "${alicloud_vpc.foo.id}"
+	cidr_block = "10.1.1.0/24"
+	availability_zone = "${data.alicloud_zones.zones.zones.0.id}"
+}
+
+resource "alicloud_vswitch" "bar" {
+	vpc_id = "${alicloud_vpc.foo.id}"
+	cidr_block = "10.1.2.0/24"
+	availability_zone = "${data.alicloud_zones.zones.zones.0.id}"
+}
+
+resource "alicloud_security_group" "group" {
+	name = "tf_test_private_ip"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "private_ip" {
+	image_id = "${data.alicloud_images.ubuntu.images.0.id}"
+  	system_disk_category = "cloud_efficiency"
+  	system_disk_size = 40
+
+  	instance_type = "ecs.n4.small"
+  	instance_name = "with_private_ip"
+  	security_groups = ["${alicloud_security_group.group.id}"]
+	vswitch_id = "${alicloud_vswitch.bar.id}"
+	private_ip = "10.1.2.3"
+}
+`
+
+const testAccCheckInstanceChargeType = `
+data "alicloud_images" "ubuntu" {
+	most_recent = true
+	owners = "system"
+	name_regex = "^ubuntu_14\\w{1,5}[64]{1}.*"
+}
+
+data "alicloud_zones" "zones" {}
+
+resource "alicloud_vpc" "foo" {
+	name = "tf_test_charge_type"
+	cidr_block = "10.1.0.0/21"
+}
+
+resource "alicloud_vswitch" "foo" {
+	vpc_id = "${alicloud_vpc.foo.id}"
+	cidr_block = "10.1.1.0/24"
+	availability_zone = "${data.alicloud_zones.zones.zones.0.id}"
+}
+
+resource "alicloud_security_group" "group" {
+	name = "tf_test_private_ip"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "charge_type" {
+	image_id = "${data.alicloud_images.ubuntu.images.0.id}"
+  	system_disk_category = "cloud_efficiency"
+  	system_disk_size = 40
+
+  	instance_type = "ecs.n4.small"
+  	instance_name = "with_charge_type"
+  	security_groups = ["${alicloud_security_group.group.id}"]
+	vswitch_id = "${alicloud_vswitch.foo.id}"
+	private_ip = "10.1.1.3"
+}
+`
+
+const testAccCheckInstanceChargeTypeUpdate = `
+data "alicloud_images" "ubuntu" {
+	most_recent = true
+	owners = "system"
+	name_regex = "^ubuntu_14\\w{1,5}[64]{1}.*"
+}
+
+data "alicloud_zones" "zones" {}
+
+resource "alicloud_vpc" "foo" {
+	name = "tf_test_charge_type"
+	cidr_block = "10.1.0.0/21"
+}
+
+resource "alicloud_vswitch" "foo" {
+	vpc_id = "${alicloud_vpc.foo.id}"
+	cidr_block = "10.1.1.0/24"
+	availability_zone = "${data.alicloud_zones.zones.zones.0.id}"
+}
+
+resource "alicloud_security_group" "group" {
+	name = "tf_test_private_ip"
+	vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "charge_type" {
+	image_id = "${data.alicloud_images.ubuntu.images.0.id}"
+  	system_disk_category = "cloud_efficiency"
+  	system_disk_size = 40
+
+  	instance_type = "ecs.n4.small"
+  	instance_name = "with_charge_type"
+  	security_groups = ["${alicloud_security_group.group.id}"]
+	vswitch_id = "${alicloud_vswitch.foo.id}"
+	private_ip = "10.1.1.3"
+	instance_charge_type = "PrePaid"
+	dry_run=true
+}
+`
+const testAccCheckSpotInstance = `
+data "alicloud_zones" "default" {
+  available_disk_category= "cloud_efficiency"
+  available_resource_creation= "VSwitch"
+}
+
+resource "alicloud_vpc" "foo" {
+  cidr_block = "172.16.0.0/12"
+}
+
+resource "alicloud_vswitch" "foo" {
+  vpc_id = "${alicloud_vpc.foo.id}"
+  cidr_block = "172.16.0.0/21"
+  availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+}
+
+resource "alicloud_security_group" "tf_test_foo" {
+  vpc_id = "${alicloud_vpc.foo.id}"
+}
+
+resource "alicloud_instance" "spot" {
+  # cn-beijing
+  vswitch_id = "${alicloud_vswitch.foo.id}"
+  image_id = "ubuntu_140405_32_40G_cloudinit_20161115.vhd"
+  availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+
+  # series III
+  instance_type = "ecs.n4.small"
+  system_disk_category = "cloud_efficiency"
+
+  internet_charge_type = "PayByTraffic"
+  internet_max_bandwidth_out = 5
+  allocate_public_ip = true
+  security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
+  instance_name = "test_for_spot"
+  spot_strategy = "SpotWithPriceLimit"
+  spot_price_limit = "1.002"
 }
 `

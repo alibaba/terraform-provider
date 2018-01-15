@@ -1,8 +1,9 @@
 package alicloud
 
 import (
-	"github.com/denverdino/aliyungo/common"
 	"strings"
+
+	"github.com/denverdino/aliyungo/common"
 )
 
 const (
@@ -17,17 +18,26 @@ const (
 	InstanceLockedForSecurity = "InstanceLockedForSecurity"
 	SystemDiskNotFound        = "SystemDiskNotFound"
 	DiskOperationConflict     = "OperationConflict"
+	DiskInternalError         = "InternalError"
+	DiskInvalidOperation      = "InvalidOperation.Conflict"
 	// eip
 	EipIncorrectStatus      = "IncorrectEipStatus"
 	InstanceIncorrectStatus = "IncorrectInstanceStatus"
 	HaVipIncorrectStatus    = "IncorrectHaVipStatus"
 	// slb
-	LoadBalancerNotFound     = "InvalidLoadBalancerId.NotFound"
-	UnsupportedProtocalPort  = "UnsupportedOperationonfixedprotocalport"
-	ListenerNotFound         = "The specified resource does not exist"
-	ListenerAlreadyExists    = "ListenerAlreadyExists"
-	ServiceIsConfiguring     = "ServiceIsConfiguring"
-	BackendServerconfiguring = "BackendServer.configuring"
+	LoadBalancerNotFound        = "InvalidLoadBalancerId.NotFound"
+	UnsupportedProtocalPort     = "UnsupportedOperationonfixedprotocalport"
+	ListenerNotFound            = "The specified resource does not exist"
+	ListenerAlreadyExists       = "ListenerAlreadyExists"
+	ServiceIsConfiguring        = "ServiceIsConfiguring"
+	BackendServerconfiguring    = "BackendServer.configuring"
+	SystemBusy                  = "SystemBusy"
+	SlbOrderFailed              = "OrderFailed"
+	VServerGroupNotFoundMessage = "The specified VServerGroupId does not exist"
+	RspoolVipExist              = "RspoolVipExist"
+	InvalidParameter            = "InvalidParameter"
+	InvalidRuleIdNotFound       = "InvalidRuleId.NotFound"
+	RuleDomainExist             = "DomainExist"
 	// security_group
 	InvalidInstanceIdAlreadyExists = "InvalidInstanceId.AlreadyExists"
 	InvalidSecurityGroupIdNotFound = "InvalidSecurityGroupId.NotFound"
@@ -44,15 +54,29 @@ const (
 	// vswitch
 	VswitcInvalidRegionId = "InvalidRegionId.NotFound"
 	//vroute entry
-	IncorrectRouteEntryStatus = "IncorrectRouteEntryStatus"
-	TaskConflict              = "TaskConflict"
-	RouterEntryForbbiden      = "Forbbiden"
+	IncorrectRouteEntryStatus     = "IncorrectRouteEntryStatus"
+	TaskConflict                  = "TaskConflict"
+	RouterEntryForbbiden          = "Forbbiden"
+	RouterEntryConflictDuplicated = "RouterEntryConflict.Duplicated"
 
 	// ess
 	InvalidScalingGroupIdNotFound               = "InvalidScalingGroupId.NotFound"
 	IncorrectScalingConfigurationLifecycleState = "IncorrectScalingConfigurationLifecycleState"
 	IncorrectScalingGroupStatus                 = "IncorrectScalingGroupStatus"
+	IncorrectCapacityMaxSize                    = "IncorrectCapacity.MaxSize"
+	IncorrectCapacityMinSize                    = "IncorrectCapacity.MinSize"
+	ScalingActivityInProgress                   = "ScalingActivityInProgress"
 
+	// rds
+	InvalidDBNameNotFound                  = "InvalidDBName.NotFound"
+	InvalidDBInstanceNameNotFound          = "InvalidDBInstanceName.NotFound"
+	InvalidCurrentConnectionStringNotFound = "InvalidCurrentConnectionString.NotFound"
+	NetTypeExists                          = "NetTypeExists"
+	InvalidAccountNameDuplicate            = "InvalidAccountName.Duplicate"
+	InvalidAccountNameNotFound             = "InvalidAccountName.NotFound"
+	OperationDeniedDBInstanceStatus        = "OperationDenied.DBInstanceStatus"
+	InvalidConnectionStringDuplicate       = "InvalidConnectionString.Duplicate"
+	AtLeastOneNetTypeExists                = "AtLeastOneNetTypeExists"
 	// oss
 	OssBucketNotFound = "NoSuchBucket"
 	OssBodyNotFound   = "404 Not Found"
@@ -62,8 +86,9 @@ const (
 	AliyunGoClientFailure = "AliyunGoClientFailure"
 
 	// dns
-	RecordForbiddenDNSChange = "RecordForbidden.DNSChange"
-	FobiddenNotEmptyGroup    = "Fobidden.NotEmptyGroup"
+	RecordForbiddenDNSChange    = "RecordForbidden.DNSChange"
+	FobiddenNotEmptyGroup       = "Fobidden.NotEmptyGroup"
+	DomainRecordNotBelongToUser = "DomainRecordNotBelongToUser"
 
 	// ram user
 	DeleteConflictUserGroup        = "DeleteConflict.User.Group"

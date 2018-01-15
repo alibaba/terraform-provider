@@ -2,10 +2,13 @@ package alicloud
 
 import (
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/denverdino/aliyungo/cdn"
 	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/cs"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/ess"
@@ -13,18 +16,15 @@ import (
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/denverdino/aliyungo/rds"
 	"github.com/denverdino/aliyungo/slb"
-
-	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform/terraform"
-	"log"
-	"strings"
 )
 
 // Config of aliyun
 type Config struct {
-	AccessKey string
-	SecretKey string
-	Region    common.Region
+	AccessKey     string
+	SecretKey     string
+	Region        common.Region
+	SecurityToken string
 }
 
 // AliyunClient of aliyun
@@ -141,7 +141,7 @@ func (c *Config) validateRegion() error {
 }
 
 func (c *Config) ecsConn() (*ecs.Client, error) {
-	client := ecs.NewECSClient(c.AccessKey, c.SecretKey, c.Region)
+	client := ecs.NewECSClientWithSecurityToken(c.AccessKey, c.SecretKey, c.SecurityToken, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
 	client.SetUserAgent(getUserAgent())
 
@@ -167,7 +167,7 @@ func (c *Config) slbConn() (*slb.Client, error) {
 }
 
 func (c *Config) vpcConn() (*ecs.Client, error) {
-	client := ecs.NewVPCClient(c.AccessKey, c.SecretKey, c.Region)
+	client := ecs.NewVPCClientWithSecurityToken(c.AccessKey, c.SecretKey, c.SecurityToken, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
 	client.SetUserAgent(getUserAgent())
 	return client, nil
@@ -182,6 +182,7 @@ func (c *Config) essConn() (*ess.Client, error) {
 func (c *Config) ossConn() (*oss.Client, error) {
 
 	endpointClient := location.NewClient(c.AccessKey, c.SecretKey)
+	endpointClient.SetSecurityToken(c.SecurityToken)
 	args := &location.DescribeEndpointsArgs{
 		Id:          c.Region,
 		ServiceCode: "oss",
@@ -195,11 +196,14 @@ func (c *Config) ossConn() (*oss.Client, error) {
 	endpointItem := endpoints.Endpoints.Endpoint
 	var endpoint string
 	if endpointItem == nil || len(endpointItem) <= 0 {
-		// return nil, fmt.Errorf("Cannot find endpoint in the region: %#v", c.Region")
 		log.Printf("Cannot find endpoint in the region: %#v", c.Region)
 		endpoint = ""
 	} else {
 		endpoint = strings.ToLower(endpointItem[0].Protocols.Protocols[0]) + "://" + endpointItem[0].Endpoint
+	}
+
+	if endpoint == "" {
+		endpoint = fmt.Sprintf("http://oss-%s.aliyuncs.com", c.Region)
 	}
 
 	log.Printf("[DEBUG] Instantiate OSS client using endpoint: %#v", endpoint)
@@ -221,7 +225,7 @@ func (c *Config) ramConn() (ram.RamClientInterface, error) {
 }
 
 func (c *Config) csConn() (*cs.Client, error) {
-	client := cs.NewClient(c.AccessKey, c.SecretKey)
+	client := cs.NewClientForAussumeRole(c.AccessKey, c.SecretKey, c.SecurityToken)
 	client.SetUserAgent(getUserAgent())
 	return client, nil
 }

@@ -2,13 +2,14 @@ package alicloud
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/ess"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
-	"time"
 )
 
 func resourceAlicloudEssScalingConfiguration() *schema.Resource {
@@ -120,7 +121,10 @@ func resourceAlicloudEssScalingConfiguration() *schema.Resource {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
-				MaxItems: 20,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return true
+				},
+				Deprecated: "Field 'instance_ids' has been deprecated from provider version 1.6.0. New resource 'alicloud_ess_attachment' replaces it.",
 			},
 
 			"substitute": &schema.Schema{
@@ -233,18 +237,6 @@ func resourceAliyunEssScalingConfigurationUpdate(d *schema.ResourceData, meta in
 		return err
 	}
 
-	if d.HasChange("instance_ids") {
-		sgId := d.Get("scaling_group_id").(string)
-		if _, err := client.essconn.EnableScalingGroup(&ess.EnableScalingGroupArgs{
-			ScalingGroupId: sgId,
-			InstanceId:     expandStringList(d.Get("instance_ids").([]interface{})),
-		}); err != nil {
-			return fmt.Errorf("EnableScalingGroup %s got an error: %#v", sgId, err)
-		}
-
-		d.SetPartial("instance_ids")
-	}
-
 	d.Partial(false)
 
 	return resourceAliyunEssScalingConfigurationRead(d, meta)
@@ -293,6 +285,9 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 				}); err != nil {
 					return fmt.Errorf("EnableScalingGroup %s got an error: %#v", sgId, err)
 				}
+				if err := client.essconn.WaitForScalingGroup(getRegion(d, meta), sgId, ess.Active, defaultTimeout); err != nil {
+					return fmt.Errorf("WaitForScalingGroup is %#v got an error: %#v.", ess.Active, err)
+				}
 
 				d.SetPartial("scaling_configuration_id")
 			}
@@ -302,6 +297,9 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 					ScalingGroupId: sgId,
 				}); err != nil {
 					return fmt.Errorf("DisableScalingGroup %s got an error: %#v", sgId, err)
+				}
+				if err := client.essconn.WaitForScalingGroup(getRegion(d, meta), sgId, ess.Inacitve, defaultTimeout); err != nil {
+					return fmt.Errorf("WaitForScalingGroup is %#v got an error: %#v.", ess.Inacitve, err)
 				}
 			}
 		}
@@ -379,7 +377,7 @@ func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta in
 			}
 			if e.ErrorResponse.Code != InvalidScalingGroupIdNotFound {
 				return resource.RetryableError(
-					fmt.Errorf("Scaling configuration in use - trying again while it is deleted."))
+					fmt.Errorf("Delete scaling configuration timeout and got an error:%#v.", err))
 			}
 		}
 
@@ -404,7 +402,7 @@ func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta in
 		}
 
 		return resource.RetryableError(
-			fmt.Errorf("Scaling configuration in use - trying again while it is deleted."))
+			fmt.Errorf("Delete scaling configuration timeout and got an error:%#v.", err))
 	})
 }
 

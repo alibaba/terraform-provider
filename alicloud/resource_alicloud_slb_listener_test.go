@@ -2,11 +2,12 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func TestAccAlicloudSlbListener_http(t *testing.T) {
@@ -106,7 +107,7 @@ func testAccCheckSlbListenerExists(n string, port int) resource.TestCheckFunc {
 		parts := strings.Split(rs.Primary.ID, ":")
 		loadBalancer, err := client.DescribeLoadBalancerAttribute(parts[0])
 		if err != nil {
-			return fmt.Errorf("DescribeLoadBalancerAttribute got an error: %#v", parts[0])
+			return fmt.Errorf("DescribeLoadBalancerAttribute got an error: %#v", err)
 		}
 		for _, portAndProtocol := range loadBalancer.ListenerPortsAndProtocol.ListenerPortAndProtocol {
 			if portAndProtocol.ListenerPort == port {

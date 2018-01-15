@@ -3,12 +3,12 @@ package alicloud
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"time"
 )
 
 func resourceAliyunEipAssociation() *schema.Resource {
@@ -99,7 +99,7 @@ func resourceAliyunEipAssociationDelete(d *schema.ResourceData, meta interface{}
 			e, _ := err.(*common.Error)
 			errCode := e.ErrorResponse.Code
 			if errCode == InstanceIncorrectStatus || errCode == HaVipIncorrectStatus {
-				return resource.RetryableError(fmt.Errorf("Eip in use - trying again while make it unassociated."))
+				return resource.RetryableError(fmt.Errorf("Unassociat EIP timeout and got an error:%#v.", err))
 			}
 		}
 
@@ -117,7 +117,7 @@ func resourceAliyunEipAssociationDelete(d *schema.ResourceData, meta interface{}
 		}
 		for _, eip := range eips {
 			if eip.Status != ecs.EipStatusAvailable {
-				return resource.RetryableError(fmt.Errorf("Eip in use - trying again while make it unassociated."))
+				return resource.RetryableError(fmt.Errorf("Unassociat EIP timeout and got an error:%#v.", err))
 			}
 		}
 

@@ -2,11 +2,12 @@ package alicloud
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
-	"time"
 )
 
 func resourceAlicloudKeyPairAttachment() *schema.Resource {
@@ -47,7 +48,7 @@ func resourceAlicloudKeyPairAttachmentCreate(d *schema.ResourceData, meta interf
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		if er := conn.AttachKeyPair(args); er != nil {
 			if IsExceptedError(er, KeyPairServiceUnavailable) {
-				return resource.RetryableError(fmt.Errorf("Key Pair is attaching and gets an error: %#v -- try again...", er))
+				return resource.RetryableError(fmt.Errorf("Attach Key Pair timeout and got an error: %#v.", er))
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error Attach KeyPair: %#v", er))
 		}
@@ -107,7 +108,7 @@ func resourceAlicloudKeyPairAttachmentDelete(d *schema.ResourceData, meta interf
 		}
 		if len(instance_ids) > 0 {
 			instanceIds = convertListToJsonString(instance_ids)
-			return resource.RetryableError(fmt.Errorf("There is still attached instances -- try again to detach them."))
+			return resource.RetryableError(fmt.Errorf("Detach Key Pair timeout and got an error: %#v.", err))
 		}
 
 		return nil

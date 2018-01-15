@@ -1,11 +1,12 @@
 package alicloud
 
 import (
+	"os"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"os"
 )
 
 // Provider returns a schema.Provider for alicloud
@@ -15,20 +16,26 @@ func Provider() terraform.ResourceProvider {
 			"access_key": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_ACCESS_KEY", nil),
+				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_ACCESS_KEY", os.Getenv("ALICLOUD_ACCESS_KEY")),
 				Description: descriptions["access_key"],
 			},
 			"secret_key": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_SECRET_KEY", nil),
+				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_SECRET_KEY", os.Getenv("ALICLOUD_SECRET_KEY")),
 				Description: descriptions["secret_key"],
 			},
 			"region": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_REGION", DEFAULT_REGION),
+				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_REGION", os.Getenv("ALICLOUD_REGION")),
 				Description: descriptions["region"],
+			},
+			"security_token": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_SECURITY_TOKEN", os.Getenv("SECURITY_TOKEN")),
+				Description: descriptions["security_token"],
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -60,14 +67,20 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_disk_attachment":           resourceAliyunDiskAttachment(),
 			"alicloud_security_group":            resourceAliyunSecurityGroup(),
 			"alicloud_security_group_rule":       resourceAliyunSecurityGroupRule(),
+			"alicloud_db_database":               resourceAlicloudDBDatabase(),
+			"alicloud_db_account":                resourceAlicloudDBAccount(),
+			"alicloud_db_account_privilege":      resourceAlicloudDBAccountPrivilege(),
+			"alicloud_db_backup_policy":          resourceAlicloudDBBackupPolicy(),
+			"alicloud_db_connection":             resourceAlicloudDBConnection(),
 			"alicloud_db_instance":               resourceAlicloudDBInstance(),
 			"alicloud_ess_scaling_group":         resourceAlicloudEssScalingGroup(),
 			"alicloud_ess_scaling_configuration": resourceAlicloudEssScalingConfiguration(),
 			"alicloud_ess_scaling_rule":          resourceAlicloudEssScalingRule(),
 			"alicloud_ess_schedule":              resourceAlicloudEssSchedule(),
+			"alicloud_ess_attachment":            resourceAlicloudEssAttachment(),
 			"alicloud_vpc":                       resourceAliyunVpc(),
 			"alicloud_nat_gateway":               resourceAliyunNatGateway(),
-			//both subnet and vswith exists,cause compatible old version, and compatible aws habit.
+			// "alicloud_subnet" aims to match aws usage habit.
 			"alicloud_subnet":              resourceAliyunSubnet(),
 			"alicloud_vswitch":             resourceAliyunSubnet(),
 			"alicloud_route_entry":         resourceAliyunRouteEntry(),
@@ -78,6 +91,8 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_slb":                 resourceAliyunSlb(),
 			"alicloud_slb_listener":        resourceAliyunSlbListener(),
 			"alicloud_slb_attachment":      resourceAliyunSlbAttachment(),
+			"alicloud_slb_server_group":    resourceAliyunSlbServerGroup(),
+			"alicloud_slb_rule":            resourceAliyunSlbRule(),
 			"alicloud_oss_bucket":          resourceAlicloudOssBucket(),
 			"alicloud_oss_bucket_object":   resourceAlicloudOssBucketObject(),
 			"alicloud_dns_record":          resourceAlicloudDnsRecord(),
@@ -108,25 +123,20 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	accesskey, ok := d.GetOk("access_key")
-	if !ok {
-		accesskey = os.Getenv("ALICLOUD_ACCESS_KEY")
-	}
-	secretkey, ok := d.GetOk("secret_key")
-	if !ok {
-		secretkey = os.Getenv("ALICLOUD_SECRET_KEY")
-	}
 	region, ok := d.GetOk("region")
 	if !ok {
-		region = os.Getenv("ALICLOUD_REGION")
 		if region == "" {
 			region = DEFAULT_REGION
 		}
 	}
 	config := Config{
-		AccessKey: accesskey.(string),
-		SecretKey: secretkey.(string),
+		AccessKey: d.Get("access_key").(string),
+		SecretKey: d.Get("secret_key").(string),
 		Region:    common.Region(region.(string)),
+	}
+
+	if token, ok := d.GetOk("security_token"); ok && token.(string) != "" {
+		config.SecurityToken = token.(string)
 	}
 
 	client, err := config.Client()
@@ -144,8 +154,9 @@ var descriptions map[string]string
 
 func init() {
 	descriptions = map[string]string{
-		"access_key": "Access key of alicloud",
-		"secret_key": "Secret key of alicloud",
-		"region":     "Region of alicloud",
+		"access_key":     "Access key of alicloud",
+		"secret_key":     "Secret key of alicloud",
+		"region":         "Region of alicloud",
+		"security_token": "Alibaba Cloud Security Token",
 	}
 }

@@ -2,12 +2,13 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/denverdino/aliyungo/ecs"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/helper/schema"
 	"io/ioutil"
 	"strings"
 	"time"
+
+	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceAlicloudKeyPair() *schema.Resource {
@@ -151,7 +152,7 @@ func resourceAlicloudKeyPairDelete(d *schema.ResourceData, meta interface{}) err
 			return resource.NonRetryableError(err)
 		}
 		if len(instance_ids) > 0 {
-			return resource.RetryableError(fmt.Errorf("There is still attached instances -- try again to detach them."))
+			return resource.RetryableError(fmt.Errorf("Delete Key Pair timeout and got an error: %#v.", err))
 		}
 
 		err := client.ecsconn.DeleteKeyPairs(&ecs.DeleteKeyPairsArgs{
@@ -169,7 +170,7 @@ func resourceAlicloudKeyPairDelete(d *schema.ResourceData, meta interface{}) err
 			KeyPairName: d.Id(),
 		})
 		if len(keypairs) > 0 {
-			return resource.RetryableError(fmt.Errorf("Key Pair still exists - trying again."))
+			return resource.RetryableError(fmt.Errorf("Delete Key Pair timeout and got an error: %#v.", err))
 		}
 
 		return nil
