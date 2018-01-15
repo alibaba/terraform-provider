@@ -34,7 +34,10 @@ const (
 	SystemBusy                  = "SystemBusy"
 	SlbOrderFailed              = "OrderFailed"
 	VServerGroupNotFoundMessage = "The specified VServerGroupId does not exist"
+	RspoolVipExist              = "RspoolVipExist"
 	InvalidParameter            = "InvalidParameter"
+	InvalidRuleIdNotFound       = "InvalidRuleId.NotFound"
+	RuleDomainExist             = "DomainExist"
 	// security_group
 	InvalidInstanceIdAlreadyExists = "InvalidInstanceId.AlreadyExists"
 	InvalidSecurityGroupIdNotFound = "InvalidSecurityGroupId.NotFound"
@@ -60,6 +63,9 @@ const (
 	InvalidScalingGroupIdNotFound               = "InvalidScalingGroupId.NotFound"
 	IncorrectScalingConfigurationLifecycleState = "IncorrectScalingConfigurationLifecycleState"
 	IncorrectScalingGroupStatus                 = "IncorrectScalingGroupStatus"
+	IncorrectCapacityMaxSize                    = "IncorrectCapacity.MaxSize"
+	IncorrectCapacityMinSize                    = "IncorrectCapacity.MinSize"
+	ScalingActivityInProgress                   = "ScalingActivityInProgress"
 
 	// rds
 	InvalidDBNameNotFound                  = "InvalidDBName.NotFound"

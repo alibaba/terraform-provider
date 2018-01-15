@@ -1,4 +1,78 @@
-## 1.6.0 (unreleased)
+## 1.6.0 (January 15, 2018)
+
+IMPROVMENTS:
+
+  * *New Resource*: _alicloud_ess_attachment_  ([#341](https://github.com/alibaba/terraform-provider/pull/341))
+  * *New Resource*: _alicloud_slb_rule_ ([#340](https://github.com/alibaba/terraform-provider/pull/340))
+  * *New Resource*: _alicloud_slb_server_group_ ([#339](https://github.com/alibaba/terraform-provider/pull/339))
+  * Standardize the order of imports packages ([#335](https://github.com/alibaba/terraform-provider/pull/335))
+  * Output tip message when international account create SLB failed ([#336](https://github.com/alibaba/terraform-provider/pull/336))
+  * Support spot instance ([#338](https://github.com/alibaba/terraform-provider/pull/338))
+  * Add "weight" for slb_attachment to improve the resource ([#341](https://github.com/alibaba/terraform-provider/pull/341))
+
+BUG FIXES:
+
+  * fix allocating RDS public connection conflict error ([#337](https://github.com/terraform-providers/terraform-provider-alicloud/pull/337))
+
+
+## 1.5.3 (January 9, 2018)
+
+IMPROVMENTS:
+  * support to go version 1.8.1 for travis ([#334](https://github.com/alibaba/terraform-provider/pull/334))
+
+BUG FIXES:
+  * fix getting OSS endpoint failed error  ([#332](https://github.com/alibaba/terraform-provider/pull/332))
+  * fix describing dns record not found when deleting record ([#333](https://github.com/alibaba/terraform-provider/pull/333))
+
+
+## 1.5.2 (January 8, 2018)
+
+BUG FIXES:
+  * fix creating rds 'Prepaid' instance failed error  ([#329](https://github.com/alibaba/terraform-provider/pull/329))
+
+## 1.5.1 (January 5, 2018)
+
+BUG FIXES:
+  * roll back instance zone to compute ([#327](https://github.com/alibaba/terraform-provider/pull/327))
+  * modify security_token to Optional ([#328](https://github.com/alibaba/terraform-provider/pull/328))
+
+
+## 1.5.0 (January 3, 2018)
+
+FEATURES:
+
+  * **New Resource:** `alicloud_db_account` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * **New Resource:** `alicloud_db_account_privilege` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * **New Resource:** `alicloud_db_backup_policy` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * **New Resource:** `alicloud_db_connection` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * **New Resource:** `alicloud_db_database` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+
+
+IMPROVMENTS:
+  * support to modify instance spec including instnaceType, bandwidth ([#322](https://github.com/alibaba/terraform-provider/pull/322))
+  * support to modify instance privateIp and vswitch ([#322](https://github.com/alibaba/terraform-provider/pull/322))
+  * support to modify instance charge type ([#322](https://github.com/alibaba/terraform-provider/pull/322))
+  * output more useful error message ([#322](https://github.com/alibaba/terraform-provider/pull/322))
+  * support to modify load balance internet attribute ([#323](https://github.com/alibaba/terraform-provider/pull/323))
+  * modify `alicloud_db_instance` ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * give import route entry tips when it already exist ([#325](https://github.com/alibaba/terraform-provider/pull/325))
+
+
+BUG FIXES:
+  * fix SLB not found when describing SLB ([#322](https://github.com/alibaba/terraform-provider/pull/322))
+  * fix attaching disk failed ([#323](https://github.com/alibaba/terraform-provider/pull/323))
+  * fix dns record deleting failed ([#324](https://github.com/alibaba/terraform-provider/pull/324))
+  * fix route entry cannot be deleted ([#325](https://github.com/alibaba/terraform-provider/pull/325))
+
+## 1.3.3 (December 14, 2017)
+
+IMPROVMENTS:
+  * wait for SLB active before return back ([#310](https://github.com/alibaba/terraform-provider/pull/310))
+
+## 1.3.3 (December 14, 2017)
+
+IMPROVMENTS:
+  * wait for SLB active before return back ([#310](https://github.com/alibaba/terraform-provider/pull/310))
 
 IMPROVMENTS:
 
