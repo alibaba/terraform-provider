@@ -69,6 +69,11 @@ BUG FIXES:
 IMPROVMENTS:
   * wait for SLB active before return back ([#310](https://github.com/alibaba/terraform-provider/pull/310))
 
+## 1.3.3 (December 14, 2017)
+
+IMPROVMENTS:
+  * wait for SLB active before return back ([#310](https://github.com/alibaba/terraform-provider/pull/310))
+
 ## 1.3.2 (December 13, 2017)
 
 IMPROVMENTS:
