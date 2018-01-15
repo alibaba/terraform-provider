@@ -77,9 +77,10 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_ess_scaling_configuration": resourceAlicloudEssScalingConfiguration(),
 			"alicloud_ess_scaling_rule":          resourceAlicloudEssScalingRule(),
 			"alicloud_ess_schedule":              resourceAlicloudEssSchedule(),
+			"alicloud_ess_attachment":            resourceAlicloudEssAttachment(),
 			"alicloud_vpc":                       resourceAliyunVpc(),
 			"alicloud_nat_gateway":               resourceAliyunNatGateway(),
-			//both subnet and vswith exists,cause compatible old version, and compatible aws habit.
+			// "alicloud_subnet" aims to match aws usage habit.
 			"alicloud_subnet":              resourceAliyunSubnet(),
 			"alicloud_vswitch":             resourceAliyunSubnet(),
 			"alicloud_route_entry":         resourceAliyunRouteEntry(),

@@ -1,12 +1,14 @@
-## 1.6.0 (unreleased)
+## 1.6.0 (January 15, 2018)
 
 IMPROVMENTS:
 
+  * *New Resource*: _alicloud_ess_attachment_  ([#341](https://github.com/alibaba/terraform-provider/pull/341))
   * *New Resource*: _alicloud_slb_rule_ ([#340](https://github.com/alibaba/terraform-provider/pull/340))
   * *New Resource*: _alicloud_slb_server_group_ ([#339](https://github.com/alibaba/terraform-provider/pull/339))
   * Standardize the order of imports packages ([#335](https://github.com/alibaba/terraform-provider/pull/335))
   * Output tip message when international account create SLB failed ([#336](https://github.com/alibaba/terraform-provider/pull/336))
   * Support spot instance ([#338](https://github.com/alibaba/terraform-provider/pull/338))
+  * Add "weight" for slb_attachment to improve the resource ([#341](https://github.com/alibaba/terraform-provider/pull/341))
 
 BUG FIXES:
 

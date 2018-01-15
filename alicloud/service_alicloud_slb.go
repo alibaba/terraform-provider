@@ -34,5 +34,5 @@ func (client *AliyunClient) DescribeLoadBalancerRuleId(slbId string, port int, d
 			}
 		}
 	}
-	return "", nil
+	return "", GetNotFoundErrorFromString(fmt.Sprintf("Rule is not found based on domain %s and url %s.", domain, url))
 }
