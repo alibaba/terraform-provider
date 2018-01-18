@@ -1,13 +1,19 @@
+## 1.6.2 (Unreleased)
+
+BUG FIXES:
+
+- fix deleting slb_attachment resource failed bug ([#345](https://github.com/alibaba/terraform-provider/pull/345))
+
 ## 1.6.1 (January 18, 2018)
 
 IMPROVEMENTS:
 
-- Support to modify instance type and network spec ([#344](https://github.com/terraform-providers/terraform-provider-alicloud/pull/344))
-- Avoid needless error when creating security group rule ([#344](https://github.com/terraform-providers/terraform-provider-alicloud/pull/344))
+- Support to modify instance type and network spec ([#344](https://github.com/alibaba/terraform-provider/pull/344))
+- Avoid needless error when creating security group rule ([#344](https://github.com/alibaba/terraform-provider/pull/344))
 
 BUG FIXES:
 
-- fix creating cluster container failed bug ([#344](https://github.com/terraform-providers/terraform-provider-alicloud/pull/344))
+- fix creating cluster container failed bug ([#344](https://github.com/alibaba/terraform-provider/pull/344))
 
 ## 1.6.0 (January 15, 2018)
 
