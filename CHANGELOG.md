@@ -1,3 +1,14 @@
+## 1.6.1 (January 18, 2018)
+
+IMPROVEMENTS:
+
+- Support to modify instance type and network spec ([#344](https://github.com/terraform-providers/terraform-provider-alicloud/pull/344))
+- Avoid needless error when creating security group rule ([#344](https://github.com/terraform-providers/terraform-provider-alicloud/pull/344))
+
+BUG FIXES:
+
+- fix creating cluster container failed bug ([#344](https://github.com/terraform-providers/terraform-provider-alicloud/pull/344))
+
 ## 1.6.0 (January 15, 2018)
 
 IMPROVMENTS:
@@ -13,6 +24,33 @@ IMPROVMENTS:
 BUG FIXES:
 
   * fix allocating RDS public connection conflict error ([#337](https://github.com/terraform-providers/terraform-provider-alicloud/pull/337))
+
+
+## 1.5.3 (January 9, 2018)
+
+IMPROVMENTS:
+  * support to go version 1.8.1 for travis ([#334](https://github.com/alibaba/terraform-provider/pull/334))
+
+BUG FIXES:
+  * fix getting OSS endpoint failed error  ([#332](https://github.com/alibaba/terraform-provider/pull/332))
+  * fix describing dns record not found when deleting record ([#333](https://github.com/alibaba/terraform-provider/pull/333))
+
+
+## 1.5.2 (January 8, 2018)
+
+BUG FIXES:
+  * fix creating rds 'Prepaid' instance failed error  ([#329](https://github.com/alibaba/terraform-provider/pull/329))
+
+## 1.5.1 (January 5, 2018)
+
+BUG FIXES:
+  * roll back instance zone to compute ([#327](https://github.com/alibaba/terraform-provider/pull/327))
+  * modify security_token to Optional ([#328](https://github.com/alibaba/terraform-provider/pull/328))
+
+
+BUG FIXES:
+
+  * fix allocating RDS public connection conflict error ([#336](https://github.com/terraform-providers/terraform-provider-alicloud/pull/336))
 
 
 ## 1.5.3 (January 9, 2018)
