@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Support to set instnace name for RDS ([#347](https://github.com/alibaba/terraform-provider/pull/347))
 - Avoid container cluster cidr block conflicts with vswitch's ([#346](https://github.com/alibaba/terraform-provider/pull/346))
 
 BUG FIXES:
