@@ -1,5 +1,9 @@
 ## 1.6.2 (Unreleased)
 
+IMPROVEMENTS:
+
+- Avoid container cluster cidr block conflicts with vswitch's ([#346](https://github.com/alibaba/terraform-provider/pull/346))
+
 BUG FIXES:
 
 - fix deleting slb_attachment resource failed bug ([#345](https://github.com/alibaba/terraform-provider/pull/345))
