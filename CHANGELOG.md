@@ -1,13 +1,14 @@
-## 1.6.2 (Unreleased)
+## 1.6.2 (January 18, 2018)
 
 IMPROVEMENTS:
 
-- Support to set instnace name for RDS ([#347](https://github.com/alibaba/terraform-provider/pull/347))
-- Avoid container cluster cidr block conflicts with vswitch's ([#346](https://github.com/alibaba/terraform-provider/pull/346))
+- Support to set instnace name for RDS ([#353](https://github.com/alibaba/terraform-provider/pull/353))
+- Avoid container cluster cidr block conflicts with vswitch's ([#352](https://github.com/alibaba/terraform-provider/pull/352))
 
 BUG FIXES:
 
-- fix deleting slb_attachment resource failed bug ([#345](https://github.com/alibaba/terraform-provider/pull/345))
+- fix several bugs about db result from its status and id not found ([#354](https://github.com/alibaba/terraform-provider/pull/354))
+- fix deleting slb_attachment resource failed bug ([#351](https://github.com/alibaba/terraform-provider/pull/351))
 
 ## 1.6.1 (January 18, 2018)
 

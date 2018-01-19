@@ -75,10 +75,10 @@ func resourceAlicloudDBInstance() *schema.Resource {
 			},
 
 			"zone_id": &schema.Schema{
-				Type:             schema.TypeString,
-				Optional:         true,
-				ForceNew:         true,
-				Computed:         true,
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 				//DiffSuppressFunc: zoneIdDiffSuppressFunc,
 			},
 
