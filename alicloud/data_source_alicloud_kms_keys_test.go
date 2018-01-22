@@ -25,7 +25,6 @@ func TestAccAlicloudKmsKeyDataSource_basic(t *testing.T) {
 	})
 }
 
-
 const testAccCheckAlicloudKmsKeyDataSourceBasic = `
 resource "alicloud_kms_key" "key" {
     description = "Terraform acc test datasource"

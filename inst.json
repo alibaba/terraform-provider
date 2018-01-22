@@ -1,0 +1,35 @@
+[
+	{
+		"availability_zone": "cn-beijing-a",
+		"creation_time": "2018-01-22T09:47:00Z",
+		"description": "",
+		"disk_device_mappings": [
+			{
+				"category": "cloud_efficiency",
+				"device": "/dev/xvda",
+				"size": 40,
+				"type": "system"
+			}
+		],
+		"eip": "",
+		"id": "i-2zebx9upk4q6p6qd004c",
+		"image_id": "ubuntu_16_0402_64_20G_alibase_20171227.vhd",
+		"instance_charge_type": "PostPaid",
+		"instance_type": "ecs.n4.large",
+		"internet_charge_type": "",
+		"internet_max_bandwidth_out": 0,
+		"key_name": "",
+		"name": "ECS-Instance",
+		"private_ip": "172.16.10.10",
+		"public_ip": "",
+		"region_id": "cn-beijing",
+		"security_groups": [
+			"sg-2ze7npzhr9nqeb56aj8f"
+		],
+		"spot_strategy": "NoSpot",
+		"status": "Running",
+		"tags": {},
+		"vpc_id": "vpc-2ze07kuj1pxsix1xwfr1j",
+		"vswitch_id": "vsw-2zej7w4ih2y298t5znm2h"
+	}
+]

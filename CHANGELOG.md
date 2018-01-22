@@ -4,6 +4,7 @@ IMPROVEMENTS:
 
 - *New Resource*: _alicloud_kms_key_ ([#355](https://github.com/alibaba/terraform-provider/pull/355))
 - *New DataSource*: _alicloud_kms_keys_ ([#356](https://github.com/alibaba/terraform-provider/pull/356))
+- *New DataSource*: _alicloud_instances_ ([#357](https://github.com/alibaba/terraform-provider/pull/357))
 
 ## 1.6.2 (January 18, 2018)
 
