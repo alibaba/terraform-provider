@@ -1,3 +1,9 @@
+## 1.7.0 (Unreleased)
+
+IMPROVEMENTS:
+
+- *New Resource*: _alicloud_kms_key_ ([#355](https://github.com/alibaba/terraform-provider/pull/355))
+
 ## 1.6.2 (January 18, 2018)
 
 IMPROVEMENTS:
