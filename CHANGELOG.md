@@ -1,4 +1,4 @@
-## 1.7.0 (Unreleased)
+## 1.7.0 (January 25, 2018)
 
 IMPROVEMENTS:
 
@@ -8,6 +8,9 @@ IMPROVEMENTS:
 - Add a new field "specification" for _alicloud_slb_ ([#358](https://github.com/alibaba/terraform-provider/pull/358))
 - Improve security group rule's port range for "-1/-1" ([#359](https://github.com/alibaba/terraform-provider/pull/359))
 
+BUG FIXES:
+
+- fix slb invalid status error when launching ESS scaling group ([#360](https://github.com/alibaba/terraform-provider/pull/360))
 
 ## 1.6.2 (January 18, 2018)
 
