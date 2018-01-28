@@ -78,6 +78,7 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_ess_scaling_group":         resourceAlicloudEssScalingGroup(),
 			"alicloud_ess_scaling_configuration": resourceAlicloudEssScalingConfiguration(),
 			"alicloud_ess_scaling_rule":          resourceAlicloudEssScalingRule(),
+			"alicloud_ess_execute_scaling_rule":  resourceAlicloudEssExecuteScalingRule(),
 			"alicloud_ess_schedule":              resourceAlicloudEssSchedule(),
 			"alicloud_ess_attachment":            resourceAlicloudEssAttachment(),
 			"alicloud_vpc":                       resourceAliyunVpc(),
