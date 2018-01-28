@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/denverdino/aliyungo/ess"
-	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/denverdino/aliyungo/slb"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceAlicloudEssScalingGroup() *schema.Resource {
