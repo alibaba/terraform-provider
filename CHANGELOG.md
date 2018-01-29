@@ -2,7 +2,8 @@
 
 IMPROVEMENTS:
 
-- Support to associate EIP with SLB and Nat Gateway ([#361](https://github.com/alibaba/terraform-provider/pull/361))
+- Deprecate nat gateway fileds 'spec' and 'bandwidth_packages' ([#368](https://github.com/alibaba/terraform-provider/pull/368))
+- Support to associate EIP with SLB and Nat Gateway ([#367](https://github.com/alibaba/terraform-provider/pull/367))
 
 
 ## 1.7.0 (January 25, 2018)
