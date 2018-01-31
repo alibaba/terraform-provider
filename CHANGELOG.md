@@ -1,7 +1,8 @@
-## 1.8.0 (Unreleased)
+## 1.7.1 (Unreleased)
 
 IMPROVEMENTS:
 
+- Modify EIP default to PayByTraffic for international account (([#373](https://github.com/alibaba/terraform-provider/pull/373)))
 - Deprecate nat gateway fileds 'spec' and 'bandwidth_packages' ([#368](https://github.com/alibaba/terraform-provider/pull/368))
 - Support to associate EIP with SLB and Nat Gateway ([#367](https://github.com/alibaba/terraform-provider/pull/367))
 
