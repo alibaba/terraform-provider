@@ -773,7 +773,6 @@ func TestAccAlicloudInstance_ramrole(t *testing.T) {
 	})
 }
 
-
 func testAccCheckInstanceExists(n string, i *ecs.InstanceAttributesType) resource.TestCheckFunc {
 	providers := []*schema.Provider{testAccProvider}
 	return testAccCheckInstanceExistsWithProviders(n, i, &providers)
