@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Support multiple vswitches for ESS scaling group and output slbIds and dbIds (([#376](https://github.com/alibaba/terraform-provider/pull/376)))
 - Modify EIP default to PayByTraffic for international account (([#373](https://github.com/alibaba/terraform-provider/pull/373)))
 - Deprecate nat gateway fileds 'spec' and 'bandwidth_packages' ([#368](https://github.com/alibaba/terraform-provider/pull/368))
 - Support to associate EIP with SLB and Nat Gateway ([#367](https://github.com/alibaba/terraform-provider/pull/367))
