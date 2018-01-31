@@ -91,12 +91,19 @@ func resourceAliyunEssScalingGroupCreate(d *schema.ResourceData, meta interface{
 
 	essconn := meta.(*AliyunClient).essconn
 
-	scaling, err := essconn.CreateScalingGroup(args)
-	if err != nil {
+	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
+		scaling, err := essconn.CreateScalingGroup(args)
+		if err != nil {
+			if IsExceptedError(err, EssThrottling) {
+				return resource.RetryableError(fmt.Errorf("CreateScalingGroup timeout and got an error: %#v.", err))
+			}
+			return resource.NonRetryableError(fmt.Errorf("CreateScalingGroup got an error: %#v.", err))
+		}
+		d.SetId(scaling.ScalingGroupId)
+		return nil
+	}); err != nil {
 		return err
 	}
-
-	d.SetId(scaling.ScalingGroupId)
 
 	return resourceAliyunEssScalingGroupUpdate(d, meta)
 }
