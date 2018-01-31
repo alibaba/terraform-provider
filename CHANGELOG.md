@@ -9,7 +9,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - fix a bug that can't create multiple VPC, vswitch and nat gateway at one time ([#374](https://github.com/terraform-providers/terraform-provider-alicloud/pull/374))
-
+- fix a bug that can't import instance 'role_name' ([#375](https://github.com/terraform-providers/terraform-provider-alicloud/pull/375))
 
 ## 1.7.0 (January 25, 2018)
 

@@ -23,9 +23,9 @@ const (
 	DiskInternalError         = "InternalError"
 	DiskInvalidOperation      = "InvalidOperation.Conflict"
 	// eip
-	EipIncorrectStatus      = "IncorrectEipStatus"
-	InstanceIncorrectStatus = "IncorrectInstanceStatus"
-	HaVipIncorrectStatus    = "IncorrectHaVipStatus"
+	EipIncorrectStatus         = "IncorrectEipStatus"
+	InstanceIncorrectStatus    = "IncorrectInstanceStatus"
+	HaVipIncorrectStatus       = "IncorrectHaVipStatus"
 	COMMODITYINVALID_COMPONENT = "COMMODITY.INVALID_COMPONENT"
 	// slb
 	LoadBalancerNotFound        = "InvalidLoadBalancerId.NotFound"
