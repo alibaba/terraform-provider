@@ -1,6 +1,8 @@
 ## 1.7.2 (Unreleased)
 
 IMPROVEMENTS:
+
+- *New DataSource*: _alicloud_eips_ (([#386](https://github.com/alibaba/terraform-provider/pull/386)))
 - *New DataSource*: _alicloud_vswitches_ (([#385](https://github.com/alibaba/terraform-provider/pull/385)))
 
 BUG FIXES:
