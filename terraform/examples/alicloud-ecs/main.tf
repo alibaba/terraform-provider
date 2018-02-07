@@ -45,7 +45,6 @@ resource "alicloud_instance" "instance" {
   image_id = "${var.image_id}"
   instance_type = "${data.alicloud_instance_types.instance_type.instance_types.0.id}"
   count = "${var.count}"
-  availability_zone = "${var.availability_zones}"
   security_groups = ["${alicloud_security_group.group.*.id}"]
 
   internet_charge_type = "${var.internet_charge_type}"

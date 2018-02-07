@@ -7,6 +7,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix creating Classic instance failed result in role_name (([#387](https://github.com/alibaba/terraform-provider/pull/387)))
 - Fix eip is not exist in nat gateway when creating snat (([#384](https://github.com/alibaba/terraform-provider/pull/384)))
 
 ## 1.7.1 (February 2, 2018)
