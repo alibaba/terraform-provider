@@ -4,10 +4,11 @@ IMPROVEMENTS:
 
 - *New DataSource*: _alicloud_eips_ (([#386](https://github.com/alibaba/terraform-provider/pull/386)))
 - *New DataSource*: _alicloud_vswitches_ (([#385](https://github.com/alibaba/terraform-provider/pull/385)))
+- Support inner network segregation in one security group (([#390](https://github.com/alibaba/terraform-provider/pull/390)))
 
 BUG FIXES:
 
-- Fix creating Classic instance failed result in role_name (([#387](https://github.com/alibaba/terraform-provider/pull/387)))
+- Fix creating Classic instance failed result in role_name (([#389](https://github.com/alibaba/terraform-provider/pull/389)))
 - Fix eip is not exist in nat gateway when creating snat (([#384](https://github.com/alibaba/terraform-provider/pull/384)))
 
 ## 1.7.1 (February 2, 2018)
