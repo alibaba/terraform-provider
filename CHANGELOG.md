@@ -1,3 +1,10 @@
+## 1.8.0 (Unreleased)
+
+IMPROVEMENTS:
+
+- RDS supports alibaba cloud official go sdk (([#391](https://github.com/alibaba/terraform-provider/pull/391)))
+- Deprecated 'in_use' in eips datasource to fix conflict (([#391](https://github.com/alibaba/terraform-provider/pull/391)))
+
 ## 1.7.2 (February 9, 2018)
 
 IMPROVEMENTS:
