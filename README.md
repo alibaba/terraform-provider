@@ -49,19 +49,28 @@ terraform plan
 
 #### Regions
 ```
-cn-shenzhen
-ap-southeast-1
 cn-qingdao
 cn-beijing
-cn-shanghai
-us-east-1
-cn-hongkong
-me-east-1
-ap-southeast-2
+cn-zhangjiakou
+cn-huhehaote
 cn-hangzhou
-eu-central-1
+cn-shanghai
+cn-shenzhen
+cn-hongkong
+
 ap-northeast-1
+ap-southeast-1
+ap-southeast-2
+ap-southeast-3
+ap-southeast-5
+ap-south-1
+
+us-east-1
 us-west-1
+
+me-east-1
+
+eu-central-1
 ```
 For more about the regions and availability zones, use data source `alicloud_regions` and `alicloud_zones`.
 
@@ -78,6 +87,7 @@ For more about the regions and availability zones, use data source `alicloud_reg
 * [CDN](https://www.aliyun.com/product/cdn)
 * [DNS](https://wanwang.aliyun.com/domain/dns)
 * [Container](https://www.aliyun.com/product/containerservice)
+* [KMS](https://www.aliyun.com/product/kms)
 
 #### Documents
 The latest supported product document as follows:

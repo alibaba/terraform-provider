@@ -2,8 +2,9 @@
 
 IMPROVEMENTS:
 
-- RDS supports alibaba cloud official go sdk (([#391](https://github.com/alibaba/terraform-provider/pull/391)))
-- Deprecated 'in_use' in eips datasource to fix conflict (([#391](https://github.com/alibaba/terraform-provider/pull/391)))
+- RDS supports alibaba cloud official go sdk (([#397](https://github.com/alibaba/terraform-provider/pull/397)))
+- Deprecated 'in_use' in eips datasource to fix conflict (([#397](https://github.com/alibaba/terraform-provider/pull/397)))
+- Support new region 'ap-southeast-5' and 'ap-south-1' (([#398](https://github.com/alibaba/terraform-provider/pull/398)))
 
 ## 1.7.2 (February 9, 2018)
 

@@ -11,7 +11,7 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
-	"github.com/google/uuid"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -469,7 +469,11 @@ func buildDBCreateRequest(d *schema.ResourceData, meta interface{}) (*rds.Create
 		request.SecurityIPList = strings.Join(expandStringList(d.Get("security_ips").(*schema.Set).List())[:], COMMA_SEPARATED)
 	}
 
-	request.ClientToken = fmt.Sprintf("Terraform-Alicloud-%s-%s", time.Now().String(), uuid.New().String())
+	uuid, err := uuid.GenerateUUID()
+	if err != nil {
+		uuid = resource.UniqueId()
+	}
+	request.ClientToken = fmt.Sprintf("Terraform-Alicloud-%d-%s", time.Now().Unix(), uuid)
 
 	return request, nil
 }
