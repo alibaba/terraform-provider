@@ -1,3 +1,6 @@
+data "alicloud_zones" "default" {
+	available_instance_type = "${var.instance_type}"
+}
 resource "alicloud_vpc" "default" {
 	name = "tf_vpc"
 	cidr_block = "${var.vpc_cidr}"
@@ -6,11 +9,10 @@ resource "alicloud_vpc" "default" {
 resource "alicloud_vswitch" "default" {
 	vpc_id = "${alicloud_vpc.default.id}"
 	cidr_block = "${var.vswitch_cidr}"
-	availability_zone = "${var.zone_id}"
+	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 }
 
 resource "alicloud_route_entry" "default" {
-	router_id = "${alicloud_vpc.default.router_id}"
 	route_table_id = "${alicloud_vpc.default.router_table_id}"
 	destination_cidrblock = "${var.entry_cidr}"
 	nexthop_type = "Instance"
@@ -58,11 +60,9 @@ resource "alicloud_security_group_rule" "https-in" {
 
 resource "alicloud_instance" "snat" {
 	# cn-beijing
-	availability_zone = "${var.zone_id}"
 	security_groups = ["${alicloud_security_group.sg.id}"]
 
 	vswitch_id = "${alicloud_vswitch.default.id}"
-	allocate_public_ip = true
 
 	# series II
 	instance_charge_type = "PostPaid"
