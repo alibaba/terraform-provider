@@ -3,10 +3,7 @@ variable "vpc_cidr" {
   default = "10.1.0.0/21"
 }
 variable "vswitch_cidr" {
-  default = "10.1.1.0/24"
-}
-variable "zone_id" {
-  default = "cn-beijing-d"
+  default = "10.1.0.0/24"
 }
 variable "entry_cidr" {
   default = "172.11.1.1/32"
