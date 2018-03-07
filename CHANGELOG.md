@@ -2,7 +2,8 @@
 
 IMPROVEMENTS:
 
-- Data source zones support to retrieve multiple zone (([#408](https://github.com/alibaba/terraform-provider/pull/408)))
+- DB instance supports multiple zone (([#408](https://github.com/alibaba/terraform-provider/pull/408)))
+- Data source zones support to retrieve multiple zone (([#407](https://github.com/alibaba/terraform-provider/pull/407)))
 - Disk support encrypt (([#400](https://github.com/alibaba/terraform-provider/pull/400)))
 - VPC supports alibaba cloud official go sdk (([#406](https://github.com/alibaba/terraform-provider/pull/406)))
 
