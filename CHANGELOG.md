@@ -8,6 +8,11 @@ IMPROVEMENTS:
 - Disk support encrypt (([#400](https://github.com/alibaba/terraform-provider/pull/400)))
 - VPC supports alibaba cloud official go sdk (([#406](https://github.com/alibaba/terraform-provider/pull/406)))
 
+BUG FIXES:
+
+- Fix not found db instance bug when allocating connection (([#410](https://github.com/alibaba/terraform-provider/pull/410)))
+
+
 ## 1.8.0 (March 1, 2018)
 
 IMPROVEMENTS:
