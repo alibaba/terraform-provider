@@ -1,3 +1,9 @@
+## 1.8.2 (Unreleased)
+
+BUG FIXES:
+
+- Fix vpc description validate - Improve some examples (([#411](https://github.com/alibaba/terraform-provider/pull/411)))
+
 ## 1.8.1 (Unrelease)
 
 IMPROVEMENTS:
