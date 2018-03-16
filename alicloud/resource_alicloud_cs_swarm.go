@@ -29,8 +29,8 @@ func resourceAlicloudCSSwarm() *schema.Resource {
 				ConflictsWith: []string{"name_prefix"},
 			},
 			"name_prefix": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
+				Type:          schema.TypeString,
+				Optional:      true,
 				Default:       "Terraform-Creation",
 				ValidateFunc:  validateContainerClusterNamePrefix,
 				ConflictsWith: []string{"name"},
@@ -111,22 +111,21 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 		IOOptimized:      ecs.IoOptimized("true"),
 		DataDiskCategory: ecs.DiskCategory(d.Get("disk_category").(string)),
 		DataDiskSize:     int64(d.Get("disk_size").(int)),
-		NetworkMode: cs.VPCNetwork,
-		VSwitchID: d.Get("vswitch_id").(string),
-		SubnetCIDR:d.Get("cidr_block").(string),
-
+		NetworkMode:      cs.VPCNetwork,
+		VSwitchID:        d.Get("vswitch_id").(string),
+		SubnetCIDR:       d.Get("cidr_block").(string),
 	}
 
-		vsw, err := client.DescribeVswitch(args.VSwitchID)
-		if err != nil {
-			return fmt.Errorf("Error DescribeVSwitches: %#v", err)
-		}
+	vsw, err := client.DescribeVswitch(args.VSwitchID)
+	if err != nil {
+		return fmt.Errorf("Error DescribeVSwitches: %#v", err)
+	}
 
-		if vsw.CidrBlock == args.SubnetCIDR {
-			return fmt.Errorf("Container cluster's cidr_block only accepts 192.168.X.0/24 or 172.18.X.0/24 ~ 172.31.X.0/24. " +
-				"And it cannot be equal to vswitch's cidr_block and sub cidr block.")
-		}
-		args.VPCID = vsw.VpcId
+	if vsw.CidrBlock == args.SubnetCIDR {
+		return fmt.Errorf("Container cluster's cidr_block only accepts 192.168.X.0/24 or 172.18.X.0/24 ~ 172.31.X.0/24. " +
+			"And it cannot be equal to vswitch's cidr_block and sub cidr block.")
+	}
+	args.VPCID = vsw.VpcId
 
 	if imageId, ok := d.GetOk("image_id"); ok {
 		connection := client.ecsconn

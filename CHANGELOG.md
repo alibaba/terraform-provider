@@ -2,14 +2,15 @@
 
 IMPROVEMENTS:
 
-- *New Resource*: _alicloud_cs_kubernetes_ (([#412](https://github.com/alibaba/terraform-provider/pull/412)))
-- Modify _alicloud_container_cluster_ to _alicloud_cs_swarm_ (([#412](https://github.com/alibaba/terraform-provider/pull/412)))
-
+- *New Resource*: _alicloud_cs_kubernetes_ (([#414](https://github.com/alibaba/terraform-provider/pull/414)))
+- *New Datasource*: _alicloud_security_groups_ (([#415](https://github.com/alibaba/terraform-provider/pull/415)))
+- Modify _alicloud_container_cluster_ to _alicloud_cs_swarm_ (([#414](https://github.com/alibaba/terraform-provider/pull/414)))
+- SLB listener supports server_group_id (([#415](https://github.com/alibaba/terraform-provider/pull/415)))
 
 BUG FIXES:
 
 - Fix vpc description validate (([#411](https://github.com/alibaba/terraform-provider/pull/411)))
-- Add waiting time after ECS bind ECS to ensure network is ok (([#412](https://github.com/alibaba/terraform-provider/pull/412)))
+- Add waiting time after ECS bind ECS to ensure network is ok (([#414](https://github.com/alibaba/terraform-provider/pull/414)))
 
 ## 1.8.1 (Unrelease)
 
