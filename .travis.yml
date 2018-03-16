@@ -9,6 +9,9 @@ script:
   - govendor fetch github.com/denverdino/aliyungo/...
   - govendor fetch github.com:aliyun/aliyun-oss-go-sdk/...
   - govendor fetch github.com/hashicorp/terraform/...
+  - govendor fetch github.com/aliyun/alibaba-cloud-sdk-go/sdk
+  - govendor fetch github.com/aliyun/alibaba-cloud-sdk-go/services/vpc
+  - govendor fetch github.com/aliyun/alibaba-cloud-sdk-go/services/rds
   - make test
 branches:
   only:

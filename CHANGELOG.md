@@ -1,8 +1,15 @@
 ## 1.8.2 (Unreleased)
 
+IMPROVEMENTS:
+
+- *New Resource*: _alicloud_cs_kubernetes_ (([#412](https://github.com/alibaba/terraform-provider/pull/412)))
+- Modify _alicloud_container_cluster_ to _alicloud_cs_swarm_ (([#412](https://github.com/alibaba/terraform-provider/pull/412)))
+
+
 BUG FIXES:
 
-- Fix vpc description validate - Improve some examples (([#411](https://github.com/alibaba/terraform-provider/pull/411)))
+- Fix vpc description validate (([#411](https://github.com/alibaba/terraform-provider/pull/411)))
+- Add waiting time after ECS bind ECS to ensure network is ok (([#412](https://github.com/alibaba/terraform-provider/pull/412)))
 
 ## 1.8.1 (Unrelease)
 
