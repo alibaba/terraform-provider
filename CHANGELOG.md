@@ -1,4 +1,4 @@
-## 1.8.2 (Unreleased)
+## 1.8.2 (March 16, 2018)
 
 IMPROVEMENTS:
 
@@ -12,7 +12,7 @@ BUG FIXES:
 - Fix vpc description validate (([#411](https://github.com/alibaba/terraform-provider/pull/411)))
 - Add waiting time after ECS bind ECS to ensure network is ok (([#414](https://github.com/alibaba/terraform-provider/pull/414)))
 
-## 1.8.1 (Unrelease)
+## 1.8.1 (March 9, 2018)
 
 IMPROVEMENTS:
 
