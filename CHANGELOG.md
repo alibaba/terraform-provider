@@ -1,3 +1,7 @@
+## 1.9.0 (March 20, 2018)
+
+- New release aims to keep in sync with official release version. This release is same as version 1.8.2.
+
 ## 1.8.2 (March 16, 2018)
 
 IMPROVEMENTS:
