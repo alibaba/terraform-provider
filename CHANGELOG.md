@@ -1,3 +1,9 @@
+## 1.9.1 (Unreleased)
+
+BUG FIXES:
+
+- Fix vpc not found when vpc has been deleted (([#416](https://github.com/alibaba/terraform-provider/pull/416)))
+
 ## 1.9.0 (March 20, 2018)
 
 - New release aims to keep in sync with official release version. This release is same as version 1.8.2.
