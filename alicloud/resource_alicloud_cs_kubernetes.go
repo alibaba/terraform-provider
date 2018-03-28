@@ -25,14 +25,14 @@ func resourceAlicloudCSKubernetes() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
-				ValidateFunc:  validateContainerClusterName,
+				ValidateFunc:  validateContainerName,
 				ConflictsWith: []string{"name_prefix"},
 			},
 			"name_prefix": &schema.Schema{
 				Type:          schema.TypeString,
 				Optional:      true,
 				Default:       "Terraform-Creation",
-				ValidateFunc:  validateContainerClusterNamePrefix,
+				ValidateFunc:  validateContainerNamePrefix,
 				ConflictsWith: []string{"name"},
 			},
 			"availability_zone": &schema.Schema{
@@ -197,6 +197,10 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 	cluster, err := conn.DescribeCluster(d.Id())
 
 	if err != nil {
+		if NotFoundError(err) {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 
@@ -215,7 +219,7 @@ func resourceAlicloudCSKubernetesDelete(d *schema.ResourceData, meta interface{}
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteCluster(d.Id())
 		if err != nil {
-			if IsExceptedError(err, ErrorClusterNotFound) {
+			if NotFoundError(err) || IsExceptedError(err, ErrorClusterNotFound) {
 				return nil
 			}
 			return resource.RetryableError(fmt.Errorf("Delete Kubernetes Cluster timeout and get an error: %#v.", err))
@@ -223,7 +227,7 @@ func resourceAlicloudCSKubernetesDelete(d *schema.ResourceData, meta interface{}
 
 		resp, err := conn.DescribeCluster(d.Id())
 		if err != nil {
-			if IsExceptedError(err, ErrorClusterNotFound) {
+			if NotFoundError(err) || IsExceptedError(err, ErrorClusterNotFound) {
 				return nil
 			}
 			return resource.NonRetryableError(fmt.Errorf("Describing Kubernetes Cluster got an error: %#v", err))

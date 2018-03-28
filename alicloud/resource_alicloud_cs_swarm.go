@@ -25,14 +25,14 @@ func resourceAlicloudCSSwarm() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
-				ValidateFunc:  validateContainerClusterName,
+				ValidateFunc:  validateContainerName,
 				ConflictsWith: []string{"name_prefix"},
 			},
 			"name_prefix": &schema.Schema{
 				Type:          schema.TypeString,
 				Optional:      true,
 				Default:       "Terraform-Creation",
-				ValidateFunc:  validateContainerClusterNamePrefix,
+				ValidateFunc:  validateContainerNamePrefix,
 				ConflictsWith: []string{"name"},
 			},
 			"size": &schema.Schema{
@@ -151,13 +151,13 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("Creating container Cluster got an error: %#v", err)
 	}
 
+	d.SetId(cluster.ClusterID)
+
 	err = conn.WaitForClusterAsyn(cluster.ClusterID, cs.Running, 500)
 
 	if err != nil {
 		return fmt.Errorf("Waitting for container Cluster %#v got an error: %#v", cs.Running, err)
 	}
-
-	d.SetId(cluster.ClusterID)
 
 	return resourceAlicloudCSSwarmUpdate(d, meta)
 }
@@ -218,6 +218,10 @@ func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error
 	cluster, err := conn.DescribeCluster(d.Id())
 
 	if err != nil {
+		if NotFoundError(err) {
+			d.SetId("")
+			return nil
+		}
 		return err
 	}
 
@@ -235,23 +239,23 @@ func resourceAlicloudCSSwarmDelete(d *schema.ResourceData, meta interface{}) err
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
 		err := conn.DeleteCluster(d.Id())
 		if err != nil {
-			if IsExceptedError(err, ErrorClusterNotFound) {
+			if NotFoundError(err) || IsExceptedError(err, ErrorClusterNotFound) {
 				return nil
 			}
-			return resource.RetryableError(fmt.Errorf("Cluster in use 1- trying again while it is deleted."))
+			return resource.RetryableError(fmt.Errorf("Deleting container cluster got an error: %#v", err))
 		}
 
 		resp, err := conn.DescribeCluster(d.Id())
 		if err != nil {
-			if IsExceptedError(err, ErrorClusterNotFound) {
+			if NotFoundError(err) || IsExceptedError(err, ErrorClusterNotFound) {
 				return nil
 			}
-			return resource.NonRetryableError(fmt.Errorf("Deleting container cluster got an error: %#v", err))
+			return resource.NonRetryableError(fmt.Errorf("Describe container cluster got an error: %#v", err))
 		}
 		if resp.ClusterID == "" {
 			return nil
 		}
 
-		return resource.RetryableError(fmt.Errorf("Cluster in use 2- trying again while it is deleted."))
+		return resource.RetryableError(fmt.Errorf("Deleting container cluster got an error: %#v", err))
 	})
 }

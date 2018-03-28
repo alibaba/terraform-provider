@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccAlicloudCSSwarm_importBasic(t *testing.T) {
-	resourceName := "alicloud_cs_swarm.cs_vpc"
+func TestAccAlicloudCSApplication_import(t *testing.T) {
+	resourceName := "alicloud_cs_application.env"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -15,14 +15,14 @@ func TestAccAlicloudCSSwarm_importBasic(t *testing.T) {
 		CheckDestroy: testAccCheckContainerClusterDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccCSSwarm_basic,
+				Config: testAccCSApplication_basic(testWebTemplate, testMultiTemplate),
 			},
 
 			resource.TestStep{
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"name_prefix", "cidr_block", "disk_category", "disk_size", "image_id", "instance_type", "password"},
+				ImportStateVerifyIgnore: []string{"latest_image", "blue_green", "blue_green_confirm"},
 			},
 		},
 	})
