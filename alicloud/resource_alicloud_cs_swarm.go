@@ -36,10 +36,15 @@ func resourceAlicloudCSSwarm() *schema.Resource {
 				ConflictsWith: []string{"name"},
 			},
 			"size": &schema.Schema{
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Deprecated: "Field 'size' has been deprecated from provider version 1.9.1. New field 'node_number' replaces it.",
+			},
+			"node_number": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      1,
-				ValidateFunc: validateIntegerInRange(1, 20),
+				ValidateFunc: validateIntegerInRange(1, 50),
 			},
 			"cidr_block": &schema.Schema{
 				Type:     schema.TypeString,
@@ -82,9 +87,58 @@ func resourceAlicloudCSSwarm() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"release_eip": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return old != ""
+				},
+			},
 			"is_outdated": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
+			},
+
+			"nodes": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"private_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"eip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"slb_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"security_group_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"agent_version": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -111,13 +165,14 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 		Name:             clusterName,
 		InstanceType:     d.Get("instance_type").(string),
 		Password:         d.Get("password").(string),
-		Size:             int64(d.Get("size").(int)),
+		Size:             int64(d.Get("node_number").(int)),
 		IOOptimized:      ecs.IoOptimized("true"),
 		DataDiskCategory: ecs.DiskCategory(d.Get("disk_category").(string)),
 		DataDiskSize:     int64(d.Get("disk_size").(int)),
 		NetworkMode:      cs.VPCNetwork,
 		VSwitchID:        d.Get("vswitch_id").(string),
 		SubnetCIDR:       d.Get("cidr_block").(string),
+		ReleaseEipFlag:   d.Get("release_eip").(bool),
 	}
 
 	vsw, err := client.DescribeVswitch(args.VSwitchID)
@@ -165,14 +220,14 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 func resourceAlicloudCSSwarmUpdate(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).csconn
 	d.Partial(true)
-	if d.HasChange("size") && !d.IsNewResource() {
-		o, n := d.GetChange("size")
+	if d.HasChange("node_number") && !d.IsNewResource() {
+		o, n := d.GetChange("node_number")
 		oi := o.(int)
 		ni := n.(int)
 		if ni <= oi {
-			return fmt.Errorf("The new size of clusters must greater than the current. The cluster's current size is %d.", oi)
+			return fmt.Errorf("The node number must greater than the current. The cluster's current node number is %d.", oi)
 		}
-		d.SetPartial("size")
+		d.SetPartial("node_number")
 		err := conn.ResizeCluster(d.Id(), &cs.ClusterResizeArgs{
 			Size:             int64(ni),
 			InstanceType:     d.Get("instance_type").(string),
@@ -213,9 +268,9 @@ func resourceAlicloudCSSwarmUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).csconn
+	client := meta.(*AliyunClient)
 
-	cluster, err := conn.DescribeCluster(d.Id())
+	cluster, err := client.csconn.DescribeCluster(d.Id())
 
 	if err != nil {
 		if NotFoundError(err) {
@@ -226,9 +281,54 @@ func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	d.Set("name", cluster.Name)
-	d.Set("size", cluster.Size)
+	d.Set("node_number", cluster.Size)
 	d.Set("vpc_id", cluster.VPCID)
 	d.Set("vswitch_id", cluster.VSwitchID)
+	d.Set("security_group_id", cluster.SecurityGroupID)
+	d.Set("slb_id", cluster.ExternalLoadbalancerID)
+	d.Set("agent_version", cluster.AgentVersion)
+
+	project, err := client.GetApplicationClientByClusterName(cluster.Name)
+	resp, err := project.GetSwarmClusterNodes()
+	if err != nil {
+		return err
+	}
+	var nodes []map[string]interface{}
+	var oneNode ecs.InstanceAttributesType
+
+	for _, node := range resp {
+		mapping := map[string]interface{}{
+			"id":         node.InstanceId,
+			"name":       node.Name,
+			"private_ip": node.IP,
+			"status":     node.Status,
+		}
+		if inst, err := client.QueryInstancesById(node.InstanceId); err != nil {
+			return fmt.Errorf("[ERROR] QueryInstancesById %s: %#v.", node.InstanceId, err)
+		} else {
+			mapping["eip"] = inst.EipAddress.IpAddress
+			oneNode = *inst
+		}
+
+		nodes = append(nodes, mapping)
+	}
+
+	d.Set("nodes", nodes)
+
+	//d.Set("image_id", oneNode.ImageId)
+	d.Set("instance_type", oneNode.InstanceType)
+	if disks, _, err := client.ecsconn.DescribeDisks(&ecs.DescribeDisksArgs{
+		RegionId:   getRegion(d, meta),
+		InstanceId: oneNode.InstanceId,
+		DiskType:   ecs.DiskTypeAllData,
+	}); err != nil {
+		return fmt.Errorf("[ERROR] DescribeDisks By Id %s: %#v.", resp[0].InstanceId, err)
+	} else {
+		for _, disk := range disks {
+			d.Set("disk_size", disk.Size)
+			d.Set("disk_category", disk.Category)
+		}
+	}
 
 	return nil
 }
