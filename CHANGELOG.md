@@ -3,6 +3,7 @@
 IMPROVEMENTS:
 
 - *New Resource*: _alicloud_cs_application_ (([#419](https://github.com/alibaba/terraform-provider/pull/419)))
+- Output swarm and kubernetes's nodes information and other attribution (([#420](https://github.com/alibaba/terraform-provider/pull/420)))
 - Set swarm ID before waiting its status (([#419](https://github.com/alibaba/terraform-provider/pull/419)))
 - Add is_outdated for cs_swarm and cs_kubernetes (([#418](https://github.com/alibaba/terraform-provider/pull/418)))
 - Add warning when creating postgresql and ppas database (([#417](https://github.com/alibaba/terraform-provider/pull/417)))

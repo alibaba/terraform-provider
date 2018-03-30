@@ -27,7 +27,11 @@ func TestAccAlicloudCSSwarm_vpc(t *testing.T) {
 				Config: testAccCSSwarm_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerClusterExists("alicloud_cs_swarm.cs_vpc", &container),
-					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "size", "2"),
+					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "node_number", "2"),
+					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "nodes.#", "2"),
+					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "disk_category", "cloud_efficiency"),
+					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "disk_size", "20"),
+					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "nodes.0.eip", ""),
 				),
 			},
 		},
@@ -51,8 +55,9 @@ func TestAccAlicloudCSSwarm_update(t *testing.T) {
 				Config: testAccCSSwarm_update,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerClusterExists("alicloud_cs_swarm.cs_vpc", &container),
-					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "size", "2"),
+					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "node_number", "2"),
 					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "name", "ClusterOfTestFromTerraform"),
+					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "nodes.#", "2"),
 				),
 			},
 
@@ -60,8 +65,9 @@ func TestAccAlicloudCSSwarm_update(t *testing.T) {
 				Config: testAccCSSwarm_updateAfter,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckContainerClusterExists("alicloud_cs_swarm.cs_vpc", &container),
-					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "size", "3"),
+					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "node_number", "3"),
 					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "name", "ClusterOfTestFromTerraformUpdate"),
+					resource.TestCheckResourceAttr("alicloud_cs_swarm.cs_vpc", "nodes.#", "3"),
 				),
 			},
 		},
@@ -146,12 +152,13 @@ resource "alicloud_cs_swarm" "cs_vpc" {
   password = "Just$test"
   instance_type = "ecs.n4.small"
   name_prefix = "ClusterOfVpcTest"
-  size = 2
+  node_number = 2
   disk_category = "cloud_efficiency"
   disk_size = 20
   cidr_block = "172.20.0.0/24"
   image_id = "${data.alicloud_images.main.images.0.id}"
   vswitch_id = "${alicloud_vswitch.foo.id}"
+  release_eip = "true"
 }
 `
 
@@ -180,7 +187,7 @@ resource "alicloud_cs_swarm" "cs_vpc" {
   password = "Just$test"
   instance_type = "ecs.n4.small"
   name = "ClusterOfTestFromTerraform"
-  size = 2
+  node_number = 2
   disk_category = "cloud_efficiency"
   disk_size = 20
   cidr_block = "172.20.0.0/24"
@@ -214,7 +221,7 @@ resource "alicloud_cs_swarm" "cs_vpc" {
   password = "Just$test"
   instance_type = "ecs.n4.small"
   name = "ClusterOfTestFromTerraformUpdate"
-  size = 3
+  node_number = 3
   disk_category = "cloud_efficiency"
   disk_size = 20
   cidr_block = "172.20.0.0/24"
