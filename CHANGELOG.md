@@ -1,3 +1,9 @@
+## 1.9.2 (Unreleased)
+
+IMPROVEMENTS:
+
+- Output application attribution service block (([#423](https://github.com/alibaba/terraform-provider/pull/423)))
+
 ## 1.9.1 (March 30, 2018)
 
 IMPROVEMENTS:
