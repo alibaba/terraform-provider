@@ -2,7 +2,8 @@
 
 IMPROVEMENTS:
 
-- Output application attribution service block (([#423](https://github.com/alibaba/terraform-provider/pull/423)))
+- Output application attribution service block (([#435](https://github.com/alibaba/terraform-provider/pull/435)))
+- Add kubernetes example (([#436](https://github.com/alibaba/terraform-provider/pull/436)))
 
 ## 1.9.1 (March 30, 2018)
 
@@ -10,7 +11,7 @@ IMPROVEMENTS:
 
 - *New Resource*: _alicloud_cs_application_ (([#419](https://github.com/alibaba/terraform-provider/pull/419)))
 - *New Datasource*: _alicloud_security_group_rules_ (([#421](https://github.com/alibaba/terraform-provider/pull/421)))
-- Output swarm attribution 'vpc_id' (([#422](https://github.com/alibaba/terraform-provider/pull/422)))
+- Output swarm attribution 'vpc_id' (([#434](https://github.com/alibaba/terraform-provider/pull/434)))
 - Output swarm and kubernetes's nodes information and other attribution (([#420](https://github.com/alibaba/terraform-provider/pull/420)))
 - Set swarm ID before waiting its status (([#419](https://github.com/alibaba/terraform-provider/pull/419)))
 - Add is_outdated for cs_swarm and cs_kubernetes (([#418](https://github.com/alibaba/terraform-provider/pull/418)))
