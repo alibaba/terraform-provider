@@ -45,12 +45,11 @@ Destroy
     terraform destroy
 
 
-
 Conditional creation
 --------------------
 This example can support the following creating kubernetes cluster scenario by setting different arguments.
 
-##### 1. Create a new vpc, vswitches and nat gateway for the cluster.
+### 1. Create a new vpc, vswitches and nat gateway for the cluster.
 
 You can specify the following user-defined arguments:
 
@@ -59,14 +58,14 @@ You can specify the following user-defined arguments:
 * vswitch_name_prefix: The name prefix of several vswitches
 * vswitch_cidrs: List of cidr blocks for several new vswitches
 
-##### 2. Using existing vpc and vswitches for the cluster.
+### 2. Using existing vpc and vswitches for the cluster.
 
 You can specify the following user-defined arguments:
 
 * vpc_id: A existing vpc ID
 * vswitch_ids: List of IDs for several existing vswitches
 
-##### 2. Using existing vpc, vswitches and nat gateway for the cluster.
+### 3. Using existing vpc, vswitches and nat gateway for the cluster.
 
 You can specify the following user-defined arguments:
 
