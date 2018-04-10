@@ -16,7 +16,7 @@ IMPROVEMENTS:
 - Set swarm ID before waiting its status (([#419](https://github.com/alibaba/terraform-provider/pull/419)))
 - Add is_outdated for cs_swarm and cs_kubernetes (([#418](https://github.com/alibaba/terraform-provider/pull/418)))
 - Add warning when creating postgresql and ppas database (([#417](https://github.com/alibaba/terraform-provider/pull/417)))
-
+- Add eip unassociation retry times to avoid needless error (([#437](https://github.com/alibaba/terraform-provider/pull/437)))
 
 BUG FIXES:
 
