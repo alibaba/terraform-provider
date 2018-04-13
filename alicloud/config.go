@@ -27,6 +27,7 @@ import (
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 )
 
 // Config of aliyun
@@ -54,6 +55,7 @@ type AliyunClient struct {
 	csconn     *cs.Client
 	cdnconn    *cdn.CdnClient
 	kmsconn    *kms.Client
+	otsconn    *tablestore.TableStoreClient
 }
 
 // Client for AliyunClient
@@ -117,6 +119,10 @@ func (c *Config) Client() (*AliyunClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	otsconn, err := c.otsConn()
+	if err != nil {
+		return nil, err
+	}
 	return &AliyunClient{
 		Region:     c.Region,
 		ecsconn:    ecsconn,
@@ -131,6 +137,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 		csconn:     csconn,
 		cdnconn:    cdnconn,
 		kmsconn:    kmsconn,
+		otsconn:    otsconn,
 	}, nil
 }
 
@@ -253,6 +260,14 @@ func (c *Config) kmsConn() (*kms.Client, error) {
 	client.SetUserAgent(getUserAgent())
 	return client, nil
 }
+
+func (c *Config) otsConn() (*tablestore.TableStoreClient, error) {
+	endpoint := os.Getenv("OTS_ENDPOINT")
+	instanceName := os.Getenv("OTS_INSTANCE_NAME")
+	client := tablestore.NewClient(endpoint, instanceName, c.AccessKey, c.SecretKey)
+	return client, nil
+}
+
 
 func getSdkConfig() *sdk.Config {
 	return sdk.NewConfig().

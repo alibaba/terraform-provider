@@ -2,10 +2,10 @@ output "table_name" {
   value = "${alicloud_ots_table.table.table_name}"
 }
 
-output "time_to_live" {
-  value = "${alicloud_ots_table.table.time_to_live}"
+output "table_option" {
+  value = "${alicloud_ots_table.table.table_option}"
 }
 
-output "max_version" {
-  value = "${alicloud_ots_table.table.max_version}"
+output "primary_key" {
+  value = "${alicloud_ots_table.table.primary_key}"
 }
