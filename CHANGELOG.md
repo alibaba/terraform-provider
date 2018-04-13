@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- *New Resource*: _alicloud_cms_alarm_ (([#438](https://github.com/alibaba/terraform-provider/pull/438)))
 - Output application attribution service block (([#435](https://github.com/alibaba/terraform-provider/pull/435)))
 - Add kubernetes example (([#436](https://github.com/alibaba/terraform-provider/pull/436)))
 - Add connections output for kubernetes cluster (([#437](https://github.com/alibaba/terraform-provider/pull/437)))
