@@ -4,6 +4,6 @@ type PrimaryKeyType string
 
 const (
 	IntegerType	= PrimaryKeyType("Integer")
-	StringType  = PrimaryKeyType("String")
+	StringType      = PrimaryKeyType("String")
 	BinaryType	= PrimaryKeyType("Binary")
 )
