@@ -32,11 +32,12 @@ import (
 
 // Config of aliyun
 type Config struct {
-	AccessKey     string
-	SecretKey     string
-	Region        common.Region
-	RegionId      string
-	SecurityToken string
+	AccessKey        string
+	SecretKey        string
+	Region           common.Region
+	RegionId         string
+	SecurityToken    string
+	OtsInstanceName  string
 }
 
 // AliyunClient of aliyun
@@ -263,11 +264,13 @@ func (c *Config) kmsConn() (*kms.Client, error) {
 
 func (c *Config) otsConn() (*tablestore.TableStoreClient, error) {
 	endpoint := os.Getenv("OTS_ENDPOINT")
-	instanceName := os.Getenv("OTS_INSTANCE_NAME")
+	instanceName := c.OtsInstanceName
+	if endpoint == "" {
+		endpoint = "https://" + instanceName + "." + c.RegionId + ".ots.aliyuncs.com"
+	}
 	client := tablestore.NewClient(endpoint, instanceName, c.AccessKey, c.SecretKey)
 	return client, nil
 }
-
 
 func getSdkConfig() *sdk.Config {
 	return sdk.NewConfig().
