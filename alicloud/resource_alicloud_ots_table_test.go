@@ -90,11 +90,15 @@ resource "alicloud_ots_table" "basic" {
   table_name = "ots_table_c"
   primary_key {
     name = "pk1"
-    type = "INTEGER"
+    type = "Integer"
+  }
+  primary_key {
+    name = "pk2"
+	type = "String"
   }
   table_option {
     time_to_live = -1
-    max_version = 3
+    max_version = 1
   }
 }
 `

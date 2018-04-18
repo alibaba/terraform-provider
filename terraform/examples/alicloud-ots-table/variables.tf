@@ -6,32 +6,24 @@ variable "primary_key_1_name" {
   default = "pk1"
 }
 
-variable "primary_key_1_type" {
-  default = "INTEGER"
-}
-
 variable "primary_key_2_name" {
   default = "pk2"
-}
-
-variable "primary_key_2_type" {
-  default = "STRING"
 }
 
 variable "primary_key_3_name" {
   default = "pk3"
 }
 
-variable "primary_key_3_type" {
-  default = "STRING"
-}
-
 variable "primary_key_4_name" {
   default = "pk4"
 }
 
-variable "primary_key_4_type" {
-  default = "STRING"
+variable "primary_key_integer_type" {
+  default = "Integer"
+}
+
+variable "primary_key_string_type" {
+  default = "String"
 }
 
 variable "time_to_live" {
@@ -39,6 +31,6 @@ variable "time_to_live" {
 }
 
 variable "max_version" {
-  default = 3
+  default = 1
 }
 

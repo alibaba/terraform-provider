@@ -1201,3 +1201,12 @@ func validateNatGatewaySpec(v interface{}, k string) (ws []string, errors []erro
 	}
 	return
 }
+
+func validatePrimaryTypeKey(v interface{}, k string) (ws []string, errors []error) {
+	value := PrimaryKeyType(v.(string))
+	if value != IntegerType && value != StringType && value != BinaryType {
+		errors = append(errors, fmt.Errorf("%q must be '%s', %s or 'allow'.", k, IntegerType, StringType,
+			BinaryType))
+	}
+	return
+}
