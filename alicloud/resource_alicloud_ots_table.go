@@ -2,14 +2,15 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
+	"github.com/hashicorp/terraform/helper/schema"
+	"time"
 )
 
 func resourceAlicloudOtsTable() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceAliyunOtsTableCreate,
-		Read: resourceAliyunOtsTableRead,
+		Read:   resourceAliyunOtsTableRead,
 		Update: resourceAliyunOtsTableUpdate,
 		Delete: resourceAliyunOtsTableDelete,
 		Importer: &schema.ResourceImporter{
@@ -32,32 +33,21 @@ func resourceAlicloudOtsTable() *schema.Resource {
 							Required: true,
 						},
 						"type": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
+							Type:         schema.TypeString,
+							Required:     true,
 							ValidateFunc: validatePrimaryTypeKey,
 						},
 					},
 				},
 				MaxItems: 4,
 			},
-			"table_option": {
-				Type:     schema.TypeSet,
+			"time_to_live": &schema.Schema{
+				Type:     schema.TypeInt,
 				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"time_to_live": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default: -1,
-						},
-						"max_version": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default: 1,
-						},
-					},
-				},
-				MaxItems: 1,
+			},
+			"max_version": &schema.Schema{
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 		},
 	}
@@ -70,18 +60,14 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 	table_name := d.Get("table_name").(string)
 	tableMeta.TableName = table_name
 
-	for _, primaryKey :=range d.Get("primary_key").([]interface{}){
+	for _, primaryKey := range d.Get("primary_key").([]interface{}) {
 		pk := primaryKey.(map[string]interface{})
 		pkValue := getPrimaryKeyType(pk["type"].(string))
 		tableMeta.AddPrimaryKeyColumn(pk["name"].(string), pkValue)
-
 	}
 	tableOption := new(tablestore.TableOption)
-	to := d.Get("table_option").(*schema.Set).List()
-	w := to[0].(map[string]interface{})
-
-	tableOption.TimeToAlive = w["time_to_live"].(int)
-	tableOption.MaxVersion = w["max_version"].(int)
+	tableOption.TimeToAlive = d.Get("time_to_live").(int)
+	tableOption.MaxVersion = d.Get("max_version").(int)
 
 	reservedThroughput := new(tablestore.ReservedThroughput)
 
@@ -106,75 +92,69 @@ func resourceAliyunOtsTableRead(d *schema.ResourceData, meta interface{}) error 
 
 	if err != nil {
 		return fmt.Errorf("failed to describe table with error: %s", err)
-	} else {
-		d.Set("table_name", describ.TableMeta.TableName)
-
-		t := make(map[string]interface{})
-		t["time_to_live"] = describ.TableOption.TimeToAlive
-		t["max_version"] = describ.TableOption.MaxVersion
-		var tableOptions []map[string]interface{}
-		tableOptions = append(tableOptions, t)
-		d.Set("table_option", tableOptions)
-
-		var pks []map[string]interface{}
-		keys := describ.TableMeta.SchemaEntry
-		for k, v := range keys{
-			item := make(map[string]interface{})
-			item["name"] = k
-			item["type"] = v
-			pks = append(pks, item)
-		}
-		d.Set("primary_key", pks)
 	}
+
+	d.Set("table_name", describ.TableMeta.TableName)
+
+	var pks []map[string]interface{}
+	keys := describ.TableMeta.SchemaEntry
+	for k, v := range keys {
+		item := make(map[string]interface{})
+		item["name"] = k
+		item["type"] = v
+		pks = append(pks, item)
+	}
+	d.Set("primary_key", pks)
+
+	d.Set("time_to_live", describ.TableOption.TimeToAlive)
+	d.Set("max_version", describ.TableOption.MaxVersion)
 
 	return nil
 }
 
 func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient).otsconn
-	d.Partial(true)
+	//d.Partial(true)
 	update := false
 
 	updateTableReq := new(tablestore.UpdateTableRequest)
 	table_name := d.Get("table_name").(string)
 	updateTableReq.TableName = table_name
 
-	if d.HasChange("table_option") && !d.IsNewResource(){
-		tableOption := new(tablestore.TableOption)
+	// As the issue of ots sdk, time_to_live and max_version need to be updated together at present.
+	// For the issue, please refer to https://github.com/aliyun/aliyun-tablestore-go-sdk/issues/18
+	tableOption := new(tablestore.TableOption)
+	if d.HasChange("time_to_live") && !d.IsNewResource() {
 		update = true
-		to := d.Get("table_option").(*schema.Set).List()
-		w := to[0].(map[string]interface{})
+		tableOption.TimeToAlive = d.Get("time_to_live").(int)
+	}
 
-		tableOption.TimeToAlive = w["time_to_live"].(int)
-		tableOption.MaxVersion = w["max_version"].(int)
-		updateTableReq.TableOption = tableOption
-		d.SetPartial("table_option")
+	if d.HasChange("max_version") && !d.IsNewResource() {
+		update = true
+		tableOption.MaxVersion = d.Get("max_version").(int)
 	}
 
 	if update {
+		updateTableReq.TableOption = tableOption
 		_, err := client.UpdateTable(updateTableReq)
 
 		if err != nil {
 			return fmt.Errorf("failed to update table with error: %s", err)
 		}
 	}
-	d.Partial(false)
+	//d.Partial(false)
 	return resourceAliyunOtsTableRead(d, meta)
 }
 
 func resourceAliyunOtsTableDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient).otsconn
-
-	deleteReq := new(tablestore.DeleteTableRequest)
 	tableName := d.Get("table_name").(string)
-	deleteReq.TableName = tableName
-	_, err := client.DeleteTable(deleteReq)
-
-	describ, _ := describeOtsTable(tableName, meta)
-
-	if err != nil || describ.TableMeta != nil{
-		return fmt.Errorf("Failed to delete table with error: %s", err)
+	successFlag, _ := deleteOtsTable(tableName, meta)
+	if !successFlag{
+		time.Sleep(180)
+		retrySuccessFlag, retryErr := deleteOtsTable(tableName, meta)
+		if !retrySuccessFlag{
+			return fmt.Errorf("Failed to delete table with error: %s", retryErr)
+		}
 	}
-
 	return nil
 }

@@ -5,9 +5,9 @@ import (
 	"log"
 	"testing"
 
+	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 )
 
 func TestAccAlicloudOtsTable_Basic(t *testing.T) {
@@ -77,7 +77,7 @@ func testAccCheckOtsTableDestroy(s *terraform.State) error {
 			TableName: rs.Primary.ID,
 		})
 
-		if response != nil && response.TableMeta != nil{
+		if response != nil && response.TableMeta != nil {
 			return fmt.Errorf("Error! Ots table still exists")
 		}
 	}
@@ -88,18 +88,11 @@ func testAccCheckOtsTableDestroy(s *terraform.State) error {
 const testAccOtsTable = `
 resource "alicloud_ots_table" "basic" {
   table_name = "ots_table_c"
-  primary_key {
+  primary_key = {
     name = "pk1"
     type = "Integer"
   }
-  primary_key {
-    name = "pk2"
-	type = "String"
-  }
-  table_option {
-    time_to_live = -1
-    max_version = 1
-  }
+  time_to_live = -1
+  max_version = 1
 }
 `
-

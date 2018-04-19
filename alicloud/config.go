@@ -17,6 +17,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 	"github.com/denverdino/aliyungo/cdn"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/cs"
@@ -28,17 +29,16 @@ import (
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/denverdino/aliyungo/slb"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 )
 
 // Config of aliyun
 type Config struct {
-	AccessKey        string
-	SecretKey        string
-	Region           common.Region
-	RegionId         string
-	SecurityToken    string
-	OtsInstanceName  string
+	AccessKey       string
+	SecretKey       string
+	Region          common.Region
+	RegionId        string
+	SecurityToken   string
+	OtsInstanceName string
 }
 
 // AliyunClient of aliyun
