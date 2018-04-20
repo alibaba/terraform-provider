@@ -3,6 +3,7 @@ package alicloud
 import (
 	"fmt"
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"time"
 )
@@ -114,7 +115,6 @@ func resourceAliyunOtsTableRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient).otsconn
-	//d.Partial(true)
 	update := false
 
 	updateTableReq := new(tablestore.UpdateTableRequest)
@@ -142,19 +142,16 @@ func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) erro
 			return fmt.Errorf("failed to update table with error: %s", err)
 		}
 	}
-	//d.Partial(false)
 	return resourceAliyunOtsTableRead(d, meta)
 }
 
 func resourceAliyunOtsTableDelete(d *schema.ResourceData, meta interface{}) error {
 	tableName := d.Get("table_name").(string)
-	successFlag, _ := deleteOtsTable(tableName, meta)
-	if !successFlag{
-		time.Sleep(180)
-		retrySuccessFlag, retryErr := deleteOtsTable(tableName, meta)
-		if !retrySuccessFlag{
-			return fmt.Errorf("Failed to delete table with error: %s", retryErr)
+	return resource.Retry(2*time.Minute, func() *resource.RetryError {
+		successFlag, err := deleteOtsTable(tableName, meta)
+		if !successFlag {
+			return resource.RetryableError(fmt.Errorf("Delete instance timeout and got an error: %#v.", err))
 		}
-	}
-	return nil
+		return nil
+	})
 }
