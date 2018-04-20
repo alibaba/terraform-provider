@@ -124,6 +124,9 @@ func (c *Config) Client() (*AliyunClient, error) {
 		return nil, err
 	}
 	otsconn, err := c.otsConn()
+	if err != nil {
+		return nil, err
+	}
 	cmsconn, err := c.cmsConn()
 	if err != nil {
 		return nil, err
