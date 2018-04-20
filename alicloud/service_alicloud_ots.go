@@ -43,4 +43,3 @@ func deleteOtsTable(tableName string, meta interface{}) (bool, error) {
 
 	return true, err
 }
-
