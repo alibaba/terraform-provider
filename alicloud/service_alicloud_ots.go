@@ -37,7 +37,7 @@ func deleteOtsTable(tableName string, meta interface{}) (bool, error) {
 
 	describ, _ := describeOtsTable(tableName, meta)
 
-	if err != nil || describ.TableMeta != nil {
+	if describ.TableMeta != nil {
 		return false, err
 	}
 
