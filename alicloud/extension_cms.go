@@ -14,4 +14,3 @@ const (
 	Equal           = "=="
 	NotEqual        = "!="
 )
-
