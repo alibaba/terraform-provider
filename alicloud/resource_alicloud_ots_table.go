@@ -36,7 +36,8 @@ func resourceAlicloudOtsTable() *schema.Resource {
 						"type": &schema.Schema{
 							Type:         schema.TypeString,
 							Required:     true,
-							ValidateFunc: validatePrimaryTypeKey,
+							ValidateFunc: validateAllowedStringValue([]string{
+								string(IntegerType), string(BinaryType), string(StringType)}),
 						},
 					},
 				},
