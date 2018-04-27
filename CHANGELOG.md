@@ -1,5 +1,10 @@
 ## 1.9.2 (Unreleased)
 
+BUG FIXES:
+
+- Fix deleting slb listener error (([#439](https://github.com/alibaba/terraform-provider/pull/439)))
+- Fix creating vswitch error (([#439](https://github.com/alibaba/terraform-provider/pull/439)))
+
 ## 1.9.1 (April 15, 2018)
 
 In order to be consistent with official, the following update will also be added into version 1.9.1.

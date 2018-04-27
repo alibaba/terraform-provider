@@ -3,9 +3,10 @@ package alicloud
 import (
 	"time"
 
+	"strconv"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
-	"strconv"
 )
 
 func BuildCmsCommonRequest(region string) *requests.CommonRequest {
