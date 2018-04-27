@@ -86,6 +86,9 @@ func testAccCheckOtsTableDestroy(s *terraform.State) error {
 }
 
 const testAccOtsTable = `
+provider "alicloud" {
+  ots_instance_name = "eeee"
+}
 resource "alicloud_ots_table" "basic" {
   table_name = "ots_table_c"
   primary_key = {

@@ -1,4 +1,5 @@
 provider "alicloud" {
+  ots_instance_name = "${var.ots_instance_name}"
 }
 
 resource "alicloud_ots_table" "table" {

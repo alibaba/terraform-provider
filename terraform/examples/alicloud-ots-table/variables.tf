@@ -1,3 +1,7 @@
+variable "ots_instance_name" {
+  default = "eeee"
+}
+
 variable "table_name" {
   default = "ots_table"
 }
