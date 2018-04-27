@@ -24,8 +24,7 @@ func describeOtsTable(tableName string, meta interface{}) (*tablestore.DescribeT
 	describeTableReq := new(tablestore.DescribeTableRequest)
 	describeTableReq.TableName = tableName
 
-	describ, err := client.DescribeTable(describeTableReq)
-	return describ, err
+	return client.DescribeTable(describeTableReq)
 }
 
 func deleteOtsTable(tableName string, meta interface{}) (bool, error) {
