@@ -2,10 +2,11 @@ package alicloud
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"time"
 )
 
 func resourceAlicloudOtsTable() *schema.Resource {
@@ -34,8 +35,8 @@ func resourceAlicloudOtsTable() *schema.Resource {
 							Required: true,
 						},
 						"type": &schema.Schema{
-							Type:         schema.TypeString,
-							Required:     true,
+							Type:     schema.TypeString,
+							Required: true,
 							ValidateFunc: validateAllowedStringValue([]string{
 								string(IntegerType), string(BinaryType), string(StringType)}),
 						},
