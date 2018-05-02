@@ -1,5 +1,5 @@
 variable "ots_instance_name" {
-  default = "eeee"
+  default = "tf-test"
 }
 
 variable "table_name" {

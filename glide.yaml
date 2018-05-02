@@ -4,3 +4,4 @@ import:
   version: 0.11.3
 - package: github.com/denverdino/aliyungo
 - package: github.com/aliyun/alibaba-cloud-sdk-go
+- package: github.com/aliyun/aliyun-tablestore-go-sdk

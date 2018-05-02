@@ -1,4 +1,5 @@
 provider "alicloud" {
+  region = "cn-hangzhou"
   ots_instance_name = "${var.ots_instance_name}"
 }
 

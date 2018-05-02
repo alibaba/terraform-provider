@@ -148,10 +148,10 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		}
 	}
 	config := Config{
-		AccessKey: d.Get("access_key").(string),
-		SecretKey: d.Get("secret_key").(string),
-		Region:    common.Region(region.(string)),
-		RegionId:  region.(string),
+		AccessKey:       d.Get("access_key").(string),
+		SecretKey:       d.Get("secret_key").(string),
+		Region:          common.Region(region.(string)),
+		RegionId:        region.(string),
 		OtsInstanceName: d.Get("ots_instance_name").(string),
 	}
 
