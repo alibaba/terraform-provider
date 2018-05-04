@@ -59,8 +59,8 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 	client := meta.(*AliyunClient).otsconn
 
 	tableMeta := new(tablestore.TableMeta)
-	table_name := d.Get("table_name").(string)
-	tableMeta.TableName = table_name
+	tableName := d.Get("table_name").(string)
+	tableMeta.TableName = tableName
 
 	for _, primaryKey := range d.Get("primary_key").([]interface{}) {
 		pk := primaryKey.(map[string]interface{})
@@ -84,7 +84,7 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	// Need to set id before calling read method or terraform.state won't be generated.
-	d.SetId(table_name)
+	d.SetId(tableName)
 	return resourceAliyunOtsTableUpdate(d, meta)
 }
 
@@ -119,7 +119,7 @@ func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) erro
 	update := false
 
 	updateTableReq := new(tablestore.UpdateTableRequest)
-	tableName := d.Get("table_name").(string)
+	tableName := d.Id()
 	updateTableReq.TableName = tableName
 
 	// As the issue of ots sdk, time_to_live and max_version need to be updated together at present.
@@ -147,7 +147,7 @@ func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunOtsTableDelete(d *schema.ResourceData, meta interface{}) error {
-	tableName := d.Get("table_name").(string)
+	tableName := d.Id()
 	return resource.Retry(2*time.Minute, func() *resource.RetryError {
 		successFlag, err := deleteOtsTable(tableName, meta)
 		if !successFlag {
