@@ -103,7 +103,7 @@ func resourceAliyunOtsTableRead(d *schema.ResourceData, meta interface{}) error 
 	for _, v := range keys {
 		item := make(map[string]interface{})
 		item["name"] = *v.Name
-		item["type"] = convertPrimaryKeyType(*v.Type)//strconv.Itoa(int(*v.Type))
+		item["type"] = convertPrimaryKeyType(*v.Type)
 		pks = append(pks, item)
 	}
 	d.Set("primary_key", pks)
