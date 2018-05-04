@@ -40,11 +40,11 @@ func testAccCheckOtsTableExist(n string, table *tablestore.DescribeTableResponse
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found OTS table: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No Table ID is set")
+			return fmt.Errorf("no OTS table ID is set")
 		}
 
 		client := testAccProvider.Meta().(*AliyunClient)
@@ -78,7 +78,7 @@ func testAccCheckOtsTableDestroy(s *terraform.State) error {
 		})
 
 		if response != nil && response.TableMeta != nil {
-			return fmt.Errorf("Error! Ots table still exists")
+			return fmt.Errorf("error! Ots table still exists")
 		}
 	}
 
