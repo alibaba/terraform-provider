@@ -3,6 +3,7 @@
 IMPROVEMENTS:
 
 - *New Resource*: _alicloud_ots_table_(([#442](https://github.com/alibaba/terraform-provider/pull/442)))
+- Support load endpoint from environment variable or specified file (([#459](https://github.com/alibaba/terraform-provider/pull/459)))
 - Update example (([#457](https://github.com/alibaba/terraform-provider/pull/457)))
 - Remove terraform/example (([#458](https://github.com/alibaba/terraform-provider/pull/458)))
 
