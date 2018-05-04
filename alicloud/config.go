@@ -187,7 +187,10 @@ func (c *Config) ecsConn() (*ecs.Client, error) {
 }
 
 func (c *Config) rdsConn() (*rds.Client, error) {
-	endpoints.AddEndpointMapping(c.RegionId, string(RDSCode), LoadEndpoint(c.RegionId, RDSCode))
+	endpoint := LoadEndpoint(c.RegionId, RDSCode)
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(c.RegionId, string(RDSCode), endpoint)
+	}
 	return rds.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(false))
 }
 
@@ -199,7 +202,10 @@ func (c *Config) slbConn() (*slb.Client, error) {
 }
 
 func (c *Config) vpcConn() (*vpc.Client, error) {
-	endpoints.AddEndpointMapping(c.RegionId, string(VPCCode), LoadEndpoint(c.RegionId, VPCCode))
+	endpoint := LoadEndpoint(c.RegionId, VPCCode)
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(c.RegionId, string(VPCCode), endpoint)
+	}
 	return vpc.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 
 }
