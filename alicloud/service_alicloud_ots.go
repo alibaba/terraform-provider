@@ -6,7 +6,7 @@ import (
 
 func getPrimaryKeyType(primaryKeyType string) tablestore.PrimaryKeyType {
 	var keyType tablestore.PrimaryKeyType
-	t := PrimaryKeyType(primaryKeyType)
+	t := PrimaryKeyTypeString(primaryKeyType)
 	switch t {
 	case IntegerType:
 		keyType = tablestore.PrimaryKeyType_INTEGER
@@ -41,4 +41,18 @@ func deleteOtsTable(tableName string, meta interface{}) (bool, error) {
 	}
 
 	return true, err
+}
+
+// Convert tablestore.PrimaryKeyType to PrimaryKeyTypeString
+func convertPrimaryKeyType(t tablestore.PrimaryKeyType) PrimaryKeyTypeString{
+	var typeString PrimaryKeyTypeString
+	switch t {
+	case tablestore.PrimaryKeyType_INTEGER:
+		typeString = IntegerType
+	case tablestore.PrimaryKeyType_BINARY:
+		typeString = BinaryType
+	case tablestore.PrimaryKeyType_STRING:
+		typeString = StringType
+	}
+	return typeString
 }

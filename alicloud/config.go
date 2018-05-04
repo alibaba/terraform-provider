@@ -13,6 +13,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/drds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
@@ -193,6 +194,10 @@ func (c *Config) ecsConn() (*ecs.Client, error) {
 }
 
 func (c *Config) rdsConn() (*rds.Client, error) {
+	endpoint := LoadEndpoint(c.RegionId, RDSCode)
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(c.RegionId, string(RDSCode), endpoint)
+	}
 	return rds.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(false))
 }
 
@@ -204,6 +209,10 @@ func (c *Config) slbConn() (*slb.Client, error) {
 }
 
 func (c *Config) vpcConn() (*vpc.Client, error) {
+	endpoint := LoadEndpoint(c.RegionId, VPCCode)
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(c.RegionId, string(VPCCode), endpoint)
+	}
 	return vpc.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 
 }
@@ -279,10 +288,13 @@ func (c *Config) kmsConn() (*kms.Client, error) {
 }
 
 func (c *Config) otsConn() (*tablestore.TableStoreClient, error) {
-	endpoint := os.Getenv("OTS_ENDPOINT")
+	endpoint := LoadEndpoint(c.RegionId, OTSCode)
 	instanceName := c.OtsInstanceName
 	if endpoint == "" {
-		endpoint = "https://" + instanceName + "." + c.RegionId + ".ots.aliyuncs.com"
+		endpoint = fmt.Sprintf("%s.%s.ots.aliyuncs.com", instanceName, c.RegionId)
+	}
+	if !strings.HasPrefix(endpoint, string(Https)) && !strings.HasPrefix(endpoint, string(Http)) {
+		endpoint = fmt.Sprintf("%s://%s", Https, endpoint)
 	}
 	client := tablestore.NewClient(endpoint, instanceName, c.AccessKey, c.SecretKey)
 	return client, nil

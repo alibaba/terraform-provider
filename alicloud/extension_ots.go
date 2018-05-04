@@ -1,9 +1,9 @@
 package alicloud
 
-type PrimaryKeyType string
+type PrimaryKeyTypeString string
 
 const (
-	IntegerType = PrimaryKeyType("Integer")
-	StringType  = PrimaryKeyType("String")
-	BinaryType  = PrimaryKeyType("Binary")
+	IntegerType = PrimaryKeyTypeString("Integer")
+	StringType  = PrimaryKeyTypeString("String")
+	BinaryType  = PrimaryKeyTypeString("Binary")
 )
