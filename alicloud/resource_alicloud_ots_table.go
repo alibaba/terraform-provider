@@ -81,7 +81,7 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 
 	_, err := client.CreateTable(createTableRequest)
 	if err != nil {
-		return fmt.Errorf("Failed to create table with error: %s", err)
+		return fmt.Errorf("failed to create table with error: %s", err)
 	}
 
 	// Need to set id before calling read method or terraform.state won't be generated.
@@ -90,27 +90,27 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunOtsTableRead(d *schema.ResourceData, meta interface{}) error {
-	tableName := d.Get("table_name").(string)
-	describ, err := describeOtsTable(tableName, meta)
+	tableName := d.Id()
+	describe, err := describeOtsTable(tableName, meta)
 
 	if err != nil {
 		return fmt.Errorf("failed to describe table with error: %s", err)
 	}
 
-	d.Set("table_name", describ.TableMeta.TableName)
+	d.Set("table_name", describe.TableMeta.TableName)
 
 	var pks []map[string]interface{}
-	keys := describ.TableMeta.SchemaEntry
-	for k, v := range keys {
+	keys := describe.TableMeta.SchemaEntry
+	for _, v := range keys {
 		item := make(map[string]interface{})
-		item["name"] = k
-		item["type"] = v
+		item["name"] = *v.Name
+		item["type"] = convertPrimaryKeyType(*v.Type)//strconv.Itoa(int(*v.Type))
 		pks = append(pks, item)
 	}
 	d.Set("primary_key", pks)
 
-	d.Set("time_to_live", describ.TableOption.TimeToAlive)
-	d.Set("max_version", describ.TableOption.MaxVersion)
+	d.Set("time_to_live", describe.TableOption.TimeToAlive)
+	d.Set("max_version", describe.TableOption.MaxVersion)
 
 	return nil
 }
@@ -120,8 +120,8 @@ func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) erro
 	update := false
 
 	updateTableReq := new(tablestore.UpdateTableRequest)
-	table_name := d.Get("table_name").(string)
-	updateTableReq.TableName = table_name
+	tableName := d.Get("table_name").(string)
+	updateTableReq.TableName = tableName
 
 	// As the issue of ots sdk, time_to_live and max_version need to be updated together at present.
 	// For the issue, please refer to https://github.com/aliyun/aliyun-tablestore-go-sdk/issues/18
@@ -152,7 +152,7 @@ func resourceAliyunOtsTableDelete(d *schema.ResourceData, meta interface{}) erro
 	return resource.Retry(2*time.Minute, func() *resource.RetryError {
 		successFlag, err := deleteOtsTable(tableName, meta)
 		if !successFlag {
-			return resource.RetryableError(fmt.Errorf("Delete instance timeout and got an error: %#v.", err))
+			return resource.RetryableError(fmt.Errorf("delete instance timeout and got an error: %#v", err))
 		}
 		return nil
 	})
