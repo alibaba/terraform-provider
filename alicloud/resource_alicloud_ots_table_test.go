@@ -12,7 +12,6 @@ import (
 
 func TestAccAlicloudOtsTable_Basic(t *testing.T) {
 	var table tablestore.DescribeTableResponse
-	fmt.Printf("Starting...")
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 
@@ -87,9 +86,11 @@ func testAccCheckOtsTableDestroy(s *terraform.State) error {
 
 const testAccOtsTable = `
 provider "alicloud" {
-  ots_instance_name = "eeee"
+  ots_instance_name = "tf-test"
+  region = "cn-hangzhou"
 }
 resource "alicloud_ots_table" "basic" {
+  provider = "alicloud"
   table_name = "ots_table_c"
   primary_key = {
     name = "pk1"
