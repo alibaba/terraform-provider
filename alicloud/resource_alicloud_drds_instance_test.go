@@ -31,6 +31,28 @@ func TestAccAlicloudDRDSInstance_Basic(t *testing.T) {
 	})
 }
 
+func TestAccAlicloudDRDSInstance_Vpc(t *testing.T) {
+	var instance drds.DescribeDrdsInstanceResponse
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		IDRefreshName: "alicloud_drds_instance.vpc",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckDRDSInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccDrdsInstance_Vpc,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDRDSInstanceExist(
+						"alicloud_drds_instance.vpc", &instance),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckDRDSInstanceExist(n string, instance *drds.DescribeDrdsInstanceResponse) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -82,12 +104,27 @@ provider "alicloud" {
 }
 resource "alicloud_drds_instance" "basic" {
   provider = "alicloud"
-  description = "for rds"
+  description = "drds basic"
   type = "PRIVATE"
-  zone_id = "cn-hangzhou-f"
+  zone_id = "cn-hangzhou-e"
   specification = "drds.sn1.4c8g.8C16G"
   pay_type = "drdsPost"
   instance_series = "drds.sn1.4c8g"
-  quantity = 1
+}
+`
+
+const testAccDrdsInstance_Vpc = `
+provider "alicloud" {
+	region = "cn-hangzhou"
+}
+resource "alicloud_drds_instance" "vpc" {
+  provider = "alicloud"
+  description = "drds vpc"
+  type = "PRIVATE"
+  zone_id = "cn-hangzhou-e"
+  specification = "drds.sn1.4c8g.16C32G"
+  pay_type = "drdsPost"
+  vswitch_id = "vsw-bp1rfn58rx73af8oswzye"
+  instance_series = "drds.sn1.4c8g"
 }
 `

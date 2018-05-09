@@ -1,8 +1,8 @@
 package alicloud
 
 import (
-	"testing"
 	"github.com/hashicorp/terraform/helper/resource"
+	"testing"
 )
 
 func TestAccAlicloudOtsTable_importBasic(t *testing.T) {
