@@ -44,7 +44,7 @@ func deleteOtsTable(tableName string, meta interface{}) (bool, error) {
 }
 
 // Convert tablestore.PrimaryKeyType to PrimaryKeyTypeString
-func convertPrimaryKeyType(t tablestore.PrimaryKeyType) PrimaryKeyTypeString{
+func convertPrimaryKeyType(t tablestore.PrimaryKeyType) PrimaryKeyTypeString {
 	var typeString PrimaryKeyTypeString
 	switch t {
 	case tablestore.PrimaryKeyType_INTEGER:
