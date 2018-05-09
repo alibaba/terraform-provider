@@ -2,13 +2,16 @@
 
 IMPROVEMENTS:
 
-- *New Resource*: _alicloud_ots_table_(([#442](https://github.com/alibaba/terraform-provider/pull/442)))
-- Support load endpoint from environment variable or specified file (([#459](https://github.com/alibaba/terraform-provider/pull/459)))
+- *New Resource*: _alicloud_ots_table_ (([#442](https://github.com/alibaba/terraform-provider/pull/442)))
+- Prolong waiting time for creating kubernetes cluster to avoid timeout (([#465](https://github.com/alibaba/terraform-provider/pull/465)))
+- Support load endpoint from environment variable or specified file (([#462](https://github.com/alibaba/terraform-provider/pull/462)))
 - Update example (([#457](https://github.com/alibaba/terraform-provider/pull/457)))
 - Remove terraform/example (([#458](https://github.com/alibaba/terraform-provider/pull/458)))
 
 BUG FIXES:
 
+- Fix modifying instance host name failed bug ((([#465](https://github.com/alibaba/terraform-provider/pull/465)))
+- Fix SLB listener "OperationBusy" error (([#465](https://github.com/alibaba/terraform-provider/pull/465)))
 - Fix deleting forward table not found error (([#457](https://github.com/alibaba/terraform-provider/pull/457)))
 - Fix deleting slb listener error (([#439](https://github.com/alibaba/terraform-provider/pull/439)))
 - Fix creating vswitch error (([#439](https://github.com/alibaba/terraform-provider/pull/439)))
