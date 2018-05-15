@@ -1,3 +1,13 @@
+## 1.9.3 (Unreleased)
+
+IMPROVEMENTS:
+
+- Improve kubernetes examples ([#443](https://github.com/alibaba/terraform-provider/pull/443)))
+
+BUG FIXES:
+
+- Fix kubernetes out range index error ([#443](https://github.com/alibaba/terraform-provider/pull/443)))
+
 ## 1.9.2 (May 8, 2018)
 
 IMPROVEMENTS:
