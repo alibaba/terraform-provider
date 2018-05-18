@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Remove kubernetes work_number limitation ([#444](https://github.com/alibaba/terraform-provider/pull/444)))
 - Improve kubernetes examples ([#443](https://github.com/alibaba/terraform-provider/pull/443)))
 
 BUG FIXES:
