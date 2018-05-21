@@ -2,11 +2,14 @@
 
 IMPROVEMENTS:
 
+- Add filter parameters and export parameters for instance types data source. ([#445](https://github.com/alibaba/terraform-provider/pull/445)))
+- Add filter parameters for zones data source. ([#445](https://github.com/alibaba/terraform-provider/pull/445)))
 - Remove kubernetes work_number limitation ([#444](https://github.com/alibaba/terraform-provider/pull/444)))
 - Improve kubernetes examples ([#443](https://github.com/alibaba/terraform-provider/pull/443)))
 
 BUG FIXES:
 
+- Fix getting some instance types failed bug ([#445](https://github.com/alibaba/terraform-provider/pull/445)))
 - Fix kubernetes out range index error ([#443](https://github.com/alibaba/terraform-provider/pull/443)))
 
 ## 1.9.2 (May 8, 2018)
