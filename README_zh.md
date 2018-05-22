@@ -3,6 +3,8 @@
 
 * Terraform是HashiCorp公司出品的，著名Vagrant、Packer工具也出自于该公司。Terraform是“基础设施即代码”的开源工具，通过模板定义“基础设施”，目前已支持AWS、Azure、OpenStack等主流云平台，这个项目是阿里云官方出品，利用Terraform创建阿里云的资源。
 
+* 注意：如果你要在windows机器上上运行terraform，必须提前安装[GO环境](https://golang.org/dl/)，否则将会遇到[Crash Error](https://github.com/alibaba/terraform-provider/issues/469)。
+
 ### 安装 Terraform
 * Alicloud terraform provider 当前支持的 Terraform 的版本 ≥ v0.8.2
 * 安装Terraform可参考：https://www.terraform.io/intro/getting-started/install.html
