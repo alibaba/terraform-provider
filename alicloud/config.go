@@ -178,6 +178,11 @@ func (c *Config) ecsConn() (*ecs.Client, error) {
 	client := ecs.NewECSClientWithSecurityToken(c.AccessKey, c.SecretKey, c.SecurityToken, c.Region)
 	client.SetBusinessInfo(BusinessInfoKey)
 	client.SetUserAgent(getUserAgent())
+
+	if _, err := client.DescribeRegions(); err != nil {
+		return nil, err
+	}
+
 	return client, nil
 }
 
