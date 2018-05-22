@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Remove useless operation DescribeRegions before building ecsconn([#446](https://github.com/alibaba/terraform-provider/pull/446)))
 - Add filter parameters and export parameters for instance types data source. ([#445](https://github.com/alibaba/terraform-provider/pull/445)))
 - Add filter parameters for zones data source. ([#445](https://github.com/alibaba/terraform-provider/pull/445)))
 - Remove kubernetes work_number limitation ([#444](https://github.com/alibaba/terraform-provider/pull/444)))

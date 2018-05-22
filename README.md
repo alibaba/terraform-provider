@@ -8,6 +8,9 @@ If you are not planning to contribute to this repo, you can download the compile
 Alternatively, the provider can be installed as described in the [developer notes](#developer-notes).  
 This way you will be able to sync the repo as active development is going on.
 
+-> **Note:** Before you use terraform in the `Windowns` computer, please install [golang](https://golang.org/dl/) in your computer,
+otherwise, you will happened the issue from version 1.8.1 and the issue details can refer to [Crash Error](https://github.com/alibaba/terraform-provider/issues/469).
+
 #### Example
 
 Example modules can be found in the [terraform/examples](terraform/examples) directory.
