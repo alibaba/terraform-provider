@@ -501,7 +501,7 @@ func validateAllowedStringValue(ss []string) schema.SchemaValidateFunc {
 		}
 		if !existed {
 			errors = append(errors, fmt.Errorf(
-				"%q must contain a valid string value should in array %#v, got %q",
+				"%q must contain a valid string value should be in array %#v, got %q",
 				k, ss, value))
 		}
 		return
@@ -546,7 +546,7 @@ func validateAllowedIntValue(is []int) schema.SchemaValidateFunc {
 		}
 		if !existed {
 			errors = append(errors, fmt.Errorf(
-				"%q must contain a valid int value should in array %#v, got %q",
+				"%q must contain a valid int value should be in array %#v, got %q",
 				k, is, value))
 		}
 		return
