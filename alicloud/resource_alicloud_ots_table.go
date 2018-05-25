@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+
 	"time"
 
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
@@ -60,6 +61,7 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 	client := meta.(*AliyunClient).otsconn
 
 	tableMeta := new(tablestore.TableMeta)
+
 	tableName := d.Get("table_name").(string)
 	tableMeta.TableName = tableName
 
@@ -92,7 +94,6 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceAliyunOtsTableRead(d *schema.ResourceData, meta interface{}) error {
 	tableName := d.Id()
 	describe, err := describeOtsTable(tableName, meta)
-
 	if err != nil {
 		return fmt.Errorf("failed to describe table with error: %s", err)
 	}
@@ -111,7 +112,6 @@ func resourceAliyunOtsTableRead(d *schema.ResourceData, meta interface{}) error 
 
 	d.Set("time_to_live", describe.TableOption.TimeToAlive)
 	d.Set("max_version", describe.TableOption.MaxVersion)
-
 	return nil
 }
 

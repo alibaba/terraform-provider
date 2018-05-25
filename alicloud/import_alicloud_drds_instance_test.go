@@ -1,25 +1,26 @@
 package alicloud
 
 import (
-	"github.com/hashicorp/terraform/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccAlicloudOtsTable_importBasic(t *testing.T) {
-	resourceName := "alicloud_ots_table.basic"
+func TestAccAlicloudDRDSInstance_importBasic(t *testing.T) {
+	resourceName := "alicloud_drds_instance.basic"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckOtsTableDestroy,
+		CheckDestroy: testAccCheckInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccOtsTable,
+				Config: testAccDrdsInstance,
 			},
 			resource.TestStep{
 				ResourceName:      resourceName,
 				ImportState:       true,
-				ImportStateVerify: true,
+				ImportStateVerify: false,
 			},
 		},
 	})

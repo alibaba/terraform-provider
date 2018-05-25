@@ -15,6 +15,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/drds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -61,6 +62,7 @@ type AliyunClient struct {
 	kmsconn    *kms.Client
 	otsconn    *tablestore.TableStoreClient
 	cmsconn    *cms.Client
+	drdsconn   *drds.Client
 }
 
 // Client for AliyunClient
@@ -132,6 +134,10 @@ func (c *Config) Client() (*AliyunClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	drdsconn, err := c.drdsConn()
+	if err != nil {
+		return nil, err
+	}
 	return &AliyunClient{
 		Region:     c.Region,
 		RegionId:   c.RegionId,
@@ -149,6 +155,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 		kmsconn:    kmsconn,
 		otsconn:    otsconn,
 		cmsconn:    cmsconn,
+		drdsconn:   drdsconn,
 	}, nil
 }
 
@@ -295,6 +302,11 @@ func (c *Config) otsConn() (*tablestore.TableStoreClient, error) {
 
 func (c *Config) cmsConn() (*cms.Client, error) {
 	return cms.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(false))
+}
+
+func (c *Config) drdsConn() (*drds.Client, error) {
+	client, err := drds.NewClientWithAccessKey(c.RegionId, c.AccessKey, c.SecretKey)
+	return client, err
 }
 
 func getSdkConfig() *sdk.Config {
