@@ -33,7 +33,7 @@ provider "alicloud" {
 }
 
 module "worker-nodes" {
-  source = "./terraform/examples/alicloud-ecs"
+  source = "./examples/ecs"
   count = "${var.worker_count}"
   count_format = "${var.worker_count_format}"
   role = "worker"
