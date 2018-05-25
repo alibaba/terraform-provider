@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve alicloud.tf ([#449](https://github.com/alibaba/terraform-provider/pull/449)))
 - Support to set auto renew for ECS instance ([#448](https://github.com/alibaba/terraform-provider/pull/448)))
 - Add missing code for describing RDS zones ([#447](https://github.com/alibaba/terraform-provider/pull/447)))
 - Add filter parameters and export parameters for instance types data source. ([#445](https://github.com/alibaba/terraform-provider/pull/445)))
