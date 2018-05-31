@@ -1,20 +1,27 @@
-## 1.9.3 (Unreleased)
+## 1.9.4 (Unreleased)
 
 IMPROVEMENTS:
 
-- *New Data Source*: _alicloud_db_instances_ ([#450](https://github.com/alibaba/terraform-provider/pull/450)))
-- Improve alicloud.tf ([#449](https://github.com/alibaba/terraform-provider/pull/449)))
-- Support to set auto renew for ECS instance ([#448](https://github.com/alibaba/terraform-provider/pull/448)))
-- Add missing code for describing RDS zones ([#447](https://github.com/alibaba/terraform-provider/pull/447)))
-- Add filter parameters and export parameters for instance types data source. ([#445](https://github.com/alibaba/terraform-provider/pull/445)))
-- Add filter parameters for zones data source. ([#445](https://github.com/alibaba/terraform-provider/pull/445)))
-- Remove kubernetes work_number limitation ([#444](https://github.com/alibaba/terraform-provider/pull/444)))
-- Improve kubernetes examples ([#443](https://github.com/alibaba/terraform-provider/pull/443)))
+- Add website in this repo ([#479](https://github.com/alibaba/terraform-provider/pull/479)))
+
+
+## 1.9.3 (May 25, 2018)
+
+IMPROVEMENTS:
+
+- *New Data Source*: _alicloud_db_instances_ ([#478](https://github.com/alibaba/terraform-provider/pull/478)))
+- Improve alicloud.tf ([#477](https://github.com/alibaba/terraform-provider/pull/477)))
+- Support to set auto renew for ECS instance ([#476](https://github.com/alibaba/terraform-provider/pull/476)))
+- Add missing code for describing RDS zones ([#475](https://github.com/alibaba/terraform-provider/pull/475)))
+- Add filter parameters and export parameters for instance types data source. ([#472](https://github.com/alibaba/terraform-provider/pull/472)))
+- Add filter parameters for zones data source. ([#472](https://github.com/alibaba/terraform-provider/pull/472)))
+- Remove kubernetes work_number limitation ([#471](https://github.com/alibaba/terraform-provider/pull/471)))
+- Improve kubernetes examples ([#471](https://github.com/alibaba/terraform-provider/pull/471)))
 
 BUG FIXES:
 
-- Fix getting some instance types failed bug ([#445](https://github.com/alibaba/terraform-provider/pull/445)))
-- Fix kubernetes out range index error ([#443](https://github.com/alibaba/terraform-provider/pull/443)))
+- Fix getting some instance types failed bug ([#471](https://github.com/alibaba/terraform-provider/pull/471)))
+- Fix kubernetes out range index error ([#470](https://github.com/alibaba/terraform-provider/pull/470)))
 
 ## 1.9.2 (May 8, 2018)
 
