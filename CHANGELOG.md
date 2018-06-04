@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Change ECS, ESS sdk to official go sdk ([#480](https://github.com/alibaba/terraform-provider/pull/480)))
 - Add website in this repo ([#479](https://github.com/alibaba/terraform-provider/pull/479)))
 
 
