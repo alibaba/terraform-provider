@@ -2,7 +2,8 @@
 
 IMPROVEMENTS:
 
-- Change ECS, ESS sdk to official go sdk ([#480](https://github.com/alibaba/terraform-provider/pull/480)))
+- Add a example to create swarm and deploy wordpress on it ([#487](https://github.com/alibaba/terraform-provider/pull/487)))
+- Change ECS, ESS sdk to official go sdk ([#485](https://github.com/alibaba/terraform-provider/pull/485)))
 - Add website in this repo ([#479](https://github.com/alibaba/terraform-provider/pull/479)))
 
 
