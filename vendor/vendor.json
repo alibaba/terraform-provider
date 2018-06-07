@@ -221,8 +221,10 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "h4upaiqVHJmBDWZgQgeRqyOwzPA=",
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/vpc",
-			"revision": ""
+			"revision": "0a4f0b5d1cec8d873e0d26fbf61e1adab7ed098c",
+			"revisionTime": "2018-06-06T09:53:15Z"
 		},
 		{
 			"checksumSHA1": "cRYVJeiNE+3pV/7Pe1VOA15LSSY=",
@@ -255,10 +257,10 @@
 			"revisionTime": "2018-04-26T04:54:50Z"
 		},
 		{
-			"checksumSHA1": "NSccAyBNrpm1IUZ3JIODQlT0Rk8=",
+			"checksumSHA1": "UuFnRgE+mwTa2Kq1hJPJO8S23J4=",
 			"path": "github.com/denverdino/aliyungo/cs",
-			"revision": "a6e303fbbed86cd158bc5a15e4047be792d76376",
-			"revisionTime": "2018-06-06T13:13:17Z"
+			"revision": "b03ba91556d7b2f278b5de86ccc1eadda00603d6",
+			"revisionTime": "2018-06-07T03:41:55Z"
 		},
 		{
 			"checksumSHA1": "dN7vxxBQ5axpNUnIO/ocSJeEjvU=",

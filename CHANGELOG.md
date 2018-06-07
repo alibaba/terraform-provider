@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- cs_kubernetes supports output worker nodes and master nodes ([#489](https://github.com/alibaba/terraform-provider/pull/489)))
 - Add vendor ([#488](https://github.com/alibaba/terraform-provider/pull/488)))
 - cs_kubernetes supports to output kube config and certificate ([#488](https://github.com/alibaba/terraform-provider/pull/488)))
 - Add a example to deploy mysql and wordpress on kubernetes ([#488](https://github.com/alibaba/terraform-provider/pull/488)))
