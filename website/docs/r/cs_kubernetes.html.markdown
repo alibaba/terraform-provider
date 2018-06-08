@@ -20,6 +20,9 @@ VPC, you can set `new_nat_gateway` to "true" to create one automatically.
 
 -> **NOTE:** Creating kubernetes cluster need to install several packages and it will cost more than one hour. Please be patient.
 
+-> **NOTE:** From version 1.9.4, the provider supports to download kube config, client certificate, client key and cluster ca certificate
+after creating cluster successfully, and you can put them into the specified location, like '~/.kube/config'.
+
 ## Example Usage
 
 Basic Usage
@@ -68,6 +71,10 @@ It cannot be duplicated with the VPC CIDR and CIDR used by Kubernetes cluster in
 * `worker_disk_size` - (Force new resource) The system disk size of worker node. Its valid value range [20~32768] in GB. Default to 20.
 * `install_cloud_monitor` - (Force new resource) Whether to install cloud monitor for the kubernetes' node.
 * `is_outdated` - (Optional) Whether to use outdated instance type. Default to false.
+* `kube_config` - (Optional) The path of kube config, like `~/.kube/config`.
+* `client_cert` - (Optional) The path of client certificate, like `~/.kube/client-cert.pem`.
+* `client_key` - (Optional) The path of client key, like `~/.kube/client-key.pem`.
+* `cluster_ca_cert` - (Optional) The path of cluster ca certificate, like `~/.kube/cluster-ca-cert.pem`
 
 ## Attributes Reference
 
@@ -91,7 +98,9 @@ The following attributes are exported:
 * `master_disk_size` - The system disk size of master node.
 * `worker_disk_category` - The system disk category of worker node.
 * `worker_disk_size` - The system disk size of worker node.
-* `nodes` - List of cluster nodes. It contains several attributes to `Block Nodes`.
+* `nodes` - (Deprecated from version 1.9.4) It has been deprecated from provider version 1.9.4. New field `master_nodes` and `worker_nodes` replace it.
+* `master_nodes` - List of cluster master nodes. It contains several attributes to `Block Nodes`.
+* `worker_nodes` - List of cluster worker nodes. It contains several attributes to `Block Nodes`.
 * `connections` - Map of kubernetes cluster connection information. It contains several attributes to `Block Connections`.
 
 ### Block Nodes
@@ -99,7 +108,7 @@ The following attributes are exported:
 * `id` - ID of the node.
 * `name` - Node name.
 * `private_ip` - The private IP address of node.
-* `role` - Node role. "Master" or "Worker"
+* `role` - (Deprecated from version 1.9.4)
 
 ### Block Connections
 

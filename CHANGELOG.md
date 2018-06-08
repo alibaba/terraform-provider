@@ -2,7 +2,12 @@
 
 IMPROVEMENTS:
 
-- Change ECS, ESS sdk to official go sdk ([#480](https://github.com/alibaba/terraform-provider/pull/480)))
+- cs_kubernetes supports output worker nodes and master nodes ([#489](https://github.com/alibaba/terraform-provider/pull/489)))
+- Add vendor ([#488](https://github.com/alibaba/terraform-provider/pull/488)))
+- cs_kubernetes supports to output kube config and certificate ([#488](https://github.com/alibaba/terraform-provider/pull/488)))
+- Add a example to deploy mysql and wordpress on kubernetes ([#488](https://github.com/alibaba/terraform-provider/pull/488)))
+- Add a example to create swarm and deploy wordpress on it ([#487](https://github.com/alibaba/terraform-provider/pull/487)))
+- Change ECS, ESS sdk to official go sdk ([#485](https://github.com/alibaba/terraform-provider/pull/485)))
 - Add website in this repo ([#479](https://github.com/alibaba/terraform-provider/pull/479)))
 
 

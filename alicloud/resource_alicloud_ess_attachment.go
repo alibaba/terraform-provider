@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"reflect"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"reflect"
@@ -80,9 +83,9 @@ func resourceAliyunEssAttachmentUpdate(d *schema.ResourceData, meta interface{})
 			s := reflect.ValueOf(req).Elem()
 
 			if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-					for i, id := range add {
-						s.FieldByName(fmt.Sprintf("InstanceId%d", i+1)).Set(reflect.ValueOf(id))
-					}
+				for i, id := range add {
+					s.FieldByName(fmt.Sprintf("InstanceId%d", i+1)).Set(reflect.ValueOf(id))
+				}
 
 				if _, err := client.essconn.AttachInstances(req); err != nil {
 					if IsExceptedError(err, IncorrectCapacityMaxSize) {
