@@ -9,6 +9,8 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"reflect"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 )
 
 func resourceAlicloudEssAttachment() *schema.Resource {
