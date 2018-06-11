@@ -460,6 +460,7 @@ message DescribeStreamResponse {
 message GetShardIteratorRequest {
     required string stream_id = 1;
     required string shard_id = 2;
+    optional int64 timestamp = 3;
 }
 
 message GetShardIteratorResponse {

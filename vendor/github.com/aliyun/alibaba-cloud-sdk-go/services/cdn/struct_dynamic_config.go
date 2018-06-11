@@ -18,6 +18,7 @@ package cdn
 // DynamicConfig is a nested struct in cdn response
 type DynamicConfig struct {
 	ConfigId            string `json:"ConfigId" xml:"ConfigId"`
+	Enable              string `json:"Enable" xml:"Enable"`
 	DynamicOrigin       string `json:"DynamicOrigin" xml:"DynamicOrigin"`
 	StaticType          string `json:"StaticType" xml:"StaticType"`
 	StaticUri           string `json:"StaticUri" xml:"StaticUri"`

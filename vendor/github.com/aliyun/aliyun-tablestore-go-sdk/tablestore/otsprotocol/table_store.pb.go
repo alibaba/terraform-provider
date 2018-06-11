@@ -2162,9 +2162,16 @@ func (m *DescribeStreamResponse) GetNextShardId() string {
 }
 
 type GetShardIteratorRequest struct {
-	StreamId         *string `protobuf:"bytes,1,req,name=stream_id,json=streamId" json:"stream_id,omitempty"`
-	ShardId          *string `protobuf:"bytes,2,req,name=shard_id,json=shardId" json:"shard_id,omitempty"`
+	StreamId         *string `protobuf:"bytes,1,req,name=stream_id" json:"stream_id,omitempty"`
+	ShardId          *string `protobuf:"bytes,2,req,name=shard_id" json:"shard_id,omitempty"`
+	Timestamp        *int64  `protobuf:"varint,3,opt,name=timestamp" json:"timestamp,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
+}
+func (m *GetShardIteratorRequest) GetTimestamp() int64 {
+	if m != nil && m.Timestamp != nil {
+		return *m.Timestamp
+	}
+	return 0
 }
 
 func (m *GetShardIteratorRequest) Reset()                    { *m = GetShardIteratorRequest{} }

@@ -24,7 +24,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math/rand"
 	"net"
 	"os"
 	"strconv"
@@ -34,6 +33,7 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/internal/grpcrand"
 	"google.golang.org/grpc/resolver"
 )
 
@@ -52,7 +52,6 @@ const (
 
 var (
 	errMissingAddr = errors.New("missing address")
-	randomGen      = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
 
 // NewBuilder creates a dnsBuilder which is used to factory DNS resolvers.
@@ -67,6 +66,9 @@ type dnsBuilder struct {
 
 // Build creates and starts a DNS resolver that watches the name resolution of the target.
 func (b *dnsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOption) (resolver.Resolver, error) {
+	if target.Authority != "" {
+		return nil, fmt.Errorf("Default DNS resolver does not support custom DNS server")
+	}
 	host, port, err := parseTarget(target.Endpoint)
 	if err != nil {
 		return nil, err
@@ -90,14 +92,15 @@ func (b *dnsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts 
 	// DNS address (non-IP).
 	ctx, cancel := context.WithCancel(context.Background())
 	d := &dnsResolver{
-		freq:   b.freq,
-		host:   host,
-		port:   port,
-		ctx:    ctx,
-		cancel: cancel,
-		cc:     cc,
-		t:      time.NewTimer(0),
-		rn:     make(chan struct{}, 1),
+		freq:                 b.freq,
+		host:                 host,
+		port:                 port,
+		ctx:                  ctx,
+		cancel:               cancel,
+		cc:                   cc,
+		t:                    time.NewTimer(0),
+		rn:                   make(chan struct{}, 1),
+		disableServiceConfig: opts.DisableServiceConfig,
 	}
 
 	d.wg.Add(1)
@@ -160,7 +163,8 @@ type dnsResolver struct {
 	// If Close() doesn't wait for watcher() goroutine finishes, race detector sometimes
 	// will warns lookup (READ the lookup function pointers) inside watcher() goroutine
 	// has data race with replaceNetFunc (WRITE the lookup function pointers).
-	wg sync.WaitGroup
+	wg                   sync.WaitGroup
+	disableServiceConfig bool
 }
 
 // ResolveNow invoke an immediate resolution of the target that this dnsResolver watches.
@@ -205,7 +209,7 @@ func (d *dnsResolver) lookupSRV() []resolver.Address {
 	for _, s := range srvs {
 		lbAddrs, err := lookupHost(d.ctx, s.Target)
 		if err != nil {
-			grpclog.Warningf("grpc: failed load balancer address dns lookup due to %v.\n", err)
+			grpclog.Infof("grpc: failed load balancer address dns lookup due to %v.\n", err)
 			continue
 		}
 		for _, a := range lbAddrs {
@@ -224,7 +228,7 @@ func (d *dnsResolver) lookupSRV() []resolver.Address {
 func (d *dnsResolver) lookupTXT() string {
 	ss, err := lookupTXT(d.ctx, d.host)
 	if err != nil {
-		grpclog.Warningf("grpc: failed dns TXT record lookup due to %v.\n", err)
+		grpclog.Infof("grpc: failed dns TXT record lookup due to %v.\n", err)
 		return ""
 	}
 	var res string
@@ -263,6 +267,9 @@ func (d *dnsResolver) lookup() ([]resolver.Address, string) {
 	newAddrs := d.lookupSRV()
 	// Support fallback to non-balancer address.
 	newAddrs = append(newAddrs, d.lookupHost()...)
+	if d.disableServiceConfig {
+		return newAddrs, ""
+	}
 	sc := d.lookupTXT()
 	return newAddrs, canaryingSC(sc)
 }
@@ -341,7 +348,7 @@ func chosenByPercentage(a *int) bool {
 	if a == nil {
 		return true
 	}
-	return randomGen.Intn(100)+1 <= *a
+	return grpcrand.Intn(100)+1 <= *a
 }
 
 func canaryingSC(js string) string {
