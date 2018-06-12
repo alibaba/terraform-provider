@@ -17,6 +17,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -59,6 +60,7 @@ type AliyunClient struct {
 	kmsconn  *kms.Client
 	otsconn  *tablestore.TableStoreClient
 	cmsconn  *cms.Client
+	rkvconn  *r_kvstore.Client
 }
 
 // Client for AliyunClient
@@ -124,6 +126,11 @@ func (c *Config) Client() (*AliyunClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	rkvconn, err := c.rkvConn()
+	if err != nil {
+		return nil, err
+	}
+
 	return &AliyunClient{
 		Region:   c.Region,
 		RegionId: c.RegionId,
@@ -140,6 +147,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 		kmsconn:  kmsconn,
 		otsconn:  otsconn,
 		cmsconn:  cmsconn,
+		rkvconn:  rkvconn,
 	}, nil
 }
 
@@ -292,6 +300,14 @@ func (c *Config) otsConn() (*tablestore.TableStoreClient, error) {
 
 func (c *Config) cmsConn() (*cms.Client, error) {
 	return cms.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(false))
+}
+
+func (c *Config) rkvConn() (*r_kvstore.Client, error) {
+	endpoint := LoadEndpoint(c.RegionId, RKVCode)
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(c.RegionId, string(RKVCode), endpoint)
+	}
+	return r_kvstore.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(false))
 }
 
 func getSdkConfig() *sdk.Config {
