@@ -109,7 +109,7 @@ func dataSourceAlicloudRKVInstances() *schema.Resource {
 							Computed: true,
 						},
 						"port": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"username": {
@@ -207,7 +207,7 @@ func rkvInstancesDescription(d *schema.ResourceData, dbi []r_kvstore.KVStoreInst
 			"vswitch_id":        item.VSwitchId,
 			"private_ip":        item.PrivateIp,
 			"port":              item.Port,
-			"username":          item.Capacity,
+			"username":          item.UserName,
 			"capacity":          item.Bandwidth,
 			"bandwidth":         item.Bandwidth,
 			"connections":       item.Connections,
