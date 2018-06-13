@@ -13,7 +13,7 @@ otherwise, you will happened the issue from version 1.8.1 and the issue details 
 
 #### Example
 
-Example modules can be found in the [terraform/examples](terraform/examples) directory.
+Example modules can be found in the [terraform/examples](examples) directory.
 
 ### Developer notes
 
