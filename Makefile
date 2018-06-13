@@ -39,7 +39,7 @@ clean:
 
 mac:
 	GOOS=darwin GOARCH=amd64 go build -o bin/terraform-provider-alicloud
-	tar -xvf bin/terraform-provider-alicloud_darwin-amd64.tgz && mv bin/terraform-provider-alicloud /usr/local/Cellar/terraform/0.11.5/bin
+	mv bin/terraform-provider-alicloud /usr/local/bin
 
 windows:
 	GOOS=windows GOARCH=amd64 go build -o bin/terraform-provider-alicloud.exe
