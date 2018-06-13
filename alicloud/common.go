@@ -84,6 +84,9 @@ const (
 
 	InService = Status("InService")
 	Removing  = Status("Removing")
+
+	Normall  = Status("Normal")
+	Changing = Status("Changing")
 )
 
 type IPType string
