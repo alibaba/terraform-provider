@@ -34,6 +34,7 @@ func (client *AliyunClient) WaitForRKVInstance(instanceId string, status Status,
 		if err != nil && !NotFoundError(err) && !IsExceptedError(err, InvalidRKVInstanceIdNotFound) {
 			return err
 		}
+
 		if instance != nil && instance.InstanceStatus == string(status) {
 			break
 		}

@@ -45,10 +45,10 @@ func resourceAlicloudRKVInstance() *schema.Resource {
 			},
 			"charge_type": &schema.Schema{
 				Type:         schema.TypeString,
-				ValidateFunc: validateAllowedStringValue([]string{string(Postpaid), string(Prepaid)}),
+				ValidateFunc: validateAllowedStringValue([]string{string(PostPaid), string(PrePaid)}),
 				Optional:     true,
 				ForceNew:     true,
-				Default:      Postpaid,
+				Default:      PostPaid,
 			},
 			"period": &schema.Schema{
 				Type:             schema.TypeInt,
@@ -63,9 +63,13 @@ func resourceAlicloudRKVInstance() *schema.Resource {
 				Optional: true,
 				Default:  "CLASSIC",
 				ValidateFunc: validateAllowedStringValue([]string{
-					"CLASSIC",
-					"VPC",
+					string(CLASSIC),
+					string(VPC),
 				}),
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return true
+				},
+				Deprecated: "Field 'instance_network_type' has been deprecated from provider version 1.5.0.",
 			},
 			"instance_type": &schema.Schema{
 				Type:     schema.TypeString,
@@ -113,9 +117,9 @@ func resourceAlicloudRKVInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	d.SetId(resp.InstanceId)
 
-	// wait instance status change from Creating to Running
+	// wait instance status change from Creating to Normal
 
-	if err := client.WaitForRKVInstance(d.Id(), Running, DefaultLongTimeout); err != nil {
+	if err := client.WaitForRKVInstance(d.Id(), Normall, DefaultLongTimeout); err != nil {
 		return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 	}
 
@@ -131,22 +135,22 @@ func resourceAlicloudRKVInstanceUpdate(d *schema.ResourceData, meta interface{})
 	request := r_kvstore.CreateModifyInstanceSpecRequest()
 	request.InstanceId = d.Id()
 
-	if d.HasChange("instance_class") && !d.IsNewResource() {
+	if d.HasChange("instance_class") {
 		request.InstanceClass = d.Get("instance_class").(string)
 		update = true
 		d.SetPartial("instance_class")
 	}
 
 	if update {
-		// wait instance status is running before modifying
-		if err := client.WaitForRKVInstance(d.Id(), Running, 500); err != nil {
+		// wait instance status is Normal before modifying
+		if err := client.WaitForRKVInstance(d.Id(), Normall, 500); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 		if _, err := conn.ModifyInstanceSpec(request); err != nil {
 			return err
 		}
-		// wait instance status is running after modifying
-		if err := client.WaitForRKVInstance(d.Id(), Running, 500); err != nil {
+		// wait instance status is Normal after modifying
+		if err := client.WaitForRKVInstance(d.Id(), Normall, 500); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 	}
@@ -180,7 +184,6 @@ func resourceAlicloudRKVInstanceRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("instance_class", instance.InstanceClass)
 	d.Set("zone_id", instance.ZoneId)
 	d.Set("charge_type", instance.ChargeType)
-	d.Set("network_type", instance.NetworkType)
 	d.Set("instance_type", instance.InstanceType)
 	d.Set("vswitch_id", instance.VSwitchId)
 	d.Set("engine_version", instance.EngineVersion)
@@ -199,7 +202,7 @@ func resourceAlicloudRKVInstanceDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Error Describe DB InstanceAttribute: %#v", err)
 	}
 	if PayType(instance.ChargeType) == Prepaid {
-		return fmt.Errorf("At present, 'Prepaid' instance cannot be deleted and must wait it to be expired and release it automatically.")
+		return fmt.Errorf("At present, 'Prepaid' instance cannot be deleted and must wait it to be expired and release it automatically")
 	}
 	request := r_kvstore.CreateDeleteInstanceRequest()
 	request.InstanceId = d.Id()
@@ -225,7 +228,7 @@ func resourceAlicloudRKVInstanceDelete(d *schema.ResourceData, meta interface{})
 			return nil
 		}
 
-		return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v", err))
+		return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v.", err))
 	})
 }
 
@@ -236,9 +239,9 @@ func buildRKVCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvstore
 	request.RegionId = string(getRegion(d, meta))
 	request.EngineVersion = Trim(d.Get("engine_version").(string))
 	request.InstanceClass = Trim(d.Get("instance_class").(string))
-	request.NetworkType = string(Classic)
+	request.NetworkType = Trim(d.Get("network_type").(string))
 	request.ChargeType = Trim(d.Get("charge_type").(string))
-	if PayType(request.ChargeType) == Prepaid {
+	if PayType(request.ChargeType) == PrePaid {
 		request.Period = d.Get("Period").(string)
 	}
 
@@ -250,6 +253,7 @@ func buildRKVCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvstore
 	if vswitchID != "" {
 		request.VSwitchId = vswitchID
 		request.NetworkType = strings.ToUpper(string(Vpc))
+		d.Set("network_type", string(VPC))
 
 		// check vswitchId in zone
 		vsw, err := client.DescribeVswitch(vswitchID)
@@ -275,7 +279,7 @@ func buildRKVCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvstore
 	if err != nil {
 		uuid = resource.UniqueId()
 	}
-	request.Token = fmt.Sprintf("Terraform-Alicloud-%d-%s", time.Now().Unix(), uuid)
+	request.Token = fmt.Sprintf("%s", uuid)
 
 	return request, nil
 }

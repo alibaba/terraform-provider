@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	//"github.com/denverdino/aliyungo/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -30,6 +31,7 @@ func dataSourceAlicloudZones() *schema.Resource {
 				ValidateFunc: validateAllowedStringValue([]string{
 					string(ResourceTypeInstance),
 					string(ResourceTypeRds),
+					string(ResourceTypeRkv),
 					string(ResourceTypeVSwitch),
 					string(ResourceTypeDisk),
 					string(IoOptimized),
@@ -114,6 +116,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	client := meta.(*AliyunClient)
 	var zoneIds []string
 	rdsZones := make(map[string]string)
+	rkvZones := make(map[string]string)
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeRds)) {
 		request := rds.CreateDescribeRegionsRequest()
 		if regions, err := client.rdsconn.DescribeRegions(request); err != nil {
@@ -127,6 +130,22 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 					continue
 				}
 				rdsZones[r.ZoneId] = r.RegionId
+			}
+		}
+	}
+	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeRkv)) {
+		request := r_kvstore.CreateDescribeRegionsRequest()
+		if regions, err := client.rkvconn.DescribeRegions(request); err != nil {
+			return fmt.Errorf("[ERROR] DescribeRegions got an error: %#v", err)
+		} else if len(regions.RegionIds.KVStoreRegion) <= 0 {
+			return fmt.Errorf("[ERROR] There is no available region for RDS")
+		} else {
+			for _, r := range regions.RegionIds.KVStoreRegion {
+				if multi && strings.Contains(r.ZoneIds, MULTI_IZ_SYMBOL) && r.RegionId == string(getRegion(d, meta)) {
+					zoneIds = append(zoneIds, r.ZoneIds)
+					continue
+				}
+				rkvZones[r.ZoneIds] = r.RegionId
 			}
 		}
 	}
@@ -177,6 +196,11 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 			}
 			if len(rdsZones) > 0 {
 				if _, ok := rdsZones[zone.ZoneId]; !ok {
+					continue
+				}
+			}
+			if len(rkvZones) > 0 {
+				if _, ok := rkvZones[zone.ZoneId]; !ok {
 					continue
 				}
 			}

@@ -44,7 +44,9 @@ type NetworkType string
 
 const (
 	Classic = NetworkType("Classic")
+	CLASSIC = NetworkType("CLASSIC")
 	Vpc     = NetworkType("Vpc")
+	VPC     = NetworkType("VPC")
 )
 
 type TimeType string
@@ -104,6 +106,7 @@ const (
 	ResourceTypeDisk     = ResourceType("Disk")
 	ResourceTypeVSwitch  = ResourceType("VSwitch")
 	ResourceTypeRds      = ResourceType("Rds")
+	ResourceTypeRkv      = ResourceType("Rkv")
 	IoOptimized          = ResourceType("IoOptimized")
 )
 
