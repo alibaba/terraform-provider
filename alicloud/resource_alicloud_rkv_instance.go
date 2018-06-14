@@ -5,9 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -126,62 +124,39 @@ func resourceAlicloudRKVInstanceCreate(d *schema.ResourceData, meta interface{})
 
 func resourceAlicloudRKVInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
-	conn := client.rdsconn
+	conn := client.rkvconn
 	d.Partial(true)
 
-	if d.HasChange("security_ips") && !d.IsNewResource() {
-		ipList := expandStringList(d.Get("security_ips").(*schema.Set).List())
-
-		ipstr := strings.Join(ipList[:], COMMA_SEPARATED)
-		// default disable connect from outside
-		if ipstr == "" {
-			ipstr = LOCAL_HOST_IP
-		}
-
-		if err := client.ModifyDBSecurityIps(d.Id(), ipstr); err != nil {
-			return fmt.Errorf("Moodify DB security ips %s got an error: %#v", ipstr, err)
-		}
-		d.SetPartial("security_ips")
-	}
-
 	update := false
-	request := rds.CreateModifyDBInstanceSpecRequest()
-	request.DBInstanceId = d.Id()
-	request.PayType = string(Postpaid)
+	request := r_kvstore.CreateModifyInstanceSpecRequest()
+	request.InstanceId = d.Id()
 
-	if d.HasChange("instance_type") && !d.IsNewResource() {
-		request.DBInstanceClass = d.Get("instance_type").(string)
+	if d.HasChange("instance_class") && !d.IsNewResource() {
+		request.InstanceClass = d.Get("instance_class").(string)
 		update = true
-		d.SetPartial("instance_type")
-	}
-
-	if d.HasChange("instance_storage") && !d.IsNewResource() {
-		request.DBInstanceStorage = requests.NewInteger(d.Get("instance_storage").(int))
-		update = true
-		d.SetPartial("instance_storage")
+		d.SetPartial("instance_class")
 	}
 
 	if update {
 		// wait instance status is running before modifying
-		if err := client.WaitForDBInstance(d.Id(), Running, 500); err != nil {
+		if err := client.WaitForRKVInstance(d.Id(), Running, 500); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
-		if _, err := conn.ModifyDBInstanceSpec(request); err != nil {
+		if _, err := conn.ModifyInstanceSpec(request); err != nil {
 			return err
 		}
 		// wait instance status is running after modifying
-		if err := client.WaitForDBInstance(d.Id(), Running, 500); err != nil {
+		if err := client.WaitForRKVInstance(d.Id(), Running, 500); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 	}
 
 	if d.HasChange("instance_name") {
-		request := rds.CreateModifyDBInstanceDescriptionRequest()
-		request.DBInstanceId = d.Id()
-		request.DBInstanceDescription = d.Get("instance_name").(string)
-
-		if _, err := conn.ModifyDBInstanceDescription(request); err != nil {
-			return fmt.Errorf("ModifyDBInstanceDescription got an error: %#v", err)
+		request := r_kvstore.CreateModifyInstanceAttributeRequest()
+		request.InstanceId = d.Id()
+		request.InstanceName = d.Get("instance_name").(string)
+		if _, err := conn.ModifyInstanceAttribute(request); err != nil {
+			return fmt.Errorf("ModifyRKVInstanceDescription got an error: %#v", err)
 		}
 	}
 
@@ -216,31 +191,30 @@ func resourceAlicloudRKVInstanceRead(d *schema.ResourceData, meta interface{}) e
 func resourceAlicloudRKVInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 
-	instance, err := client.DescribeDBInstanceById(d.Id())
+	instance, err := client.DescribeRKVInstanceById(d.Id())
 	if err != nil {
-		if NotFoundDBInstance(err) {
+		if NotFoundRKVInstance(err) {
 			return nil
 		}
 		return fmt.Errorf("Error Describe DB InstanceAttribute: %#v", err)
 	}
-	if PayType(instance.PayType) == Prepaid {
+	if PayType(instance.ChargeType) == Prepaid {
 		return fmt.Errorf("At present, 'Prepaid' instance cannot be deleted and must wait it to be expired and release it automatically.")
 	}
-
-	request := rds.CreateDeleteDBInstanceRequest()
-	request.DBInstanceId = d.Id()
+	request := r_kvstore.CreateDeleteInstanceRequest()
+	request.InstanceId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.rdsconn.DeleteDBInstance(request)
+		_, err := client.rkvconn.DeleteInstance(request)
 
 		if err != nil {
-			if NotFoundDBInstance(err) {
+			if NotFoundRKVInstance(err) {
 				return nil
 			}
-			return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v.", err))
+			return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v", err))
 		}
 
-		instance, err := client.DescribeDBInstanceById(d.Id())
+		instance, err := client.DescribeRKVInstanceById(d.Id())
 		if err != nil {
 			if NotFoundError(err) || IsExceptedError(err, InvalidDBInstanceNameNotFound) {
 				return nil
@@ -251,7 +225,7 @@ func resourceAlicloudRKVInstanceDelete(d *schema.ResourceData, meta interface{})
 			return nil
 		}
 
-		return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v.", err))
+		return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v", err))
 	})
 }
 
