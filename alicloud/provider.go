@@ -136,6 +136,7 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_router_interface":            resourceAlicloudRouterInterface(),
 			"alicloud_ots_table":                   resourceAlicloudOtsTable(),
 			"alicloud_cms_alarm":                   resourceAlicloudCmsAlarm(),
+			"alicloud_rkv_instance":                resourceAlicloudRKVInstance(),
 		},
 
 		ConfigureFunc: providerConfigure,
