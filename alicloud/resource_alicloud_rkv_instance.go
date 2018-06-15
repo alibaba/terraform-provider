@@ -171,7 +171,6 @@ func resourceAlicloudRKVInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceAlicloudRKVInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
-
 	instance, err := client.DescribeRKVInstanceById(d.Id())
 	if err != nil {
 		if NotFoundRKVInstance(err) {
@@ -180,7 +179,7 @@ func resourceAlicloudRKVInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return fmt.Errorf("Error Describe rKV InstanceAttribute: %#v", err)
 	}
-
+	d.SetId(instance.InstanceId)
 	d.Set("instance_name", instance.InstanceName)
 	d.Set("instance_class", instance.InstanceClass)
 	d.Set("zone_id", instance.ZoneId)
@@ -220,7 +219,7 @@ func resourceAlicloudRKVInstanceDelete(d *schema.ResourceData, meta interface{})
 
 		instance, err := client.DescribeRKVInstanceById(d.Id())
 		if err != nil {
-			if NotFoundError(err) || IsExceptedError(err, InvalidDBInstanceNameNotFound) {
+			if NotFoundRKVInstance(err) {
 				return nil
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error Describe DB InstanceAttribute: %#v", err))

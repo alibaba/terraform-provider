@@ -1,6 +1,6 @@
-# data "alicloud_rkv_instances" "rkv_instance" {
-#   output_file = "out.dat"
-# }
+data "alicloud_rkv_instances" "rkv_instance" {
+  output_file = "out.dat"
+}
 
 # data "alicloud_zones" "default" {
 #   available_resource_creation = "Rkv"
