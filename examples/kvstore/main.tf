@@ -29,3 +29,9 @@ resource "alicloud_rkv_instance" "myredis2" {
   password       = "${var.password}"
   vswitch_id     = "${var.vswitch_id}"
 }
+
+resource "alicloud_rkv_security_ips" "rediswhitelist" {
+  instance_id         = "${alicloud_rkv_instance.myredis2.id}"
+  security_ips        = ["1.1.1.1", "2.2.2.2", "3.3.3.3"]
+  security_group_name = "mysecgroup"
+}

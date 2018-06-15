@@ -228,7 +228,7 @@ func resourceAlicloudRKVInstanceDelete(d *schema.ResourceData, meta interface{})
 			return nil
 		}
 
-		return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v.", err))
+		return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v", err))
 	})
 }
 
