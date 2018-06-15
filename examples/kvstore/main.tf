@@ -35,3 +35,9 @@ resource "alicloud_rkv_security_ips" "rediswhitelist" {
   security_ips        = ["1.1.1.1", "2.2.2.2", "3.3.3.3"]
   security_group_name = "mysecgroup"
 }
+
+resource "alicloud_rkv_backup_policy" "redisbackup" {
+  instance_id             = "${alicloud_rkv_instance.myredis2.id}"
+  preferred_backup_time   = "00:00Z-04:00Z"
+  preferred_backup_period = "Monday"
+}

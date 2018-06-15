@@ -71,9 +71,10 @@ func resourceAlicloudRKVSecurityIPsCreate(d *schema.ResourceData, meta interface
 func resourceAlicloudRKVSecurityIPsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rkvconn
+	instanceID := strings.Split(d.Id(), COLON_SEPARATED)[0]
 
 	request := r_kvstore.CreateDescribeSecurityIpsRequest()
-	request.InstanceId = d.Get("instance_id").(string)
+	request.InstanceId = instanceID
 	attribs, err := conn.DescribeSecurityIps(request)
 	if err != nil {
 		if NotFoundRKVInstance(err) {
@@ -90,7 +91,6 @@ func resourceAlicloudRKVSecurityIPsRead(d *schema.ResourceData, meta interface{}
 
 	secIP := &attribs.SecurityIpGroups.SecurityIpGroup[0]
 
-	instanceID := strings.Split(d.Id(), COLON_SEPARATED)[0]
 	d.Set("instance_id", instanceID)
 	d.Set("security_group_name", secIP.SecurityIpGroupName)
 	d.Set("security_ips", secIP.SecurityIpList)
