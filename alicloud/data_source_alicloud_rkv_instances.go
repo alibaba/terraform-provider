@@ -36,6 +36,10 @@ func dataSourceAlicloudRKVInstances() *schema.Resource {
 					"Redis",
 				}),
 			},
+			"instance_class": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -89,6 +93,10 @@ func dataSourceAlicloudRKVInstances() *schema.Resource {
 							Computed: true,
 						},
 						"instance_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"instance_class": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -198,6 +206,7 @@ func rkvInstancesDescription(d *schema.ResourceData, dbi []r_kvstore.KVStoreInst
 			"name":              item.InstanceName,
 			"charge_type":       item.ChargeType,
 			"instance_type":     item.InstanceType,
+			"instance_class":    item.InstanceClass,
 			"region_id":         item.RegionId,
 			"create_time":       item.CreateTime,
 			"expire_time":       item.EndTime,

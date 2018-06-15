@@ -131,21 +131,10 @@ func resourceAlicloudRKVInstanceUpdate(d *schema.ResourceData, meta interface{})
 	conn := client.rkvconn
 	d.Partial(true)
 
-	update := false
-	request := r_kvstore.CreateModifyInstanceSpecRequest()
-	request.InstanceId = d.Id()
-
 	if d.HasChange("instance_class") {
+		request := r_kvstore.CreateModifyInstanceSpecRequest()
+		request.InstanceId = d.Id()
 		request.InstanceClass = d.Get("instance_class").(string)
-		update = true
-		d.SetPartial("instance_class")
-	}
-
-	if update {
-		// wait instance status is Normal before modifying
-		if err := client.WaitForRKVInstance(d.Id(), Normall, 500); err != nil {
-			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
-		}
 		if _, err := conn.ModifyInstanceSpec(request); err != nil {
 			return err
 		}
@@ -153,15 +142,27 @@ func resourceAlicloudRKVInstanceUpdate(d *schema.ResourceData, meta interface{})
 		if err := client.WaitForRKVInstance(d.Id(), Normall, 500); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
+
+		d.SetPartial("instance_class")
 	}
 
 	if d.HasChange("instance_name") {
 		request := r_kvstore.CreateModifyInstanceAttributeRequest()
 		request.InstanceId = d.Id()
 		request.InstanceName = d.Get("instance_name").(string)
+		// wait instance status is Normal before modifying
+		if err := client.WaitForRKVInstance(d.Id(), Normall, 500); err != nil {
+			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
+		}
 		if _, err := conn.ModifyInstanceAttribute(request); err != nil {
 			return fmt.Errorf("ModifyRKVInstanceDescription got an error: %#v", err)
 		}
+		// wait instance status is Normal after modifying
+		if err := client.WaitForRKVInstance(d.Id(), Normall, 500); err != nil {
+			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
+		}
+
+		d.SetPartial("instance_name")
 	}
 
 	d.Partial(false)
