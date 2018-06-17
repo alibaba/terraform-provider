@@ -1,3 +1,9 @@
+## 1.9.5 (Unreleased)
+
+IMPROVEMENTS:
+
+- Improve example about cs_kubernetes ([#501](https://github.com/alibaba/terraform-provider/pull/501)))
+
 ## 1.9.4 (June 8, 2018)
 
 IMPROVEMENTS:
