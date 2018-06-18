@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -12,10 +13,10 @@ import (
 
 func resourceAlicloudRKVBackupPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceAlicloudRKVSecurityIPsCreate,
-		Read:   resourceAlicloudRKVSecurityIPsRead,
-		Update: resourceAlicloudRKVSecurityIPsUpdate,
-		Delete: resourceAlicloudRKVSecurityIPsDelete,
+		Create: resourceAlicloudRKVBackupPolicyCreate,
+		Read:   resourceAlicloudRKVBackupPolicyRead,
+		Update: resourceAlicloudRKVBackupPolicyUpdate,
+		Delete: resourceAlicloudRKVBackupPolicyDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -69,7 +70,7 @@ func resourceAlicloudRKVBackupPolicyCreate(d *schema.ResourceData, meta interfac
 	// A security ip whitelist does not have a native IP.
 	d.SetId(fmt.Sprintf("%s%s%s", request.InstanceId, COLON_SEPARATED, resource.UniqueId()))
 
-	return resourceAlicloudDBDatabaseRead(d, meta)
+	return resourceAlicloudRKVBackupPolicyRead(d, meta)
 }
 
 func resourceAlicloudRKVBackupPolicyRead(d *schema.ResourceData, meta interface{}) error {
@@ -92,14 +93,19 @@ func resourceAlicloudRKVBackupPolicyRead(d *schema.ResourceData, meta interface{
 		return nil
 	}
 
+	log.Printf("[Olli] instance id : %v", instanceID)
+	log.Printf("[Olli] backup time : %v", policy.PreferredBackupTime)
+	log.Printf("[Olli] backup period : %v", policy.PreferredBackupPeriod)
+	log.Printf("[Olli] next backup : %v", policy.PreferredNextBackupTime)
+
 	d.Set("instance_id", instanceID)
 	d.Set("preferred_backup_time", policy.PreferredBackupTime)
-	d.Set("preferred_backup_period", policy.PreferredNextBackupTime)
+	d.Set("preferred_backup_period", policy.PreferredBackupPeriod)
 
 	return nil
 }
 
-func resourceAlicloudRKVBackupPolicyUpate(d *schema.ResourceData, meta interface{}) error {
+func resourceAlicloudRKVBackupPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rkvconn
 	instanceID := strings.Split(d.Id(), COLON_SEPARATED)[0]
