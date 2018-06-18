@@ -23,7 +23,7 @@ data "alicloud_rkv_instances" "rkv_instance" {
 #   vpc_id            = "${var.vpc_id == "" ? alicloud_vpc.vpc.id : var.vpc_id}"
 # }
 
-resource "alicloud_rkv_instance" "myredis2" {
+resource "alicloud_rkv_instance" "myredis" {
   instance_class = "${var.instance_class}"
   instance_name  = "${var.instance_name}"
   password       = "${var.password}"
@@ -31,13 +31,13 @@ resource "alicloud_rkv_instance" "myredis2" {
 }
 
 resource "alicloud_rkv_security_ips" "rediswhitelist" {
-  instance_id         = "${alicloud_rkv_instance.myredis2.id}"
+  instance_id         = "${alicloud_rkv_instance.myredis.id}"
   security_ips        = ["1.1.1.1", "2.2.2.2", "3.3.3.3"]
   security_group_name = "mysecgroup"
 }
 
 resource "alicloud_rkv_backup_policy" "redisbackup" {
-  instance_id             = "${alicloud_rkv_instance.myredis2.id}"
+  instance_id             = "${alicloud_rkv_instance.myredis.id}"
   preferred_backup_time   = "00:00Z-04:00Z"
-  preferred_backup_period = "Monday"
+  preferred_backup_period = "Friday"
 }

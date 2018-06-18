@@ -65,13 +65,14 @@ func resourceAlicloudRKVSecurityIPsCreate(d *schema.ResourceData, meta interface
 	// A security ip whitelist does not have a native IP.
 	d.SetId(fmt.Sprintf("%s%s%s", request.InstanceId, COLON_SEPARATED, request.SecurityIpGroupName))
 
-	return resourceAlicloudDBDatabaseRead(d, meta)
+	return resourceAlicloudRKVSecurityIPsRead(d, meta)
 }
 
 func resourceAlicloudRKVSecurityIPsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rkvconn
 	instanceID := strings.Split(d.Id(), COLON_SEPARATED)[0]
+	secGroupName := strings.Split(d.Id(), COLON_SEPARATED)[1]
 
 	request := r_kvstore.CreateDescribeSecurityIpsRequest()
 	request.InstanceId = instanceID
@@ -89,13 +90,15 @@ func resourceAlicloudRKVSecurityIPsRead(d *schema.ResourceData, meta interface{}
 		return nil
 	}
 
-	secIP := &attribs.SecurityIpGroups.SecurityIpGroup[0]
-
-	d.Set("instance_id", instanceID)
-	d.Set("security_group_name", secIP.SecurityIpGroupName)
-	d.Set("security_ips", secIP.SecurityIpList)
-
-	return nil
+	for _, secGroup := range attribs.SecurityIpGroups.SecurityIpGroup {
+		if secGroup.SecurityIpGroupName == secGroupName {
+			d.Set("instance_id", instanceID)
+			d.Set("security_group_name", secGroup.SecurityIpGroupName)
+			d.Set("security_ips", strings.Split(secGroup.SecurityIpList, COMMA_SEPARATED))
+			return nil
+		}
+	}
+	return fmt.Errorf("Security Group %v does not exist", secGroupName)
 }
 
 func resourceAlicloudRKVSecurityIPsUpdate(d *schema.ResourceData, meta interface{}) error {
