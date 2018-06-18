@@ -2,7 +2,6 @@ package alicloud
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -92,11 +91,6 @@ func resourceAlicloudRKVBackupPolicyRead(d *schema.ResourceData, meta interface{
 		d.SetId("")
 		return nil
 	}
-
-	log.Printf("[Olli] instance id : %v", instanceID)
-	log.Printf("[Olli] backup time : %v", policy.PreferredBackupTime)
-	log.Printf("[Olli] backup period : %v", policy.PreferredBackupPeriod)
-	log.Printf("[Olli] next backup : %v", policy.PreferredNextBackupTime)
 
 	d.Set("instance_id", instanceID)
 	d.Set("preferred_backup_time", policy.PreferredBackupTime)
