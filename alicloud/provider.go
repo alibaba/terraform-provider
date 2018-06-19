@@ -43,6 +43,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("OTS_INSTANCE_NAME", os.Getenv("OTS_INSTANCE_NAME")),
 				Description: descriptions["ots_instance_name"],
 			},
+			"log_endpoint": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("LOG_ENDPOINT", os.Getenv("LOG_ENDPOINT")),
+				Description: descriptions["log_endpoint"],
+			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 
@@ -135,6 +141,10 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_router_interface":            resourceAlicloudRouterInterface(),
 			"alicloud_ots_table":                   resourceAlicloudOtsTable(),
 			"alicloud_cms_alarm":                   resourceAlicloudCmsAlarm(),
+			"alicloud_log_project":                 resourceAlicloudLogProject(),
+			"alicloud_log_store":                   resourceAlicloudLogStore(),
+			"alicloud_log_store_index":             resourceAlicloudLogStoreIndex(),
+			"alicloud_log_machine_group":           resourceAlicloudLogMachineGroup(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -163,6 +173,10 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.OtsInstanceName = ots_instance_name.(string)
 	}
 
+	if logEndpoint, ok := d.GetOk("log_endpoint"); ok && logEndpoint.(string) != "" {
+		config.LogEndpoint = logEndpoint.(string)
+	}
+
 	client, err := config.Client()
 	if err != nil {
 		return nil, err
@@ -182,5 +196,6 @@ func init() {
 		"secret_key":     "Secret key of alicloud",
 		"region":         "Region of alicloud",
 		"security_token": "Alibaba Cloud Security Token",
+		"log_endpoint":   "Alibaba Cloud log service self-define endpoint",
 	}
 }
