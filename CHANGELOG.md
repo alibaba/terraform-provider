@@ -2,6 +2,10 @@
 
 IMPROVEMENTS:
 
+- *New Resource*: _alicloud_log_machine_group_ ([#503](https://github.com/alibaba/terraform-provider/pull/503)))
+- *New Resource*: _alicloud_log_store_index_ ([#503](https://github.com/alibaba/terraform-provider/pull/503)))
+- *New Resource*: _alicloud_log_store_ ([#503](https://github.com/alibaba/terraform-provider/pull/503)))
+- *New Resource*: _alicloud_log_project_ ([#503](https://github.com/alibaba/terraform-provider/pull/503)))
 - Improve example about cs_kubernetes ([#501](https://github.com/alibaba/terraform-provider/pull/501)))
 
 ## 1.9.4 (June 8, 2018)
