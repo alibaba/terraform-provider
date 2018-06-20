@@ -129,7 +129,7 @@ sudo -E "PATH=$PATH" make all
 ### License
 * This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/alibaba/terraform-provider/blob/master/LICENSE) for the full license text.
 
-### Refrence
+### Reference
 * Terraform Document: https://www.terraform.io/intro/
 * Terraform Registry Of Alicloud: https://registry.terraform.io/modules/alibaba
-* Terraform Alicloud Examples: [Official Examples](https://github.com/terraform-providers/terraform-provider-alicloud/tree/master/examples) , [Other Examples](https://github.com/mosuke5/terraform_for_alibabacloud_examples)
+* Terraform Alicloud Examples: [Official Examples](https://github.com/terraform-providers/terraform-provider-alicloud/tree/master/examples) , [Other Examples](https://github.com/mosuke5/terraform_examples_for_alibabacloud)
