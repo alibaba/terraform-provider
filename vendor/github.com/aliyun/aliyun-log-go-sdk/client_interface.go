@@ -121,7 +121,11 @@ type ClientInterface interface {
 	ListEtlMetaWithTag(project string, etlMetaName, etlMetaTag string, offset, size int) (total int, count int, etlMetaList []*EtlMeta, err error)
 	ListEtlMetaName(project string, offset, size int) (total int, count int, etlMetaNameList []string, err error)
 	// ListShards returns shard id list of this logstore.
-	ListShards(project, logstore string) (shardIDs []int, err error)
+	ListShards(project, logstore string) (shards []*Shard, err error)
+	// SplitShard https://help.aliyun.com/document_detail/29021.html
+	SplitShard(project, logstore string, shardID int, splitKey string) (shards []*Shard, err error)
+	// MergeShards https://help.aliyun.com/document_detail/29022.html
+	MergeShards(project, logstore string, shardID int) (shards []*Shard, err error)
 	// PutLogs put logs into logstore.
 	// The callers should transform user logs into LogGroup.
 	PutLogs(project, logstore string, lg *LogGroup) (err error)

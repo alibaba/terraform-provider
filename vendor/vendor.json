@@ -227,6 +227,12 @@
 			"revisionTime": "2018-06-06T09:53:15Z"
 		},
 		{
+			"checksumSHA1": "WhSU5HOSMEwkWAxM7Xwr6H+jigw=",
+			"path": "github.com/aliyun/aliyun-log-go-sdk",
+			"revision": "d29b4caf966b192223977f739e7fda24630ef040",
+			"revisionTime": "2018-06-18T11:42:19Z"
+		},
+		{
 			"checksumSHA1": "cRYVJeiNE+3pV/7Pe1VOA15LSSY=",
 			"path": "github.com/denverdino/aliyungo/cdn",
 			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",

@@ -32,7 +32,11 @@ type LogStore struct {
 
 // Shard defines shard struct
 type Shard struct {
-	ShardID int `json:"shardID"`
+	ShardID           int    `json:"shardID"`
+	Status            string `json:"status"`
+	InclusiveBeginKey string `json:"inclusiveBeginKey"`
+	ExclusiveBeginKey string `json:"exclusiveEndKey"`
+	CreateTime        int    `json:"createTime"`
 }
 
 // SetPutLogCompressType set put log's compress type, default lz4
@@ -45,7 +49,7 @@ func (s *LogStore) SetPutLogCompressType(compressType int) error {
 }
 
 // ListShards returns shard id list of this logstore.
-func (s *LogStore) ListShards() (shardIDs []int, err error) {
+func (s *LogStore) ListShards() (shardIDs []*Shard, err error) {
 	h := map[string]string{
 		"x-log-bodyrawsize": "0",
 	}
@@ -63,11 +67,8 @@ func (s *LogStore) ListShards() (shardIDs []int, err error) {
 	}
 
 	var shards []*Shard
-	json.Unmarshal(buf, &shards)
-	for _, v := range shards {
-		shardIDs = append(shardIDs, v.ShardID)
-	}
-	return shardIDs, nil
+	err = json.Unmarshal(buf, &shards)
+	return shards, err
 }
 
 func copyIncompressible(src, dst []byte) (int, error) {
