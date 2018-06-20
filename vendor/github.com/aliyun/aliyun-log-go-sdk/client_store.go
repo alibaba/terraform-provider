@@ -1,14 +1,18 @@
 package sls
 
+import (
+	base64E "encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/url"
+	"strconv"
+	"time"
+)
+
 func convertLogstore(c *Client, project, logstore string) *LogStore {
 	c.accessKeyLock.RLock()
-	proj := &LogProject{
-		Name:            project,
-		Endpoint:        c.Endpoint,
-		AccessKeyID:     c.AccessKeyID,
-		AccessKeySecret: c.AccessKeySecret,
-		SecurityToken:   c.SecurityToken,
-	}
+	proj := convert(c, project)
 	c.accessKeyLock.RUnlock()
 	return &LogStore{
 		project: proj,
@@ -17,9 +21,54 @@ func convertLogstore(c *Client, project, logstore string) *LogStore {
 }
 
 // ListShards returns shard id list of this logstore.
-func (c *Client) ListShards(project, logstore string) (shardIDs []int, err error) {
+func (c *Client) ListShards(project, logstore string) (shardIDs []*Shard, err error) {
 	ls := convertLogstore(c, project, logstore)
 	return ls.ListShards()
+}
+
+// SplitShard https://help.aliyun.com/document_detail/29021.html
+func (c *Client) SplitShard(project, logstore string, shardID int, splitKey string) (shards []*Shard, err error) {
+	h := map[string]string{
+		"x-log-bodyrawsize": "0",
+	}
+
+	urlVal := url.Values{}
+	urlVal.Add("action", "split")
+	urlVal.Add("key", splitKey)
+	uri := fmt.Sprintf("/logstores/%v/shards/%v?%v", logstore, shardID, urlVal.Encode())
+	r, err := c.request(project, "POST", uri, h, nil)
+	if err != nil {
+		return
+	}
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, NewClientError(err)
+	}
+	err = json.Unmarshal(buf, &shards)
+	return
+}
+
+// MergeShards https://help.aliyun.com/document_detail/29022.html
+func (c *Client) MergeShards(project, logstore string, shardID int) (shards []*Shard, err error) {
+	h := map[string]string{
+		"x-log-bodyrawsize": "0",
+	}
+
+	urlVal := url.Values{}
+	urlVal.Add("action", "merge")
+	uri := fmt.Sprintf("/logstores/%v/shards/%v?%v", logstore, shardID, urlVal.Encode())
+	r, err := c.request(project, "POST", uri, h, nil)
+	if err != nil {
+		return
+	}
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, NewClientError(err)
+	}
+	err = json.Unmarshal(buf, &shards)
+	return
 }
 
 // PutLogs put logs into logstore.
@@ -54,6 +103,48 @@ func (c *Client) PutRawLogWithCompressType(project, logstore string, rawLogData 
 func (c *Client) GetCursor(project, logstore string, shardID int, from string) (cursor string, err error) {
 	ls := convertLogstore(c, project, logstore)
 	return ls.GetCursor(shardID, from)
+}
+
+// GetCursorTime ...
+func (c *Client) GetCursorTime(project, logstore string, shardID int, cursor string) (cursorTime time.Time, err error) {
+	h := map[string]string{
+		"x-log-bodyrawsize": "0",
+	}
+
+	urlVal := url.Values{}
+	urlVal.Add("cursor", cursor)
+	urlVal.Add("type", "cursor_time")
+	uri := fmt.Sprintf("/logstores/%v/shards/%v?%v", logstore, shardID, urlVal.Encode())
+	r, err := c.request(project, "GET", uri, h, nil)
+	if err != nil {
+		return
+	}
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return cursorTime, NewClientError(err)
+	}
+	type getCursorResult struct {
+		CursorTime int `json:"cursor_time"`
+	}
+	var rst getCursorResult
+	err = json.Unmarshal(buf, &rst)
+	return time.Unix(int64(rst.CursorTime), 0), err
+}
+
+// GetPrevCursorTime ...
+func (c *Client) GetPrevCursorTime(project, logstore string, shardID int, cursor string) (cursorTime time.Time, err error) {
+	realCursor, err := base64E.StdEncoding.DecodeString(cursor)
+	if err != nil {
+		return cursorTime, NewClientError(err)
+	}
+	cursorVal, err := strconv.Atoi(string(realCursor))
+	if err != nil {
+		return cursorTime, NewClientError(err)
+	}
+	cursorVal--
+	nextCursor := base64E.StdEncoding.EncodeToString([]byte(strconv.Itoa(cursorVal)))
+	return c.GetCursorTime(project, logstore, shardID, nextCursor)
 }
 
 // GetLogsBytes gets logs binary data from shard specified by shardId according cursor and endCursor.

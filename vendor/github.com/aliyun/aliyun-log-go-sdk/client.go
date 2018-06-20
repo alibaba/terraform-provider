@@ -21,6 +21,8 @@ const (
 
 var InvalidCompressError = errors.New("Invalid Compress Type")
 
+const defaultLogUserAgent = "golang-sdk-v0.1.0"
+
 // Error defines sls error
 type Error struct {
 	HTTPCode  int32  `json:"httpCode"`
@@ -68,6 +70,7 @@ type Client struct {
 	AccessKeyID     string
 	AccessKeySecret string
 	SecurityToken   string
+	UserAgent       string // default defaultLogUserAgent
 
 	accessKeyLock sync.RWMutex
 }
@@ -81,6 +84,7 @@ func convert(c *Client, projName string) *LogProject {
 		AccessKeyID:     c.AccessKeyID,
 		AccessKeySecret: c.AccessKeySecret,
 		SecurityToken:   c.SecurityToken,
+		UserAgent:       c.UserAgent,
 	}
 }
 
@@ -162,11 +166,17 @@ func (c *Client) GetProject(name string) (*LogProject, error) {
 	proj := convert(c, name)
 	resp, err := request(proj, "GET", uri, h, nil)
 	if err != nil {
-		return nil, err
+		return nil, NewClientError(err)
 	}
 	defer resp.Body.Close()
-
-	return proj, nil
+	buf, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		err := new(Error)
+		json.Unmarshal(buf, err)
+		return nil, err
+	}
+	err = json.Unmarshal(buf, proj)
+	return proj, err
 }
 
 // ListProject list all projects in specific region

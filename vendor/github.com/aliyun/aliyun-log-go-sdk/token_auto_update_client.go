@@ -485,9 +485,29 @@ func (c *TokenAutoUpdateClient) ListEtlMetaName(project string, offset, size int
 	return
 }
 
-func (c *TokenAutoUpdateClient) ListShards(project, logstore string) (shardIDs []int, err error) {
+func (c *TokenAutoUpdateClient) ListShards(project, logstore string) (shardIDs []*Shard, err error) {
 	for i := 0; i < c.maxTryTimes; i++ {
 		shardIDs, err = c.logClient.ListShards(project, logstore)
+		if !c.processError(err) {
+			return
+		}
+	}
+	return
+}
+
+func (c *TokenAutoUpdateClient) SplitShard(project, logstore string, shardID int, splitKey string) (shards []*Shard, err error) {
+	for i := 0; i < c.maxTryTimes; i++ {
+		shards, err = c.logClient.SplitShard(project, logstore, shardID, splitKey)
+		if !c.processError(err) {
+			return
+		}
+	}
+	return
+}
+
+func (c *TokenAutoUpdateClient) MergeShards(project, logstore string, shardID int) (shards []*Shard, err error) {
+	for i := 0; i < c.maxTryTimes; i++ {
+		shards, err = c.logClient.MergeShards(project, logstore, shardID)
 		if !c.processError(err) {
 			return
 		}

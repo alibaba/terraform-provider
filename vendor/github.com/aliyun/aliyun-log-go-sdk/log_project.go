@@ -14,12 +14,14 @@ import (
 
 // LogProject defines log project
 type LogProject struct {
-	Name            string // Project name
+	Name            string `json:"projectName"` // Project name
+	Description     string `json:"description"` // Project description
 	Endpoint        string // IP or hostname of SLS endpoint
 	AccessKeyID     string
 	AccessKeySecret string
 	SecurityToken   string
-	UsingHTTP       bool // default https
+	UsingHTTP       bool   // default https
+	UserAgent       string // default defaultLogUserAgent
 }
 
 // NewLogProject creates a new SLS project.
