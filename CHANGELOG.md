@@ -1,3 +1,9 @@
+## 1.9.6 (Unreleased)
+
+IMPROVEMENTS:
+
+- Add method to compare json template is equal ([#508](https://github.com/alibaba/terraform-provider/pull/508)))
+
 ## 1.9.5 (June 20, 2018)
 
 IMPROVEMENTS:
