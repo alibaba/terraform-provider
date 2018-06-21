@@ -26,7 +26,7 @@ resource "alicloud_rkv_instance" "myredis" {
   instance_class = "${var.instance_class}"
   instance_name  = "${var.instance_name}"
   password       = "${var.password}"
-  vswitch_id     = "${var.vswitch_id}"
+  vswitch_id     = "${var.vswitch_id == "" ? alicloud_vswitch.vswitch.id : var.vswitch_id}"
 }
 
 resource "alicloud_rkv_security_ips" "rediswhitelist" {
