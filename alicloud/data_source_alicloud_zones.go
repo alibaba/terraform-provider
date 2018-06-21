@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"sort"
 	"strings"
@@ -138,18 +139,25 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		if regions, err := client.rkvconn.DescribeRegions(request); err != nil {
 			return fmt.Errorf("[ERROR] DescribeRegions got an error: %#v", err)
 		} else if len(regions.RegionIds.KVStoreRegion) <= 0 {
-			return fmt.Errorf("[ERROR] There is no available region for RDS")
+			return fmt.Errorf("[ERROR] There is no available region for KVStore")
 		} else {
+			log.Printf("!!!1 [Olli] %v", regions)
 			for _, r := range regions.RegionIds.KVStoreRegion {
-				if multi && strings.Contains(r.ZoneIds, MULTI_IZ_SYMBOL) && r.RegionId == string(getRegion(d, meta)) {
-					zoneIds = append(zoneIds, r.ZoneIds)
-					continue
+				for _, zoneID := range strings.Split(r.ZoneIds, ",") {
+					if multi && strings.Contains(zoneID, MULTI_IZ_SYMBOL) && r.RegionId == string(getRegion(d, meta)) {
+						zoneIds = append(zoneIds, zoneID)
+						log.Printf("!!!2 [Olli] match : %v", zoneID)
+						continue
+					}
+					log.Printf("!!!3 [Olli] no match : %v ||| %v ", zoneID, r.RegionId)
+					rkvZones[zoneID] = r.RegionId
 				}
-				rkvZones[r.ZoneIds] = r.RegionId
+
 			}
 		}
 	}
 	if len(zoneIds) > 0 {
+		log.Printf("!!!4 [Olli] zoneIds > 0 : %v", zoneIds)
 		sort.Strings(zoneIds)
 		return multiZonesDescriptionAttributes(d, zoneIds)
 	} else if multi {
@@ -160,6 +168,8 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
+
+	log.Printf("!!!5 [Olli] valid zones : %v", validZones)
 
 	req := ecs.CreateDescribeZonesRequest()
 	if v, ok := d.GetOk("instance_charge_type"); ok && v.(string) != "" {
@@ -177,6 +187,9 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	if resp == nil || len(resp.Zones.Zone) < 1 {
 		return fmt.Errorf("There are no availability zones in the region: %#v.", getRegion(d, meta))
 	}
+
+	log.Printf("!!!6 [Olli] Describe Zones : %v", resp.Zones)
+
 	mapZones := make(map[string]ecs.Zone)
 	insType, _ := d.Get("available_instance_type").(string)
 	diskType, _ := d.Get("available_disk_category").(string)
@@ -200,6 +213,8 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 				}
 			}
 			if len(rkvZones) > 0 {
+				log.Printf("!!!7 [Olli] zone.ZoneId : %v", zone.ZoneId)
+
 				if _, ok := rkvZones[zone.ZoneId]; !ok {
 					continue
 				}

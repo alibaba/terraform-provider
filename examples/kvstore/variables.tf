@@ -34,7 +34,9 @@ variable "vpc_cidr" {
 # VSwitch variables
 variable "vswitch_id" {
   description = "The vswitch id used to launch one or more instances."
-  default     = "vsw-gw8t2pjx34ajwldnab9yx"
+  default     = ""
+
+  # default     = "vsw-gw8t2pjx34ajwldnab9yx"
 }
 
 variable "vswitch_name" {
