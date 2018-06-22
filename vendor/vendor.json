@@ -1,0 +1,477 @@
+{
+	"comment": "",
+	"ignore": "",
+	"package": [
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/integration",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "mUzVOfMdTKCkEURZb6r4iWrriCw=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "qm1/zNxCCuxyUTOA+j+VUnEtqnI=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "mir9zgkLR7muF4aPQtTV9T91B7E=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "YqjOfGGBOy3whJudMWLpUaHRT1I=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/signers",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "r5HKj32xHlQrOZIYIhn0f9a6/oU=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "9vMkbk4TZWi+UWw2Fv31ZvR13+c=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "0Z2rlg7x5iVNVbnwx/iV8Ogtk24=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk/log",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "sErp3AdKCeICmoE1TOgIjtC1HBI=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "vg5T05FXGmePCptXS7SWVkjjbFY=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "KagSAXQs4CI1ADS7iW/yGnBO2c4=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/sdk/utils",
+			"revision": "949e3f46690a94565be15d69764d5883340e7461",
+			"revisionTime": "2018-05-03T09:38:38Z"
+		},
+		{
+			"checksumSHA1": "RGJGAc1jbAv5tMorVlU8lsuyUP0=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services",
+			"revision": "d65bf25cbc207b55ba8953264280a21a3df42a4f",
+			"revisionTime": "2018-05-26T14:55:55Z"
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/aegis",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/alidns",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/arms",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/arms4finance",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/cbn",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ccc",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/cdn",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/cloudapi",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/cloudphoto",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/cms",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/cs",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/csb",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/dcdn",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ddospro",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/dm",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/domain",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/domain-intl",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/domain_intl",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "nBzko+Dsr3qUIr4pCew0BpYDHI4=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ecs",
+			"revision": "d65bf25cbc207b55ba8953264280a21a3df42a4f",
+			"revisionTime": "2018-05-26T14:55:55Z"
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ehpc",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "NwO98CSOMF+NrIqtiAmqwvSOOAU=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ess",
+			"revision": "d585fa7e6666f553f2b7f64ed6a403103209751d",
+			"revisionTime": "2018-05-30T03:13:21Z"
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/green",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/hsm",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/kms",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/mts",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/nas",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ots",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ots/sample",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/push",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ram",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/rds",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/slb",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/sls",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/sts",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/tesladam",
+			"revision": ""
+		},
+		{
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/teslamaxcompute",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "h4upaiqVHJmBDWZgQgeRqyOwzPA=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/vpc",
+			"revision": "0a4f0b5d1cec8d873e0d26fbf61e1adab7ed098c",
+			"revisionTime": "2018-06-06T09:53:15Z"
+		},
+		{
+			"checksumSHA1": "WhSU5HOSMEwkWAxM7Xwr6H+jigw=",
+			"path": "github.com/aliyun/aliyun-log-go-sdk",
+			"revision": "d29b4caf966b192223977f739e7fda24630ef040",
+			"revisionTime": "2018-06-18T11:42:19Z"
+		},
+		{
+			"checksumSHA1": "cRYVJeiNE+3pV/7Pe1VOA15LSSY=",
+			"path": "github.com/denverdino/aliyungo/cdn",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "OmFVkGpiJgN1ymU/KYV/qCdU0gc=",
+			"path": "github.com/denverdino/aliyungo/cms",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "jBrRlhcUSg4M6U5zT8SuRnk6yFs=",
+			"path": "github.com/denverdino/aliyungo/cms/bytesbuffer",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "u3aAIEPVkFzKMXPMNhvNraz3amk=",
+			"path": "github.com/denverdino/aliyungo/cms/util",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "NiTCU7ScblBzB0ABo05ZFA0l/IY=",
+			"path": "github.com/denverdino/aliyungo/common",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "UuFnRgE+mwTa2Kq1hJPJO8S23J4=",
+			"path": "github.com/denverdino/aliyungo/cs",
+			"revision": "b03ba91556d7b2f278b5de86ccc1eadda00603d6",
+			"revisionTime": "2018-06-07T03:41:55Z"
+		},
+		{
+			"checksumSHA1": "dN7vxxBQ5axpNUnIO/ocSJeEjvU=",
+			"path": "github.com/denverdino/aliyungo/dm",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "uL89rx6M/tWmv3h7CERVlNP3470=",
+			"path": "github.com/denverdino/aliyungo/dns",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "HWJfU+pOulBbJXUCYJ3EmyAe/P8=",
+			"path": "github.com/denverdino/aliyungo/ecs",
+			"revision": "63ba2cd70c5aed58c3b7bd6dfe95ffd4a8187c97",
+			"revisionTime": "2018-05-21T07:44:21Z"
+		},
+		{
+			"checksumSHA1": "OugK9gW4pbqMyp7+9xLqPdbnNo4=",
+			"path": "github.com/denverdino/aliyungo/ess",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "4xPJVaN6/35JBxCSXtdu24jT8gw=",
+			"path": "github.com/denverdino/aliyungo/kms",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "gxhcRlGE2c+vMvgK4fLZvHU4mZI=",
+			"path": "github.com/denverdino/aliyungo/location",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "i3eMtRfLwy0XruP9De0+dxZwyf8=",
+			"path": "github.com/denverdino/aliyungo/metadata",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "+hF8sCWsXwiNLARQLx5taNsMoAE=",
+			"path": "github.com/denverdino/aliyungo/mns",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "tN8muy+sCBlDuonIDzX9kF23ybI=",
+			"path": "github.com/denverdino/aliyungo/mq",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "e+v6Fkm/rvnnJs/5IecbbLJg5Ts=",
+			"path": "github.com/denverdino/aliyungo/nas",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "C0Vv1NjlGZ6KJ3YnWFNpEn8FNjg=",
+			"path": "github.com/denverdino/aliyungo/opensearch",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "j0MoyY3lrngDd4LXpvcaxkKgcsA=",
+			"path": "github.com/denverdino/aliyungo/oss",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "OdunPF2lu3j0KVMQdbauj+hCyus=",
+			"path": "github.com/denverdino/aliyungo/push",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "5PyoUJdYW+/GF1koqiuoYRH9Lmo=",
+			"path": "github.com/denverdino/aliyungo/pvtz",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "NjskU0FKGHTjzjWaHpdmWtwbk3Q=",
+			"path": "github.com/denverdino/aliyungo/ram",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "8NlUDEemJ7dZZv58DqwZSBUAzMI=",
+			"path": "github.com/denverdino/aliyungo/rds",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "4bbdzyz0xvwiIbRFMhedu+erx/Q=",
+			"path": "github.com/denverdino/aliyungo/ros",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "+rRc9InodRzsdCrlPKbynNHyOl4=",
+			"path": "github.com/denverdino/aliyungo/slb",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "k3/W7K5prX02tdr7KpkrIZEdM84=",
+			"path": "github.com/denverdino/aliyungo/sls",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "GqocZP5HTpne+vaPp5oov85Qnms=",
+			"path": "github.com/denverdino/aliyungo/sms",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "luji/gAm1UstZET/DxSUE2OTHVc=",
+			"path": "github.com/denverdino/aliyungo/sts",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "yFEBBk1H5sF/qM7YeIJoZcGdaIg=",
+			"path": "github.com/denverdino/aliyungo/util",
+			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
+			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "ehhDW5xOMs7vp2dxSoKBG8tJSB4=",
+			"path": "github.com/gogo/protobuf/gogoproto",
+			"revision": "30cf7ac33676b5786e78c746683f0d4cd64fa75b",
+			"revisionTime": "2018-05-09T16:24:41Z"
+		},
+		{
+			"checksumSHA1": "7bOMeMUGFHXHPN3+7+LsN/MUS7c=",
+			"path": "github.com/gogo/protobuf/proto",
+			"revision": "30cf7ac33676b5786e78c746683f0d4cd64fa75b",
+			"revisionTime": "2018-05-09T16:24:41Z"
+		},
+		{
+			"checksumSHA1": "KNj4+YyAQWO9uNQJ7P50BidWaXY=",
+			"path": "github.com/gogo/protobuf/proto/proto3_proto",
+			"revision": "30cf7ac33676b5786e78c746683f0d4cd64fa75b",
+			"revisionTime": "2018-05-09T16:24:41Z"
+		},
+		{
+			"checksumSHA1": "LyfAQkjgBYZA3AX5+R/4MAeibbg=",
+			"path": "github.com/gogo/protobuf/proto/testdata",
+			"revision": "30cf7ac33676b5786e78c746683f0d4cd64fa75b",
+			"revisionTime": "2018-05-09T16:24:41Z"
+		},
+		{
+			"checksumSHA1": "TAhFV5bpEMMA328lmGyMFH1FB94=",
+			"path": "github.com/gogo/protobuf/protoc-gen-gogo/descriptor",
+			"revision": "30cf7ac33676b5786e78c746683f0d4cd64fa75b",
+			"revisionTime": "2018-05-09T16:24:41Z"
+		},
+		{
+			"checksumSHA1": "HPVQZu059/Rfw2bAWM538bVTcUc=",
+			"path": "github.com/gogo/protobuf/sortkeys",
+			"revision": "30cf7ac33676b5786e78c746683f0d4cd64fa75b",
+			"revisionTime": "2018-05-09T16:24:41Z"
+		},
+		{
+			"checksumSHA1": "sk1EL8wlaqysvqQX2sJ/9QjrN8U=",
+			"path": "github.com/gogo/protobuf/types",
+			"revision": "30cf7ac33676b5786e78c746683f0d4cd64fa75b",
+			"revisionTime": "2018-05-09T16:24:41Z"
+		},
+		{
+			"checksumSHA1": "yUc84k7cfnRi9AlPFuRo77Y18Og=",
+			"path": "github.com/golang/glog",
+			"revision": "23def4e6c14b4da8ac2ed8007337bc5eb5007998",
+			"revisionTime": "2016-01-25T20:49:56Z"
+		},
+		{
+			"checksumSHA1": "bnWJ5VK7fHAcqpLqY09k0nX8QNs=",
+			"path": "github.com/pierrec/lz4",
+			"revision": "ed8d4cc3b461464e69798080a0092bd028910298",
+			"revisionTime": "2018-01-13T15:17:03Z"
+		},
+		{
+			"checksumSHA1": "Kr65h3aOT4BsFS9ofPvmp2+qs5M=",
+			"path": "github.com/pierrec/xxHash/xxHash32",
+			"revision": "a0006b13c722f7f12368c00a3d3c2ae8a999a0c6",
+			"revisionTime": "2017-07-14T08:24:55Z"
+		},
+		{
+			"checksumSHA1": "KWQTaHs1pGaPaKJecRYRLq9fCyw=",
+			"path": "github.com/stretchr/testify/require",
+			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
+			"revisionTime": "2018-03-14T08:05:35Z"
+		},
+		{
+			"checksumSHA1": "gqD0vUu8NfdCI/ew3qL1HsCS7Zo=",
+			"path": "github.com/stretchr/testify/suite",
+			"revision": "c679ae2cc0cb27ec3293fea7e254e47386f05d69",
+			"revisionTime": "2018-03-14T08:05:35Z"
+		}
+	],
+	"rootPath": "github.com/alibaba/terraform-provider"
+}
