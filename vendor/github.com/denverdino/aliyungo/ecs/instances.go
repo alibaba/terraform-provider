@@ -786,16 +786,16 @@ type RenewalStatus string
 
 const (
 	RenewAutoRenewal = RenewalStatus("AutoRenewal")
-	RenewNormal  = RenewalStatus("Normal")
+	RenewNormal      = RenewalStatus("Normal")
 	RenewNotRenewal  = RenewalStatus("NotRenewal")
 )
 
 type ModifyInstanceAutoRenewAttributeArgs struct {
-	InstanceId      string
-	RegionId         common.Region
-	Duration           int
-	AutoRenew	bool
-	RenewalStatus     RenewalStatus
+	InstanceId    string
+	RegionId      common.Region
+	Duration      int
+	AutoRenew     bool
+	RenewalStatus RenewalStatus
 }
 
 // You can read doc at https://www.alibabacloud.com/help/doc-detail/52843.htm
@@ -805,29 +805,28 @@ func (client *Client) ModifyInstanceAutoRenewAttribute(args *ModifyInstanceAutoR
 }
 
 type DescribeInstanceAutoRenewAttributeArgs struct {
-	InstanceId      string
-	RegionId         common.Region
+	InstanceId string
+	RegionId   common.Region
 }
 
 type InstanceRenewAttribute struct {
-InstanceId string
-Duration int
-AutoRenewEnabled bool
-PeriodUnit string
-RenewalStatus RenewalStatus
+	InstanceId       string
+	Duration         int
+	AutoRenewEnabled bool
+	PeriodUnit       string
+	RenewalStatus    RenewalStatus
 }
-
 
 type DescribeInstanceAutoRenewAttributeResponse struct {
 	common.Response
-	InstanceRenewAttributes struct{
-					InstanceRenewAttribute []InstanceRenewAttribute
-				}
+	InstanceRenewAttributes struct {
+		InstanceRenewAttribute []InstanceRenewAttribute
+	}
 }
 
 // You can read doc at https://www.alibabacloud.com/help/doc-detail/52844.htm
 func (client *Client) DescribeInstanceAutoRenewAttribute(args *DescribeInstanceAutoRenewAttributeArgs) (*DescribeInstanceAutoRenewAttributeResponse, error) {
-response := &DescribeInstanceAutoRenewAttributeResponse{}
+	response := &DescribeInstanceAutoRenewAttributeResponse{}
 	err := client.Invoke("DescribeInstanceAutoRenewAttribute", args, response)
 	return response, err
 }

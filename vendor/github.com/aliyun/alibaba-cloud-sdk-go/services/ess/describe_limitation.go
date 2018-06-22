@@ -76,8 +76,8 @@ func (client *Client) DescribeLimitationWithCallback(request *DescribeLimitation
 // DescribeLimitationRequest is the request struct for api DescribeLimitation
 type DescribeLimitationRequest struct {
 	*requests.RpcRequest
-	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
+	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
 }
 
 // DescribeLimitationResponse is the response struct for api DescribeLimitation

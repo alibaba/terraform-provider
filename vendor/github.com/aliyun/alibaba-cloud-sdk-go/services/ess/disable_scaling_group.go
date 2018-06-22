@@ -76,11 +76,11 @@ func (client *Client) DisableScalingGroupWithCallback(request *DisableScalingGro
 // DisableScalingGroupRequest is the request struct for api DisableScalingGroup
 type DisableScalingGroupRequest struct {
 	*requests.RpcRequest
-	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
-	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
+	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
 	ScalingGroupId       string           `position:"Query" name:"ScalingGroupId"`
 	OwnerAccount         string           `position:"Query" name:"OwnerAccount"`
+	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
 }
 
 // DisableScalingGroupResponse is the response struct for api DisableScalingGroup

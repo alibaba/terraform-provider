@@ -17,5 +17,5 @@ package teslamaxcompute
 
 // DetailInGetQuotaInstance is a nested struct in teslamaxcompute response
 type DetailInGetQuotaInstance struct {
-	Instance []Instance `json:"instance" xml:"instance"`
+	Instance []Instance `json:"Instance" xml:"Instance"`
 }

@@ -17,9 +17,9 @@ type Client struct {
 	common.Client
 }
 
-// NewClient creates a new instance of ECS client
+// NewClient creates a new instance of KMS client
 func NewClient(accessKeyId, accessKeySecret string) *Client {
-	endpoint := os.Getenv("ECS_ENDPOINT")
+	endpoint := os.Getenv("KMS_ENDPOINT")
 	if endpoint == "" {
 		endpoint = KMSDefaultEndpoint
 	}
@@ -27,7 +27,7 @@ func NewClient(accessKeyId, accessKeySecret string) *Client {
 }
 
 func NewClientWithRegion(accessKeyId string, accessKeySecret string, regionID common.Region) *Client {
-	endpoint := os.Getenv("ECS_ENDPOINT")
+	endpoint := os.Getenv("KMS_ENDPOINT")
 	if endpoint == "" {
 		endpoint = KMSDefaultEndpoint
 	}
@@ -43,7 +43,7 @@ func NewClientWithEndpoint(endpoint string, accessKeyId string, accessKeySecret 
 }
 
 func NewECSClientWithSecurityToken(accessKeyId string, accessKeySecret string, securityToken string, regionID common.Region) *Client {
-	endpoint := os.Getenv("ECS_ENDPOINT")
+	endpoint := os.Getenv("KMS_ENDPOINT")
 	if endpoint == "" {
 		endpoint = KMSDefaultEndpoint
 	}
