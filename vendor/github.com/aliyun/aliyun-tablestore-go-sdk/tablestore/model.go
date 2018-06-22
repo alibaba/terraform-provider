@@ -583,7 +583,6 @@ type DescribeStreamResponse struct {
 type GetShardIteratorRequest struct {
 	StreamId *StreamId // required
 	ShardId  *ShardId  // required
-	Timestamp *int64
 }
 
 type GetShardIteratorResponse struct {

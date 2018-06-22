@@ -76,11 +76,11 @@ func (client *Client) DescribeLiveStreamPushDataWithCallback(request *DescribeLi
 // DescribeLiveStreamPushDataRequest is the request struct for api DescribeLiveStreamPushData
 type DescribeLiveStreamPushDataRequest struct {
 	*requests.RpcRequest
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	DomainName    string           `position:"Query" name:"DomainName"`
-	EndTime       string           `position:"Query" name:"EndTime"`
 	StartTime     string           `position:"Query" name:"StartTime"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	EndTime       string           `position:"Query" name:"EndTime"`
 }
 
 // DescribeLiveStreamPushDataResponse is the response struct for api DescribeLiveStreamPushData

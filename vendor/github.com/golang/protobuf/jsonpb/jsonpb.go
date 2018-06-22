@@ -778,7 +778,7 @@ func (u *Unmarshaler) unmarshalValue(target reflect.Value, inputValue json.RawMe
 
 			return nil
 		case "Duration":
-			unq, err := unquote(string(inputValue))
+			unq, err := strconv.Unquote(string(inputValue))
 			if err != nil {
 				return err
 			}
@@ -795,7 +795,7 @@ func (u *Unmarshaler) unmarshalValue(target reflect.Value, inputValue json.RawMe
 			target.Field(1).SetInt(ns)
 			return nil
 		case "Timestamp":
-			unq, err := unquote(string(inputValue))
+			unq, err := strconv.Unquote(string(inputValue))
 			if err != nil {
 				return err
 			}
@@ -842,7 +842,7 @@ func (u *Unmarshaler) unmarshalValue(target reflect.Value, inputValue json.RawMe
 				target.Field(0).Set(reflect.ValueOf(&stpb.Value_NullValue{}))
 			} else if v, err := strconv.ParseFloat(ivStr, 0); err == nil {
 				target.Field(0).Set(reflect.ValueOf(&stpb.Value_NumberValue{v}))
-			} else if v, err := unquote(ivStr); err == nil {
+			} else if v, err := strconv.Unquote(ivStr); err == nil {
 				target.Field(0).Set(reflect.ValueOf(&stpb.Value_StringValue{v}))
 			} else if v, err := strconv.ParseBool(ivStr); err == nil {
 				target.Field(0).Set(reflect.ValueOf(&stpb.Value_BoolValue{v}))
@@ -877,9 +877,6 @@ func (u *Unmarshaler) unmarshalValue(target reflect.Value, inputValue json.RawMe
 		if target.Kind() == reflect.Ptr { // proto2
 			target.Set(reflect.New(targetType.Elem()))
 			target = target.Elem()
-		}
-		if targetType.Kind() != reflect.Int32 {
-			return fmt.Errorf("invalid target %q for enum %s", targetType.Kind(), prop.Enum)
 		}
 		target.SetInt(int64(n))
 		return nil
@@ -1046,12 +1043,6 @@ func (u *Unmarshaler) unmarshalValue(target reflect.Value, inputValue json.RawMe
 
 	// Use the encoding/json for parsing other value types.
 	return json.Unmarshal(inputValue, target.Addr().Interface())
-}
-
-func unquote(s string) (string, error) {
-	var ret string
-	err := json.Unmarshal([]byte(s), &ret)
-	return ret, err
 }
 
 // jsonProperties returns parsed proto.Properties for the field and corrects JSONName attribute.

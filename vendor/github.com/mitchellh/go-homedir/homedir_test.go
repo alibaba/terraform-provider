@@ -13,12 +13,7 @@ func patchEnv(key, value string) func() {
 		os.Setenv(key, bck)
 	}
 
-	if value != "" {
-		os.Setenv(key, value)
-	} else {
-		os.Unsetenv(key)
-	}
-
+	os.Setenv(key, value)
 	return deferFunc
 }
 
@@ -41,18 +36,6 @@ func TestDir(t *testing.T) {
 	}
 
 	dir, err := Dir()
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
-
-	if u.HomeDir != dir {
-		t.Fatalf("%#v != %#v", u.HomeDir, dir)
-	}
-
-	DisableCache = true
-	defer func() { DisableCache = false }()
-	defer patchEnv("HOME", "")()
-	dir, err = Dir()
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}

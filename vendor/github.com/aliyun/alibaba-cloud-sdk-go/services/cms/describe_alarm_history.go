@@ -77,18 +77,18 @@ func (client *Client) DescribeAlarmHistoryWithCallback(request *DescribeAlarmHis
 type DescribeAlarmHistoryRequest struct {
 	*requests.RpcRequest
 	AlertName  string           `position:"Query" name:"AlertName"`
-	GroupId    string           `position:"Query" name:"GroupId"`
-	EndTime    string           `position:"Query" name:"EndTime"`
 	RuleName   string           `position:"Query" name:"RuleName"`
-	StartTime  string           `position:"Query" name:"StartTime"`
+	Namespace  string           `position:"Query" name:"Namespace"`
+	MetricName string           `position:"Query" name:"MetricName"`
+	GroupId    string           `position:"Query" name:"GroupId"`
+	Status     string           `position:"Query" name:"Status"`
+	State      string           `position:"Query" name:"State"`
 	Ascending  requests.Boolean `position:"Query" name:"Ascending"`
 	OnlyCount  requests.Boolean `position:"Query" name:"OnlyCount"`
-	Namespace  string           `position:"Query" name:"Namespace"`
+	StartTime  string           `position:"Query" name:"StartTime"`
+	EndTime    string           `position:"Query" name:"EndTime"`
 	PageSize   requests.Integer `position:"Query" name:"PageSize"`
-	State      string           `position:"Query" name:"State"`
 	Page       requests.Integer `position:"Query" name:"Page"`
-	MetricName string           `position:"Query" name:"MetricName"`
-	Status     string           `position:"Query" name:"Status"`
 }
 
 // DescribeAlarmHistoryResponse is the response struct for api DescribeAlarmHistory

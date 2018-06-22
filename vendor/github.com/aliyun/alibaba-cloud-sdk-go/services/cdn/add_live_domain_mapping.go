@@ -76,10 +76,10 @@ func (client *Client) AddLiveDomainMappingWithCallback(request *AddLiveDomainMap
 // AddLiveDomainMappingRequest is the request struct for api AddLiveDomainMapping
 type AddLiveDomainMappingRequest struct {
 	*requests.RpcRequest
-	PullDomain    string           `position:"Query" name:"PullDomain"`
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	PushDomain    string           `position:"Query" name:"PushDomain"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	PullDomain    string           `position:"Query" name:"PullDomain"`
 }
 
 // AddLiveDomainMappingResponse is the response struct for api AddLiveDomainMapping

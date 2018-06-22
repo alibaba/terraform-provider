@@ -101,21 +101,7 @@ type ClientStream interface {
 }
 
 // NewStream creates a new Stream for the client side. This is typically
-// called by generated code. ctx is used for the lifetime of the stream.
-//
-// To ensure resources are not leaked due to the stream returned, one of the following
-// actions must be performed:
-//
-//      1. Call Close on the ClientConn.
-//      2. Cancel the context provided.
-//      3. Call RecvMsg until a non-nil error is returned. A protobuf-generated
-//         client-streaming RPC, for instance, might use the helper function
-//         CloseAndRecv (note that CloseSend does not Recv, therefore is not
-//         guaranteed to release all resources).
-//      4. Receive a non-nil, non-io.EOF error from Header or SendMsg.
-//
-// If none of the above happen, a goroutine and a context will be leaked, and grpc
-// will not call the optionally-configured stats handler with a stats.End message.
+// called by generated code.
 func (cc *ClientConn) NewStream(ctx context.Context, desc *StreamDesc, method string, opts ...CallOption) (ClientStream, error) {
 	// allow interceptor to see all applicable call options, which means those
 	// configured as defaults from dial option as well as per-call options
@@ -127,7 +113,8 @@ func (cc *ClientConn) NewStream(ctx context.Context, desc *StreamDesc, method st
 	return newClientStream(ctx, desc, cc, method, opts...)
 }
 
-// NewClientStream is a wrapper for ClientConn.NewStream.
+// NewClientStream creates a new Stream for the client side. This is typically
+// called by generated code.
 //
 // DEPRECATED: Use ClientConn.NewStream instead.
 func NewClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, method string, opts ...CallOption) (ClientStream, error) {
@@ -303,7 +290,6 @@ func newClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, meth
 		attempt: &csAttempt{
 			t:            t,
 			s:            s,
-			p:            &parser{r: s},
 			done:         done,
 			dc:           cc.dopts.dc,
 			ctx:          ctx,
@@ -360,7 +346,6 @@ type csAttempt struct {
 	cs   *clientStream
 	t    transport.ClientTransport
 	s    *transport.Stream
-	p    *parser
 	done func(balancer.DoneInfo)
 
 	dc        Decompressor
@@ -479,27 +464,31 @@ func (a *csAttempt) sendMsg(m interface{}) (err error) {
 		}
 		a.mu.Unlock()
 	}
-	data, err := encode(cs.codec, m)
+	var outPayload *stats.OutPayload
+	if a.statsHandler != nil {
+		outPayload = &stats.OutPayload{
+			Client: true,
+		}
+	}
+	data, err := encode(cs.codec, m, cs.cp, outPayload, cs.comp)
 	if err != nil {
 		return err
 	}
-	compData, err := compress(data, cs.cp, cs.comp)
-	if err != nil {
-		return err
+	if len(data) > *cs.c.maxSendMessageSize {
+		return status.Errorf(codes.ResourceExhausted, "trying to send message larger than max (%d vs. %d)", len(data), *cs.c.maxSendMessageSize)
 	}
-	hdr, payload := msgHeader(data, compData)
-	// TODO(dfawley): should we be checking len(data) instead?
-	if len(payload) > *cs.c.maxSendMessageSize {
-		return status.Errorf(codes.ResourceExhausted, "trying to send message larger than max (%d vs. %d)", len(payload), *cs.c.maxSendMessageSize)
-	}
-
 	if !cs.desc.ClientStreams {
 		cs.sentLast = true
 	}
-	err = a.t.Write(a.s, hdr, payload, &transport.Options{Last: !cs.desc.ClientStreams})
+	opts := &transport.Options{
+		Last:         !cs.desc.ClientStreams,
+		IsCompressed: cs.cp != nil || cs.comp != nil,
+	}
+	err = a.t.Write(a.s, data, opts)
 	if err == nil {
-		if a.statsHandler != nil {
-			a.statsHandler.HandleRPC(a.ctx, outPayload(true, m, data, payload, time.Now()))
+		if outPayload != nil {
+			outPayload.SentTime = time.Now()
+			a.statsHandler.HandleRPC(a.ctx, outPayload)
 		}
 		if channelz.IsOn() {
 			a.t.IncrMsgSent()
@@ -539,7 +528,7 @@ func (a *csAttempt) recvMsg(m interface{}) (err error) {
 		// Only initialize this state once per stream.
 		a.decompSet = true
 	}
-	err = recv(a.p, cs.codec, a.s, a.dc, m, *cs.c.maxReceiveMessageSize, inPayload, a.decomp)
+	err = recv(cs.codec, a.s, a.dc, m, *cs.c.maxReceiveMessageSize, inPayload, a.decomp)
 	if err != nil {
 		if err == io.EOF {
 			if statusErr := a.s.Status().Err(); statusErr != nil {
@@ -569,7 +558,7 @@ func (a *csAttempt) recvMsg(m interface{}) (err error) {
 
 	// Special handling for non-server-stream rpcs.
 	// This recv expects EOF or errors, so we don't collect inPayload.
-	err = recv(a.p, cs.codec, a.s, a.dc, m, *cs.c.maxReceiveMessageSize, nil, a.decomp)
+	err = recv(cs.codec, a.s, a.dc, m, *cs.c.maxReceiveMessageSize, nil, a.decomp)
 	if err == nil {
 		return toRPCErr(errors.New("grpc: client streaming protocol violation: get <nil>, want <EOF>"))
 	}
@@ -585,7 +574,7 @@ func (a *csAttempt) closeSend() {
 		return
 	}
 	cs.sentLast = true
-	cs.attempt.t.Write(cs.attempt.s, nil, nil, &transport.Options{Last: true})
+	cs.attempt.t.Write(cs.attempt.s, nil, &transport.Options{Last: true})
 	// We ignore errors from Write.  Any error it would return would also be
 	// returned by a subsequent RecvMsg call, and the user is supposed to always
 	// finish the stream by calling RecvMsg until it returns err != nil.
@@ -648,7 +637,6 @@ type serverStream struct {
 	ctx   context.Context
 	t     transport.ServerTransport
 	s     *transport.Stream
-	p     *parser
 	codec baseCodec
 
 	cp     Compressor
@@ -709,24 +697,27 @@ func (ss *serverStream) SendMsg(m interface{}) (err error) {
 			ss.t.IncrMsgSent()
 		}
 	}()
-	data, err := encode(ss.codec, m)
+	var outPayload *stats.OutPayload
+	if ss.statsHandler != nil {
+		outPayload = &stats.OutPayload{}
+	}
+	data, err := encode(ss.codec, m, ss.cp, outPayload, ss.comp)
 	if err != nil {
 		return err
 	}
-	compData, err := compress(data, ss.cp, ss.comp)
-	if err != nil {
-		return err
+	if len(data) > ss.maxSendMessageSize {
+		return status.Errorf(codes.ResourceExhausted, "trying to send message larger than max (%d vs. %d)", len(data), ss.maxSendMessageSize)
 	}
-	hdr, payload := msgHeader(data, compData)
-	// TODO(dfawley): should we be checking len(data) instead?
-	if len(payload) > ss.maxSendMessageSize {
-		return status.Errorf(codes.ResourceExhausted, "trying to send message larger than max (%d vs. %d)", len(payload), ss.maxSendMessageSize)
+	opts := &transport.Options{
+		Last:         false,
+		IsCompressed: ss.cp != nil || ss.comp != nil,
 	}
-	if err := ss.t.Write(ss.s, hdr, payload, &transport.Options{Last: false}); err != nil {
+	if err := ss.t.Write(ss.s, data, opts); err != nil {
 		return toRPCErr(err)
 	}
-	if ss.statsHandler != nil {
-		ss.statsHandler.HandleRPC(ss.s.Context(), outPayload(false, m, data, payload, time.Now()))
+	if outPayload != nil {
+		outPayload.SentTime = time.Now()
+		ss.statsHandler.HandleRPC(ss.s.Context(), outPayload)
 	}
 	return nil
 }
@@ -757,7 +748,7 @@ func (ss *serverStream) RecvMsg(m interface{}) (err error) {
 	if ss.statsHandler != nil {
 		inPayload = &stats.InPayload{}
 	}
-	if err := recv(ss.p, ss.codec, ss.s, ss.dc, m, ss.maxReceiveMessageSize, inPayload, ss.decomp); err != nil {
+	if err := recv(ss.codec, ss.s, ss.dc, m, ss.maxReceiveMessageSize, inPayload, ss.decomp); err != nil {
 		if err == io.EOF {
 			return err
 		}

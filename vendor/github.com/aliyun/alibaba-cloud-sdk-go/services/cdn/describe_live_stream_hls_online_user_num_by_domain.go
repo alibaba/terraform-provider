@@ -76,13 +76,13 @@ func (client *Client) DescribeLiveStreamHlsOnlineUserNumByDomainWithCallback(req
 // DescribeLiveStreamHlsOnlineUserNumByDomainRequest is the request struct for api DescribeLiveStreamHlsOnlineUserNumByDomain
 type DescribeLiveStreamHlsOnlineUserNumByDomainRequest struct {
 	*requests.RpcRequest
-	AppName       string           `position:"Query" name:"AppName"`
-	SecurityToken string           `position:"Query" name:"SecurityToken"`
-	HlsSwitch     string           `position:"Query" name:"HlsSwitch"`
-	DomainName    string           `position:"Query" name:"DomainName"`
-	PageSize      requests.Integer `position:"Query" name:"PageSize"`
 	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	SecurityToken string           `position:"Query" name:"SecurityToken"`
+	DomainName    string           `position:"Query" name:"DomainName"`
+	AppName       string           `position:"Query" name:"AppName"`
+	HlsSwitch     string           `position:"Query" name:"HlsSwitch"`
 	PageNumber    requests.Integer `position:"Query" name:"PageNumber"`
+	PageSize      requests.Integer `position:"Query" name:"PageSize"`
 }
 
 // DescribeLiveStreamHlsOnlineUserNumByDomainResponse is the response struct for api DescribeLiveStreamHlsOnlineUserNumByDomain

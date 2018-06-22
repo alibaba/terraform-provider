@@ -82,10 +82,9 @@ type PutEventRequest struct {
 // PutEventResponse is the response struct for api PutEvent
 type PutEventResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Code      string `json:"Code" xml:"Code"`
-	Message   string `json:"Message" xml:"Message"`
-	Data      string `json:"Data" xml:"Data"`
+	Code    string `json:"Code" xml:"Code"`
+	Message string `json:"Message" xml:"Message"`
+	Data    string `json:"Data" xml:"Data"`
 }
 
 // CreatePutEventRequest creates a request to invoke PutEvent API

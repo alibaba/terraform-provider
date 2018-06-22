@@ -24,7 +24,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type SimpleRequest struct {
-	Id                   int32    `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
+	Id                   int32    `protobuf:"varint,2,opt,name=id" json:"id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -62,7 +62,7 @@ func (m *SimpleRequest) GetId() int32 {
 }
 
 type SimpleResponse struct {
-	Id                   int32    `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
+	Id                   int32    `protobuf:"varint,3,opt,name=id" json:"id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -112,9 +112,8 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// TestServiceClient is the client API for TestService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+// Client API for TestService service
+
 type TestServiceClient interface {
 	// One request followed by one response.
 	// The server returns the client id as-is.
@@ -139,7 +138,7 @@ func NewTestServiceClient(cc *grpc.ClientConn) TestServiceClient {
 
 func (c *testServiceClient) UnaryCall(ctx context.Context, in *SimpleRequest, opts ...grpc.CallOption) (*SimpleResponse, error) {
 	out := new(SimpleResponse)
-	err := c.cc.Invoke(ctx, "/grpc.testing.TestService/UnaryCall", in, out, opts...)
+	err := grpc.Invoke(ctx, "/grpc.testing.TestService/UnaryCall", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +146,7 @@ func (c *testServiceClient) UnaryCall(ctx context.Context, in *SimpleRequest, op
 }
 
 func (c *testServiceClient) FullDuplexCall(ctx context.Context, opts ...grpc.CallOption) (TestService_FullDuplexCallClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_TestService_serviceDesc.Streams[0], "/grpc.testing.TestService/FullDuplexCall", opts...)
+	stream, err := grpc.NewClientStream(ctx, &_TestService_serviceDesc.Streams[0], c.cc, "/grpc.testing.TestService/FullDuplexCall", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +177,7 @@ func (x *testServiceFullDuplexCallClient) Recv() (*SimpleResponse, error) {
 }
 
 func (c *testServiceClient) ClientStreamCall(ctx context.Context, opts ...grpc.CallOption) (TestService_ClientStreamCallClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_TestService_serviceDesc.Streams[1], "/grpc.testing.TestService/ClientStreamCall", opts...)
+	stream, err := grpc.NewClientStream(ctx, &_TestService_serviceDesc.Streams[1], c.cc, "/grpc.testing.TestService/ClientStreamCall", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +211,7 @@ func (x *testServiceClientStreamCallClient) CloseAndRecv() (*SimpleResponse, err
 }
 
 func (c *testServiceClient) ServerStreamCall(ctx context.Context, in *SimpleRequest, opts ...grpc.CallOption) (TestService_ServerStreamCallClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_TestService_serviceDesc.Streams[2], "/grpc.testing.TestService/ServerStreamCall", opts...)
+	stream, err := grpc.NewClientStream(ctx, &_TestService_serviceDesc.Streams[2], c.cc, "/grpc.testing.TestService/ServerStreamCall", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -243,7 +242,8 @@ func (x *testServiceServerStreamCallClient) Recv() (*SimpleResponse, error) {
 	return m, nil
 }
 
-// TestServiceServer is the server API for TestService service.
+// Server API for TestService service
+
 type TestServiceServer interface {
 	// One request followed by one response.
 	// The server returns the client id as-is.

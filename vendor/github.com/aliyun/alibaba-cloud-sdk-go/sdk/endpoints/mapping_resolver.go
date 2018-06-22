@@ -20,8 +20,7 @@ import (
 )
 
 const keyFormatter = "%s::%s"
-
-var endpointMapping = make(map[string]string)
+var endpointMapping = make(map[string]string )
 
 func AddEndpointMapping(regionId, productId, endpoint string) (err error) {
 	key := fmt.Sprintf(keyFormatter, strings.ToLower(regionId), strings.ToLower(productId))

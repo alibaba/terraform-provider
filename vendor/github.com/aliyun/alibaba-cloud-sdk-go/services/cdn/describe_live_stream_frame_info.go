@@ -76,13 +76,13 @@ func (client *Client) DescribeLiveStreamFrameInfoWithCallback(request *DescribeL
 // DescribeLiveStreamFrameInfoRequest is the request struct for api DescribeLiveStreamFrameInfo
 type DescribeLiveStreamFrameInfoRequest struct {
 	*requests.RpcRequest
-	AppName       string           `position:"Query" name:"AppName"`
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	DomainName    string           `position:"Query" name:"DomainName"`
-	EndTime       string           `position:"Query" name:"EndTime"`
-	StartTime     string           `position:"Query" name:"StartTime"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	AppName       string           `position:"Query" name:"AppName"`
 	StreamName    string           `position:"Query" name:"StreamName"`
+	StartTime     string           `position:"Query" name:"StartTime"`
+	EndTime       string           `position:"Query" name:"EndTime"`
 }
 
 // DescribeLiveStreamFrameInfoResponse is the response struct for api DescribeLiveStreamFrameInfo

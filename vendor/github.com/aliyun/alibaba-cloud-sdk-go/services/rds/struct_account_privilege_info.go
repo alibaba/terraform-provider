@@ -17,7 +17,6 @@ package rds
 
 // AccountPrivilegeInfo is a nested struct in rds response
 type AccountPrivilegeInfo struct {
-	Account                string `json:"Account" xml:"Account"`
-	AccountPrivilege       string `json:"AccountPrivilege" xml:"AccountPrivilege"`
-	AccountPrivilegeDetail string `json:"AccountPrivilegeDetail" xml:"AccountPrivilegeDetail"`
+	Account          string `json:"Account" xml:"Account"`
+	AccountPrivilege string `json:"AccountPrivilege" xml:"AccountPrivilege"`
 }

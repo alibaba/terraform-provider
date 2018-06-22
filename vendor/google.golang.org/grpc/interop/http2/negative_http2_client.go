@@ -137,22 +137,22 @@ func main() {
 	switch *testCase {
 	case "goaway":
 		goaway(tc)
-		grpclog.Infoln("goaway done")
+		grpclog.Println("goaway done")
 	case "rst_after_header":
 		rstAfterHeader(tc)
-		grpclog.Infoln("rst_after_header done")
+		grpclog.Println("rst_after_header done")
 	case "rst_during_data":
 		rstDuringData(tc)
-		grpclog.Infoln("rst_during_data done")
+		grpclog.Println("rst_during_data done")
 	case "rst_after_data":
 		rstAfterData(tc)
-		grpclog.Infoln("rst_after_data done")
+		grpclog.Println("rst_after_data done")
 	case "ping":
 		ping(tc)
-		grpclog.Infoln("ping done")
+		grpclog.Println("ping done")
 	case "max_streams":
 		maxStreams(tc)
-		grpclog.Infoln("max_streams done")
+		grpclog.Println("max_streams done")
 	default:
 		grpclog.Fatal("Unsupported test case: ", *testCase)
 	}

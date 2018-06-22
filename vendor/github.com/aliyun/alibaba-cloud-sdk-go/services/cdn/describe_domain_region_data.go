@@ -76,11 +76,11 @@ func (client *Client) DescribeDomainRegionDataWithCallback(request *DescribeDoma
 // DescribeDomainRegionDataRequest is the request struct for api DescribeDomainRegionData
 type DescribeDomainRegionDataRequest struct {
 	*requests.RpcRequest
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	DomainName    string           `position:"Query" name:"DomainName"`
-	EndTime       string           `position:"Query" name:"EndTime"`
 	StartTime     string           `position:"Query" name:"StartTime"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	EndTime       string           `position:"Query" name:"EndTime"`
 }
 
 // DescribeDomainRegionDataResponse is the response struct for api DescribeDomainRegionData

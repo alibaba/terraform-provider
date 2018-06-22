@@ -45,17 +45,14 @@ func GetMD5Base64(bytes []byte) (base64Value string) {
 	return
 }
 
-func GetGMTLocation() (*time.Location, error) {
-	if LoadLocationFromTZData != nil && TZData != nil {
-		return LoadLocationFromTZData("GMT", TZData)
-	} else {
-		return time.LoadLocation("GMT")
-	}
-}
-
 func GetTimeInFormatISO8601() (timeStr string) {
-	gmt, err := GetGMTLocation()
-
+	var gmt *time.Location
+	var err error
+	if LoadLocationFromTZData != nil && TZData != nil {
+		gmt, err = LoadLocationFromTZData("GMT", TZData)
+	} else {
+		gmt, err = time.LoadLocation("GMT")
+	}
 	if err != nil {
 		panic(err)
 	}
@@ -63,8 +60,13 @@ func GetTimeInFormatISO8601() (timeStr string) {
 }
 
 func GetTimeInFormatRFC2616() (timeStr string) {
-	gmt, err := GetGMTLocation()
-
+	var gmt *time.Location
+	var err error
+	if LoadLocationFromTZData != nil && TZData != nil {
+		gmt, err = LoadLocationFromTZData("GMT", TZData)
+	} else {
+		gmt, err = time.LoadLocation("GMT")
+	}
 	if err != nil {
 		panic(err)
 	}

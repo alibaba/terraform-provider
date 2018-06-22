@@ -28,18 +28,6 @@ func TestFormat(t *testing.T) {
 			`a = b.c`,
 		},
 		{
-			`a=b[c]`,
-			`a = b[c]`,
-		},
-		{
-			`a=b()[c]`,
-			`a = b()[c]`,
-		},
-		{
-			`a=["hello"][0]`,
-			`a = ["hello"][0]`,
-		},
-		{
 			`( a+2 )`,
 			`(a + 2)`,
 		},

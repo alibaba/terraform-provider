@@ -77,10 +77,10 @@ func (client *Client) TaskConfigListWithCallback(request *TaskConfigListRequest,
 type TaskConfigListRequest struct {
 	*requests.RpcRequest
 	GroupId    requests.Integer `position:"Query" name:"GroupId"`
-	PageSize   requests.Integer `position:"Query" name:"PageSize"`
-	TaskName   string           `position:"Query" name:"TaskName"`
 	Id         requests.Integer `position:"Query" name:"Id"`
+	TaskName   string           `position:"Query" name:"TaskName"`
 	PageNumber requests.Integer `position:"Query" name:"PageNumber"`
+	PageSize   requests.Integer `position:"Query" name:"PageSize"`
 }
 
 // TaskConfigListResponse is the response struct for api TaskConfigList

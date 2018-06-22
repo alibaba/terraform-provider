@@ -86,7 +86,6 @@ type StopTasksResponse struct {
 	Message   string `json:"Message" xml:"Message"`
 	Success   string `json:"Success" xml:"Success"`
 	RequestId string `json:"RequestId" xml:"RequestId"`
-	Data      string `json:"Data" xml:"Data"`
 }
 
 // CreateStopTasksRequest creates a request to invoke StopTasks API

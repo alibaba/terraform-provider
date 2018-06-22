@@ -76,10 +76,10 @@ func (client *Client) DeleteLivePullStreamInfoWithCallback(request *DeleteLivePu
 // DeleteLivePullStreamInfoRequest is the request struct for api DeleteLivePullStreamInfo
 type DeleteLivePullStreamInfoRequest struct {
 	*requests.RpcRequest
-	AppName       string           `position:"Query" name:"AppName"`
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	DomainName    string           `position:"Query" name:"DomainName"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	AppName       string           `position:"Query" name:"AppName"`
 	StreamName    string           `position:"Query" name:"StreamName"`
 }
 

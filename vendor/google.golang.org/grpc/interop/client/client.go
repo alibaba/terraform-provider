@@ -130,73 +130,73 @@ func main() {
 	switch *testCase {
 	case "empty_unary":
 		interop.DoEmptyUnaryCall(tc)
-		grpclog.Infoln("EmptyUnaryCall done")
+		grpclog.Println("EmptyUnaryCall done")
 	case "large_unary":
 		interop.DoLargeUnaryCall(tc)
-		grpclog.Infoln("LargeUnaryCall done")
+		grpclog.Println("LargeUnaryCall done")
 	case "client_streaming":
 		interop.DoClientStreaming(tc)
-		grpclog.Infoln("ClientStreaming done")
+		grpclog.Println("ClientStreaming done")
 	case "server_streaming":
 		interop.DoServerStreaming(tc)
-		grpclog.Infoln("ServerStreaming done")
+		grpclog.Println("ServerStreaming done")
 	case "ping_pong":
 		interop.DoPingPong(tc)
-		grpclog.Infoln("Pingpong done")
+		grpclog.Println("Pingpong done")
 	case "empty_stream":
 		interop.DoEmptyStream(tc)
-		grpclog.Infoln("Emptystream done")
+		grpclog.Println("Emptystream done")
 	case "timeout_on_sleeping_server":
 		interop.DoTimeoutOnSleepingServer(tc)
-		grpclog.Infoln("TimeoutOnSleepingServer done")
+		grpclog.Println("TimeoutOnSleepingServer done")
 	case "compute_engine_creds":
 		if !*useTLS {
 			grpclog.Fatalf("TLS is not enabled. TLS is required to execute compute_engine_creds test case.")
 		}
 		interop.DoComputeEngineCreds(tc, *defaultServiceAccount, *oauthScope)
-		grpclog.Infoln("ComputeEngineCreds done")
+		grpclog.Println("ComputeEngineCreds done")
 	case "service_account_creds":
 		if !*useTLS {
 			grpclog.Fatalf("TLS is not enabled. TLS is required to execute service_account_creds test case.")
 		}
 		interop.DoServiceAccountCreds(tc, *serviceAccountKeyFile, *oauthScope)
-		grpclog.Infoln("ServiceAccountCreds done")
+		grpclog.Println("ServiceAccountCreds done")
 	case "jwt_token_creds":
 		if !*useTLS {
 			grpclog.Fatalf("TLS is not enabled. TLS is required to execute jwt_token_creds test case.")
 		}
 		interop.DoJWTTokenCreds(tc, *serviceAccountKeyFile)
-		grpclog.Infoln("JWTtokenCreds done")
+		grpclog.Println("JWTtokenCreds done")
 	case "per_rpc_creds":
 		if !*useTLS {
 			grpclog.Fatalf("TLS is not enabled. TLS is required to execute per_rpc_creds test case.")
 		}
 		interop.DoPerRPCCreds(tc, *serviceAccountKeyFile, *oauthScope)
-		grpclog.Infoln("PerRPCCreds done")
+		grpclog.Println("PerRPCCreds done")
 	case "oauth2_auth_token":
 		if !*useTLS {
 			grpclog.Fatalf("TLS is not enabled. TLS is required to execute oauth2_auth_token test case.")
 		}
 		interop.DoOauth2TokenCreds(tc, *serviceAccountKeyFile, *oauthScope)
-		grpclog.Infoln("Oauth2TokenCreds done")
+		grpclog.Println("Oauth2TokenCreds done")
 	case "cancel_after_begin":
 		interop.DoCancelAfterBegin(tc)
-		grpclog.Infoln("CancelAfterBegin done")
+		grpclog.Println("CancelAfterBegin done")
 	case "cancel_after_first_response":
 		interop.DoCancelAfterFirstResponse(tc)
-		grpclog.Infoln("CancelAfterFirstResponse done")
+		grpclog.Println("CancelAfterFirstResponse done")
 	case "status_code_and_message":
 		interop.DoStatusCodeAndMessage(tc)
-		grpclog.Infoln("StatusCodeAndMessage done")
+		grpclog.Println("StatusCodeAndMessage done")
 	case "custom_metadata":
 		interop.DoCustomMetadata(tc)
-		grpclog.Infoln("CustomMetadata done")
+		grpclog.Println("CustomMetadata done")
 	case "unimplemented_method":
 		interop.DoUnimplementedMethod(conn)
-		grpclog.Infoln("UnimplementedMethod done")
+		grpclog.Println("UnimplementedMethod done")
 	case "unimplemented_service":
 		interop.DoUnimplementedService(testpb.NewUnimplementedServiceClient(conn))
-		grpclog.Infoln("UnimplementedService done")
+		grpclog.Println("UnimplementedService done")
 	default:
 		grpclog.Fatal("Unsupported test case: ", *testCase)
 	}

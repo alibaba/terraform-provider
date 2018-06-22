@@ -131,7 +131,6 @@ func isReservedHeader(hdr string) bool {
 	}
 	switch hdr {
 	case "content-type",
-		"user-agent",
 		"grpc-message-type",
 		"grpc-encoding",
 		"grpc-message",
@@ -145,11 +144,11 @@ func isReservedHeader(hdr string) bool {
 	}
 }
 
-// isWhitelistedHeader checks whether hdr should be propagated
-// into metadata visible to users.
-func isWhitelistedHeader(hdr string) bool {
+// isWhitelistedPseudoHeader checks whether hdr belongs to HTTP2 pseudoheaders
+// that should be propagated into metadata visible to users.
+func isWhitelistedPseudoHeader(hdr string) bool {
 	switch hdr {
-	case ":authority", "user-agent":
+	case ":authority":
 		return true
 	default:
 		return false
@@ -340,7 +339,7 @@ func (d *decodeState) processHeaderField(f hpack.HeaderField) error {
 		d.statsTrace = v
 		d.addMetadata(f.Name, string(v))
 	default:
-		if isReservedHeader(f.Name) && !isWhitelistedHeader(f.Name) {
+		if isReservedHeader(f.Name) && !isWhitelistedPseudoHeader(f.Name) {
 			break
 		}
 		v, err := decodeMetadataHeader(f.Name, f.Value)
@@ -531,14 +530,10 @@ func (w *bufWriter) Write(b []byte) (n int, err error) {
 	if w.err != nil {
 		return 0, w.err
 	}
-	for len(b) > 0 {
-		nn := copy(w.buf[w.offset:], b)
-		b = b[nn:]
-		w.offset += nn
-		n += nn
-		if w.offset >= w.batchSize {
-			err = w.Flush()
-		}
+	n = copy(w.buf[w.offset:], b)
+	w.offset += n
+	if w.offset >= w.batchSize {
+		err = w.Flush()
 	}
 	return n, err
 }

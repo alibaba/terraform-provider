@@ -76,10 +76,10 @@ func (client *Client) DescribeLiveStreamTranscodeStreamNumWithCallback(request *
 // DescribeLiveStreamTranscodeStreamNumRequest is the request struct for api DescribeLiveStreamTranscodeStreamNum
 type DescribeLiveStreamTranscodeStreamNumRequest struct {
 	*requests.RpcRequest
-	PullDomain    string           `position:"Query" name:"PullDomain"`
-	SecurityToken string           `position:"Query" name:"SecurityToken"`
-	PushDomain    string           `position:"Query" name:"PushDomain"`
 	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	SecurityToken string           `position:"Query" name:"SecurityToken"`
+	PullDomain    string           `position:"Query" name:"PullDomain"`
+	PushDomain    string           `position:"Query" name:"PushDomain"`
 }
 
 // DescribeLiveStreamTranscodeStreamNumResponse is the response struct for api DescribeLiveStreamTranscodeStreamNum

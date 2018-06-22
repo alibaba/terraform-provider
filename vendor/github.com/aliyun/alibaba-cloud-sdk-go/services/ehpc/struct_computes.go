@@ -19,7 +19,5 @@ package ehpc
 type Computes struct {
 	Total          int `json:"Total" xml:"Total"`
 	NormalCount    int `json:"NormalCount" xml:"NormalCount"`
-	OperatingCount int `json:"OperatingCount" xml:"OperatingCount"`
-	StoppedCount   int `json:"StoppedCount" xml:"StoppedCount"`
 	ExceptionCount int `json:"ExceptionCount" xml:"ExceptionCount"`
 }

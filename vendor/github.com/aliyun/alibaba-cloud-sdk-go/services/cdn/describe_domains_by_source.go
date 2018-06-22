@@ -76,9 +76,9 @@ func (client *Client) DescribeDomainsBySourceWithCallback(request *DescribeDomai
 // DescribeDomainsBySourceRequest is the request struct for api DescribeDomainsBySource
 type DescribeDomainsBySourceRequest struct {
 	*requests.RpcRequest
-	Sources       string           `position:"Query" name:"Sources"`
-	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	SecurityToken string           `position:"Query" name:"SecurityToken"`
+	Sources       string           `position:"Query" name:"Sources"`
 }
 
 // DescribeDomainsBySourceResponse is the response struct for api DescribeDomainsBySource

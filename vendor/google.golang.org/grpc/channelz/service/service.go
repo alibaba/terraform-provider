@@ -16,6 +16,8 @@
  *
  */
 
+//go:generate protoc -I ../service_proto --go_out=plugins=grpc:../service_proto ../service_proto/service.proto
+
 // Package service provides an implementation for channelz service server.
 package service
 
@@ -27,44 +29,43 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/channelz"
-	channelzgrpc "google.golang.org/grpc/channelz/grpc_channelz_v1"
-	channelzpb "google.golang.org/grpc/channelz/grpc_channelz_v1"
+	pb "google.golang.org/grpc/channelz/service_proto"
 	"google.golang.org/grpc/connectivity"
 )
 
 // RegisterChannelzServiceToServer registers the channelz service to the given server.
 func RegisterChannelzServiceToServer(s *grpc.Server) {
-	channelzgrpc.RegisterChannelzServer(s, &serverImpl{})
+	pb.RegisterChannelzServer(s, &serverImpl{})
 }
 
-func newCZServer() channelzgrpc.ChannelzServer {
+func newCZServer() pb.ChannelzServer {
 	return &serverImpl{}
 }
 
 type serverImpl struct{}
 
-func connectivityStateToProto(s connectivity.State) *channelzpb.ChannelConnectivityState {
+func connectivityStateToProto(s connectivity.State) *pb.ChannelConnectivityState {
 	switch s {
 	case connectivity.Idle:
-		return &channelzpb.ChannelConnectivityState{State: channelzpb.ChannelConnectivityState_IDLE}
+		return &pb.ChannelConnectivityState{State: pb.ChannelConnectivityState_IDLE}
 	case connectivity.Connecting:
-		return &channelzpb.ChannelConnectivityState{State: channelzpb.ChannelConnectivityState_CONNECTING}
+		return &pb.ChannelConnectivityState{State: pb.ChannelConnectivityState_CONNECTING}
 	case connectivity.Ready:
-		return &channelzpb.ChannelConnectivityState{State: channelzpb.ChannelConnectivityState_READY}
+		return &pb.ChannelConnectivityState{State: pb.ChannelConnectivityState_READY}
 	case connectivity.TransientFailure:
-		return &channelzpb.ChannelConnectivityState{State: channelzpb.ChannelConnectivityState_TRANSIENT_FAILURE}
+		return &pb.ChannelConnectivityState{State: pb.ChannelConnectivityState_TRANSIENT_FAILURE}
 	case connectivity.Shutdown:
-		return &channelzpb.ChannelConnectivityState{State: channelzpb.ChannelConnectivityState_SHUTDOWN}
+		return &pb.ChannelConnectivityState{State: pb.ChannelConnectivityState_SHUTDOWN}
 	default:
-		return &channelzpb.ChannelConnectivityState{State: channelzpb.ChannelConnectivityState_UNKNOWN}
+		return &pb.ChannelConnectivityState{State: pb.ChannelConnectivityState_UNKNOWN}
 	}
 }
 
-func channelMetricToProto(cm *channelz.ChannelMetric) *channelzpb.Channel {
-	c := &channelzpb.Channel{}
-	c.Ref = &channelzpb.ChannelRef{ChannelId: cm.ID, Name: cm.RefName}
+func channelMetricToProto(cm *channelz.ChannelMetric) *pb.Channel {
+	c := &pb.Channel{}
+	c.Ref = &pb.ChannelRef{ChannelId: cm.ID, Name: cm.RefName}
 
-	c.Data = &channelzpb.ChannelData{
+	c.Data = &pb.ChannelData{
 		State:          connectivityStateToProto(cm.ChannelData.State),
 		Target:         cm.ChannelData.Target,
 		CallsStarted:   cm.ChannelData.CallsStarted,
@@ -74,31 +75,31 @@ func channelMetricToProto(cm *channelz.ChannelMetric) *channelzpb.Channel {
 	if ts, err := ptypes.TimestampProto(cm.ChannelData.LastCallStartedTimestamp); err == nil {
 		c.Data.LastCallStartedTimestamp = ts
 	}
-	nestedChans := make([]*channelzpb.ChannelRef, 0, len(cm.NestedChans))
+	nestedChans := make([]*pb.ChannelRef, 0, len(cm.NestedChans))
 	for id, ref := range cm.NestedChans {
-		nestedChans = append(nestedChans, &channelzpb.ChannelRef{ChannelId: id, Name: ref})
+		nestedChans = append(nestedChans, &pb.ChannelRef{ChannelId: id, Name: ref})
 	}
 	c.ChannelRef = nestedChans
 
-	subChans := make([]*channelzpb.SubchannelRef, 0, len(cm.SubChans))
+	subChans := make([]*pb.SubchannelRef, 0, len(cm.SubChans))
 	for id, ref := range cm.SubChans {
-		subChans = append(subChans, &channelzpb.SubchannelRef{SubchannelId: id, Name: ref})
+		subChans = append(subChans, &pb.SubchannelRef{SubchannelId: id, Name: ref})
 	}
 	c.SubchannelRef = subChans
 
-	sockets := make([]*channelzpb.SocketRef, 0, len(cm.Sockets))
+	sockets := make([]*pb.SocketRef, 0, len(cm.Sockets))
 	for id, ref := range cm.Sockets {
-		sockets = append(sockets, &channelzpb.SocketRef{SocketId: id, Name: ref})
+		sockets = append(sockets, &pb.SocketRef{SocketId: id, Name: ref})
 	}
 	c.SocketRef = sockets
 	return c
 }
 
-func subChannelMetricToProto(cm *channelz.SubChannelMetric) *channelzpb.Subchannel {
-	sc := &channelzpb.Subchannel{}
-	sc.Ref = &channelzpb.SubchannelRef{SubchannelId: cm.ID, Name: cm.RefName}
+func subChannelMetricToProto(cm *channelz.SubChannelMetric) *pb.Subchannel {
+	sc := &pb.Subchannel{}
+	sc.Ref = &pb.SubchannelRef{SubchannelId: cm.ID, Name: cm.RefName}
 
-	sc.Data = &channelzpb.ChannelData{
+	sc.Data = &pb.ChannelData{
 		State:          connectivityStateToProto(cm.ChannelData.State),
 		Target:         cm.ChannelData.Target,
 		CallsStarted:   cm.ChannelData.CallsStarted,
@@ -108,51 +109,51 @@ func subChannelMetricToProto(cm *channelz.SubChannelMetric) *channelzpb.Subchann
 	if ts, err := ptypes.TimestampProto(cm.ChannelData.LastCallStartedTimestamp); err == nil {
 		sc.Data.LastCallStartedTimestamp = ts
 	}
-	nestedChans := make([]*channelzpb.ChannelRef, 0, len(cm.NestedChans))
+	nestedChans := make([]*pb.ChannelRef, 0, len(cm.NestedChans))
 	for id, ref := range cm.NestedChans {
-		nestedChans = append(nestedChans, &channelzpb.ChannelRef{ChannelId: id, Name: ref})
+		nestedChans = append(nestedChans, &pb.ChannelRef{ChannelId: id, Name: ref})
 	}
 	sc.ChannelRef = nestedChans
 
-	subChans := make([]*channelzpb.SubchannelRef, 0, len(cm.SubChans))
+	subChans := make([]*pb.SubchannelRef, 0, len(cm.SubChans))
 	for id, ref := range cm.SubChans {
-		subChans = append(subChans, &channelzpb.SubchannelRef{SubchannelId: id, Name: ref})
+		subChans = append(subChans, &pb.SubchannelRef{SubchannelId: id, Name: ref})
 	}
 	sc.SubchannelRef = subChans
 
-	sockets := make([]*channelzpb.SocketRef, 0, len(cm.Sockets))
+	sockets := make([]*pb.SocketRef, 0, len(cm.Sockets))
 	for id, ref := range cm.Sockets {
-		sockets = append(sockets, &channelzpb.SocketRef{SocketId: id, Name: ref})
+		sockets = append(sockets, &pb.SocketRef{SocketId: id, Name: ref})
 	}
 	sc.SocketRef = sockets
 	return sc
 }
 
-func addrToProto(a net.Addr) *channelzpb.Address {
+func addrToProto(a net.Addr) *pb.Address {
 	switch a.Network() {
 	case "udp":
 		// TODO: Address_OtherAddress{}. Need proto def for Value.
 	case "ip":
 		// Note zone info is discarded through the conversion.
-		return &channelzpb.Address{Address: &channelzpb.Address_TcpipAddress{TcpipAddress: &channelzpb.Address_TcpIpAddress{IpAddress: a.(*net.IPAddr).IP}}}
+		return &pb.Address{Address: &pb.Address_TcpipAddress{TcpipAddress: &pb.Address_TcpIpAddress{IpAddress: a.(*net.IPAddr).IP}}}
 	case "ip+net":
 		// Note mask info is discarded through the conversion.
-		return &channelzpb.Address{Address: &channelzpb.Address_TcpipAddress{TcpipAddress: &channelzpb.Address_TcpIpAddress{IpAddress: a.(*net.IPNet).IP}}}
+		return &pb.Address{Address: &pb.Address_TcpipAddress{TcpipAddress: &pb.Address_TcpIpAddress{IpAddress: a.(*net.IPNet).IP}}}
 	case "tcp":
 		// Note zone info is discarded through the conversion.
-		return &channelzpb.Address{Address: &channelzpb.Address_TcpipAddress{TcpipAddress: &channelzpb.Address_TcpIpAddress{IpAddress: a.(*net.TCPAddr).IP, Port: int32(a.(*net.TCPAddr).Port)}}}
+		return &pb.Address{Address: &pb.Address_TcpipAddress{TcpipAddress: &pb.Address_TcpIpAddress{IpAddress: a.(*net.TCPAddr).IP, Port: int32(a.(*net.TCPAddr).Port)}}}
 	case "unix", "unixgram", "unixpacket":
-		return &channelzpb.Address{Address: &channelzpb.Address_UdsAddress_{UdsAddress: &channelzpb.Address_UdsAddress{Filename: a.String()}}}
+		return &pb.Address{Address: &pb.Address_UdsAddress_{UdsAddress: &pb.Address_UdsAddress{Filename: a.String()}}}
 	default:
 	}
-	return &channelzpb.Address{}
+	return &pb.Address{}
 }
 
-func socketMetricToProto(sm *channelz.SocketMetric) *channelzpb.Socket {
-	s := &channelzpb.Socket{}
-	s.Ref = &channelzpb.SocketRef{SocketId: sm.ID, Name: sm.RefName}
+func socketMetricToProto(sm *channelz.SocketMetric) *pb.Socket {
+	s := &pb.Socket{}
+	s.Ref = &pb.SocketRef{SocketId: sm.ID, Name: sm.RefName}
 
-	s.Data = &channelzpb.SocketData{
+	s.Data = &pb.SocketData{
 		StreamsStarted:   sm.SocketData.StreamsStarted,
 		StreamsSucceeded: sm.SocketData.StreamsSucceeded,
 		StreamsFailed:    sm.SocketData.StreamsFailed,
@@ -185,9 +186,9 @@ func socketMetricToProto(sm *channelz.SocketMetric) *channelzpb.Socket {
 	return s
 }
 
-func (s *serverImpl) GetTopChannels(ctx context.Context, req *channelzpb.GetTopChannelsRequest) (*channelzpb.GetTopChannelsResponse, error) {
+func (s *serverImpl) GetTopChannels(ctx context.Context, req *pb.GetTopChannelsRequest) (*pb.GetTopChannelsResponse, error) {
 	metrics, end := channelz.GetTopChannels(req.GetStartChannelId())
-	resp := &channelzpb.GetTopChannelsResponse{}
+	resp := &pb.GetTopChannelsResponse{}
 	for _, m := range metrics {
 		resp.Channel = append(resp.Channel, channelMetricToProto(m))
 	}
@@ -195,11 +196,11 @@ func (s *serverImpl) GetTopChannels(ctx context.Context, req *channelzpb.GetTopC
 	return resp, nil
 }
 
-func serverMetricToProto(sm *channelz.ServerMetric) *channelzpb.Server {
-	s := &channelzpb.Server{}
-	s.Ref = &channelzpb.ServerRef{ServerId: sm.ID, Name: sm.RefName}
+func serverMetricToProto(sm *channelz.ServerMetric) *pb.Server {
+	s := &pb.Server{}
+	s.Ref = &pb.ServerRef{ServerId: sm.ID, Name: sm.RefName}
 
-	s.Data = &channelzpb.ServerData{
+	s.Data = &pb.ServerData{
 		CallsStarted:   sm.ServerData.CallsStarted,
 		CallsSucceeded: sm.ServerData.CallsSucceeded,
 		CallsFailed:    sm.ServerData.CallsFailed,
@@ -208,17 +209,17 @@ func serverMetricToProto(sm *channelz.ServerMetric) *channelzpb.Server {
 	if ts, err := ptypes.TimestampProto(sm.ServerData.LastCallStartedTimestamp); err == nil {
 		s.Data.LastCallStartedTimestamp = ts
 	}
-	sockets := make([]*channelzpb.SocketRef, 0, len(sm.ListenSockets))
+	sockets := make([]*pb.SocketRef, 0, len(sm.ListenSockets))
 	for id, ref := range sm.ListenSockets {
-		sockets = append(sockets, &channelzpb.SocketRef{SocketId: id, Name: ref})
+		sockets = append(sockets, &pb.SocketRef{SocketId: id, Name: ref})
 	}
 	s.ListenSocket = sockets
 	return s
 }
 
-func (s *serverImpl) GetServers(ctx context.Context, req *channelzpb.GetServersRequest) (*channelzpb.GetServersResponse, error) {
+func (s *serverImpl) GetServers(ctx context.Context, req *pb.GetServersRequest) (*pb.GetServersResponse, error) {
 	metrics, end := channelz.GetServers(req.GetStartServerId())
-	resp := &channelzpb.GetServersResponse{}
+	resp := &pb.GetServersResponse{}
 	for _, m := range metrics {
 		resp.Server = append(resp.Server, serverMetricToProto(m))
 	}
@@ -226,39 +227,39 @@ func (s *serverImpl) GetServers(ctx context.Context, req *channelzpb.GetServersR
 	return resp, nil
 }
 
-func (s *serverImpl) GetServerSockets(ctx context.Context, req *channelzpb.GetServerSocketsRequest) (*channelzpb.GetServerSocketsResponse, error) {
+func (s *serverImpl) GetServerSockets(ctx context.Context, req *pb.GetServerSocketsRequest) (*pb.GetServerSocketsResponse, error) {
 	metrics, end := channelz.GetServerSockets(req.GetServerId(), req.GetStartSocketId())
-	resp := &channelzpb.GetServerSocketsResponse{}
+	resp := &pb.GetServerSocketsResponse{}
 	for _, m := range metrics {
-		resp.SocketRef = append(resp.SocketRef, &channelzpb.SocketRef{SocketId: m.ID, Name: m.RefName})
+		resp.SocketRef = append(resp.SocketRef, &pb.SocketRef{SocketId: m.ID, Name: m.RefName})
 	}
 	resp.End = end
 	return resp, nil
 }
 
-func (s *serverImpl) GetChannel(ctx context.Context, req *channelzpb.GetChannelRequest) (*channelzpb.GetChannelResponse, error) {
+func (s *serverImpl) GetChannel(ctx context.Context, req *pb.GetChannelRequest) (*pb.GetChannelResponse, error) {
 	var metric *channelz.ChannelMetric
 	if metric = channelz.GetChannel(req.GetChannelId()); metric == nil {
-		return &channelzpb.GetChannelResponse{}, nil
+		return &pb.GetChannelResponse{}, nil
 	}
-	resp := &channelzpb.GetChannelResponse{Channel: channelMetricToProto(metric)}
+	resp := &pb.GetChannelResponse{Channel: channelMetricToProto(metric)}
 	return resp, nil
 }
 
-func (s *serverImpl) GetSubchannel(ctx context.Context, req *channelzpb.GetSubchannelRequest) (*channelzpb.GetSubchannelResponse, error) {
+func (s *serverImpl) GetSubchannel(ctx context.Context, req *pb.GetSubchannelRequest) (*pb.GetSubchannelResponse, error) {
 	var metric *channelz.SubChannelMetric
 	if metric = channelz.GetSubChannel(req.GetSubchannelId()); metric == nil {
-		return &channelzpb.GetSubchannelResponse{}, nil
+		return &pb.GetSubchannelResponse{}, nil
 	}
-	resp := &channelzpb.GetSubchannelResponse{Subchannel: subChannelMetricToProto(metric)}
+	resp := &pb.GetSubchannelResponse{Subchannel: subChannelMetricToProto(metric)}
 	return resp, nil
 }
 
-func (s *serverImpl) GetSocket(ctx context.Context, req *channelzpb.GetSocketRequest) (*channelzpb.GetSocketResponse, error) {
+func (s *serverImpl) GetSocket(ctx context.Context, req *pb.GetSocketRequest) (*pb.GetSocketResponse, error) {
 	var metric *channelz.SocketMetric
 	if metric = channelz.GetSocket(req.GetSocketId()); metric == nil {
-		return &channelzpb.GetSocketResponse{}, nil
+		return &pb.GetSocketResponse{}, nil
 	}
-	resp := &channelzpb.GetSocketResponse{Socket: socketMetricToProto(metric)}
+	resp := &pb.GetSocketResponse{Socket: socketMetricToProto(metric)}
 	return resp, nil
 }

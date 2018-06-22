@@ -76,17 +76,18 @@ func (client *Client) QueryMetricLastWithCallback(request *QueryMetricLastReques
 // QueryMetricLastRequest is the request struct for api QueryMetricLast
 type QueryMetricLastRequest struct {
 	*requests.RpcRequest
-	Cursor          string           `position:"Query" name:"Cursor"`
-	ResourceOwnerId requests.Integer `position:"Query" name:"ResourceOwnerId"`
-	Period          string           `position:"Query" name:"Period"`
-	Metric          string           `position:"Query" name:"Metric"`
-	Length          string           `position:"Query" name:"Length"`
 	Project         string           `position:"Query" name:"Project"`
-	EndTime         string           `position:"Query" name:"EndTime"`
-	Express         string           `position:"Query" name:"Express"`
+	ResourceOwnerId requests.Integer `position:"Query" name:"ResourceOwnerId"`
+	CallbyCmsOwner  string           `position:"Query" name:"callby_cms_owner"`
+	Metric          string           `position:"Query" name:"Metric"`
+	Period          string           `position:"Query" name:"Period"`
 	StartTime       string           `position:"Query" name:"StartTime"`
-	Page            string           `position:"Query" name:"Page"`
+	EndTime         string           `position:"Query" name:"EndTime"`
 	Dimensions      string           `position:"Query" name:"Dimensions"`
+	Cursor          string           `position:"Query" name:"Cursor"`
+	Page            string           `position:"Query" name:"Page"`
+	Length          string           `position:"Query" name:"Length"`
+	Express         string           `position:"Query" name:"Express"`
 }
 
 // QueryMetricLastResponse is the response struct for api QueryMetricLast

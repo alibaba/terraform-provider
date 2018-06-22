@@ -76,11 +76,11 @@ func (client *Client) DescribeDomainOnlineUserNumberWithCallback(request *Descri
 // DescribeDomainOnlineUserNumberRequest is the request struct for api DescribeDomainOnlineUserNumber
 type DescribeDomainOnlineUserNumberRequest struct {
 	*requests.RpcRequest
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	DomainName    string           `position:"Query" name:"DomainName"`
-	EndTime       string           `position:"Query" name:"EndTime"`
 	StartTime     string           `position:"Query" name:"StartTime"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	EndTime       string           `position:"Query" name:"EndTime"`
 }
 
 // DescribeDomainOnlineUserNumberResponse is the response struct for api DescribeDomainOnlineUserNumber

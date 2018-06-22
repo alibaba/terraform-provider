@@ -83,10 +83,7 @@ type CreateMigrateTaskRequest struct {
 	DBName               string           `position:"Query" name:"DBName"`
 	BackupMode           string           `position:"Query" name:"BackupMode"`
 	IsOnlineDB           string           `position:"Query" name:"IsOnlineDB"`
-	CheckDBMode          string           `position:"Query" name:"CheckDBMode"`
-	OssObjectPositions   string           `position:"Query" name:"OssObjectPositions"`
 	OSSUrls              string           `position:"Query" name:"OSSUrls"`
-	MigrateTaskId        string           `position:"Query" name:"MigrateTaskId"`
 }
 
 // CreateMigrateTaskResponse is the response struct for api CreateMigrateTask
@@ -96,7 +93,7 @@ type CreateMigrateTaskResponse struct {
 	DBInstanceId  string `json:"DBInstanceId" xml:"DBInstanceId"`
 	TaskId        string `json:"TaskId" xml:"TaskId"`
 	DBName        string `json:"DBName" xml:"DBName"`
-	MigrateTaskId string `json:"MigrateTaskId" xml:"MigrateTaskId"`
+	MigrateIaskId string `json:"MigrateIaskId" xml:"MigrateIaskId"`
 	BackupMode    string `json:"BackupMode" xml:"BackupMode"`
 }
 

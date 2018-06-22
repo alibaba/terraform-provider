@@ -76,12 +76,11 @@ func (client *Client) SetHttpHeaderConfigWithCallback(request *SetHttpHeaderConf
 // SetHttpHeaderConfigRequest is the request struct for api SetHttpHeaderConfig
 type SetHttpHeaderConfigRequest struct {
 	*requests.RpcRequest
-	HeaderValue   string           `position:"Query" name:"HeaderValue"`
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
-	ConfigId      requests.Integer `position:"Query" name:"ConfigId"`
 	DomainName    string           `position:"Query" name:"DomainName"`
 	HeaderKey     string           `position:"Query" name:"HeaderKey"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	HeaderValue   string           `position:"Query" name:"HeaderValue"`
 }
 
 // SetHttpHeaderConfigResponse is the response struct for api SetHttpHeaderConfig

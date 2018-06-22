@@ -76,10 +76,10 @@ func (client *Client) ListNotifyPolicyWithCallback(request *ListNotifyPolicyRequ
 // ListNotifyPolicyRequest is the request struct for api ListNotifyPolicy
 type ListNotifyPolicyRequest struct {
 	*requests.RpcRequest
-	PolicyType string           `position:"Query" name:"PolicyType"`
 	AlertName  string           `position:"Query" name:"AlertName"`
-	PageSize   requests.Integer `position:"Query" name:"PageSize"`
+	PolicyType string           `position:"Query" name:"PolicyType"`
 	Id         string           `position:"Query" name:"Id"`
+	PageSize   requests.Integer `position:"Query" name:"PageSize"`
 	Dimensions string           `position:"Query" name:"Dimensions"`
 }
 

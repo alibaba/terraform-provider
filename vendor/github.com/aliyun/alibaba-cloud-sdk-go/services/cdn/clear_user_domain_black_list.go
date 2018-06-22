@@ -76,10 +76,10 @@ func (client *Client) ClearUserDomainBlackListWithCallback(request *ClearUserDom
 // ClearUserDomainBlackListRequest is the request struct for api ClearUserDomainBlackList
 type ClearUserDomainBlackListRequest struct {
 	*requests.RpcRequest
-	SecurityToken string           `position:"Query" name:"SecurityToken"`
-	OwnerAccount  string           `position:"Query" name:"OwnerAccount"`
-	DomainName    string           `position:"Query" name:"DomainName"`
 	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	OwnerAccount  string           `position:"Query" name:"OwnerAccount"`
+	SecurityToken string           `position:"Query" name:"SecurityToken"`
+	DomainName    string           `position:"Query" name:"DomainName"`
 }
 
 // ClearUserDomainBlackListResponse is the response struct for api ClearUserDomainBlackList

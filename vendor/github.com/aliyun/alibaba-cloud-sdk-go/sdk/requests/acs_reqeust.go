@@ -78,7 +78,6 @@ type AcsRequest interface {
 
 	SetDomain(domain string)
 	SetContent(content []byte)
-	SetScheme(scheme string)
 	BuildUrl() string
 	BuildQueries() string
 
@@ -172,10 +171,6 @@ func (request *baseRequest) GetScheme() string {
 	return request.Scheme
 }
 
-func (request *baseRequest) SetScheme(scheme string) {
-	request.Scheme = scheme
-}
-
 func (request *baseRequest) GetMethod() string {
 	return request.Method
 }
@@ -219,7 +214,7 @@ func (request *baseRequest) GetStringToSign() string {
 
 func defaultBaseRequest() (request *baseRequest) {
 	request = &baseRequest{
-		Scheme:       "",
+		Scheme:       HTTP,
 		AcceptFormat: "JSON",
 		Method:       GET,
 		QueryParams:  make(map[string]string),

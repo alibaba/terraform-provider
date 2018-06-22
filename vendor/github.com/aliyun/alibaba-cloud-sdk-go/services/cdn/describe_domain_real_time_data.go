@@ -76,12 +76,12 @@ func (client *Client) DescribeDomainRealTimeDataWithCallback(request *DescribeDo
 // DescribeDomainRealTimeDataRequest is the request struct for api DescribeDomainRealTimeData
 type DescribeDomainRealTimeDataRequest struct {
 	*requests.RpcRequest
-	Field         string           `position:"Query" name:"Field"`
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	DomainName    string           `position:"Query" name:"DomainName"`
-	EndTime       string           `position:"Query" name:"EndTime"`
 	StartTime     string           `position:"Query" name:"StartTime"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	EndTime       string           `position:"Query" name:"EndTime"`
+	Field         string           `position:"Query" name:"Field"`
 }
 
 // DescribeDomainRealTimeDataResponse is the response struct for api DescribeDomainRealTimeData

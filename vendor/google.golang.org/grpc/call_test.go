@@ -31,8 +31,8 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/internal/leakcheck"
 	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/test/leakcheck"
 	"google.golang.org/grpc/transport"
 )
 
@@ -66,17 +66,16 @@ type testStreamHandler struct {
 }
 
 func (h *testStreamHandler) handleStream(t *testing.T, s *transport.Stream) {
-	p := &parser{r: s}
 	for {
-		pf, req, err := p.recvMsg(math.MaxInt32)
+		isCompressed, req, err := recvMsg(s, math.MaxInt32)
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
 			return
 		}
-		if pf != compressionNone {
-			t.Errorf("Received the mistaken message format %d, want %d", pf, compressionNone)
+		if isCompressed {
+			t.Errorf("Received compressed message want non-compressed message")
 			return
 		}
 		var v string
@@ -105,13 +104,12 @@ func (h *testStreamHandler) handleStream(t *testing.T, s *transport.Stream) {
 		}
 	}
 	// send a response back to end the stream.
-	data, err := encode(testCodec{}, &expectedResponse)
+	data, err := encode(testCodec{}, &expectedResponse, nil, nil, nil)
 	if err != nil {
 		t.Errorf("Failed to encode the response: %v", err)
 		return
 	}
-	hdr, payload := msgHeader(data, nil)
-	h.t.Write(s, hdr, payload, &transport.Options{})
+	h.t.Write(s, data, &transport.Options{})
 	h.t.WriteStatus(s, status.New(codes.OK, ""))
 }
 

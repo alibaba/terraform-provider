@@ -76,21 +76,21 @@ func (client *Client) AddCdnDomainWithCallback(request *AddCdnDomainRequest, cal
 // AddCdnDomainRequest is the request struct for api AddCdnDomain
 type AddCdnDomainRequest struct {
 	*requests.RpcRequest
-	TopLevelDomain  string           `position:"Query" name:"TopLevelDomain"`
-	Sources         string           `position:"Query" name:"Sources"`
-	OwnerAccount    string           `position:"Query" name:"OwnerAccount"`
-	DomainName      string           `position:"Query" name:"DomainName"`
-	LiveType        string           `position:"Query" name:"LiveType"`
 	OwnerId         requests.Integer `position:"Query" name:"OwnerId"`
-	ResourceGroupId string           `position:"Query" name:"ResourceGroupId"`
-	SourcePort      requests.Integer `position:"Query" name:"SourcePort"`
-	Priorities      string           `position:"Query" name:"Priorities"`
+	OwnerAccount    string           `position:"Query" name:"OwnerAccount"`
 	SecurityToken   string           `position:"Query" name:"SecurityToken"`
+	DomainName      string           `position:"Query" name:"DomainName"`
 	CdnType         string           `position:"Query" name:"CdnType"`
-	Scope           string           `position:"Query" name:"Scope"`
+	TopLevelDomain  string           `position:"Query" name:"TopLevelDomain"`
+	ResourceGroupId string           `position:"Query" name:"ResourceGroupId"`
 	SourceType      string           `position:"Query" name:"SourceType"`
+	Sources         string           `position:"Query" name:"Sources"`
+	SourcePort      requests.Integer `position:"Query" name:"SourcePort"`
 	CheckUrl        string           `position:"Query" name:"CheckUrl"`
 	Region          string           `position:"Query" name:"Region"`
+	LiveType        string           `position:"Query" name:"LiveType"`
+	Scope           string           `position:"Query" name:"Scope"`
+	Priorities      string           `position:"Query" name:"Priorities"`
 }
 
 // AddCdnDomainResponse is the response struct for api AddCdnDomain

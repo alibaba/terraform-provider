@@ -76,12 +76,12 @@ func (client *Client) DescribeLiveStreamFrameAndBitRateByDomainWithCallback(requ
 // DescribeLiveStreamFrameAndBitRateByDomainRequest is the request struct for api DescribeLiveStreamFrameAndBitRateByDomain
 type DescribeLiveStreamFrameAndBitRateByDomainRequest struct {
 	*requests.RpcRequest
-	AppName       string           `position:"Query" name:"AppName"`
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	DomainName    string           `position:"Query" name:"DomainName"`
-	PageSize      requests.Integer `position:"Query" name:"PageSize"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	AppName       string           `position:"Query" name:"AppName"`
 	PageNumber    requests.Integer `position:"Query" name:"PageNumber"`
+	PageSize      requests.Integer `position:"Query" name:"PageSize"`
 }
 
 // DescribeLiveStreamFrameAndBitRateByDomainResponse is the response struct for api DescribeLiveStreamFrameAndBitRateByDomain

@@ -28,10 +28,6 @@ import (
 	"golang.org/x/net/http2/hpack"
 )
 
-var updateHeaderTblSize = func(e *hpack.Encoder, v uint32) {
-	e.SetMaxDynamicTableSizeLimit(v)
-}
-
 type itemNode struct {
 	it   interface{}
 	next *itemNode
@@ -365,47 +361,44 @@ func newLoopyWriter(s side, fr *framer, cbuf *controlBuffer, bdpEst *bdpEstimato
 const minBatchSize = 1000
 
 // run should be run in a separate goroutine.
-func (l *loopyWriter) run() (err error) {
+func (l *loopyWriter) run() {
+	var (
+		it      interface{}
+		err     error
+		isEmpty bool
+	)
 	defer func() {
-		if err == ErrConnClosing {
-			// Don't log ErrConnClosing as error since it happens
-			// 1. When the connection is closed by some other known issue.
-			// 2. User closed the connection.
-			// 3. A graceful close of connection.
-			infof("transport: loopyWriter.run returning. %v", err)
-			err = nil
-		}
+		errorf("transport: loopyWriter.run returning. Err: %v", err)
 	}()
 	for {
-		it, err := l.cbuf.get(true)
+		it, err = l.cbuf.get(true)
 		if err != nil {
-			return err
+			return
 		}
 		if err = l.handle(it); err != nil {
-			return err
+			return
 		}
 		if _, err = l.processData(); err != nil {
-			return err
+			return
 		}
 		gosched := true
 	hasdata:
 		for {
-			it, err := l.cbuf.get(false)
+			it, err = l.cbuf.get(false)
 			if err != nil {
-				return err
+				return
 			}
 			if it != nil {
 				if err = l.handle(it); err != nil {
-					return err
+					return
 				}
 				if _, err = l.processData(); err != nil {
-					return err
+					return
 				}
 				continue hasdata
 			}
-			isEmpty, err := l.processData()
-			if err != nil {
-				return err
+			if isEmpty, err = l.processData(); err != nil {
+				return
 			}
 			if !isEmpty {
 				continue hasdata
@@ -671,8 +664,6 @@ func (l *loopyWriter) applySettings(ss []http2.Setting) error {
 					}
 				}
 			}
-		case http2.SettingHeaderTableSize:
-			updateHeaderTblSize(l.hEnc, s.Val)
 		}
 	}
 	return nil

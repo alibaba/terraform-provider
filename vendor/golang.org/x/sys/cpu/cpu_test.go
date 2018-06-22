@@ -14,7 +14,7 @@ import (
 func TestAMD64minimalFeatures(t *testing.T) {
 	if runtime.GOARCH == "amd64" {
 		if !cpu.X86.HasSSE2 {
-			t.Fatal("HasSSE2 expected true, got false")
+			t.Fatalf("HasSSE2 expected true, got false")
 		}
 	}
 }
@@ -22,7 +22,7 @@ func TestAMD64minimalFeatures(t *testing.T) {
 func TestAVX2hasAVX(t *testing.T) {
 	if runtime.GOARCH == "amd64" {
 		if cpu.X86.HasAVX2 && !cpu.X86.HasAVX {
-			t.Fatal("HasAVX expected true, got false")
+			t.Fatalf("HasAVX expected true, got false")
 		}
 	}
 }

@@ -76,8 +76,9 @@ func (client *Client) ListContactGroupWithCallback(request *ListContactGroupRequ
 // ListContactGroupRequest is the request struct for api ListContactGroup
 type ListContactGroupRequest struct {
 	*requests.RpcRequest
-	PageSize   requests.Integer `position:"Query" name:"PageSize"`
-	PageNumber requests.Integer `position:"Query" name:"PageNumber"`
+	CallbyCmsOwner string           `position:"Query" name:"callby_cms_owner"`
+	PageNumber     requests.Integer `position:"Query" name:"PageNumber"`
+	PageSize       requests.Integer `position:"Query" name:"PageSize"`
 }
 
 // ListContactGroupResponse is the response struct for api ListContactGroup

@@ -76,13 +76,13 @@ func (client *Client) SetRefererConfigWithCallback(request *SetRefererConfigRequ
 // SetRefererConfigRequest is the request struct for api SetRefererConfig
 type SetRefererConfigRequest struct {
 	*requests.RpcRequest
-	ReferList     string           `position:"Query" name:"ReferList"`
+	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
 	SecurityToken string           `position:"Query" name:"SecurityToken"`
 	DomainName    string           `position:"Query" name:"DomainName"`
 	ReferType     string           `position:"Query" name:"ReferType"`
-	DisableAst    string           `position:"Query" name:"DisableAst"`
-	OwnerId       requests.Integer `position:"Query" name:"OwnerId"`
+	ReferList     string           `position:"Query" name:"ReferList"`
 	AllowEmpty    string           `position:"Query" name:"AllowEmpty"`
+	DisableAst    string           `position:"Query" name:"DisableAst"`
 }
 
 // SetRefererConfigResponse is the response struct for api SetRefererConfig
