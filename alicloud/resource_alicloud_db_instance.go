@@ -61,7 +61,6 @@ func resourceAlicloudDBInstance() *schema.Resource {
 				Type:         schema.TypeString,
 				ValidateFunc: validateAllowedStringValue([]string{string(Postpaid), string(Prepaid)}),
 				Optional:     true,
-				ForceNew:     true,
 				Default:      Postpaid,
 			},
 
