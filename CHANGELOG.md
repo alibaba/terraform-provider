@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve route resource test case ([#527](https://github.com/alibaba/terraform-provider/pull/527)))
 - Improve nat gateway resource test case ([#526](https://github.com/alibaba/terraform-provider/pull/526)))
 - Improve log resource test case ([#525](https://github.com/alibaba/terraform-provider/pull/525)))
 - Improve ots resource test case ([#524](https://github.com/alibaba/terraform-provider/pull/524)))
