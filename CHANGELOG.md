@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve ram resource test case ([#529](https://github.com/alibaba/terraform-provider/pull/529)))
 - Improve container cluster resource test case ([#528](https://github.com/alibaba/terraform-provider/pull/528)))
 - Improve cloud monitor resource test case ([#527](https://github.com/alibaba/terraform-provider/pull/527)))
 - Improve route resource test case ([#526](https://github.com/alibaba/terraform-provider/pull/526)))
