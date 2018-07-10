@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve ots resource test case ([#524](https://github.com/alibaba/terraform-provider/pull/524)))
 - Improve dns resource test case ([#523](https://github.com/alibaba/terraform-provider/pull/523)))
 - Improve oss resource test case ([#522](https://github.com/alibaba/terraform-provider/pull/522)))
 - Support changing ecs charge type from Prepaid to PostPaid ([#521](https://github.com/alibaba/terraform-provider/pull/521)))
