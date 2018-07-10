@@ -2,8 +2,14 @@
 
 IMPROVEMENTS:
 
-- Support changing ecs charge type from Prepaid to PostPaid ([#518](https://github.com/alibaba/terraform-provider/pull/518)))
+- Improve dns resource test case ([#523](https://github.com/alibaba/terraform-provider/pull/523)))
+- Improve oss resource test case ([#522](https://github.com/alibaba/terraform-provider/pull/522)))
+- Support changing ecs charge type from Prepaid to PostPaid ([#521](https://github.com/alibaba/terraform-provider/pull/521)))
 - Add method to compare json template is equal ([#508](https://github.com/alibaba/terraform-provider/pull/508)))
+
+BUG FIXES:
+
+- Fix Oss bucket diff error ([#522](https://github.com/alibaba/terraform-provider/pull/522)))
 
 ## 1.9.5 (June 20, 2018)
 
