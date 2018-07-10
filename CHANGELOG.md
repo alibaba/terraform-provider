@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Support changing ecs charge type from Prepaid to PostPaid ([#518](https://github.com/alibaba/terraform-provider/pull/518)))
 - Add method to compare json template is equal ([#508](https://github.com/alibaba/terraform-provider/pull/508)))
 
 ## 1.9.5 (June 20, 2018)
