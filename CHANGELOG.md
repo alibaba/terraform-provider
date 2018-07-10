@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve log resource test case ([#525](https://github.com/alibaba/terraform-provider/pull/525)))
 - Improve ots resource test case ([#524](https://github.com/alibaba/terraform-provider/pull/524)))
 - Improve dns resource test case ([#523](https://github.com/alibaba/terraform-provider/pull/523)))
 - Improve oss resource test case ([#522](https://github.com/alibaba/terraform-provider/pull/522)))
