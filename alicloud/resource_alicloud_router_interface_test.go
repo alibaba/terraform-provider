@@ -73,8 +73,9 @@ func testAccCheckRouterInterfaceDestroy(s *terraform.State) error {
 		ri, err := client.DescribeRouterInterface(rs.Primary.ID)
 		if err != nil {
 			if NotFoundError(err) {
-				return nil
+				continue
 			}
+			return err
 		}
 
 		if ri.RouterInterfaceId == rs.Primary.ID {
