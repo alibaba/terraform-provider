@@ -134,12 +134,12 @@ func testAccCheckEssScalingRuleDestroy(s *terraform.State) error {
 
 		// Verify the error is what we want
 		if err != nil {
-			// Verify the error is what we want
 			if NotFoundError(err) {
 				continue
 			}
 			return err
 		}
+		return fmt.Errorf("Scaling rule %s still exists.", ids[1])
 	}
 
 	return nil
@@ -150,8 +150,19 @@ data "alicloud_images" "ecs_image" {
   most_recent = true
   name_regex =  "^centos_6\\w{1,5}[64].*"
 }
-
+data "alicloud_zones" "default" {
+	"available_resource_creation"= "VSwitch"
+}
+data "alicloud_instance_types" "default" {
+ 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+	cpu_core_count = 1
+	memory_size = 2
+}
+variable "name" {
+	default = "testAccEssScalingRuleConfig"
+}
 resource "alicloud_security_group" "tf_test_foo" {
+	name = "${var.name}"
 	description = "foo"
 }
 
@@ -169,7 +180,7 @@ resource "alicloud_security_group_rule" "ssh-in" {
 resource "alicloud_ess_scaling_group" "bar" {
 	min_size = 1
 	max_size = 1
-	scaling_group_name = "bar"
+	scaling_group_name = "${var.name}"
 	removal_policies = ["OldestInstance", "NewestInstance"]
 }
 
@@ -177,7 +188,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	scaling_group_id = "${alicloud_ess_scaling_group.bar.id}"
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.n4.large"
+	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 	force_delete = "true"
 }
@@ -195,8 +206,19 @@ data "alicloud_images" "ecs_image" {
   most_recent = true
   name_regex =  "^centos_6\\w{1,5}[64].*"
 }
-
+data "alicloud_zones" "default" {
+	"available_resource_creation"= "VSwitch"
+}
+data "alicloud_instance_types" "default" {
+ 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+	cpu_core_count = 1
+	memory_size = 2
+}
+variable "name" {
+	default = "testAccEssScalingRule"
+}
 resource "alicloud_security_group" "tf_test_foo" {
+	name = "${var.name}"
 	description = "foo"
 }
 
@@ -214,7 +236,7 @@ resource "alicloud_security_group_rule" "ssh-in" {
 resource "alicloud_ess_scaling_group" "bar" {
 	min_size = 1
 	max_size = 1
-	scaling_group_name = "bar"
+	scaling_group_name = "${var.name}"
 	removal_policies = ["OldestInstance", "NewestInstance"]
 }
 
@@ -222,7 +244,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	scaling_group_id = "${alicloud_ess_scaling_group.bar.id}"
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.n4.large"
+	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 	force_delete = "true"
 }
@@ -240,8 +262,19 @@ data "alicloud_images" "ecs_image" {
   most_recent = true
   name_regex =  "^centos_6\\w{1,5}[64].*"
 }
-
+data "alicloud_zones" "default" {
+	"available_resource_creation"= "VSwitch"
+}
+data "alicloud_instance_types" "default" {
+ 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+	cpu_core_count = 1
+	memory_size = 2
+}
+variable "name" {
+	default = "testAccEssScalingRule"
+}
 resource "alicloud_security_group" "tf_test_foo" {
+	name = "${var.name}"
 	description = "foo"
 }
 
@@ -259,7 +292,7 @@ resource "alicloud_security_group_rule" "ssh-in" {
 resource "alicloud_ess_scaling_group" "bar" {
 	min_size = 1
 	max_size = 1
-	scaling_group_name = "bar"
+	scaling_group_name = "${var.name}"
 	removal_policies = ["OldestInstance", "NewestInstance"]
 }
 
@@ -267,7 +300,7 @@ resource "alicloud_ess_scaling_configuration" "foo" {
 	scaling_group_id = "${alicloud_ess_scaling_group.bar.id}"
 
 	image_id = "${data.alicloud_images.ecs_image.images.0.id}"
-	instance_type = "ecs.n4.large"
+	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
 	security_group_id = "${alicloud_security_group.tf_test_foo.id}"
 	force_delete = "true"
 }
