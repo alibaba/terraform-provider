@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve cs application resource test case ([#537](https://github.com/alibaba/terraform-provider/pull/537)))
 - Improve ecs resource test case ([#536](https://github.com/alibaba/terraform-provider/pull/536)))
 - Improve eip resource test case ([#535](https://github.com/alibaba/terraform-provider/pull/535)))
 - Improve rds resource test case ([#534](https://github.com/alibaba/terraform-provider/pull/534)))
