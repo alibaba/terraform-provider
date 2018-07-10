@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve eip resource test case ([#535](https://github.com/alibaba/terraform-provider/pull/535)))
 - Improve rds resource test case ([#534](https://github.com/alibaba/terraform-provider/pull/534)))
 - Improve ess resource test case ([#533](https://github.com/alibaba/terraform-provider/pull/533)))
 - Improve vpc and vswitch resource test case ([#532](https://github.com/alibaba/terraform-provider/pull/532)))
