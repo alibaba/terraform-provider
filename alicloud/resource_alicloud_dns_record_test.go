@@ -115,8 +115,10 @@ func testAccCheckDnsRecordDestroy(s *terraform.State) error {
 		}
 
 		response, err := conn.DescribeDomainRecordInfoNew(request)
-
-		if response.RecordId != "" || err != nil {
+		if err != nil {
+			return err
+		}
+		if response.RecordId != "" {
 			return fmt.Errorf("Error Domain record still exist.")
 		}
 	}
@@ -125,10 +127,12 @@ func testAccCheckDnsRecordDestroy(s *terraform.State) error {
 }
 
 const testAccDnsRecordConfig = `
-data "alicloud_dns_domains" "domains" {}
+resource "alicloud_dns" "dns" {
+  name = "yufish.com"
+}
 
 resource "alicloud_dns_record" "record" {
-  name = "${data.alicloud_dns_domains.domains.domains.0.domain_name}"
+  name = "${alicloud_dns.dns.name}"
   host_record = "alimail"
   type = "CNAME"
   value = "mail.mxhichin.com"
@@ -136,10 +140,12 @@ resource "alicloud_dns_record" "record" {
 }
 `
 const testAccDnsRecordPriority = `
-data "alicloud_dns_domains" "domains" {}
+resource "alicloud_dns" "dns" {
+  name = "yufish.com"
+}
 
 resource "alicloud_dns_record" "record" {
-  name = "${data.alicloud_dns_domains.domains.domains.0.domain_name}"
+  name = "${alicloud_dns.dns.name}"
   host_record = "alipriority"
   type = "MX"
   value = "www.aliyun.com"

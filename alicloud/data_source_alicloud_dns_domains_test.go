@@ -18,25 +18,7 @@ func TestAccAlicloudDnsDomainsDataSource_ali_domain(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudDataSourceID("data.alicloud_dns_domains.domain"),
 					resource.TestCheckResourceAttr("data.alicloud_dns_domains.domain", "domains.#", "1"),
-					resource.TestCheckResourceAttr("data.alicloud_dns_domains.domain", "domains.0.ali_domain", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccAlicloudDnsDomainsDataSource_version_code(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCheckAlicloudDomainsDataSourceVersionCodeConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAlicloudDataSourceID("data.alicloud_dns_domains.domain"),
-					resource.TestCheckResourceAttr("data.alicloud_dns_domains.domain", "domains.#", "1"),
+					resource.TestCheckResourceAttr("data.alicloud_dns_domains.domain", "domains.0.ali_domain", "false"),
 				),
 			},
 		},
@@ -61,40 +43,19 @@ func TestAccAlicloudDnsDomainsDataSource_name_regex(t *testing.T) {
 	})
 }
 
-func TestAccAlicloudDnsDomainsDataSource_group_name_regex(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCheckAlicloudDomainsDataSourceGroupNameRegexConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAlicloudDataSourceID("data.alicloud_dns_domains.domain"),
-					resource.TestCheckResourceAttr("data.alicloud_dns_domains.domain", "domains.#", "2"),
-				),
-			},
-		},
-	})
+const testAccCheckAlicloudDomainsDataSourceAliDomainConfig = `
+resource "alicloud_dns" "dns" {
+  name = "yufish.com"
 }
 
-const testAccCheckAlicloudDomainsDataSourceAliDomainConfig = `
 data "alicloud_dns_domains" "domain" {
-  ali_domain = true
-}`
-
-const testAccCheckAlicloudDomainsDataSourceVersionCodeConfig = `
-data "alicloud_dns_domains" "domain" {
-  version_code = "mianfei"
+  ali_domain = "${alicloud_dns.dns.name == "" ? false : false}"
 }`
 
 const testAccCheckAlicloudDomainsDataSourceNameRegexConfig = `
+resource "alicloud_dns" "dns" {
+  name = "yufish.com"
+}
 data "alicloud_dns_domains" "domain" {
-  domain_name_regex = ".*"
-}`
-
-const testAccCheckAlicloudDomainsDataSourceGroupNameRegexConfig = `
-data "alicloud_dns_domains" "domain" {
-  group_name_regex = ".*"
+  domain_name_regex = "${alicloud_dns.dns.name}"
 }`
