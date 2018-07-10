@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve ess resource test case ([#533](https://github.com/alibaba/terraform-provider/pull/533)))
 - Improve vpc and vswitch resource test case ([#532](https://github.com/alibaba/terraform-provider/pull/532)))
 - Improve slb resource test case ([#531](https://github.com/alibaba/terraform-provider/pull/531)))
 - Improve security group resource test case ([#530](https://github.com/alibaba/terraform-provider/pull/530)))
