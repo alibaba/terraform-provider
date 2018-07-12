@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Remove the number limitation of vswitch_ids, slb_ids and db_instance_ids ([#539](https://github.com/alibaba/terraform-provider/pull/539)))
 - Reduce test nat gateway cost ([#538](https://github.com/alibaba/terraform-provider/pull/538)))
 - Improve cs application resource test case ([#537](https://github.com/alibaba/terraform-provider/pull/537)))
 - Improve ecs resource test case ([#536](https://github.com/alibaba/terraform-provider/pull/536)))
