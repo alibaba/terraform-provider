@@ -26,21 +26,18 @@ func resourceAlicloudRKVBackupPolicy() *schema.Resource {
 				ForceNew: true,
 			},
 			"preferred_backup_time": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				ValidateFunc: validateAllowedStringValue(BACKUP_TIME),
+				Optional:     true,
+				Default:      "02:00Z-03:00Z",
 			},
 			"preferred_backup_period": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validateAllowedStringValue([]string{
-					"Monday",
-					"Tuesday",
-					"Wednesday",
-					"Thursday",
-					"Friday",
-					"Saturday",
-					"Sunday",
-				}),
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{Type: schema.TypeString},
+				// terraform does not support ValidateFunc of TypeList attr
+				// ValidateFunc: validateAllowedStringValue([]string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}),
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -53,11 +50,13 @@ func resourceAlicloudRKVBackupPolicyCreate(d *schema.ResourceData, meta interfac
 	request := r_kvstore.CreateModifyBackupPolicyRequest()
 	request.InstanceId = d.Get("instance_id").(string)
 	request.PreferredBackupTime = d.Get("preferred_backup_time").(string)
-	request.PreferredBackupPeriod = d.Get("preferred_backup_period").(string)
+	periodList := expandStringList(d.Get("preferred_backup_period").(*schema.Set).List())
+	backupPeriod := fmt.Sprintf("%s", strings.Join(periodList[:], COMMA_SEPARATED))
+	request.PreferredBackupPeriod = backupPeriod
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		if _, err := conn.ModifyBackupPolicy(request); err != nil {
-			return resource.NonRetryableError(fmt.Errorf("Create security whitelist ips got an error: %#v", err))
+			return resource.NonRetryableError(fmt.Errorf("Create backup policy got an error: %#v", err))
 		}
 		return nil
 	})
@@ -94,7 +93,7 @@ func resourceAlicloudRKVBackupPolicyRead(d *schema.ResourceData, meta interface{
 
 	d.Set("instance_id", instanceID)
 	d.Set("preferred_backup_time", policy.PreferredBackupTime)
-	d.Set("preferred_backup_period", policy.PreferredBackupPeriod)
+	d.Set("preferred_backup_period", strings.Split(policy.PreferredBackupPeriod, ","))
 
 	return nil
 }
@@ -102,13 +101,23 @@ func resourceAlicloudRKVBackupPolicyRead(d *schema.ResourceData, meta interface{
 func resourceAlicloudRKVBackupPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rkvconn
-	instanceID := strings.Split(d.Id(), COLON_SEPARATED)[0]
+	update := false
+	request := r_kvstore.CreateModifyBackupPolicyRequest()
+	request.InstanceId = strings.Split(d.Id(), COLON_SEPARATED)[0]
 
-	if d.HasChange("preferred_backup_time") && d.HasChange("preferred_backup_period") {
-		request := r_kvstore.CreateModifyBackupPolicyRequest()
-		request.InstanceId = instanceID
+	if d.HasChange("preferred_backup_time") {
 		request.PreferredBackupTime = d.Get("preferred_backup_time").(string)
-		request.PreferredBackupPeriod = d.Get("preferred_backup_period").(string)
+		update = true
+	}
+
+	if d.HasChange("preferred_backup_period") {
+		periodList := expandStringList(d.Get("preferred_backup_period").(*schema.Set).List())
+		backupPeriod := fmt.Sprintf("%s", strings.Join(periodList[:], COMMA_SEPARATED))
+		request.PreferredBackupPeriod = backupPeriod
+		update = true
+	}
+
+	if update {
 		if _, err := conn.ModifyBackupPolicy(request); err != nil {
 			return err
 		}

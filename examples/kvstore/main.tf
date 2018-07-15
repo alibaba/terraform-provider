@@ -37,6 +37,6 @@ resource "alicloud_rkv_security_ips" "rediswhitelist" {
 
 resource "alicloud_rkv_backup_policy" "redisbackup" {
   instance_id             = "${alicloud_rkv_instance.myredis.id}"
-  preferred_backup_time   = "00:00Z-04:00Z"
-  preferred_backup_period = "Friday"
+  preferred_backup_time   = "03:00Z-04:00Z"
+  preferred_backup_period = ["Monday", "Wednesday", "Friday"]
 }
