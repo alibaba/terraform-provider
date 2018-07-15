@@ -259,6 +259,7 @@ func buildRKVCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvstore
 	request.InstanceClass = Trim(d.Get("instance_class").(string))
 	request.NetworkType = Trim(d.Get("network_type").(string))
 	request.ChargeType = Trim(d.Get("charge_type").(string))
+	request.Password = Trim(d.Get("password").(string))
 	if PayType(request.ChargeType) == PrePaid {
 		request.Period = d.Get("Period").(string)
 	}
