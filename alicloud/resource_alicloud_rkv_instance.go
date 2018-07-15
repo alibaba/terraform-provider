@@ -96,6 +96,21 @@ func resourceAlicloudRKVInstance() *schema.Resource {
 					"4.0",
 				}),
 			},
+			"connection_domain": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"port": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"private_ip": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -187,6 +202,9 @@ func resourceAlicloudRKVInstanceRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("instance_type", instance.InstanceType)
 	d.Set("vswitch_id", instance.VSwitchId)
 	d.Set("engine_version", instance.EngineVersion)
+	d.Set("connection_domain", instance.ConnectionDomain)
+	d.Set("port", instance.Port)
+	d.Set("private_ip", instance.PrivateIp)
 
 	return nil
 }
