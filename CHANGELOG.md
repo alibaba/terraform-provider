@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Support new field 'instance_name' for _alicloud_ots_table_ ([#548](https://github.com/alibaba/terraform-provider/pull/548)))
 - *New Resource*: _alicloud_ots_instance_attachment_ ([#547](https://github.com/alibaba/terraform-provider/pull/547)))
 - *New Resource*: _alicloud_ots_instance_ ([#546](https://github.com/alibaba/terraform-provider/pull/546)))
 
