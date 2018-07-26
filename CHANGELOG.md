@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- *New Resource*: _alicloud_ots_instance_attachment_ ([#547](https://github.com/alibaba/terraform-provider/pull/547)))
 - *New Resource*: _alicloud_ots_instance_ ([#546](https://github.com/alibaba/terraform-provider/pull/546)))
 
 ## 1.9.6 (July 16, 2018)
