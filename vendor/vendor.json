@@ -181,8 +181,10 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "KzBB9irIoYojcRhLGcG9wOOm58g=",
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ots",
-			"revision": ""
+			"revision": "59d358a6968627414637026239c97bd8444d056b",
+			"revisionTime": "2018-07-13T10:40:45Z"
 		},
 		{
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ots/sample",
