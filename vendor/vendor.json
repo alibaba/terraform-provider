@@ -235,6 +235,12 @@
 			"revisionTime": "2018-06-18T11:42:19Z"
 		},
 		{
+			"checksumSHA1": "LmncRXh3ogswOYgzL5EKeoka9pg=",
+			"path": "github.com/aliyun/fc-go-sdk",
+			"revision": "2b25e8a561f05dd8adae9a37f462666ce58c71d9",
+			"revisionTime": "2018-06-15T06:20:39Z"
+		},
+		{
 			"checksumSHA1": "cRYVJeiNE+3pV/7Pe1VOA15LSSY=",
 			"path": "github.com/denverdino/aliyungo/cdn",
 			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
@@ -401,6 +407,12 @@
 			"path": "github.com/denverdino/aliyungo/util",
 			"revision": "7ca81f64f06b4d65801663f2e1c51e5c18be077d",
 			"revisionTime": "2018-04-26T04:54:50Z"
+		},
+		{
+			"checksumSHA1": "huh4WrJZlXbD920aKC6jJ2R8HKc=",
+			"path": "github.com/go-resty/resty",
+			"revision": "fccc498aed22c31ff3768bcac00795f94149a21d",
+			"revisionTime": "2018-07-04T18:53:29Z"
 		},
 		{
 			"checksumSHA1": "ehhDW5xOMs7vp2dxSoKBG8tJSB4=",
