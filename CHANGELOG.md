@@ -1,4 +1,4 @@
-## 1.9.7 (Unreleased)
+## 1.9.7 (July 27, 2018)
 
 IMPROVEMENTS:
 
@@ -12,7 +12,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-- Fix Snat entry not found error ([#559](https://github.com/alibaba/terraform-provider/pull/559)))
+- Fix Snat entry not found error ([#558](https://github.com/alibaba/terraform-provider/pull/558)))
 
 ## 1.9.6 (July 16, 2018)
 
