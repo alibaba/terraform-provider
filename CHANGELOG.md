@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- *New Resource*: _alicloud_fc_function_ ([#557](https://github.com/alibaba/terraform-provider/pull/557)))
 - *New Resource*: _alicloud_fc_service_ ([#556](https://github.com/alibaba/terraform-provider/pull/556)))
 - Rds supports to create 10.0 PostgreSQL instance. ([#545](https://github.com/alibaba/terraform-provider/pull/545)))
 - Support new field 'instance_name' for _alicloud_ots_table_ ([#548](https://github.com/alibaba/terraform-provider/pull/548)))
