@@ -20,22 +20,30 @@ Example modules can be found in the [terraform/examples](examples) directory.
 #### Setting up
 * install terraform: https://www.terraform.io/intro/getting-started/install.html
 * install golang:    https://golang.org/doc/install
-* install glide: https://github.com/Masterminds/glide
+* install goimports: https://godoc.org/golang.org/x/tools/cmd/goimports
+    ```
+    go get golang.org/x/tools/cmd/goimports
+    ```
 * finally:
 
 ```
-cd $GOPATH
-mkdir -p src/github.com/alibaba
+mkdir -p $GOPATH/src/github.com/alibaba
 cd $GOPATH/src/github.com/alibaba
-git clone https://github.com/alibaba/terraform-provider.git
+git clone git@github.com:alibaba/terraform-provider.git
 
 # switch to project
 cd $GOPATH/src/github.com/alibaba/terraform-provider
 
-# get all dependencies and install modules
-go get ./...
-glide up
-sudo -E "PATH=$PATH" make all
+# build provider
+
+## Mac
+make dev
+## Linux
+make devlinux
+## Windows
+make devwin
+
+# install modules
 terraform get
 
 # set the creds
@@ -89,13 +97,14 @@ For more about the regions and availability zones, use data source `alicloud_reg
 * [RAM](https://www.aliyun.com/product/ram)
 * [CDN](https://www.aliyun.com/product/cdn)
 * [DNS](https://wanwang.aliyun.com/domain/dns)
-* [Container](https://www.aliyun.com/product/containerservice)
-* [KMS](https://www.aliyun.com/product/kms)
+* [Container Service](https://www.aliyun.com/product/containerservice)
+* [Log Service](https://www.aliyun.com/product/sls)
+* [Function Compute](https://www.aliyun.com/product/fc)
+* [TableStore](https://www.aliyun.com/product/ots)
 
 #### Documents
 The latest supported product document as follows:
 * [Terraform Docs](https://www.terraform.io/docs/providers/alicloud/index.html)
-* [Terraform Provider Alicloud Docs](http://47.95.33.19:4567/docs/providers/alicloud/)
 * [Github](https://github.com/alibaba/terraform-provider-docs)
 
 #### Common problems

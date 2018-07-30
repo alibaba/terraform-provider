@@ -8,6 +8,8 @@ all: build
 build: mac windows linux
 
 dev: clean fmt mac copy
+devlinux: clean fmt linux copy
+devwin: clean fmt windows copy
 
 copy:
 	tar -xvf bin/terraform-provider-alicloud_darwin-amd64.tgz && mv bin/terraform-provider-alicloud $(shell dirname `which terraform`)
