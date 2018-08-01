@@ -2,8 +2,11 @@
 
 IMPROVEMENTS:
 
-- Fix ess_scalingrule InvalidScalingRuleId.NotFound error ([#563](https://github.com/alibaba/terraform-provider/pull/563)))
-- Improve Readme ([#559](https://github.com/alibaba/terraform-provider/pull/559)))
+- Support http(s) proxy ([#568](https://github.com/alibaba/terraform-provider/pull/568)))
+- Improve Readme ([#562](https://github.com/alibaba/terraform-provider/pull/562)))
+
+BUG FIXES:
+- Fix ess_scalingrule InvalidScalingRuleId.NotFound error ([#566](https://github.com/alibaba/terraform-provider/pull/566)))
 
 ## 1.10.0 (July 28, 2018)
 
