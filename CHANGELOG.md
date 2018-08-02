@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Remove useless file website/fc_service.html.markdown ([#570](https://github.com/alibaba/terraform-provider/pull/570)))
 - Support http(s) proxy ([#568](https://github.com/alibaba/terraform-provider/pull/568)))
 - Improve Readme ([#562](https://github.com/alibaba/terraform-provider/pull/562)))
 
