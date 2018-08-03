@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Resource alicloud_eip support PrePaid ([#572](https://github.com/alibaba/terraform-provider/pull/572))
 - Correct version writting error ([#571](https://github.com/alibaba/terraform-provider/pull/571))
 - Change slb go sdk to official repo ([#571](https://github.com/alibaba/terraform-provider/pull/571))
 - Remove useless file website/fc_service.html.markdown ([#570](https://github.com/alibaba/terraform-provider/pull/570))
