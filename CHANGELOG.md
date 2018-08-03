@@ -2,14 +2,16 @@
 
 IMPROVEMENTS:
 
-- Remove useless file website/fc_service.html.markdown ([#570](https://github.com/alibaba/terraform-provider/pull/570)))
-- Support http(s) proxy ([#568](https://github.com/alibaba/terraform-provider/pull/568)))
-- Improve Readme ([#562](https://github.com/alibaba/terraform-provider/pull/562)))
+- Correct version writting error ([#571](https://github.com/alibaba/terraform-provider/pull/571))
+- Change slb go sdk to official repo ([#571](https://github.com/alibaba/terraform-provider/pull/571))
+- Remove useless file website/fc_service.html.markdown ([#570](https://github.com/alibaba/terraform-provider/pull/570))
+- Support http(s) proxy ([#568](https://github.com/alibaba/terraform-provider/pull/568))
+- Improve Readme ([#562](https://github.com/alibaba/terraform-provider/pull/562))
 
 BUG FIXES:
 
-- Fix bug "...zoneinfo.zip: no such file or directory" which happened in windows. ([#569](https://github.com/alibaba/terraform-provider/pull/569)))
-- Fix ess_scalingrule InvalidScalingRuleId.NotFound error ([#566](https://github.com/alibaba/terraform-provider/pull/566)))
+- Fix bug "...zoneinfo.zip: no such file or directory" which happened in windows. ([#569](https://github.com/alibaba/terraform-provider/pull/569))
+- Fix ess_scalingrule InvalidScalingRuleId.NotFound error ([#566](https://github.com/alibaba/terraform-provider/pull/566))
 
 ## 1.10.0 (July 28, 2018)
 
