@@ -12,6 +12,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix losing key pair error after updating ecs instance ([#574](https://github.com/alibaba/terraform-provider/pull/574))
 - Fix BackendServer.configuring error when creating slb rule ([#572](https://github.com/alibaba/terraform-provider/pull/572))
 - Fix bug "...zoneinfo.zip: no such file or directory" which happened in windows. ([#569](https://github.com/alibaba/terraform-provider/pull/569))
 - Fix ess_scalingrule InvalidScalingRuleId.NotFound error ([#566](https://github.com/alibaba/terraform-provider/pull/566))
