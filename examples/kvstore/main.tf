@@ -3,7 +3,7 @@ data "alicloud_rkv_instances" "rkv_instance" {
 }
 
 data "alicloud_zones" "default" {
-  available_resource_creation = "Rkv"
+  available_resource_creation = "kvstore"
 }
 
 // VPC Resource for Module
@@ -36,7 +36,7 @@ resource "alicloud_rkv_security_ips" "rediswhitelist" {
 }
 
 resource "alicloud_rkv_backup_policy" "redisbackup" {
-  instance_id             = "${alicloud_rkv_instance.myredis.id}"
-  preferred_backup_time   = "03:00Z-04:00Z"
-  preferred_backup_period = ["Monday", "Wednesday", "Friday"]
+  instance_id   = "${alicloud_rkv_instance.myredis.id}"
+  backup_time   = "03:00Z-04:00Z"
+  backup_period = ["Monday", "Wednesday", "Friday"]
 }

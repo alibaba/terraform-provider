@@ -25,13 +25,13 @@ func resourceAlicloudRKVBackupPolicy() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"preferred_backup_time": &schema.Schema{
+			"backup_time": &schema.Schema{
 				Type:         schema.TypeString,
 				ValidateFunc: validateAllowedStringValue(BACKUP_TIME),
 				Optional:     true,
 				Default:      "02:00Z-03:00Z",
 			},
-			"preferred_backup_period": &schema.Schema{
+			"backup_period": &schema.Schema{
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{Type: schema.TypeString},
 				// terraform does not support ValidateFunc of TypeList attr
@@ -49,8 +49,8 @@ func resourceAlicloudRKVBackupPolicyCreate(d *schema.ResourceData, meta interfac
 
 	request := r_kvstore.CreateModifyBackupPolicyRequest()
 	request.InstanceId = d.Get("instance_id").(string)
-	request.PreferredBackupTime = d.Get("preferred_backup_time").(string)
-	periodList := expandStringList(d.Get("preferred_backup_period").(*schema.Set).List())
+	request.PreferredBackupTime = d.Get("backup_time").(string)
+	periodList := expandStringList(d.Get("backup_period").(*schema.Set).List())
 	backupPeriod := fmt.Sprintf("%s", strings.Join(periodList[:], COMMA_SEPARATED))
 	request.PreferredBackupPeriod = backupPeriod
 
@@ -92,8 +92,8 @@ func resourceAlicloudRKVBackupPolicyRead(d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("instance_id", instanceID)
-	d.Set("preferred_backup_time", policy.PreferredBackupTime)
-	d.Set("preferred_backup_period", strings.Split(policy.PreferredBackupPeriod, ","))
+	d.Set("backup_time", policy.PreferredBackupTime)
+	d.Set("backup_period", strings.Split(policy.PreferredBackupPeriod, ","))
 
 	return nil
 }
@@ -105,13 +105,13 @@ func resourceAlicloudRKVBackupPolicyUpdate(d *schema.ResourceData, meta interfac
 	request := r_kvstore.CreateModifyBackupPolicyRequest()
 	request.InstanceId = strings.Split(d.Id(), COLON_SEPARATED)[0]
 
-	if d.HasChange("preferred_backup_time") {
-		request.PreferredBackupTime = d.Get("preferred_backup_time").(string)
+	if d.HasChange("backup_time") {
+		request.PreferredBackupTime = d.Get("backup_time").(string)
 		update = true
 	}
 
-	if d.HasChange("preferred_backup_period") {
-		periodList := expandStringList(d.Get("preferred_backup_period").(*schema.Set).List())
+	if d.HasChange("backup_period") {
+		periodList := expandStringList(d.Get("backup_period").(*schema.Set).List())
 		backupPeriod := fmt.Sprintf("%s", strings.Join(periodList[:], COMMA_SEPARATED))
 		request.PreferredBackupPeriod = backupPeriod
 		update = true
@@ -127,6 +127,6 @@ func resourceAlicloudRKVBackupPolicyUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudRKVBackupPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	// There is no explicit delete, only update with modified security ips
+	// There is no explicit delete, only update with modified backup policy
 	return nil
 }

@@ -71,11 +71,11 @@ func resourceAlicloudRKVSecurityIPsCreate(d *schema.ResourceData, meta interface
 func resourceAlicloudRKVSecurityIPsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rkvconn
-	instanceID := strings.Split(d.Id(), COLON_SEPARATED)[0]
+	instanceId := strings.Split(d.Id(), COLON_SEPARATED)[0]
 	secGroupName := strings.Split(d.Id(), COLON_SEPARATED)[1]
 
 	request := r_kvstore.CreateDescribeSecurityIpsRequest()
-	request.InstanceId = instanceID
+	request.InstanceId = instanceId
 	attribs, err := conn.DescribeSecurityIps(request)
 	if err != nil {
 		if NotFoundRKVInstance(err) {
@@ -92,7 +92,7 @@ func resourceAlicloudRKVSecurityIPsRead(d *schema.ResourceData, meta interface{}
 
 	for _, secGroup := range attribs.SecurityIpGroups.SecurityIpGroup {
 		if secGroup.SecurityIpGroupName == secGroupName {
-			d.Set("instance_id", instanceID)
+			d.Set("instance_id", instanceId)
 			d.Set("security_group_name", secGroup.SecurityIpGroupName)
 			d.Set("security_ips", strings.Split(secGroup.SecurityIpList, COMMA_SEPARATED))
 			return nil
@@ -104,14 +104,16 @@ func resourceAlicloudRKVSecurityIPsRead(d *schema.ResourceData, meta interface{}
 func resourceAlicloudRKVSecurityIPsUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rkvconn
+	instanceId := strings.Split(d.Id(), COLON_SEPARATED)[0]
 
-	if d.HasChange("security_group_name") && d.HasChange("security_ips") {
+	if d.HasChange("security_group_name") || d.HasChange("security_ips") {
 		ipstr := strings.Join(expandStringList(d.Get("security_ips").(*schema.Set).List())[:], COMMA_SEPARATED)
 		if ipstr == "" {
 			ipstr = LOCAL_HOST_IP
 		}
 
 		request := r_kvstore.CreateModifySecurityIpsRequest()
+		request.InstanceId = instanceId
 		request.SecurityIps = ipstr
 		request.SecurityIpGroupName = d.Get("security_group_name").(string)
 		if _, err := conn.ModifySecurityIps(request); err != nil {
@@ -123,6 +125,21 @@ func resourceAlicloudRKVSecurityIPsUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceAlicloudRKVSecurityIPsDelete(d *schema.ResourceData, meta interface{}) error {
-	// There is no explicit delete, only update with modified security ips
+	client := meta.(*AliyunClient)
+	conn := client.rkvconn
+	instanceId := strings.Split(d.Id(), COLON_SEPARATED)[0]
+	ipstr := strings.Join(expandStringList(d.Get("security_ips").(*schema.Set).List())[:], COMMA_SEPARATED)
+	if ipstr == "" {
+		ipstr = LOCAL_HOST_IP
+	}
+
+	request := r_kvstore.CreateModifySecurityIpsRequest()
+	request.InstanceId = instanceId
+	request.SecurityIpGroupName = d.Get("security_group_name").(string)
+	request.ModifyMode = "Delete"
+	request.SecurityIps = ipstr
+	if _, err := conn.ModifySecurityIps(request); err != nil {
+		return err
+	}
 	return nil
 }

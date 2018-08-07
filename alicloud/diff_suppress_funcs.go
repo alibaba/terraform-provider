@@ -191,7 +191,7 @@ func rdsPostPaidDiffSuppressFunc(k, old, new string, d *schema.ResourceData) boo
 }
 
 func rkvPostPaidDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
-	if rds.DBPayType(d.Get("charge_type").(string)) == rds.Prepaid {
+	if rds.DBPayType(d.Get("instance_charge_type").(string)) == rds.Prepaid {
 		return false
 	}
 	return true

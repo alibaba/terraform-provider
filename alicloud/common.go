@@ -106,7 +106,7 @@ const (
 	ResourceTypeDisk     = ResourceType("Disk")
 	ResourceTypeVSwitch  = ResourceType("VSwitch")
 	ResourceTypeRds      = ResourceType("Rds")
-	ResourceTypeRkv      = ResourceType("Rkv")
+	ResourceTypeRkv      = ResourceType("kvstore")
 	IoOptimized          = ResourceType("IoOptimized")
 )
 

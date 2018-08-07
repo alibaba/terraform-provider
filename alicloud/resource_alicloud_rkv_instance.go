@@ -37,13 +37,13 @@ func resourceAlicloudRKVInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"zone_id": &schema.Schema{
+			"availability_zone": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"charge_type": &schema.Schema{
+			"instance_charge_type": &schema.Schema{
 				Type:         schema.TypeString,
 				ValidateFunc: validateAllowedStringValue([]string{string(PostPaid), string(PrePaid)}),
 				Optional:     true,
@@ -69,7 +69,7 @@ func resourceAlicloudRKVInstance() *schema.Resource {
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return true
 				},
-				Deprecated: "Field 'instance_network_type' has been deprecated from provider version 1.5.0.",
+				Deprecated: "Field 'network_type' has been deprecated from provider version 1.5.0.",
 			},
 			"instance_type": &schema.Schema{
 				Type:     schema.TypeString,
@@ -110,6 +110,10 @@ func resourceAlicloudRKVInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+			},
+			"backup_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}
@@ -154,7 +158,7 @@ func resourceAlicloudRKVInstanceUpdate(d *schema.ResourceData, meta interface{})
 			return err
 		}
 		// wait instance status is Normal after modifying
-		if err := client.WaitForRKVInstance(d.Id(), Normall, 500); err != nil {
+		if err := client.WaitForRKVInstance(d.Id(), Normall, DefaultLongTimeout); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 
@@ -166,14 +170,14 @@ func resourceAlicloudRKVInstanceUpdate(d *schema.ResourceData, meta interface{})
 		request.InstanceId = d.Id()
 		request.InstanceName = d.Get("instance_name").(string)
 		// wait instance status is Normal before modifying
-		if err := client.WaitForRKVInstance(d.Id(), Normall, 500); err != nil {
+		if err := client.WaitForRKVInstance(d.Id(), Normall, DefaultLongTimeout); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 		if _, err := conn.ModifyInstanceAttribute(request); err != nil {
 			return fmt.Errorf("ModifyRKVInstanceDescription got an error: %#v", err)
 		}
 		// wait instance status is Normal after modifying
-		if err := client.WaitForRKVInstance(d.Id(), Normall, 500); err != nil {
+		if err := client.WaitForRKVInstance(d.Id(), Normall, DefaultLongTimeout); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 
@@ -194,11 +198,10 @@ func resourceAlicloudRKVInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return fmt.Errorf("Error Describe rKV InstanceAttribute: %#v", err)
 	}
-	d.SetId(instance.InstanceId)
 	d.Set("instance_name", instance.InstanceName)
 	d.Set("instance_class", instance.InstanceClass)
-	d.Set("zone_id", instance.ZoneId)
-	d.Set("charge_type", instance.ChargeType)
+	d.Set("availability_zone", instance.ZoneId)
+	d.Set("instance_charge_type", instance.ChargeType)
 	d.Set("instance_type", instance.InstanceType)
 	d.Set("vswitch_id", instance.VSwitchId)
 	d.Set("engine_version", instance.EngineVersion)
@@ -258,13 +261,15 @@ func buildRKVCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvstore
 	request.EngineVersion = Trim(d.Get("engine_version").(string))
 	request.InstanceClass = Trim(d.Get("instance_class").(string))
 	request.NetworkType = Trim(d.Get("network_type").(string))
-	request.ChargeType = Trim(d.Get("charge_type").(string))
+	request.ChargeType = Trim(d.Get("instance_charge_type").(string))
 	request.Password = Trim(d.Get("password").(string))
+	request.BackupId = Trim(d.Get("backup_id").(string))
+
 	if PayType(request.ChargeType) == PrePaid {
 		request.Period = d.Get("Period").(string)
 	}
 
-	if zone, ok := d.GetOk("zone_id"); ok && Trim(zone.(string)) != "" {
+	if zone, ok := d.GetOk("availability_zone"); ok && Trim(zone.(string)) != "" {
 		request.ZoneId = Trim(zone.(string))
 	}
 
