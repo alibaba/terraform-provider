@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix describing vpcs with name_regex no results error ([#582](https://github.com/alibaba/terraform-provider/pull/582))
 - Fix creating slb listener in international region failed error ([#578](https://github.com/alibaba/terraform-provider/pull/578))
 
 ## 1.10.1 (August 3, 2018)
