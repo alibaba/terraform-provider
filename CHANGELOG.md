@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- *New Resource*: _alicloud_router_interface_connection_ ([#578](https://github.com/alibaba/terraform-provider/pull/578))
 
 BUG FIXES:
 
