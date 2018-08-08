@@ -2,11 +2,12 @@
 
 IMPROVEMENTS:
 
-- *New Resource*: _alicloud_router_interface_connection_ ([#578](https://github.com/alibaba/terraform-provider/pull/578))
+- Deprecate some field of alicloud_router_interface fields and use new resource instead ([#580](https://github.com/alibaba/terraform-provider/pull/580))
+- *New Resource*: _alicloud_router_interface_connection_ ([#579](https://github.com/alibaba/terraform-provider/pull/579))
 
 BUG FIXES:
 
-- Fix creating slb listener in international region failed error ([#577](https://github.com/alibaba/terraform-provider/pull/577))
+- Fix creating slb listener in international region failed error ([#578](https://github.com/alibaba/terraform-provider/pull/578))
 
 ## 1.10.1 (August 3, 2018)
 
