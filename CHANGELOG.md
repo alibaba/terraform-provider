@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Resource alicloud_router_interface support "import" function ([#581](https://github.com/alibaba/terraform-provider/pull/581))
 - Deprecate some field of alicloud_router_interface fields and use new resource instead ([#580](https://github.com/alibaba/terraform-provider/pull/580))
 - *New Resource*: _alicloud_router_interface_connection_ ([#579](https://github.com/alibaba/terraform-provider/pull/579))
 
