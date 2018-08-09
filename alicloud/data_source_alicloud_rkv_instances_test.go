@@ -35,7 +35,7 @@ data "alicloud_rkv_instances" "rkvs" {
 }
 
 resource "alicloud_rkv_instance" "rkv" {
-	instance_name = "myredis"
+	instance_name = "testAccCheckAlicloudRKVInstancesDataSourceConfig"
 	instance_class = "redis.master.small.default"
 	instance_type = "Redis"
 	engine_version = "2.8"

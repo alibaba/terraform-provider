@@ -138,7 +138,7 @@ func resourceAlicloudRKVInstanceCreate(d *schema.ResourceData, meta interface{})
 
 	// wait instance status change from Creating to Normal
 
-	if err := client.WaitForRKVInstance(d.Id(), Normall, DefaultLongTimeout); err != nil {
+	if err := client.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
 		return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 	}
 
@@ -158,7 +158,7 @@ func resourceAlicloudRKVInstanceUpdate(d *schema.ResourceData, meta interface{})
 			return err
 		}
 		// wait instance status is Normal after modifying
-		if err := client.WaitForRKVInstance(d.Id(), Normall, DefaultLongTimeout); err != nil {
+		if err := client.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 
@@ -170,14 +170,14 @@ func resourceAlicloudRKVInstanceUpdate(d *schema.ResourceData, meta interface{})
 		request.InstanceId = d.Id()
 		request.InstanceName = d.Get("instance_name").(string)
 		// wait instance status is Normal before modifying
-		if err := client.WaitForRKVInstance(d.Id(), Normall, DefaultLongTimeout); err != nil {
+		if err := client.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 		if _, err := conn.ModifyInstanceAttribute(request); err != nil {
 			return fmt.Errorf("ModifyRKVInstanceDescription got an error: %#v", err)
 		}
 		// wait instance status is Normal after modifying
-		if err := client.WaitForRKVInstance(d.Id(), Normall, DefaultLongTimeout); err != nil {
+		if err := client.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 

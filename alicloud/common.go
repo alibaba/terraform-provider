@@ -87,7 +87,7 @@ const (
 	InService = Status("InService")
 	Removing  = Status("Removing")
 
-	Normall  = Status("Normal")
+	Normal   = Status("Normal")
 	Changing = Status("Changing")
 )
 

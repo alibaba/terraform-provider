@@ -22,7 +22,7 @@ func dataSourceAlicloudRKVInstances() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validateAllowedStringValue([]string{
-					string(Normall),
+					string(Normal),
 					string(Creating),
 					string(Changing),
 					string(Inactive),

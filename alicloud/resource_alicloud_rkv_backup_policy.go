@@ -66,7 +66,7 @@ func resourceAlicloudRKVBackupPolicyCreate(d *schema.ResourceData, meta interfac
 	}
 
 	// A security ip whitelist does not have a native IP.
-	d.SetId(fmt.Sprintf("%s%s%s", request.InstanceId, COLON_SEPARATED, resource.UniqueId()))
+	d.SetId(request.InstanceId)
 
 	return resourceAlicloudRKVBackupPolicyRead(d, meta)
 }
@@ -74,7 +74,7 @@ func resourceAlicloudRKVBackupPolicyCreate(d *schema.ResourceData, meta interfac
 func resourceAlicloudRKVBackupPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 	conn := client.rkvconn
-	instanceID := strings.Split(d.Id(), COLON_SEPARATED)[0]
+	instanceID := d.Id()
 
 	request := r_kvstore.CreateDescribeBackupPolicyRequest()
 	request.InstanceId = instanceID
@@ -103,7 +103,7 @@ func resourceAlicloudRKVBackupPolicyUpdate(d *schema.ResourceData, meta interfac
 	conn := client.rkvconn
 	update := false
 	request := r_kvstore.CreateModifyBackupPolicyRequest()
-	request.InstanceId = strings.Split(d.Id(), COLON_SEPARATED)[0]
+	request.InstanceId = d.Id()
 
 	if d.HasChange("backup_time") {
 		request.PreferredBackupTime = d.Get("backup_time").(string)
