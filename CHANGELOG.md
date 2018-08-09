@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Support more specification of router interface ([#586](https://github.com/alibaba/terraform-provider/pull/586))
 - Improve resource alicloud_fc_service docs ([#584](https://github.com/alibaba/terraform-provider/pull/584))
 - Modify resource alicloud_fc_function handler is required ([#583](https://github.com/alibaba/terraform-provider/pull/583))
 - Resource alicloud_router_interface support "import" function ([#581](https://github.com/alibaba/terraform-provider/pull/581))
