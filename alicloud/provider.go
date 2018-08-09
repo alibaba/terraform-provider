@@ -101,6 +101,7 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_pvtz_zone_records":    dataSourceAlicloudPvtzZoneRecords(),
 			"alicloud_router_interfaces":    dataSourceAlicloudRouterInterfaces(),
 			"alicloud_mongo_instances":      dataSourceAlicloudMongoInstances(),
+			"alicloud_kvstore_instances":    dataSourceAlicloudKVStoreInstances(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"alicloud_instance":                  resourceAliyunInstance(),
@@ -185,6 +186,8 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_ssl_vpn_server":              resourceAliyunSslVpnServer(),
 			"alicloud_ssl_vpn_client_cert":         resourceAliyunSslVpnClientCert(),
 			"alicloud_cen_instance":                resourceAlicloudCenInstance(),
+			"alicloud_kvstore_instance":            resourceAlicloudKVStoreInstance(),
+			"alicloud_kvstore_backup_policy":       resourceAlicloudKVStoreBackupPolicy(),
 		},
 
 		ConfigureFunc: providerConfigure,
