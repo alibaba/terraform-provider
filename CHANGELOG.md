@@ -2,7 +2,8 @@
 
 IMPROVEMENTS:
 
-- Improve examples slb and slb-vpc by modifying 'paybytraffic' to 'PayByTraffic' ([#588](https://github.com/alibaba/terraform-provider/pull/588))
+- Improve example/router-interface by adding resource alicloud_router_interface_connection ([#590](https://github.com/alibaba/terraform-provider/pull/590))
+- Improve examples slb and slb-vpc by modifying 'paybytraffic' to 'PayByTraffic' ([#589](https://github.com/alibaba/terraform-provider/pull/589))
 - Support more specification of router interface ([#586](https://github.com/alibaba/terraform-provider/pull/586))
 - Improve resource alicloud_fc_service docs ([#584](https://github.com/alibaba/terraform-provider/pull/584))
 - Modify resource alicloud_fc_function handler is required ([#583](https://github.com/alibaba/terraform-provider/pull/583))
