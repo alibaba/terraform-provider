@@ -1,15 +1,15 @@
-## Alicloud ([Alibaba Cloud](http://www.aliyun.com)) terraform provider
+## Alicloud ([Alibaba Cloud](http://www.aliyun.com)) Terraform provider
 
-This is the official repository for the Alicloud terraform provider.
-Currently it supports terraform version ≥ v0.8.2.
+This is the official repository of the Alicloud Terraform provider.
+It currently supports Terraform version ≥ v0.8.2.
 
-If you are not planning to contribute to this repo, you can download the compiled binaries from [https://github.com/alibaba/terraform-provider/releases](https://github.com/alibaba/terraform-provider/releases) and move the banaries (bin/terraform-provider-alicloud) into the folder under the Terraform **PATH** such as **/usr/local/terraform**.
+If you are not planning to contribute to this repo, you can download the compiled binaries from [https://github.com/alibaba/terraform-provider/releases](https://github.com/alibaba/terraform-provider/releases) and move the binaries (bin/terraform-provider-alicloud) into the folder under the Terraform **PATH** such as **/usr/local/terraform**.
 
 Alternatively, the provider can be installed as described in the [developer notes](#developer-notes).  
 This way you will be able to sync the repo as active development is going on.
 
--> **Note:** When you use terraform on the `Windowns` computer, please install [golang](https://golang.org/dl/) in your computer,
-otherwise, you will happened the issue from version 1.8.1 and the issue details can refer to [Crash Error](https://github.com/alibaba/terraform-provider/issues/469).
+-> **Note:** When you use Terraform on a `Windows` computer, please install [golang](https://golang.org/dl/) first,
+otherwise you might get [this issue](https://github.com/alibaba/terraform-provider/issues/469) (starting from the version 1.8.1).
 
 #### Example
 
@@ -18,18 +18,18 @@ Example modules can be found in the [terraform/examples](examples) directory.
 ### Developer notes
 
 #### Setting up
-* install terraform: https://www.terraform.io/intro/getting-started/install.html
-* install golang:    https://golang.org/doc/install
-* install goimports: https://godoc.org/golang.org/x/tools/cmd/goimports
+* Install Terraform: https://www.terraform.io/intro/getting-started/install.html
+* Install golang:    https://golang.org/doc/install
+* Install goimports: https://godoc.org/golang.org/x/tools/cmd/goimports
     ```
     go get golang.org/x/tools/cmd/goimports
     ```
-* finally:
+* Finally:
 
 ```
 mkdir -p $GOPATH/src/github.com/alibaba
 cd $GOPATH/src/github.com/alibaba
-git clone git@github.com:alibaba/terraform-provider.git
+git clone https://github.com/alibaba/terraform-provider.git
 
 # switch to project
 cd $GOPATH/src/github.com/alibaba/terraform-provider
@@ -83,9 +83,9 @@ me-east-1
 
 eu-central-1
 ```
-For more about the regions and availability zones, use data source `alicloud_regions` and `alicloud_zones`.
+For more information about the regions and availability zones, please use the data sources `alicloud_regions` and `alicloud_zones`.
 
-#### Support products
+#### Supported products
 * [ECS](https://www.aliyun.com/product/ecs)
 * [Block Storage](https://www.aliyun.com/product/disk)
 * [SLB](https://www.aliyun.com/product/slb)
@@ -103,7 +103,7 @@ For more about the regions and availability zones, use data source `alicloud_reg
 * [TableStore](https://www.aliyun.com/product/ots)
 
 #### Documents
-The latest supported product document as follows:
+The most recent documentation is available here:
 * [Terraform Docs](https://www.terraform.io/docs/providers/alicloud/index.html)
 * [Github](https://github.com/alibaba/terraform-provider-docs)
 
@@ -124,8 +124,9 @@ sudo -E "PATH=$PATH" make all
 ```
 
 
-### How to contribute code
-* If you are not sure or have any doubts, feel free to ask and/or submit an issue or PR. We appreciate all contributions and don't want to create artificial obstacles that get in the way.
+### How to contribute
+* If you are not sure or have any doubt, feel free to ask and/or submit an issue or PR.
+  We appreciate all contributions and try to make the process as smooth as possible.
 * Contributions are welcome and will be merged via PRs.
 
 ### Contributors
