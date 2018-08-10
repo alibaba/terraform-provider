@@ -1,4 +1,4 @@
-## 1.12.0 (Unreleased)
+## 1.12.0 (August 10, 2018)
 
 IMPROVEMENTS:
 
@@ -13,6 +13,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix network resource throttling error ([#592](https://github.com/alibaba/terraform-provider/pull/592))
 - Fix resource alicloud_fc_trigger "source_arn" inputting empty error ([#585](https://github.com/alibaba/terraform-provider/pull/585))
 - Fix describing vpcs with name_regex no results error ([#582](https://github.com/alibaba/terraform-provider/pull/582))
 - Fix creating slb listener in international region failed error ([#578](https://github.com/alibaba/terraform-provider/pull/578))
