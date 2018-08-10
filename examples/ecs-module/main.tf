@@ -14,7 +14,7 @@ module "security-groups" {
 
 module "control-nodes" {
   source = "../ecs-vpc"
-//  count = "${var.control_count}"
+  count = "${var.control_count}"
   role = "control"
   ecs_type = "${var.control_ecs_type}"
   disk_size = "${var.control_disk_size}"
@@ -26,7 +26,7 @@ module "control-nodes" {
 
 module "edge-nodes" {
   source = "../ecs-vpc"
-//  count = "${var.edge_count}"
+  count = "${var.edge_count}"
   role = "edge"
   ecs_type = "${var.edge_ecs_type}"
   ssh_username = "${var.ssh_username}"
@@ -37,7 +37,7 @@ module "edge-nodes" {
 
 module "worker-nodes" {
   source = "../ecs-vpc"
-//  count = "${var.worker_count}"
+  count = "${var.worker_count}"
   role = "worker"
   ecs_type = "${var.worker_ecs_type}"
   ssh_username = "${var.ssh_username}"
