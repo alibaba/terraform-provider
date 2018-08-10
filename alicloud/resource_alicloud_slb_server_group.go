@@ -60,7 +60,7 @@ func resourceAliyunSlbServerGroup() *schema.Resource {
 					},
 				},
 				MaxItems: 20,
-				MinItems: 1,
+				MinItems: 0,
 			},
 		},
 	}
