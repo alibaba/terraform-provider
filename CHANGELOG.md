@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Resource alicloud_slb_listener supports new field 'x-forwarded-for' ([#594](https://github.com/alibaba/terraform-provider/pull/594))
 - Resource alicloud_slb_listener supports new field 'gzip' ([#593](https://github.com/alibaba/terraform-provider/pull/593))
 
 ## 1.12.0 (August 10, 2018)
