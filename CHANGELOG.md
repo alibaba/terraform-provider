@@ -1,3 +1,9 @@
+## 1.13.0 (Unreleased)
+
+IMPROVEMENTS:
+
+- Resource alicloud_slb_listener supports new field 'gzip' ([#593](https://github.com/alibaba/terraform-provider/pull/593))
+
 ## 1.12.0 (August 10, 2018)
 
 IMPROVEMENTS:
