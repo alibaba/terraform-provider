@@ -36,7 +36,7 @@ func resourceAliyunSlbServerGroup() *schema.Resource {
 
 			"servers": &schema.Schema{
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"server_ids": &schema.Schema{
