@@ -169,13 +169,25 @@ variable "name" {
 	default = "testAccDiskAttachmentConfig"
 }
 
+resource "alicloud_vpc" "vpc" {
+	name = "${var.name}",
+	cidr_block = "192.168.0.0/16"
+}
+
+resource "alicloud_vswitch" "vswitch" {
+	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+	cidr_block = "192.168.0.0/24"
+	vpc_id = "${alicloud_vpc.vpc.id}"
+}
+
 resource "alicloud_security_group" "group" {
 	name = "${var.name}"
 	description = "foo"
+    vpc_id = "${alicloud_vpc.vpc.id}"
 }
 
 resource "alicloud_disk" "disk" {
-  availability_zone = "cn-beijing-a"
+  availability_zone = "${data.alicloud_zones.default.zones.0.id}"
   size = "50"
 
   tags {
@@ -191,6 +203,7 @@ resource "alicloud_instance" "instance" {
 	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
 	security_groups = ["${alicloud_security_group.group.id}"]
 	instance_name = "${var.name}"
+    vswitch_id = "${alicloud_vswitch.vswitch.id}"
 }
 
 resource "alicloud_disk_attachment" "disk-att" {
