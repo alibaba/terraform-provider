@@ -1,4 +1,15 @@
-## 1.12.0 (Unreleased)
+## 1.13.0 (Unreleased)
+
+IMPROVEMENTS:
+
+- Improve EIP test cases results from international regions does support PayByBandwidth ([#598](https://github.com/alibaba/terraform-provider/pull/598)))
+- Improve ESS test cases results from some region does support Classic Network ([#597](https://github.com/alibaba/terraform-provider/pull/597)))
+- *New data source*: _alicloud_router_interfaces_ ([#596](https://github.com/alibaba/terraform-provider/pull/596)))
+- Recover nat gateway bandwidth pacakges to meet stock user requirements ([#595](https://github.com/alibaba/terraform-provider/pull/595))
+- Resource alicloud_slb_listener supports new field 'x-forwarded-for' ([#594](https://github.com/alibaba/terraform-provider/pull/594))
+- Resource alicloud_slb_listener supports new field 'gzip' ([#593](https://github.com/alibaba/terraform-provider/pull/593))
+
+## 1.12.0 (August 10, 2018)
 
 IMPROVEMENTS:
 
@@ -13,6 +24,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix network resource throttling error ([#592](https://github.com/alibaba/terraform-provider/pull/592))
 - Fix resource alicloud_fc_trigger "source_arn" inputting empty error ([#585](https://github.com/alibaba/terraform-provider/pull/585))
 - Fix describing vpcs with name_regex no results error ([#582](https://github.com/alibaba/terraform-provider/pull/582))
 - Fix creating slb listener in international region failed error ([#578](https://github.com/alibaba/terraform-provider/pull/578))
