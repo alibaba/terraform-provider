@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- *New data source*: _alicloud_router_interfaces_ ([#596](https://github.com/alibaba/terraform-provider/pull/596)))
 - Recover nat gateway bandwidth pacakges to meet stock user requirements ([#595](https://github.com/alibaba/terraform-provider/pull/595))
 - Resource alicloud_slb_listener supports new field 'x-forwarded-for' ([#594](https://github.com/alibaba/terraform-provider/pull/594))
 - Resource alicloud_slb_listener supports new field 'gzip' ([#593](https://github.com/alibaba/terraform-provider/pull/593))
