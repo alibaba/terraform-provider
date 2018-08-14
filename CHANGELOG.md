@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve EIP test cases results from international regions does support PayByBandwidth ([#598](https://github.com/alibaba/terraform-provider/pull/598)))
 - Improve ESS test cases results from some region does support Classic Network ([#597](https://github.com/alibaba/terraform-provider/pull/597)))
 - *New data source*: _alicloud_router_interfaces_ ([#596](https://github.com/alibaba/terraform-provider/pull/596)))
 - Recover nat gateway bandwidth pacakges to meet stock user requirements ([#595](https://github.com/alibaba/terraform-provider/pull/595))
