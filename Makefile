@@ -8,11 +8,17 @@ all: build
 build: mac windows linux
 
 dev: clean fmt mac copy
-devlinux: clean fmt linux copy
-devwin: clean fmt windows copy
+devlinux: clean fmt linux copylinux
+devwin: clean fmt windows copywin
 
 copy:
-	tar -xvf bin/terraform-provider-alicloud_*-amd64.tgz && mv bin/terraform-provider-alicloud $(shell dirname `which terraform`)
+	tar -xvf bin/terraform-provider-alicloud_darwin-amd64.tgz && mv bin/terraform-provider-alicloud $(shell dirname `which terraform`)
+
+copylinux:
+	tar -xvf bin/terraform-provider-alicloud_linux-amd64.tgz && mv bin/terraform-provider-alicloud $(shell dirname `which terraform`)
+
+copywin:
+	tar -xvf bin/terraform-provider-alicloud_windows-amd64.tgz && mv bin/terraform-provider-alicloud $(shell dirname `which terraform`)
 
 test: vet fmtcheck errcheck
 	TF_ACC=1 go test -v ./alicloud -run=TestAccAlicloud -timeout=180m -parallel=4
