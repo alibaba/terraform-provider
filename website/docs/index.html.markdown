@@ -25,7 +25,6 @@ Otherwise, you may encounter an issue that occurs from the version 1.8.1 to 1.10
 provider "alicloud" {
   access_key = "${var.access_key}"
   secret_key = "${var.secret_key}"
-  account_id = "${var.account_id}"
   region     = "${var.region}"
 }
 
@@ -65,7 +64,7 @@ The following methods are supported, in this order, and explained below:
 
 ### Static credentials ###
 
-Static credentials can be provided by adding `access_key`, `secret_key`, `account_id` and `region` in-line in the
+Static credentials can be provided by adding `access_key`, `secret_key` and `region` in-line in the
 alicloud provider block:
 
 Usage:
@@ -74,7 +73,6 @@ Usage:
 provider "alicloud" {
   access_key = "${var.access_key}"
   secret_key = "${var.secret_key}"
-  account_id = "${var.account_id}"
   region     = "${var.region}"
 }
 ```
@@ -82,8 +80,8 @@ provider "alicloud" {
 
 ###Environment variables
 
-You can provide your credentials via `ALICLOUD_ACCESS_KEY`, `ALICLOUD_SECRET_KEY` and `ALICLOUD_ACCOUNT_ID`
-environment variables, representing your Alicloud access key, secret key and account id respectively.
+You can provide your credentials via `ALICLOUD_ACCESS_KEY` and `ALICLOUD_SECRET_KEY`
+environment variables, representing your Alicloud access key and secret key respectively.
 `ALICLOUD_REGION` is also used, if applicable:
 
 ```hcl
@@ -95,7 +93,6 @@ Usage:
 ```shell
 $ export ALICLOUD_ACCESS_KEY="anaccesskey"
 $ export ALICLOUD_SECRET_KEY="asecretkey"
-$ export ALICLOUD_ACCOUNT_ID="anaccountid"
 $ export ALICLOUD_REGION="cn-beijing"
 $ terraform plan
 ```
