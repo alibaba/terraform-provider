@@ -44,6 +44,7 @@
 
 		export ALICLOUD_ACCESS_KEY=*** 
 		export ALICLOUD_SECRET_KEY=***
+		export ALICLOUD_ACCOUNT_ID=***
 		terraform get
 		terraform plan
 		terraform apply
