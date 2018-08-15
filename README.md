@@ -9,7 +9,8 @@ Alternatively, the provider can be installed as described in the [developer note
 This way you will be able to sync the repo as active development is going on.
 
 -> **Note:** When you use Terraform on a `Windows` computer, please install [golang](https://golang.org/dl/) first,
-otherwise you might get [this issue](https://github.com/alibaba/terraform-provider/issues/469) (starting from the version 1.8.1).
+otherwise you might get [this issue](https://github.com/alibaba/terraform-provider/issues/469)
+(the bug appeared in the version 1.8.1 and was fixed in the version 1.11.0).
 
 #### Example
 
