@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- ECS instance support more tags and update instance test cases ([#611](https://github.com/alibaba/terraform-provider/pull/611)))
 - Improve OSS bucket test case ([#610](https://github.com/alibaba/terraform-provider/pull/610)))
 - Allow creation of slb vserver group with 0 servers ([#591](https://github.com/alibaba/terraform-provider/pull/591)))
 - Improve SLB test cases results from international regions does support PayByBandwidth and 'Guaranteed-performance' instance ([#602](https://github.com/alibaba/terraform-provider/pull/602)))
