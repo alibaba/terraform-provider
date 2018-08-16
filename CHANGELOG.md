@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve SLB instance test cases results ([#614](https://github.com/alibaba/terraform-provider/pull/614))
 - Internationalize tests ([#609](https://github.com/alibaba/terraform-provider/pull/609))
 - Add notes about ordering between two alicloud_router_interface_connections ([#608](https://github.com/alibaba/terraform-provider/pull/608))
 - Add data sourc alicloud_router_interfaces docs and test case ([#607](https://github.com/alibaba/terraform-provider/pull/607))
