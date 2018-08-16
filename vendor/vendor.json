@@ -151,10 +151,10 @@
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "nBzko+Dsr3qUIr4pCew0BpYDHI4=",
+			"checksumSHA1": "iR51yUh0y0IsOoEtICvSsGf/MEM=",
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ecs",
-			"revision": "d65bf25cbc207b55ba8953264280a21a3df42a4f",
-			"revisionTime": "2018-05-26T14:55:55Z"
+			"revision": "6b2114e129d0d7a672cd434b386b5e54af41d9b9",
+			"revisionTime": "2018-08-15T11:45:37Z"
 		},
 		{
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/ehpc",
