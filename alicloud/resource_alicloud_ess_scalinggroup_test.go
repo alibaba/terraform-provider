@@ -443,6 +443,7 @@ resource "alicloud_ess_scaling_group" "scaling" {
   removal_policies = ["OldestInstance", "NewestInstance"]
   vswitch_ids = ["${alicloud_vswitch.vswitch.id}"]
   loadbalancer_ids = ["${alicloud_slb.instance.0.id}","${alicloud_slb.instance.1.id}"]
+  depends_on = ["alicloud_slb_listener.tcp"]
 }
 
 resource "alicloud_ess_scaling_configuration" "config" {
