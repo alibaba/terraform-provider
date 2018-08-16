@@ -2,16 +2,25 @@
 
 IMPROVEMENTS:
 
-- ECS instance support more tags and update instance test cases ([#611](https://github.com/alibaba/terraform-provider/pull/611)))
+- Internationalize tests ([#609](https://github.com/alibaba/terraform-provider/pull/609))
+- Add notes about ordering between two alicloud_router_interface_connections ([#608](https://github.com/alibaba/terraform-provider/pull/608))
+- Add data sourc alicloud_router_interfaces docs and test case ([#607](https://github.com/alibaba/terraform-provider/pull/607))
+- Improve english doc ([#606](https://github.com/alibaba/terraform-provider/pull/606)))
+- ECS instance support more tags and update instance test cases ([#611](https://github.com/alibaba/terraform-provider/pull/611))
 - Improve OSS bucket test case ([#610](https://github.com/alibaba/terraform-provider/pull/610)))
-- Allow creation of slb vserver group with 0 servers ([#591](https://github.com/alibaba/terraform-provider/pull/591)))
+- Allow creation of slb vserver group with 0 servers ([#591](https://github.com/alibaba/terraform-provider/pull/591))
 - Improve SLB test cases results from international regions does support PayByBandwidth and 'Guaranteed-performance' instance ([#602](https://github.com/alibaba/terraform-provider/pull/602)))
-- Improve EIP test cases results from international regions does support PayByBandwidth ([#598](https://github.com/alibaba/terraform-provider/pull/598)))
+- Improve EIP test cases results from international regions does support PayByBandwidth ([#598](https://github.com/alibaba/terraform-provider/pull/598))
 - Improve ESS test cases results from some region does support Classic Network ([#597](https://github.com/alibaba/terraform-provider/pull/597)))
-- *New data source*: _alicloud_router_interfaces_ ([#596](https://github.com/alibaba/terraform-provider/pull/596)))
+- *New data source*: _alicloud_router_interfaces_ ([#596](https://github.com/alibaba/terraform-provider/pull/596))
 - Recover nat gateway bandwidth pacakges to meet stock user requirements ([#595](https://github.com/alibaba/terraform-provider/pull/595))
 - Resource alicloud_slb_listener supports new field 'x-forwarded-for' ([#594](https://github.com/alibaba/terraform-provider/pull/594))
 - Resource alicloud_slb_listener supports new field 'gzip' ([#593](https://github.com/alibaba/terraform-provider/pull/593))
+
+BUG FIXES:
+
+- Fix disk detach error and improve test using dynamic zone and region ([#612](https://github.com/alibaba/terraform-provider/pull/612))
+
 
 ## 1.12.0 (August 10, 2018)
 
