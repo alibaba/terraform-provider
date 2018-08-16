@@ -28,10 +28,16 @@ func TestAccAlicloudOssBucketBasic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccAlicloudOssBucketBasicConfig(acctest.RandInt()),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckOssBucketExists("alicloud_oss_bucket.basic", &bucket),
-					resource.TestCheckResourceAttrSet("alicloud_oss_bucket.basic", "location"),
-					testAccCheckOssBucketLocationIsLocal(&bucket),
-					resource.TestCheckResourceAttr("alicloud_oss_bucket.basic", "acl", "public-read"),
+					testAccCheckOssBucketExists(
+						"alicloud_oss_bucket.basic", &bucket),
+					resource.TestCheckResourceAttr(
+						"alicloud_oss_bucket.basic",
+						"location",
+						"oss-cn-beijing"),
+					resource.TestCheckResourceAttr(
+						"alicloud_oss_bucket.basic",
+						"acl",
+						"public-read"),
 				),
 			},
 		},
@@ -226,29 +232,6 @@ func testAccCheckOssBucketExistsWithProviders(n string, b *oss.BucketInfo, provi
 		}
 
 		return fmt.Errorf("Bucket not found")
-	}
-}
-
-func testAccCheckOssBucketLocationIsLocal(bucketInfo *oss.BucketInfo) resource.TestCheckFunc {
-	providers := []*schema.Provider{testAccProvider}
-
-	return func(s *terraform.State) error {
-		for _, provider := range providers {
-			// Ignore if Meta is empty, this can happen for validation providers
-			if provider.Meta() == nil {
-				continue
-			}
-
-			client := provider.Meta().(*AliyunClient)
-			localLocation := "oss-" + client.RegionId
-			if bucketInfo.Location == localLocation {
-				return nil
-			}
-
-			return fmt.Errorf("bucket location is %v but must be %v", bucketInfo.Location, localLocation)
-		}
-
-		return fmt.Errorf("unable to find the local bucket location")
 	}
 }
 
