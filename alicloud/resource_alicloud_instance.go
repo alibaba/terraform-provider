@@ -554,6 +554,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("[INFO] Start resourceAliyunInstanceDelete. d.Id() = %v", d.Id())
 	client := meta.(*AliyunClient)
 	conn := client.ecsconn
 	if d.Get("instance_charge_type").(string) == string(PrePaid) {
@@ -567,31 +568,47 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 	deld.InstanceId = d.Id()
 	deld.Force = requests.NewBoolean(true)
 
+	log.Printf("[INFO] BEFORE resource.Retry.")
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
+		log.Printf("[INFO] Start resource.Retry. call client.DescribeInstanceById(%v)", d.Id())
 		instance, err := client.DescribeInstanceById(d.Id())
+		log.Printf("[INFO] After client.DescribeInstanceById. err = %#v", err)
 		if err != nil {
 			if NotFoundError(err) {
+				log.Printf("[INFO] After client.DescribeInstanceById. err is NotFoundError")
 				return nil
 			}
 		}
 
+		log.Printf("[INFO] instance.Status = %v", instance.Status)
 		if instance.Status != string(Stopped) {
+
+			log.Printf("[INFO] before conn.StopInstance(stop) with stop.InstanceId = %v", stop.InstanceId)
 			if _, err := conn.StopInstance(stop); err != nil {
+				log.Printf("[INFO] conn.StopInstance(stop) returned an error: %#v", err)
 				return resource.RetryableError(fmt.Errorf("Stop instance timeout and got an error: %#v.", err))
 			}
 
+			log.Printf("[INFO] before client.WaitForEcsInstance(d.Id(), Stopped, DefaultTimeout) where d.Id() = %v, DefaultTimeout = %v", d.Id(), DefaultTimeout)
 			if err := client.WaitForEcsInstance(d.Id(), Stopped, DefaultTimeout); err != nil {
+				log.Printf("[INFO] client.WaitForEcsInstance() returned an error: %#v", err)
 				return resource.RetryableError(fmt.Errorf("Waiting for ecs stopped timeout and got an error: %#v.", err))
 			}
 		}
 
+		log.Printf("[INFO] before conn.DeleteInstance(deld) with deld.InstanceId = %v", deld.InstanceId)
 		if _, err := conn.DeleteInstance(deld); err != nil {
+			log.Printf("[INFO] conn.DeleteInstance(deld) returned an error: = %#v", err)
 			if NotFoundError(err) || IsExceptedErrors(err, EcsNotFound) {
+				log.Printf("[INFO] the error was NotFoundError(err) || IsExceptedErrors(err, EcsNotFound)")
 				return nil
 			}
+
+			log.Printf("[INFO] the error was NOT( NotFoundError(err) || IsExceptedErrors(err, EcsNotFound))")
 			return resource.RetryableError(fmt.Errorf("Delete instance timeout and got an error: %#v.", err))
 		}
 
+		log.Printf("[INFO] End of resource.Retry: return nil")
 		return nil
 	})
 
