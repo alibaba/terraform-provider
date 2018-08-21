@@ -119,7 +119,7 @@ func resourceAlicloudRouterInterfaceCreate(d *schema.ResourceData, meta interfac
 
 	d.SetId(response.RouterInterfaceId)
 
-	if err := client.WaitForRouterInterface(d.Id(), Idle, 300); err != nil {
+	if err := client.WaitForRouterInterface(getRegionId(d, meta), d.Id(), Idle, 300); err != nil {
 		return fmt.Errorf("WaitForRouterInterface %s got error: %#v", Idle, err)
 	}
 
@@ -159,7 +159,7 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 
 func resourceAlicloudRouterInterfaceRead(d *schema.ResourceData, meta interface{}) error {
 
-	ri, err := meta.(*AliyunClient).DescribeRouterInterface(d.Id())
+	ri, err := meta.(*AliyunClient).DescribeRouterInterface(getRegionId(d, meta), d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -189,7 +189,7 @@ func resourceAlicloudRouterInterfaceRead(d *schema.ResourceData, meta interface{
 func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 
-	if ri, err := client.DescribeRouterInterface(d.Id()); err != nil {
+	if ri, err := client.DescribeRouterInterface(getRegionId(d, meta), d.Id()); err != nil {
 		if NotFoundError(err) {
 			return nil
 		}
@@ -206,13 +206,16 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		if _, err := client.vpcconn.DeleteRouterInterface(args); err != nil {
-			if IsExceptedError(err, RouterInterfaceIncorrectStatus) || IsExceptedError(err, DependencyViolationRouterInterfaceReferedByRouteEntry) {
+			if IsExceptedErrors(err, []string{InvalidInstanceIdNotFound}) {
+				return nil
+			}
+			if IsExceptedErrors(err, []string{RouterInterfaceIncorrectStatus, DependencyViolationRouterInterfaceReferedByRouteEntry}) {
 				time.Sleep(5 * time.Second)
 				return resource.RetryableError(fmt.Errorf("Delete router interface timeout and got an error: %#v.", err))
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error deleting interface %s: %#v", d.Id(), err))
 		}
-		if _, err := client.DescribeRouterInterface(d.Id()); err != nil {
+		if _, err := client.DescribeRouterInterface(getRegionId(d, meta), d.Id()); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}

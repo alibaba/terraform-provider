@@ -1,7 +1,10 @@
-## 1.14.0 (Unreleased)
+## 1.13.1 (Unreleased)
+
+BUG FIXES:
+
+- Fix router interface connection error when 'opposite_interface_owner_id' is empty ([#616](https://github.com/alibaba/terraform-provider/pull/616))
 
 ## 1.13.0 (August 16, 2018)
-
 
 IMPROVEMENTS:
 
