@@ -91,6 +91,8 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_security_groups":      dataSourceAlicloudSecurityGroups(),
 			"alicloud_security_group_rules": dataSourceAlicloudSecurityGroupRules(),
 			"alicloud_db_instances":         dataSourceAlicloudDBInstances(),
+			"alicloud_pvtz_zones":           dataSourceAlicloudPvtzZones(),
+			"alicloud_pvtz_zone_records":    dataSourceAlicloudPvtzZoneRecords(),
 			"alicloud_router_interfaces":    dataSourceAlicloudRouterInterfaces(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -158,6 +160,9 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_ots_instance":                resourceAlicloudOtsInstance(),
 			"alicloud_ots_instance_attachment":     resourceAlicloudOtsInstanceAttachment(),
 			"alicloud_cms_alarm":                   resourceAlicloudCmsAlarm(),
+			"alicloud_pvtz_zone":                   resourceAlicloudPvtzZone(),
+			"alicloud_pvtz_zone_attachment":        resourceAlicloudPvtzZoneAttachment(),
+			"alicloud_pvtz_zone_record":            resourceAlicloudPvtzZoneRecord(),
 			"alicloud_log_project":                 resourceAlicloudLogProject(),
 			"alicloud_log_store":                   resourceAlicloudLogStore(),
 			"alicloud_log_store_index":             resourceAlicloudLogStoreIndex(),
