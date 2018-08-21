@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve docs vroute_entry ([#619](https://github.com/alibaba/terraform-provider/pull/619))
 - Improve examples/router_interface ([#617](https://github.com/alibaba/terraform-provider/pull/617))
 
 BUG FIXES:
