@@ -1,5 +1,14 @@
 ## 1.13.1 (Unreleased)
 
+FEATURES:
+
+- **New Data Source:** `alicloud_pvtz_zone_records` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
+- **New Data Source:** `alicloud_pvtz_zones` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
+- **New Resource:** `alicloud_pvtz_zone_record` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
+- **New Resource:** `alicloud_pvtz_zone_attachment` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
+- **New Resource:** `alicloud_pvtz_zone` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
+- **New Resource:** `alicloud_ess_lifecycle_hook` ([#605](https://github.com/alibaba/terraform-provider/pull/605))
+
 IMPROVEMENTS:
 
 - Improve docs vroute_entry ([#619](https://github.com/alibaba/terraform-provider/pull/619))

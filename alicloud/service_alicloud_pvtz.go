@@ -15,7 +15,7 @@ func (client *AliyunClient) DescribePvtzZoneInfo(zoneId string) (zone pvtz.Descr
 	err = invoker.Run(func() error {
 		resp, err := conn.DescribeZoneInfo(request)
 		if err != nil {
-			if IsExceptedErrors(err, []string{ZoneNotExists}) {
+			if IsExceptedErrors(err, []string{ZoneNotExists, ZoneVpcNotExists}) {
 				return GetNotFoundErrorFromString(GetNotFoundMessage("PrivateZone", zoneId))
 			}
 			return err
