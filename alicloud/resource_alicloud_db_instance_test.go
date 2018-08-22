@@ -332,9 +332,6 @@ resource "alicloud_db_instance" "foo" {
 }
 `
 const testAccDBInstance_multiAZ = `
-provider "alicloud" {
-  region = "cn-shanghai"
-}
 
 data "alicloud_zones" "default" {
   available_resource_creation= "Rds"
