@@ -94,7 +94,7 @@ func resourceAlicloudPvtzZoneAttachmentRead(d *schema.ResourceData, meta interfa
 	response, err := conn.DescribeZoneInfo(request)
 
 	if err != nil {
-		if NotFoundError(err) || IsExceptedError(err, ZoneVpcNotExists) {
+		if NotFoundError(err) {
 			d.SetId("")
 			return nil
 		}
