@@ -13,23 +13,27 @@ The Dns Domain Groups data source provides a list of Alicloud Dns Domain Groups 
 ## Example Usage
 
 ```
-data "alicloud_dns_groups" "group" {
+data "alicloud_dns_groups" "dnsGroups" {
   name_regex = "^y[A-Za-z]+"
   output_file = "groups.txt"
 }
 
+output "first_group_name" {
+  value = "${data.alicloud_dns_groups.dnsGroups.groups.0.group_name}"
+}
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to apply to the group list returned by Alicloud. 
-* `output_file` - (Optional) The name of file that can save groups data source after running `terraform plan`.
+* `name_regex` - (Optional) A regex string to apply on the group list returned by Alicloud. 
+* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
 
-A list of groups will be exported and its every element contains the following attributes:
+The following attributes are exported in addition to the arguments listed above:
 
-* `group_id` - Id of the group .
-* `group_name` - Name of the group .
+* `groups` - A list of groups. Each element contains the following attributes:
+  * `group_id` - Id of the group.
+  * `group_name` - Name of the group.
