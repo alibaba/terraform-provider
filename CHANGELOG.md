@@ -11,6 +11,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Add SLB PayByBandwidth test case ([#625](https://github.com/alibaba/terraform-provider/pull/625))
 - Improve snat entry test case ([#624](https://github.com/alibaba/terraform-provider/pull/624))
 - Allow empty list of SLBs as arg to ESG ([#621](https://github.com/alibaba/terraform-provider/pull/621))
 - Improve docs vroute_entry ([#619](https://github.com/alibaba/terraform-provider/pull/619))
