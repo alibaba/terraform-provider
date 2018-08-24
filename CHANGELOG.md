@@ -11,6 +11,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Add a new "status" argument to the data source alicloud_eips ([#629](https://github.com/alibaba/terraform-provider/pull/629))
 - Add SLB PayByBandwidth test case ([#625](https://github.com/alibaba/terraform-provider/pull/625))
 - Improve snat entry test case ([#624](https://github.com/alibaba/terraform-provider/pull/624))
 - Allow empty list of SLBs as arg to ESG ([#621](https://github.com/alibaba/terraform-provider/pull/621))
