@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"sync"
 
 	"net/http"
 	"os"
@@ -38,6 +39,7 @@ import (
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/denverdino/aliyungo/location"
 	"github.com/denverdino/aliyungo/ram"
+	"github.com/denverdino/aliyungo/sts"
 	"github.com/hashicorp/terraform/terraform"
 )
 
@@ -56,6 +58,7 @@ type Config struct {
 
 // AliyunClient of aliyun
 type AliyunClient struct {
+	config   *Config
 	Region   common.Region
 	RegionId string
 	//In order to build ots table client, add accesskey and secretkey in aliyunclient temporarily.
@@ -63,7 +66,8 @@ type AliyunClient struct {
 	SecretKey       string
 	SecurityToken   string
 	OtsInstanceName string
-	AccountId       string
+	accountIdMutex  sync.RWMutex
+	accountId       string
 	ecsconn         *ecs.Client
 	essconn         *ess.Client
 	rdsconn         *rds.Client
@@ -78,8 +82,10 @@ type AliyunClient struct {
 	otsconn         *ots.Client
 	cmsconn         *cms.Client
 	logconn         *sls.Client
+	fcconnMutex     sync.RWMutex
 	fcconn          *fc.Client
 	pvtzconn        *pvtz.Client
+	stsconn         *sts.STSClient
 }
 
 // Client for AliyunClient
@@ -146,18 +152,16 @@ func (c *Config) Client() (*AliyunClient, error) {
 		return nil, err
 	}
 	pvtzconn, err := c.pvtzConn()
-	fcconn, err := c.fcConn()
-	if err != nil {
-		return nil, err
-	}
+	stsconn := c.stsConn()
 	return &AliyunClient{
+		config:          c,
 		Region:          c.Region,
 		RegionId:        c.RegionId,
 		AccessKey:       c.AccessKey,
 		SecretKey:       c.SecretKey,
 		SecurityToken:   c.SecurityToken,
 		OtsInstanceName: c.OtsInstanceName,
-		AccountId:       c.AccountId,
+		accountId:       c.AccountId,
 		ecsconn:         ecsconn,
 		vpcconn:         vpcconn,
 		slbconn:         slbconn,
@@ -172,8 +176,8 @@ func (c *Config) Client() (*AliyunClient, error) {
 		otsconn:         otsconn,
 		cmsconn:         cmsconn,
 		logconn:         c.logConn(),
-		fcconn:          fcconn,
 		pvtzconn:        pvtzconn,
+		stsconn:         stsconn,
 	}, nil
 }
 
@@ -292,7 +296,7 @@ func (c *Config) dnsConn() (*dns.Client, error) {
 }
 
 func (c *Config) ramConn() (ram.RamClientInterface, error) {
-	client := ram.NewClient(c.AccessKey, c.SecretKey)
+	client := ram.NewClientWithSecurityToken(c.AccessKey, c.SecretKey, c.SecurityToken)
 	return client, nil
 }
 
@@ -338,6 +342,10 @@ func (c *Config) pvtzConn() (*pvtz.Client, error) {
 	return pvtz.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
 
+func (c *Config) stsConn() *sts.STSClient {
+	return sts.NewClientWithSecurityToken(c.AccessKey, c.SecretKey, c.SecurityToken)
+}
+
 func (c *Config) logConn() *sls.Client {
 	endpoint := c.LogEndpoint
 	if endpoint == "" {
@@ -354,24 +362,6 @@ func (c *Config) logConn() *sls.Client {
 		SecurityToken:   c.SecurityToken,
 		UserAgent:       getUserAgent(),
 	}
-}
-
-func (c *Config) fcConn() (client *fc.Client, err error) {
-	endpoint := c.LogEndpoint
-	if endpoint == "" {
-		endpoint = LoadEndpoint(c.RegionId, FCCode)
-		if endpoint == "" {
-			endpoint = fmt.Sprintf("%s.fc.aliyuncs.com", c.RegionId)
-		}
-	}
-
-	client, err = fc.NewClient(fmt.Sprintf("%s%s%s", c.AccountId, DOT_SEPARATED, endpoint), ApiVersion20160815, c.AccessKey, c.SecretKey)
-	if err != nil {
-		return
-	}
-	client.Config.UserAgent = getUserAgent()
-	client.Config.SecurityToken = c.SecurityToken
-	return
 }
 
 func getSdkConfig() *sdk.Config {
@@ -394,6 +384,55 @@ func (c *Config) getAuthCredential(stsSupported bool) auth.Credential {
 	}
 
 	return credentials.NewAccessKeyCredential(c.AccessKey, c.SecretKey)
+}
+
+func (client *AliyunClient) AccountId() (string, error) {
+	client.accountIdMutex.Lock()
+	defer client.accountIdMutex.Unlock()
+
+	if client.accountId == "" {
+		identity, err := client.GetCallerIdentity()
+		if err != nil {
+			return "", err
+		}
+		if identity.AccountId == "" {
+			return "", GetNotFoundErrorFromString("Caller identity doesn't contain any AccountId.")
+		}
+		client.accountId = identity.AccountId
+	}
+	return client.accountId, nil
+}
+
+func (client *AliyunClient) Fcconn() (*fc.Client, error) {
+	client.fcconnMutex.Lock()
+	defer client.fcconnMutex.Unlock()
+
+	if client.fcconn == nil {
+		endpoint := client.config.LogEndpoint
+		if endpoint == "" {
+			endpoint = LoadEndpoint(client.config.RegionId, FCCode)
+			if endpoint == "" {
+				endpoint = fmt.Sprintf("%s.fc.aliyuncs.com", client.config.RegionId)
+			}
+		}
+
+		accountId, err := client.AccountId()
+		if err != nil {
+			return nil, err
+		}
+
+		client.fcconn, err = fc.NewClient(fmt.Sprintf("%s%s%s", accountId, DOT_SEPARATED, endpoint), ApiVersion20160815, client.config.AccessKey, client.config.SecretKey)
+		if err != nil {
+			return nil, err
+		}
+		client.fcconn.Config.UserAgent = getUserAgent()
+		client.fcconn.Config.SecurityToken = client.config.SecurityToken
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	return client.fcconn, nil
 }
 
 func getUserAgent() string {
