@@ -8,12 +8,12 @@ description: |-
 
 # alicloud\_dns\_records
 
-The Dns Domain Records data source provides a list of Alicloud Dns Domain Records in an Alicloud account according to the specified filters.
+This data source provides a list of DNS Domain Records in an Alibaba Cloud account according to the specified filters.
 
 ## Example Usage
 
 ```
-data "alicloud_dns_records" "dnsRecords" {
+data "alicloud_dns_records" "records_ds" {
   domain_name = "xiaozhu.top"
   is_locked = false
   type = "A"
@@ -22,7 +22,7 @@ data "alicloud_dns_records" "dnsRecords" {
 }
 
 output "first_record_id" {
-  value = "${data.alicloud_dns_records.dnsRecords.records.0.record_id}"
+  value = "${data.alicloud_dns_records.records_ds.records.0.record_id}"
 }
 ```
 

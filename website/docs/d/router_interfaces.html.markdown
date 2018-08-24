@@ -14,13 +14,13 @@ that connect VPCs together.
 ## Example Usage
 
 ```
-data "alicloud_router_interfaces" "routerInterfaces" {
+data "alicloud_router_interfaces" "router_interfaces_ds" {
 	name_regex = "^testenv"
 	status = "Active"
 }
 
 output "first_router_interface_id" {
-  value = "${data.alicloud_router_interfaces.routerInterfaces.interfaces.0.id}"
+  value = "${data.alicloud_router_interfaces.router_interfaces_ds.interfaces.0.id}"
 }
 ```
 

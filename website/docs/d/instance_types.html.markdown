@@ -3,7 +3,7 @@ layout: "alicloud"
 page_title: "Alicloud: alicloud_instance_types"
 sidebar_current: "docs-alicloud-datasource-instance-types"
 description: |-
-    Provides a list of Ecs Instance Types to be used by the alicloud_instance resource.
+    Provides a list of ECS Instance Types to be used by the alicloud_instance resource.
 ---
 
 # alicloud\_instance\_types
@@ -18,15 +18,15 @@ This data source provides the ECS instance types of Alibaba Cloud.
 
 ```
 # Declare the data source
-data "alicloud_instance_types" "1c2g" {
+data "alicloud_instance_types" "types_ds" {
   cpu_core_count = 1
   memory_size = 2
 }
 
-# Create ecs instance with the first matched instance_type
+# Create ECS instance with the first matched instance_type
 
 resource "alicloud_instance" "instance" {
-  instance_type = "${data.alicloud_instance_types.1c2g.instance_types.0.id}"
+  instance_type = "${data.alicloud_instance_types.types_ds.instance_types.0.id}"
 
   # Other properties...
 }

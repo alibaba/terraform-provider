@@ -13,7 +13,7 @@ This data source provides a list of RAM users in an Alibaba Cloud account accord
 ## Example Usage
 
 ```
-data "alicloud_ram_users" "myUsers" {
+data "alicloud_ram_users" "users_ds" {
   output_file = "users.txt"
   group_name = "group1"
   policy_name = "AliyunACSDefaultAccess"
@@ -22,7 +22,7 @@ data "alicloud_ram_users" "myUsers" {
 }
 
 output "first_user_id" {
-  value = "${data.alicloud_ram_users.myUsers.users.0.id}"
+  value = "${data.alicloud_ram_users.users_ds.users.0.id}"
 }
 ```
 

@@ -13,7 +13,7 @@ This data source provides a list of VSwitches owned by an Alibaba Cloud account.
 ## Example Usage
 
 ```
-data "alicloud_vswitches" "subnets" {
+data "alicloud_vswitches" "vswitches_ds" {
   cidr_block = "172.16.0.0/12"
   name_regex = "^foo"
 }
@@ -21,7 +21,7 @@ data "alicloud_vswitches" "subnets" {
 resource "alicloud_instance" "foo" {
   # ...
   instance_name = "in-the-vpc"
-  vswitch_id = "${data.alicloud_vswitches.subnets.vswitches.0.id}"
+  vswitch_id = "${data.alicloud_vswitches.vswitches_ds.vswitches.0.id}"
   # ...
 }
 ```

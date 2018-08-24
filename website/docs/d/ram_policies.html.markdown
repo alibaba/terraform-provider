@@ -13,7 +13,7 @@ This data source provides a list of RAM policies in an Alibaba Cloud account acc
 ## Example Usage
 
 ```
-data "alicloud_ram_policies" "samplePolicies" {
+data "alicloud_ram_policies" "policies_ds" {
   output_file = "policies.txt"
   user_name = "user1"
   group_name = "group1"
@@ -21,7 +21,7 @@ data "alicloud_ram_policies" "samplePolicies" {
 }
 
 output "first_policy_name" {
-  value = "${data.alicloud_ram_policies.samplePolicies.policies.0.name}"
+  value = "${data.alicloud_ram_policies.policies_ds.policies.0.name}"
 }
 ```
 

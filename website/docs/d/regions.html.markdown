@@ -13,12 +13,12 @@ This data source provides Alibaba Cloud regions.
 ## Example Usage
 
 ```
-data "alicloud_regions" "currentRegions" {
+data "alicloud_regions" "current_region_ds" {
   current = true
 }
 
 output "current_region_id" {
-  value = "${data.alicloud_regions.currentRegions.regions.0.id}"
+  value = "${data.alicloud_regions.current_region_ds.regions.0.id}"
 }
 ```
 

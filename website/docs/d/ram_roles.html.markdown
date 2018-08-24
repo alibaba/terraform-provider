@@ -13,7 +13,7 @@ This data source provides a list of RAM Roles in an Alibaba Cloud account accord
 ## Example Usage
 
 ```
-data "alicloud_ram_roles" "testRoles" {
+data "alicloud_ram_roles" "roles_ds" {
   output_file = "roles.txt"
   name_regex = ".*test.*"
   policy_name = "AliyunACSDefaultAccess"
@@ -21,7 +21,7 @@ data "alicloud_ram_roles" "testRoles" {
 }
 
 output "first_role_id" {
-  value = "${data.alicloud_ram_roles.testRoles.roles.0.id}"
+  value = "${data.alicloud_ram_roles.roles_ds.roles.0.id}"
 }
 ```
 

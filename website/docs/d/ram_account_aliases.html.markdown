@@ -8,17 +8,17 @@ description: |-
 
 # alicloud\_ram\_account\_aliases
 
-This data source provides an alias for the Alicloud account.
+This data source provides an alias for the Alibaba Cloud account.
 
 ## Example Usage
 
 ```
-data "alicloud_ram_account_aliases" "alias" {
+data "alicloud_ram_account_aliases" "alias_ds" {
   output_file = "alias.txt"
 }
 
 output "account_alias" {
-  value = "${data.alicloud_ram_account_aliases.alias.account_alias}"
+  value = "${data.alicloud_ram_account_aliases.alias_ds.account_alias}"
 }
 ```
 

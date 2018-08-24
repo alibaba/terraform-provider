@@ -14,22 +14,22 @@ This data source provides a list of Security Groups in an Alibaba Cloud account 
 
 ```
 # Filter security groups and print the results into a file
-data "alicloud_security_groups" "web" {
+data "alicloud_security_groups" "sec_groups_ds" {
   name_regex  = "^web-"
   output_file = "web_access.json"
 }
 
 # In conjunction with a VPC
-resource "alicloud_vpc" "primary" {
+resource "alicloud_vpc" "primary_vpc_ds" {
   # ...
 }
 
-data "alicloud_security_groups" "primary_groups" {
-  vpc_id = "${alicloud_vpc.primary.id}"
+data "alicloud_security_groups" "primary_sec_groups_ds" {
+  vpc_id = "${alicloud_vpc.primary_vpc_ds.id}"
 }
 
 output "first_group_id" {
-  value = "${data.alicloud_security_groups.primary_groups.groups.0.id}"
+  value = "${data.alicloud_security_groups.primary_sec_groups_ds.groups.0.id}"
 }
 ```
 
