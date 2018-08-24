@@ -14,6 +14,7 @@ This data source provides a list of EIPs (Elastic IP address) owned by an Alibab
 
 ```
 data "alicloud_eips" "eips_ds" {
+  status = "Available"
 }
 
 output "first_eip_id" {
@@ -27,7 +28,8 @@ The following arguments are supported:
 
 * `ids` - (Optional) A list of EIP IDs.
 * `ip_addresses` - (Optional) A list of EIP public IP addresses.
-* `in_use` - (Deprecated) Deprecated since the version 1.8.0 of this provider.
+* `in_use` - (Deprecated) Deprecated since the version 1.8.0 of this provider. Use `status` instead.
+* `status` - (Optional) EIP status. Valid values: `Associating`, `Unassociating`, `InUse` and `Available`. If undefined, all statuses are considered.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
