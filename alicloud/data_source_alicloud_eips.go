@@ -33,6 +33,11 @@ func dataSourceAlicloudEips() *schema.Resource {
 				ForceNew: true,
 				MinItems: 1,
 			},
+			"status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -87,6 +92,7 @@ func dataSourceAlicloudEipsRead(d *schema.ResourceData, meta interface{}) error 
 
 	args := vpc.CreateDescribeEipAddressesRequest()
 	args.RegionId = string(getRegion(d, meta))
+	args.Status = d.Get("status").(string)
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 
 	idsMap := make(map[string]string)
