@@ -13,13 +13,13 @@ The Instances data source list ECS instance resources according to their ID, nam
 ## Example Usage
 
 ```
-data "alicloud_instances" "webServerInstances" {
+data "alicloud_instances" "instances_ds" {
 	name_regex = "web_server"
 	status = "Running"
 }
 
 output "first_instance_id" {
-  value = "${data.alicloud_instances.webServerInstances.instances.0.id}"
+  value = "${data.alicloud_instances.instances_ds.instances.0.id}"
 }
 ```
 
@@ -28,7 +28,7 @@ output "first_instance_id" {
 The following arguments are supported:
 
 * `ids` - (Optional) A list of ECS instance IDs.
-* `name_regex` - (Optional) A regex string to apply to the instance list returned by Alicloud.
+* `name_regex` - (Optional) A regex string to filter results by instance name.
 * `image_id` - (Optional) The image ID of some ECS instance used.
 * `status` - (Optional) Instance status. Valid values: "Creating", "Starting", "Running", "Stopping" and "Stopped". If undefined, all statuses are considered.
 * `vpc_id` - (Optional) ID of the VPC linked to the instances.

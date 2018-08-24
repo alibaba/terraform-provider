@@ -13,14 +13,14 @@ This data source provides a list of RAM Groups in an Alibaba Cloud account accor
 ## Example Usage
 
 ```
-data "alicloud_ram_groups" "ramGroups" {
+data "alicloud_ram_groups" "groups_ds" {
   output_file = "groups.txt"
   user_name = "user1"
   name_regex = "^group[0-9]*"
 }
 
 output "first_group_name" {
-  value = "${data.alicloud_ram_groups.ramGroups.groups.0.name}"
+  value = "${data.alicloud_ram_groups.groups_ds.groups.0.name}"
 }
 ```
 

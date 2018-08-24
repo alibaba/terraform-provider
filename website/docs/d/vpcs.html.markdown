@@ -13,14 +13,14 @@ This data source provides VPCs available to the user.
 ## Example Usage
 
 ```
-data "alicloud_vpcs" "availableVpcs"{
+data "alicloud_vpcs" "vpcs_ds"{
   cidr_block = "172.16.0.0/12"
   status = "Available"
   name_regex = "^foo"
 }
 
 output "first_vpc_id" {
-  value = "${data.alicloud_vpcs.availableVpcs.vpcs.0.id}"
+  value = "${data.alicloud_vpcs.vpcs_ds.vpcs.0.id}"
 }
 ```
 

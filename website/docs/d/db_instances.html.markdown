@@ -8,13 +8,13 @@ description: |-
 
 # alicloud\_db\_instances
 
-The `alicloud_db_instances` data source provides a collection of RDS instances available in Alicloud account.
+The `alicloud_db_instances` data source provides a collection of RDS instances available in Alibaba Cloud account.
 Filters support regular expression for the instance name, searches by tags, and other filters which are listed below.
 
 ## Example Usage
 
 ```
-data "alicloud_db_instances" "dbs" {
+data "alicloud_db_instances" "db_instances_ds" {
   name_regex = "data-\\d+"
   status     = "Running"
   tags       = <<EOF
@@ -26,7 +26,7 @@ EOF
 }
 
 output "first_db_instance_id" {
-  value = "${data.alicloud_db_instances.dbs.instances.0.id}"
+  value = "${data.alicloud_db_instances.db_instances_ds.instances.0.id}"
 }
 ```
 
@@ -34,7 +34,7 @@ output "first_db_instance_id" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to apply to the instance name.
+* `name_regex` - (Optional) A regex string to filter results by instance name.
 * `engine` - (Optional) Database type. Options are `MySQL`, `SQLServer`, `PostgreSQL` and `PPAS`. If no value is specified, all types are returned.
 * `status` - (Optional) Status of the instance.
 * `db_type` - (Optional) `Primary` for primary instance, `ReadOnly` for read-only instance, `Guard` for disaster recovery instance, and `Temp` for temporary instance.

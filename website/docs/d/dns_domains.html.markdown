@@ -8,18 +8,18 @@ description: |-
 
 # alicloud\_dns\_domains
 
-The Dns Domains data source provides a list of Alicloud Dns Domains in an Alicloud account according to the specified filters.
+This data source provides a list of DNS Domains in an Alibaba Cloud account according to the specified filters.
 
 ## Example Usage
 
 ```
-data "alicloud_dns_domains" "heguDomains" {
+data "alicloud_dns_domains" "domains_ds" {
   domain_name_regex = "^hegu"
   output_file = "domains.txt"
 }
 
 output "first_domain_id" {
-  value = "${data.alicloud_dns_domains.heguDomains.domains.0.domain_id}"
+  value = "${data.alicloud_dns_domains.domains_ds.domains.0.domain_id}"
 }
 ```
 
@@ -27,8 +27,8 @@ output "first_domain_id" {
 
 The following arguments are supported:
 
-* `domain_name_regex` - (Optional) A regex string on the domain name. 
-* `group_name_regex` - (Optional)  A regex string on the group name.
+* `domain_name_regex` - (Optional) A regex string to filter results by the domain name. 
+* `group_name_regex` - (Optional)  A regex string to filter results by the group name.
 * `ali_domain` - (Optional, type: bool) Specifies whether the domain is from Alibaba Cloud or not.
 * `instance_id` - (Optional) Cloud analysis product ID.
 * `version_code` - (Optional) Cloud analysis version code.

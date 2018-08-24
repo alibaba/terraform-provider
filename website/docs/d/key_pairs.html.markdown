@@ -14,7 +14,7 @@ This data source provides a list of key pairs in an Alibaba Cloud account accord
 
 ```
 # Declare the data source
-data "alicloud_key_pairs" "testKeyPairs" {
+data "alicloud_key_pairs" "key_pairs_ds" {
 	name_regex = "test"
 	output_file = "my_key_pairs.json"
 }
@@ -22,7 +22,7 @@ data "alicloud_key_pairs" "testKeyPairs" {
 # Bind a key pair for several ECS instances by using the first matched key pair
 
 resource "alicloud_key_pair_attachment" "attachment" {
-  key_name = "${data.alicloud_key_pairs.testKeyPairs.key_pairs.0.id}"
+  key_name = "${data.alicloud_key_pairs.key_pairs_ds.key_pairs.0.id}"
   instance_ids = [...]
 }
 

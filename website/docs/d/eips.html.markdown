@@ -3,21 +3,21 @@ layout: "alicloud"
 page_title: "Alicloud: alicloud_eips"
 sidebar_current: "docs-alicloud-datasource-eips"
 description: |-
-    Provides a list of EIP owned by an Alicloud account.
+    Provides a list of EIP owned by an Alibaba Cloud account.
 ---
 
 # alicloud\_eips
 
-This data source provides a list of EIPs (Elastic IP address) owned by an Alicloud account.
+This data source provides a list of EIPs (Elastic IP address) owned by an Alibaba Cloud account.
 
 ## Example Usage
 
 ```
-data "alicloud_eips" "sampleEips" {
+data "alicloud_eips" "eips_ds" {
 }
 
 output "first_eip_id" {
-  value = "${data.alicloud_eips.sampleEips.eips.0.id}"
+  value = "${data.alicloud_eips.eips_ds.eips.0.id}"
 }
 ```
 

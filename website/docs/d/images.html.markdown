@@ -14,13 +14,13 @@ other public images and the ones available on the image market.
 ## Example Usage
 
 ```
-data "alicloud_images" "centosImages" {
+data "alicloud_images" "images_ds" {
   owners = "system"
   name_regex = "^centos_6"
 }
 
 output "first_image_id" {
-  value = "${data.alicloud_images.centosImages.images.0.id}"
+  value = "${data.alicloud_images.images_ds.images.0.id}"
 }
 ```
 

@@ -22,13 +22,13 @@ variable "security_group_id" {}
 
 # Or get it from the alicloud_security_groups data source.
 # Please note that the data source arguments must be enough to filter results to one security group.
-data "alicloud_security_groups" "apiGroups" {
+data "alicloud_security_groups" "groups_ds" {
   name_regex = "api"
 }
 
 # Filter the security group rule by group
-data "alicloud_security_group_rules" "ingressRules" {
-  group_id = "${data.alicloud_security_groups.apiGroups.groups.0.id}" # or ${var.security_group_id}
+data "alicloud_security_group_rules" "ingress_rules_ds" {
+  group_id = "${data.alicloud_security_groups.groups_ds.groups.0.id}" # or ${var.security_group_id}
   nic_type = "internet"
   direction = "ingress"
   ip_protocol = "TCP"
@@ -37,7 +37,7 @@ data "alicloud_security_group_rules" "ingressRules" {
 # Pass port_range to the backend service
 resource "alicloud_instance" "backend" {
   # ...
-  user_data = "config_service.sh --portrange=${data.alicloud_security_group_rules.ingressRules.rules.0.port_range}"
+  user_data = "config_service.sh --portrange=${data.alicloud_security_group_rules.ingress_rules_ds.rules.0.port_range}"
 }
 ```
 
