@@ -8,10 +8,11 @@ import (
 type RegionalFeature string
 
 const (
-	SlbSpecification = RegionalFeature("SLB_SPECIFICATION")
-	FunctionCompute  = RegionalFeature("FUNCTION_COMPUTE")
-	PrivateZone      = RegionalFeature("PRIVATE_ZONE")
-	RdsMultiAZ       = RegionalFeature("RDS_MULTI_AZ")
+	SlbSpecification  = RegionalFeature("SLB_SPECIFICATION")
+	SlbPayByBandwidth = RegionalFeature("SLB_PAY_BY_BANDWIDTH")
+	FunctionCompute   = RegionalFeature("FUNCTION_COMPUTE")
+	PrivateZone       = RegionalFeature("PRIVATE_ZONE")
+	RdsMultiAZ        = RegionalFeature("RDS_MULTI_AZ")
 )
 
 func isRegionSupports(features ...RegionalFeature) bool {

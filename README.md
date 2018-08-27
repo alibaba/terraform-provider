@@ -128,6 +128,7 @@ go2xunit -input $outfile -output $GOPATH/tests.xml
 Because some features are not available in all regions, the following environment variables can be set in order to
 skip tests that use these features:
 * ALICLOUD_SKIP_TESTS_FOR_SLB_SPECIFICATION=true
+* ALICLOUD_SKIP_TESTS_FOR_SLB_PAY_BY_BANDWIDTH=true
 * ALICLOUD_SKIP_TESTS_FOR_FUNCTION_COMPUTE=true
 * ALICLOUD_SKIP_TESTS_FOR_PVTZ_ZONE=true
 * ALICLOUD_SKIP_TESTS_FOR_RDS_MULTIAZ=true
