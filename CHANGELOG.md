@@ -11,6 +11,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Retrieve the account_id automatically if needed ([#631](https://github.com/alibaba/terraform-provider/pull/631))
 - Check pvtzconn error ([#630](https://github.com/alibaba/terraform-provider/pull/630))
 - Add SLB PayByBandwidth test case ([#625](https://github.com/alibaba/terraform-provider/pull/625))
 - Improve snat entry test case ([#624](https://github.com/alibaba/terraform-provider/pull/624))
