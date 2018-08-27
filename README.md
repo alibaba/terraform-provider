@@ -109,6 +109,29 @@ The most recent documentation is available here:
 * [Terraform Docs](https://www.terraform.io/docs/providers/alicloud/index.html)
 * [Github](https://github.com/alibaba/terraform-provider-docs)
 
+#### Acceptance Testing
+Before making a release, the resources and data sources are tested automatically with acceptance tests (the tests are located in the alicloud/*_test.go files).
+You can run them by entering the following instructions in a terminal:
+```
+cd $GOPATH/src/github.com/alibaba/terraform-provider
+export ALICLOUD_ACCESS_KEY=xxx
+export ALICLOUD_SECRET_KEY=xxx
+export ALICLOUD_REGION=xxx
+export ALICLOUD_ACCOUNT_ID=xxx
+export outfile=gotest.out
+TF_ACC=1 TF_LOG=INFO go test ./alicloud -v -run=TestAccAlicloud -timeout=1440m | tee $outfile
+go2xunit -input $outfile -output $GOPATH/tests.xml
+```
+
+-> **Note:** The last line is optional, it allows you to convert test results into a XML format compatible with xUnit.
+
+Because some features are not available in all regions, the following environment variables can be set in order to
+skip tests that use these features:
+* ALICLOUD_SKIP_TESTS_FOR_SLB_SPECIFICATION=true
+* ALICLOUD_SKIP_TESTS_FOR_FUNCTION_COMPUTE=true
+* ALICLOUD_SKIP_TESTS_FOR_PVTZ_ZONE=true
+* ALICLOUD_SKIP_TESTS_FOR_RDS_MULTIAZ=true
+
 #### Common problems
 
 1.
