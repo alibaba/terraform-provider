@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- **New Resource:** `alicloud_vpn_gateway` ([#634](https://github.com/alibaba/terraform-provider/pull/634))
+- **New Data Source:** `alicloud_mongo_instances` ([#634](https://github.com/alibaba/terraform-provider/pull/634))
 - **New Data Source:** `alicloud_pvtz_zone_records` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
 - **New Data Source:** `alicloud_pvtz_zones` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
 - **New Resource:** `alicloud_pvtz_zone_record` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
