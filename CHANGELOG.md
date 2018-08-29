@@ -2,7 +2,13 @@
 
 IMPROVEMENTS:
 
+- Change SDK config timeout ([#638](https://github.com/alibaba/terraform-provider/pull/638))
+- Support ClientToken for some request ([#638](https://github.com/alibaba/terraform-provider/pull/638))
 - Enlarge sdk default timeout to fix some timeout scenario ([#637](https://github.com/alibaba/terraform-provider/pull/637))
+
+BUG FIXES:
+
+- Fix network products throttling error ([#638](https://github.com/alibaba/terraform-provider/pull/638))
 
 ## 1.13.0 (August 29, 2018)
 
