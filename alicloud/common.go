@@ -327,6 +327,7 @@ const (
 	LOGCode     = ServiceCode("LOG")
 	FCCode      = ServiceCode("FC")
 	DDSCode     = ServiceCode("DDS")
+	STSCode     = ServiceCode("STS")
 )
 
 //xml

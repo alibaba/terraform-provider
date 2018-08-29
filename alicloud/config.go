@@ -29,6 +29,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/pvtz"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -40,7 +41,6 @@ import (
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/denverdino/aliyungo/location"
 	"github.com/denverdino/aliyungo/ram"
-	"github.com/denverdino/aliyungo/sts"
 	"github.com/hashicorp/terraform/terraform"
 )
 
@@ -87,7 +87,7 @@ type AliyunClient struct {
 	fcconn          *fc.Client   // Do not access to this field directly, please use the Fcconn() function instead.
 	pvtzconn        *pvtz.Client
 	ddsconn         *dds.Client
-	stsconn         *sts.STSClient
+	stsconn         *sts.Client
 }
 
 // Client for AliyunClient
@@ -172,7 +172,10 @@ func (c *Config) Client() (*AliyunClient, error) {
 		return nil, err
 	}
 
-	stsconn := c.stsConn()
+	stsconn, err := c.stsConn()
+	if err != nil {
+		return nil, err
+	}
 
 	return &AliyunClient{
 		config:          c,
@@ -366,8 +369,12 @@ func (c *Config) pvtzConn() (*pvtz.Client, error) {
 	return pvtz.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
 
-func (c *Config) stsConn() *sts.STSClient {
-	return sts.NewClientWithSecurityToken(c.AccessKey, c.SecretKey, c.SecurityToken)
+func (c *Config) stsConn() (*sts.Client, error) {
+	endpoint := LoadEndpoint(c.RegionId, STSCode)
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(c.RegionId, string(STSCode), endpoint)
+	}
+	return sts.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
 
 func (c *Config) logConn() *sls.Client {
