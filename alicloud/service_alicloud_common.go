@@ -12,6 +12,7 @@ import (
 
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/location"
+	"github.com/denverdino/aliyungo/sts"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 )
@@ -109,4 +110,22 @@ func (client *AliyunClient) DescribeEndpointByCode(region string, code ServiceCo
 	}
 
 	return endpoint, nil
+}
+
+func (client *AliyunClient) GetCallerIdentity() (*sts.GetCallerIdentityResponse, error) {
+	invoker := NewInvoker()
+	var identityResponse *sts.GetCallerIdentityResponse
+
+	err := invoker.Run(func() error {
+		identity, err := client.stsconn.GetCallerIdentity()
+		if err != nil {
+			return err
+		}
+		if identity == nil {
+			return GetNotFoundErrorFromString("Caller identity not found.")
+		}
+		identityResponse = identity
+		return nil
+	})
+	return identityResponse, err
 }
