@@ -135,6 +135,12 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "z20/QO4Ft8LuJ0c9RpPejw/5jSM=",
+			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/dds",
+			"revision": "89a49455acb77a90f228cdda701be3d8cc9083d4",
+			"revisionTime": "2018-08-24T08:50:24Z"
+		},
+		{
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/dm",
 			"revision": ""
 		},
@@ -235,10 +241,10 @@
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "h4upaiqVHJmBDWZgQgeRqyOwzPA=",
+			"checksumSHA1": "dlHozsMOEmhJKX8mk52//jCEgqM=",
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/vpc",
-			"revision": "0a4f0b5d1cec8d873e0d26fbf61e1adab7ed098c",
-			"revisionTime": "2018-06-06T09:53:15Z"
+			"revision": "dc6b98de2eeb9a46283e23052b6de98a56ef11a5",
+			"revisionTime": "2018-08-23T03:14:16Z"
 		},
 		{
 			"checksumSHA1": "WhSU5HOSMEwkWAxM7Xwr6H+jigw=",
