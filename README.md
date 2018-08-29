@@ -132,6 +132,7 @@ skip tests that use these features:
 * ALICLOUD_SKIP_TESTS_FOR_FUNCTION_COMPUTE=true     - Function Compute
 * ALICLOUD_SKIP_TESTS_FOR_PVTZ_ZONE=true            - Private Zone
 * ALICLOUD_SKIP_TESTS_FOR_RDS_MULTIAZ=true          - Apsara RDS with multiple availability zones
+* ALICLOUD_SKIP_TESTS_FOR_CLASSIC_NETWORK=true      - Classic network configuration
 
 #### Common problems
 

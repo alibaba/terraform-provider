@@ -13,6 +13,7 @@ const (
 	FunctionCompute   = RegionalFeature("FUNCTION_COMPUTE")
 	PrivateZone       = RegionalFeature("PRIVATE_ZONE")
 	RdsMultiAZ        = RegionalFeature("RDS_MULTI_AZ")
+	ClassicNetwork    = RegionalFeature("CLASSIC_NETWORK")
 )
 
 func isRegionSupports(features ...RegionalFeature) bool {
