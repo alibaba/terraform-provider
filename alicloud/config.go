@@ -167,11 +167,6 @@ func (c *Config) Client() (*AliyunClient, error) {
 		return nil, err
 	}
 
-	fcconn, err := c.fcConn()
-	if err != nil {
-		return nil, err
-	}
-
 	ddsconn, err := c.ddsConn()
 	if err != nil {
 		return nil, err
