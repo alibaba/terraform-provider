@@ -1,5 +1,9 @@
 ## 1.14.0 (Unreleased)
 
+FEATURES:
+
+- **New Resource:** `alicloud_vpn_customer_gateway` ([#639](https://github.com/alibaba/terraform-provider/pull/639))
+
 IMPROVEMENTS:
 
 - Change SDK config timeout ([#638](https://github.com/alibaba/terraform-provider/pull/638))
