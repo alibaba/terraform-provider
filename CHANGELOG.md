@@ -1,4 +1,9 @@
 ## 1.14.0 (Unreleased)
+
+IMPROVEMENTS:
+
+- Enlarge sdk default timeout to fix some timeout scenario ([#637](https://github.com/alibaba/terraform-provider/pull/637))
+
 ## 1.13.0 (August 29, 2018)
 
 NOTES: In order to keep consistent with [official release](https://releases.hashicorp.com/terraform-provider-alicloud/). The version 1.13.0 will be re-published.
