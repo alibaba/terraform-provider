@@ -1,7 +1,29 @@
-## 1.13.1 (Unreleased)
+## 1.14.0 (Unreleased)
 
 FEATURES:
 
+- **New Resource:** `alicloud_vpn_customer_gateway` ([#639](https://github.com/alibaba/terraform-provider/pull/639))
+
+IMPROVEMENTS:
+
+- Retrieve the account_id automatically if needed ([#631](https://github.com/alibaba/terraform-provider/pull/631))
+- Change SDK config timeout ([#638](https://github.com/alibaba/terraform-provider/pull/638))
+- Support ClientToken for some request ([#638](https://github.com/alibaba/terraform-provider/pull/638))
+- Enlarge sdk default timeout to fix some timeout scenario ([#637](https://github.com/alibaba/terraform-provider/pull/637))
+
+BUG FIXES:
+
+- Fix network products throttling error ([#638](https://github.com/alibaba/terraform-provider/pull/638))
+
+## 1.13.0 (August 29, 2018)
+
+NOTES: In order to keep consistent with [official release](https://releases.hashicorp.com/terraform-provider-alicloud/). The version 1.13.0 will be re-published.
+
+
+FEATURES:
+
+- **New Resource:** `alicloud_vpn_gateway` ([#634](https://github.com/alibaba/terraform-provider/pull/634))
+- **New Data Source:** `alicloud_mongo_instances` ([#634](https://github.com/alibaba/terraform-provider/pull/634))
 - **New Data Source:** `alicloud_pvtz_zone_records` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
 - **New Data Source:** `alicloud_pvtz_zones` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
 - **New Resource:** `alicloud_pvtz_zone_record` ([#604](https://github.com/alibaba/terraform-provider/pull/604))
@@ -11,23 +33,13 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- Retrieve the account_id automatically if needed ([#631](https://github.com/alibaba/terraform-provider/pull/631))
+- Update VPC and mongo sdk ([#635](https://github.com/alibaba/terraform-provider/pull/635))
 - Check pvtzconn error ([#630](https://github.com/alibaba/terraform-provider/pull/630))
 - Add SLB PayByBandwidth test case ([#625](https://github.com/alibaba/terraform-provider/pull/625))
 - Improve snat entry test case ([#624](https://github.com/alibaba/terraform-provider/pull/624))
 - Allow empty list of SLBs as arg to ESG ([#621](https://github.com/alibaba/terraform-provider/pull/621))
 - Improve docs vroute_entry ([#619](https://github.com/alibaba/terraform-provider/pull/619))
 - Improve examples/router_interface ([#617](https://github.com/alibaba/terraform-provider/pull/617))
-
-BUG FIXES:
-
-- Fix getting oss endpoint timeout error ([#620](https://github.com/alibaba/terraform-provider/pull/620))
-- Fix router interface connection error when 'opposite_interface_owner_id' is empty ([#616](https://github.com/alibaba/terraform-provider/pull/616))
-
-## 1.13.0 (August 16, 2018)
-
-IMPROVEMENTS:
-
 - Improve SLB instance test cases results ([#614](https://github.com/alibaba/terraform-provider/pull/614))
 - Internationalize tests ([#609](https://github.com/alibaba/terraform-provider/pull/609))
 - Add notes about ordering between two alicloud_router_interface_connections ([#608](https://github.com/alibaba/terraform-provider/pull/608))
@@ -46,6 +58,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix getting oss endpoint timeout error ([#620](https://github.com/alibaba/terraform-provider/pull/620))
+- Fix router interface connection error when 'opposite_interface_owner_id' is empty ([#616](https://github.com/alibaba/terraform-provider/pull/616))
 - Fix disk detach error and improve test using dynamic zone and region ([#612](https://github.com/alibaba/terraform-provider/pull/612))
 
 

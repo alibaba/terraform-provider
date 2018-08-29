@@ -22,6 +22,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/resource"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/utils"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
@@ -85,6 +86,7 @@ type AliyunClient struct {
 	fcconnMutex     sync.RWMutex // Mutex used to initialize and access fcconn.
 	fcconn          *fc.Client   // Do not access to this field directly, please use the Fcconn() function instead.
 	pvtzconn        *pvtz.Client
+	ddsconn         *dds.Client
 	stsconn         *sts.STSClient
 }
 
@@ -165,6 +167,16 @@ func (c *Config) Client() (*AliyunClient, error) {
 		return nil, err
 	}
 
+	fcconn, err := c.fcConn()
+	if err != nil {
+		return nil, err
+	}
+
+	ddsconn, err := c.ddsConn()
+	if err != nil {
+		return nil, err
+	}
+
 	stsconn := c.stsConn()
 
 	return &AliyunClient{
@@ -190,6 +202,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 		otsconn:         otsconn,
 		cmsconn:         cmsconn,
 		logconn:         c.logConn(),
+		ddsconn:         ddsconn,
 		pvtzconn:        pvtzconn,
 		stsconn:         stsconn,
 	}, nil
@@ -222,7 +235,7 @@ func (c *Config) ecsConn() (client *ecs.Client, err error) {
 	if endpoint != "" {
 		endpoints.AddEndpointMapping(c.RegionId, string(ECSCode), endpoint)
 	}
-	client, err = ecs.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
+	client, err = ecs.NewClientWithOptions(c.RegionId, getSdkConfig().WithTimeout(60000000000), c.getAuthCredential(true))
 	if err != nil {
 		return
 	}
@@ -380,6 +393,14 @@ func (c *Config) logConn() *sls.Client {
 	}
 }
 
+func (c *Config) ddsConn() (*dds.Client, error) {
+	endpoint := LoadEndpoint(c.RegionId, DDSCode)
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(c.RegionId, string(DDSCode), endpoint)
+	}
+	return dds.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
+}
+
 func getSdkConfig() *sdk.Config {
 	// Fix bug "open /usr/local/go/lib/time/zoneinfo.zip: no such file or directory" which happened in windows.
 	if data, ok := resource.GetTZData("GMT"); ok {
@@ -388,6 +409,7 @@ func getSdkConfig() *sdk.Config {
 	}
 	return sdk.NewConfig().
 		WithMaxRetryTime(5).
+		WithTimeout(time.Duration(30000000000)).
 		WithUserAgent(getUserAgent()).
 		WithGoRoutinePoolSize(10).
 		WithDebug(false).
