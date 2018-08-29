@@ -375,7 +375,8 @@ func (c *Config) fcConn() (client *fc.Client, err error) {
 		}
 	}
 
-	client, err = fc.NewClient(fmt.Sprintf("%s%s%s", c.AccountId, DOT_SEPARATED, endpoint), ApiVersion20160815, c.AccessKey, c.SecretKey)
+	config := getSdkConfig()
+	client, err = fc.NewClient(fmt.Sprintf("%s%s%s", c.AccountId, DOT_SEPARATED, endpoint), ApiVersion20160815, c.AccessKey, c.SecretKey, fc.WithTransport(config.HttpTransport))
 	if err != nil {
 		return
 	}
