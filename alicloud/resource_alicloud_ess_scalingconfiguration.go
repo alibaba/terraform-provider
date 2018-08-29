@@ -1,6 +1,7 @@
 package alicloud
 
 import (
+	"encoding/base64"
 	"fmt"
 	"strings"
 	"time"
@@ -353,7 +354,7 @@ func resourceAliyunEssScalingConfigurationRead(d *schema.ResourceData, meta inte
 	d.Set("data_disk", flattenDataDiskMappings(c.DataDisks.DataDisk))
 	d.Set("role_name", c.RamRoleName)
 	d.Set("key_name", c.KeyPairName)
-	d.Set("user_data", userDataHashSum(c.UserData))
+	d.Set("user_data", base64.StdEncoding.EncodeToString([]byte(userDataHashSum(c.UserData))))
 	d.Set("force_delete", d.Get("force_delete").(bool))
 	d.Set("tags", essTagsToMap(c.Tags.Tag))
 	d.Set("instance_name", c.InstanceName)
