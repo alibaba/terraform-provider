@@ -6,6 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Add flags to skip tests that use features not supported in all regions ([#633](https://github.com/alibaba/terraform-provider/pull/633))
+- Improve data source dns_domains test case ([#641](https://github.com/alibaba/terraform-provider/pull/641))
 - Change SDK config timeout ([#638](https://github.com/alibaba/terraform-provider/pull/638))
 - Support ClientToken for some request ([#638](https://github.com/alibaba/terraform-provider/pull/638))
 - Enlarge sdk default timeout to fix some timeout scenario ([#637](https://github.com/alibaba/terraform-provider/pull/637))
