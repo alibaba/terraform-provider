@@ -104,6 +104,13 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 
 	// TODO set filters
 
+	idsMap := make(map[string]string)
+	if v, ok := d.GetOk("ids"); ok {
+		for _, vv := range v.([]interface{}) {
+			idsMap[Trim(vv.(string))] = Trim(vv.(string))
+		}
+	}
+
 	var allLoadBalancers []slb.LoadBalancer
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)
@@ -129,9 +136,7 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 	var filteredLoadBalancersTemp []slb.LoadBalancer
 
 	nameRegex, ok := d.GetOk("name_regex")
-	// TODO ids
-
-	if ok && nameRegex.(string) != "" {
+	if (ok && nameRegex.(string) != "") || (len(idsMap) > 0) {
 		var r *regexp.Regexp
 		if nameRegex != "" {
 			r = regexp.MustCompile(nameRegex.(string))
@@ -140,7 +145,12 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 			if r != nil && !r.MatchString(balancer.LoadBalancerName) {
 				continue
 			}
-			// TODO ids
+			if len(idsMap) > 0 {
+				if _, ok := idsMap[balancer.LoadBalancerId]; !ok {
+					continue
+				}
+			}
+
 			filteredLoadBalancersTemp = append(filteredLoadBalancersTemp, balancer)
 		}
 	} else {
