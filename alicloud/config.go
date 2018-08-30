@@ -289,12 +289,12 @@ func (c *Config) ossConn() (*oss.Client, error) {
 	}
 
 	log.Printf("[DEBUG] Instantiate OSS client using endpoint: %#v", endpoint)
-	var proxyOption oss.ClientOption
+	clientOptions := []oss.ClientOption{oss.UserAgent(getUserAgent())}
 	proxyUrl := getHttpProxyUrl()
 	if proxyUrl != nil {
-		proxyOption = oss.Proxy(proxyUrl.String())
+		clientOptions = append(clientOptions, oss.Proxy(proxyUrl.String()))
 	}
-	client, err := oss.New(endpoint, c.AccessKey, c.SecretKey, oss.UserAgent(getUserAgent()), proxyOption)
+	client, err := oss.New(endpoint, c.AccessKey, c.SecretKey, clientOptions...)
 
 	return client, err
 }
