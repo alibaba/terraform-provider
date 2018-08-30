@@ -1,0 +1,170 @@
+package alicloud
+
+import (
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"regexp"
+	"fmt"
+	"log"
+)
+
+func dataSourceAlicloudSlbs() *schema.Resource {
+	return &schema.Resource{
+		Read: dataSourceAlicloudSlbsRead,
+
+		Schema: map[string]*schema.Schema{
+			"ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				ForceNew: true,
+				MinItems: 1,
+			},
+			"name_regex": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateNameRegex,
+				ForceNew:     true,
+			},
+
+			// TODO add more
+
+			// Computed values
+			"slbs": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"region_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"master_availability_zone": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"slave_availability_zone": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"creation_time": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"internet_charge_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+
+						// TODO add more
+					},
+				},
+			},
+		},
+	}
+}
+
+func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error {
+	conn := meta.(*AliyunClient).slbconn
+
+	args := slb.CreateDescribeLoadBalancersRequest()
+
+	// TODO set filters
+
+	var allLoadBalancers []slb.LoadBalancer
+	args.PageSize = requests.NewInteger(PageSizeLarge)
+	args.PageNumber = requests.NewInteger(1)
+	for {
+		resp, err := conn.DescribeLoadBalancers(args)
+		if err != nil {
+			return err
+		}
+
+		if resp == nil || len(resp.LoadBalancers.LoadBalancer) < 1 {
+			break
+		}
+
+		allLoadBalancers = append(allLoadBalancers, resp.LoadBalancers.LoadBalancer...)
+
+		if len(resp.LoadBalancers.LoadBalancer) < PageSizeLarge {
+			break
+		}
+
+		args.PageNumber = args.PageNumber + requests.NewInteger(1)
+	}
+
+	var filteredLoadBalancersTemp []slb.LoadBalancer
+
+	nameRegex, ok := d.GetOk("name_regex")
+	// TODO ids
+
+	if ok && nameRegex.(string) != "" {
+		var r *regexp.Regexp
+		if nameRegex != "" {
+			r = regexp.MustCompile(nameRegex.(string))
+		}
+		for _, balancer := range allLoadBalancers {
+			if r != nil && !r.MatchString(balancer.LoadBalancerName) {
+				continue
+			}
+			// TODO ids
+			filteredLoadBalancersTemp = append(filteredLoadBalancersTemp, balancer)
+		}
+	} else {
+		filteredLoadBalancersTemp = allLoadBalancers
+	}
+
+	if len(filteredLoadBalancersTemp) < 1 {
+		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
+	}
+
+	log.Printf("[DEBUG] alicloud_slbs - Slbs found: %#v", filteredLoadBalancersTemp)
+
+	return slbsDescriptionAttributes(d, filteredLoadBalancersTemp, meta)
+}
+
+func slbsDescriptionAttributes(d *schema.ResourceData, loadBalancers []slb.LoadBalancer, meta interface{}) error {
+	var ids []string
+	var s []map[string]interface{}
+	for _, balancer := range loadBalancers {
+		mapping := map[string]interface{}{
+			"id":                       balancer.LoadBalancerId,
+			"region_id":                balancer.RegionId,
+			"master_availability_zone": balancer.MasterZoneId,
+			"slave_availability_zone":  balancer.SlaveZoneId,
+			"status":                   balancer.LoadBalancerStatus,
+			"name":                     balancer.LoadBalancerName,
+			"creation_time":            balancer.CreateTime,
+			"internet_charge_type":     balancer.InternetChargeType,
+		}
+		// TODO ...InnerIpAddress...
+
+		log.Printf("[DEBUG] alicloud_slbs - adding slb mapping: %v", mapping)
+		ids = append(ids, balancer.LoadBalancerId)
+		s = append(s, mapping)
+	}
+
+	d.SetId(dataResourceIdHash(ids))
+	if err := d.Set("slbs", s); err != nil {
+		return err
+	}
+
+	// create a json file in current directory and write data source to it.
+	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
+		writeToFile(output.(string), s)
+	}
+	return nil
+}
