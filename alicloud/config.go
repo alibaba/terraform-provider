@@ -14,6 +14,8 @@ import (
 
 	"regexp"
 
+	"sync"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
@@ -83,6 +85,8 @@ type AliyunClient struct {
 	pvtzconn        *pvtz.Client
 	ddsconn         *dds.Client
 }
+
+var endpointMappingMutex sync.RWMutex
 
 // Client for AliyunClient
 func (c *Config) Client() (*AliyunClient, error) {
@@ -212,7 +216,7 @@ func (c *Config) validateRegion() error {
 func (c *Config) ecsConn() (client *ecs.Client, err error) {
 	endpoint := LoadEndpoint(c.RegionId, ECSCode)
 	if endpoint != "" {
-		endpoints.AddEndpointMapping(c.RegionId, string(ECSCode), endpoint)
+		threadSafeAddEndpointMapping(c.RegionId, string(ECSCode), endpoint)
 	}
 	client, err = ecs.NewClientWithOptions(c.RegionId, getSdkConfig().WithTimeout(60000000000), c.getAuthCredential(true))
 	if err != nil {
@@ -229,7 +233,7 @@ func (c *Config) ecsConn() (client *ecs.Client, err error) {
 func (c *Config) rdsConn() (*rds.Client, error) {
 	endpoint := LoadEndpoint(c.RegionId, RDSCode)
 	if endpoint != "" {
-		endpoints.AddEndpointMapping(c.RegionId, string(RDSCode), endpoint)
+		threadSafeAddEndpointMapping(c.RegionId, string(RDSCode), endpoint)
 	}
 	return rds.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
@@ -237,7 +241,7 @@ func (c *Config) rdsConn() (*rds.Client, error) {
 func (c *Config) slbConn() (*slb.Client, error) {
 	endpoint := LoadEndpoint(c.RegionId, SLBCode)
 	if endpoint != "" {
-		endpoints.AddEndpointMapping(c.RegionId, string(SLBCode), endpoint)
+		threadSafeAddEndpointMapping(c.RegionId, string(SLBCode), endpoint)
 	}
 	return slb.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
@@ -245,7 +249,7 @@ func (c *Config) slbConn() (*slb.Client, error) {
 func (c *Config) vpcConn() (*vpc.Client, error) {
 	endpoint := LoadEndpoint(c.RegionId, VPCCode)
 	if endpoint != "" {
-		endpoints.AddEndpointMapping(c.RegionId, string(VPCCode), endpoint)
+		threadSafeAddEndpointMapping(c.RegionId, string(VPCCode), endpoint)
 	}
 	return vpc.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 
@@ -253,7 +257,7 @@ func (c *Config) vpcConn() (*vpc.Client, error) {
 func (c *Config) essConn() (*ess.Client, error) {
 	endpoint := LoadEndpoint(c.RegionId, ESSCode)
 	if endpoint != "" {
-		endpoints.AddEndpointMapping(c.RegionId, string(ESSCode), endpoint)
+		threadSafeAddEndpointMapping(c.RegionId, string(ESSCode), endpoint)
 	}
 	return ess.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
@@ -329,7 +333,7 @@ func (c *Config) kmsConn() (*kms.Client, error) {
 func (c *Config) otsConn() (*ots.Client, error) {
 	endpoint := LoadEndpoint(c.RegionId, OTSCode)
 	if endpoint != "" {
-		endpoints.AddEndpointMapping(c.RegionId, string(OTSCode), endpoint)
+		threadSafeAddEndpointMapping(c.RegionId, string(OTSCode), endpoint)
 	}
 	return ots.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
@@ -341,9 +345,9 @@ func (c *Config) cmsConn() (*cms.Client, error) {
 func (c *Config) pvtzConn() (*pvtz.Client, error) {
 	endpoint := LoadEndpoint(c.RegionId, PVTZCode)
 	if endpoint != "" {
-		endpoints.AddEndpointMapping(c.RegionId, string(PVTZCode), endpoint)
+		threadSafeAddEndpointMapping(c.RegionId, string(PVTZCode), endpoint)
 	} else {
-		endpoints.AddEndpointMapping(c.RegionId, string(PVTZCode), "pvtz.aliyuncs.com")
+		threadSafeAddEndpointMapping(c.RegionId, string(PVTZCode), "pvtz.aliyuncs.com")
 	}
 	return pvtz.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
@@ -387,7 +391,7 @@ func (c *Config) fcConn() (client *fc.Client, err error) {
 func (c *Config) ddsConn() (*dds.Client, error) {
 	endpoint := LoadEndpoint(c.RegionId, DDSCode)
 	if endpoint != "" {
-		endpoints.AddEndpointMapping(c.RegionId, string(DDSCode), endpoint)
+		threadSafeAddEndpointMapping(c.RegionId, string(DDSCode), endpoint)
 	}
 	return dds.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
@@ -442,4 +446,11 @@ func getTransport() *http.Transport {
 		}
 	}
 	return transport
+}
+
+func threadSafeAddEndpointMapping(regionId, productId, endpoint string) (err error) {
+	endpointMappingMutex.Lock()
+	defer endpointMappingMutex.Unlock()
+
+	return endpoints.AddEndpointMapping(regionId, productId, endpoint)
 }
