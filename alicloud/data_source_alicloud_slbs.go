@@ -1,12 +1,14 @@
 package alicloud
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"regexp"
 	"fmt"
 	"log"
+	"regexp"
+	"strings"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func dataSourceAlicloudSlbs() *schema.Resource {
@@ -60,16 +62,34 @@ func dataSourceAlicloudSlbs() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"network_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"vpc_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"vswitch_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"address": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"internet": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"pay_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"creation_time": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"internet_charge_type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-
-						// TODO add more
 					},
 				},
 			},
@@ -139,21 +159,25 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 func slbsDescriptionAttributes(d *schema.ResourceData, loadBalancers []slb.LoadBalancer, meta interface{}) error {
 	var ids []string
 	var s []map[string]interface{}
-	for _, balancer := range loadBalancers {
+	for _, loadBalancer := range loadBalancers {
 		mapping := map[string]interface{}{
-			"id":                       balancer.LoadBalancerId,
-			"region_id":                balancer.RegionId,
-			"master_availability_zone": balancer.MasterZoneId,
-			"slave_availability_zone":  balancer.SlaveZoneId,
-			"status":                   balancer.LoadBalancerStatus,
-			"name":                     balancer.LoadBalancerName,
-			"creation_time":            balancer.CreateTime,
-			"internet_charge_type":     balancer.InternetChargeType,
+			"id":                       loadBalancer.LoadBalancerId,
+			"region_id":                loadBalancer.RegionId,
+			"master_availability_zone": loadBalancer.MasterZoneId,
+			"slave_availability_zone":  loadBalancer.SlaveZoneId,
+			"status":                   loadBalancer.LoadBalancerStatus,
+			"name":                     loadBalancer.LoadBalancerName,
+			"network_type":             loadBalancer.NetworkType,
+			"vpc_id":                   loadBalancer.VpcId,
+			"vswitch_id":               loadBalancer.VSwitchId,
+			"address":                  loadBalancer.Address,
+			"internet":                 loadBalancer.InternetChargeType == strings.ToLower(string(PayByTraffic)),
+			"pay_type":                 loadBalancer.PayType,
+			"creation_time":            loadBalancer.CreateTime,
 		}
-		// TODO ...InnerIpAddress...
 
 		log.Printf("[DEBUG] alicloud_slbs - adding slb mapping: %v", mapping)
-		ids = append(ids, balancer.LoadBalancerId)
+		ids = append(ids, loadBalancer.LoadBalancerId)
 		s = append(s, mapping)
 	}
 

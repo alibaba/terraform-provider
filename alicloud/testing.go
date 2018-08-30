@@ -1,8 +1,8 @@
 package alicloud
 
 import (
-	"os"
 	"log"
+	"os"
 )
 
 type RegionalFeature string
