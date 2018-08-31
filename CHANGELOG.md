@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- mprove http proxy support ([#640](https://github.com/alibaba/terraform-provider/pull/640))
 - Add flags to skip tests that use features not supported in all regions ([#633](https://github.com/alibaba/terraform-provider/pull/633))
 - Improve data source dns_domains test case ([#641](https://github.com/alibaba/terraform-provider/pull/641))
 - Change SDK config timeout ([#638](https://github.com/alibaba/terraform-provider/pull/638))
@@ -14,6 +15,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix container cluster SDK timezone error ([#649](https://github.com/alibaba/terraform-provider/pull/649))
 - Fix network products throttling error ([#638](https://github.com/alibaba/terraform-provider/pull/638))
 
 ## 1.13.0 (August 29, 2018)
