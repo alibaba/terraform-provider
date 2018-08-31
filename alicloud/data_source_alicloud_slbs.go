@@ -29,8 +29,41 @@ func dataSourceAlicloudSlbs() *schema.Resource {
 				ValidateFunc: validateNameRegex,
 				ForceNew:     true,
 			},
-
-			// TODO add more
+			"master_availability_zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"slave_availability_zone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"network_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"vpc_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"vswitch_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"pay_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 
 			// Computed values
 			"slbs": {
@@ -102,7 +135,27 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 
 	args := slb.CreateDescribeLoadBalancersRequest()
 
-	// TODO set filters
+	if v, ok := d.GetOk("master_availability_zone"); ok && v.(string) != "" {
+		args.MasterZoneId = v.(string)
+	}
+	if v, ok := d.GetOk("slave_availability_zone"); ok && v.(string) != "" {
+		args.SlaveZoneId = v.(string)
+	}
+	if v, ok := d.GetOk("network_type"); ok && v.(string) != "" {
+		args.NetworkType = v.(string)
+	}
+	if v, ok := d.GetOk("vpc_id"); ok && v.(string) != "" {
+		args.VpcId = v.(string)
+	}
+	if v, ok := d.GetOk("vswitch_id"); ok && v.(string) != "" {
+		args.VSwitchId = v.(string)
+	}
+	if v, ok := d.GetOk("address"); ok && v.(string) != "" {
+		args.Address = v.(string)
+	}
+	if v, ok := d.GetOk("pay_type"); ok && v.(string) != "" {
+		args.PayType = v.(string)
+	}
 
 	idsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok {
@@ -181,7 +234,7 @@ func slbsDescriptionAttributes(d *schema.ResourceData, loadBalancers []slb.LoadB
 			"vpc_id":                   loadBalancer.VpcId,
 			"vswitch_id":               loadBalancer.VSwitchId,
 			"address":                  loadBalancer.Address,
-			"internet":                 loadBalancer.InternetChargeType == strings.ToLower(string(PayByTraffic)),
+			"internet":                 loadBalancer.AddressType == strings.ToLower(string(Internet)),
 			"pay_type":                 loadBalancer.PayType,
 			"creation_time":            loadBalancer.CreateTime,
 		}
