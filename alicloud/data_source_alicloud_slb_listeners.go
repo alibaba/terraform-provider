@@ -17,6 +17,16 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"frontend_port": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+			},
+			"protocol": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 
 			// TODO
 
@@ -26,7 +36,7 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"port": {
+						"frontend_port": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -56,13 +66,37 @@ func dataSourceAlicloudSlbListenersRead(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("there is no SLB with the ID %s. Please change your search criteria and try again", args.LoadBalancerId)
 	}
 
-	if len(resp.ListenerPortsAndProtocol.ListenerPortAndProtocol) < 1 {
+	var filteredListenersTemp []slb.ListenerPortAndProtocol
+	port := -1
+	if v, ok := d.GetOk("frontend_port"); ok && v.(int) != 0 {
+		port = v.(int)
+	}
+	protocol := ""
+	if v, ok := d.GetOk("protocol"); ok && v.(string) != "" {
+		protocol = v.(string)
+	}
+	if port != -1 && protocol != "" {
+		for _, listener := range resp.ListenerPortsAndProtocol.ListenerPortAndProtocol {
+			if port != -1 && listener.ListenerPort != port {
+				continue
+			}
+			if protocol != "" && listener.ListenerProtocol != protocol {
+				continue
+			}
+
+			filteredListenersTemp = append(filteredListenersTemp, listener)
+		}
+	} else {
+		filteredListenersTemp = resp.ListenerPortsAndProtocol.ListenerPortAndProtocol
+	}
+
+	if len(filteredListenersTemp) < 1 {
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
-	log.Printf("[DEBUG] alicloud_slb_listeners - Slb listeners found: %#v", resp.ListenerPortsAndProtocol.ListenerPortAndProtocol)
+	log.Printf("[DEBUG] alicloud_slb_listeners - Slb listeners found: %#v", filteredListenersTemp)
 
-	return slbListenersDescriptionAttributes(d, resp.ListenerPortsAndProtocol.ListenerPortAndProtocol, meta)
+	return slbListenersDescriptionAttributes(d, filteredListenersTemp, meta)
 }
 
 func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.ListenerPortAndProtocol, meta interface{}) error {
@@ -71,8 +105,8 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 
 	for _, listener := range listeners {
 		mapping := map[string]interface{}{
-			"port":     listener.ListenerPort,
-			"protocol": listener.ListenerProtocol,
+			"frontend_port": listener.ListenerPort,
+			"protocol":      listener.ListenerProtocol,
 		}
 
 		// TODO get more info

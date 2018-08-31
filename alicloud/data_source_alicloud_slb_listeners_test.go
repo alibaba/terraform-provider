@@ -15,8 +15,11 @@ func TestAccAlicloudSlbListenersDataSource_http(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudDataSourceID("data.alicloud_slb_listeners.slb_listeners"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.#", "1"),
-					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.port", "80"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.frontend_port", "80"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.protocol", "http"),
+
+					testAccCheckAlicloudDataSourceID("data.alicloud_slb_listeners.slb_listeners_with_filters"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners_with_filters", "slb_listeners.#", "1"),
 				),
 			},
 		},
@@ -74,5 +77,11 @@ resource "alicloud_slb_listener" "sample_slb_listener" {
 
 data "alicloud_slb_listeners" "slb_listeners" {
   load_balancer_id = "${alicloud_slb_listener.sample_slb_listener.load_balancer_id}"
+}
+
+data "alicloud_slb_listeners" "slb_listeners_with_filters" {
+  load_balancer_id = "${alicloud_slb_listener.sample_slb_listener.load_balancer_id}"
+  frontend_port = 80
+  protocol = "http"
 }
 `
