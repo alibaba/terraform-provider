@@ -45,6 +45,19 @@ func TestAccAlicloudSlbListenersDataSource_http(t *testing.T) {
 	})
 }
 
+/*
+func TestAccAlicloudSlbListenersDataSource_https(t *testing.T) {
+	// TODO
+}
+
+func TestAccAlicloudSlbListenersDataSource_tcp(t *testing.T) {
+	// TODO
+}
+
+func TestAccAlicloudSlbListenersDataSource_udp(t *testing.T) {
+	// TODO
+}
+*/
 const testAccCheckAlicloudSlbListenersDataSourceHttp = `
 variable "name" {
 	default = "testAccCheckAlicloudSlbListenersDataSourceHttp"

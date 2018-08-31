@@ -51,11 +51,19 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"security_status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"bandwidth": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"scheduler": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"server_group_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -112,6 +120,10 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 							Computed: true,
 						},
 						"gzip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"ssl_certificate_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -213,6 +225,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				mapping["status"] = resp.Status
 				mapping["bandwidth"] = resp.Bandwidth
 				mapping["scheduler"] = resp.Scheduler
+				mapping["server_group_id"] = resp.VServerGroupId
 				mapping["sticky_session"] = resp.StickySession
 				mapping["sticky_session_type"] = resp.StickySessionType
 				mapping["cookie_timeout"] = resp.CookieTimeout
@@ -237,9 +250,43 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 			} else {
 				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerHTTPListenerAttribute error: %v", err)
 			}
-			// TODO
 		case Https:
-			// TODO
+			args := slb.CreateDescribeLoadBalancerHTTPSListenerAttributeRequest()
+			args.LoadBalancerId = loadBalancerId
+			args.ListenerPort = requests.NewInteger(listener.ListenerPort)
+			resp, err := conn.DescribeLoadBalancerHTTPSListenerAttribute(args)
+			if err == nil {
+				mapping["backend_port"] = resp.BackendServerPort
+				mapping["status"] = resp.Status
+				mapping["security_status"] = resp.SecurityStatus
+				mapping["bandwidth"] = resp.Bandwidth
+				mapping["scheduler"] = resp.Scheduler
+				mapping["server_group_id"] = resp.VServerGroupId
+				mapping["sticky_session"] = resp.StickySession
+				mapping["sticky_session_type"] = resp.StickySessionType
+				mapping["cookie_timeout"] = resp.CookieTimeout
+				mapping["cookie"] = resp.Cookie
+				mapping["health_check"] = resp.HealthCheck
+				mapping["health_check_domain"] = resp.HealthCheckDomain
+				mapping["health_check_uri"] = resp.HealthCheckURI
+				mapping["health_check_connect_port"] = resp.HealthCheckConnectPort
+				mapping["healthy_threshold"] = resp.HealthyThreshold
+				mapping["unhealthy_threshold"] = resp.UnhealthyThreshold
+				mapping["health_check_timeout"] = resp.HealthCheckTimeout
+				mapping["health_check_interval"] = resp.HealthCheckInterval
+				mapping["health_check_http_code"] = resp.HealthCheckHttpCode
+				mapping["gzip"] = resp.Gzip
+				mapping["ssl_certificate_id"] = resp.ServerCertificateId
+				if resp.XForwardedFor == string(OnFlag) {
+					mapping["x_forwarded_for"] = map[string]interface{}{
+						"retrieve_slb_ip":    resp.XForwardedForSLBIP,
+						"retrieve_slb_id":    resp.XForwardedForSLBID,
+						"retrieve_slb_proto": resp.XForwardedForProto,
+					}
+				}
+			} else {
+				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerHTTPSListenerAttribute error: %v", err)
+			}
 		case Tcp:
 			// TODO
 		case Udp:
