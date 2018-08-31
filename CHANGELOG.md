@@ -2,6 +2,7 @@
 
 FEATURES:
 
+- **New Resource:** `alicloud_vpn_connection` ([#651](https://github.com/alibaba/terraform-provider/pull/651))
 - **New Resource:** `alicloud_vpn_customer_gateway` ([#639](https://github.com/alibaba/terraform-provider/pull/639))
 
 IMPROVEMENTS:
