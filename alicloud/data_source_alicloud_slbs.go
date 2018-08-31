@@ -204,10 +204,10 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Printf("[DEBUG] alicloud_slbs - Slbs found: %#v", filteredLoadBalancersTemp)
 
-	return slbsDescriptionAttributes(d, filteredLoadBalancersTemp, meta)
+	return slbsDescriptionAttributes(d, filteredLoadBalancersTemp)
 }
 
-func slbsDescriptionAttributes(d *schema.ResourceData, loadBalancers []slb.LoadBalancer, meta interface{}) error {
+func slbsDescriptionAttributes(d *schema.ResourceData, loadBalancers []slb.LoadBalancer) error {
 	var ids []string
 	var s []map[string]interface{}
 	for _, loadBalancer := range loadBalancers {
