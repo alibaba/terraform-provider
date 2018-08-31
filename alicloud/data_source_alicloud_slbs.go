@@ -59,11 +59,6 @@ func dataSourceAlicloudSlbs() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"pay_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 
 			// Computed values
 			"slbs": {
@@ -115,10 +110,6 @@ func dataSourceAlicloudSlbs() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
-						"pay_type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"creation_time": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -152,9 +143,6 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 	}
 	if v, ok := d.GetOk("address"); ok && v.(string) != "" {
 		args.Address = v.(string)
-	}
-	if v, ok := d.GetOk("pay_type"); ok && v.(string) != "" {
-		args.PayType = v.(string)
 	}
 
 	idsMap := make(map[string]string)
@@ -235,7 +223,6 @@ func slbsDescriptionAttributes(d *schema.ResourceData, loadBalancers []slb.LoadB
 			"vswitch_id":               loadBalancer.VSwitchId,
 			"address":                  loadBalancer.Address,
 			"internet":                 loadBalancer.AddressType == strings.ToLower(string(Internet)),
-			"pay_type":                 loadBalancer.PayType,
 			"creation_time":            loadBalancer.CreateTime,
 		}
 

@@ -27,7 +27,6 @@ func TestAccAlicloudSlbsDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.alicloud_slbs.balancers", "slbs.0.vswitch_id"),
 					resource.TestCheckResourceAttrSet("data.alicloud_slbs.balancers", "slbs.0.address"),
 					resource.TestCheckResourceAttr("data.alicloud_slbs.balancers", "slbs.0.internet", "false"),
-					resource.TestCheckResourceAttr("data.alicloud_slbs.balancers", "slbs.0.pay_type", "PayOnDemand"),
 					resource.TestCheckResourceAttrSet("data.alicloud_slbs.balancers", "slbs.0.creation_time"),
 				),
 			},
@@ -161,6 +160,5 @@ data "alicloud_slbs" "balancers" {
   vpc_id = "${alicloud_vpc.sample_vpc.id}"
   vswitch_id = "${alicloud_vswitch.sample_vswitch.id}"
   address = "${alicloud_slb.sample_slb.address}"
-  pay_type = "PayOnDemand"
 }
 `
