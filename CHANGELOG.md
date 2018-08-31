@@ -6,7 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- mprove http proxy support ([#640](https://github.com/alibaba/terraform-provider/pull/640))
+- Add 'force' to make key pair affect immediately ([#650](https://github.com/alibaba/terraform-provider/pull/650))
+- Improve http proxy support ([#640](https://github.com/alibaba/terraform-provider/pull/640))
 - Add flags to skip tests that use features not supported in all regions ([#633](https://github.com/alibaba/terraform-provider/pull/633))
 - Improve data source dns_domains test case ([#641](https://github.com/alibaba/terraform-provider/pull/641))
 - Change SDK config timeout ([#638](https://github.com/alibaba/terraform-provider/pull/638))
