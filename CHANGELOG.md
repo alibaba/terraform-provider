@@ -1,4 +1,5 @@
-## 1.14.0 (Unreleased)
+## 1.14.1 (Unreleased)
+## 1.14.0 (August 31, 2018)
 
 FEATURES:
 
