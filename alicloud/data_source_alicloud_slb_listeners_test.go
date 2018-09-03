@@ -46,10 +46,6 @@ func TestAccAlicloudSlbListenersDataSource_http(t *testing.T) {
 }
 
 /*
-func TestAccAlicloudSlbListenersDataSource_https(t *testing.T) {
-	// TODO
-}
-
 func TestAccAlicloudSlbListenersDataSource_tcp(t *testing.T) {
 	// TODO
 }
@@ -117,3 +113,4 @@ data "alicloud_slb_listeners" "slb_listeners_with_filters" {
   protocol = "http"
 }
 `
+
