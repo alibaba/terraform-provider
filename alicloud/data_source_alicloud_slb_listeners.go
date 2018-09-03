@@ -67,6 +67,22 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"master_slave_server_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"syn_proxy": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"persistence_timeout": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"established_timeout": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"sticky_session": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -87,6 +103,10 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"health_check_type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"health_check_domain": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -96,6 +116,10 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 							Computed: true,
 						},
 						"health_check_connect_port": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"health_check_connect_timeout": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -125,6 +149,10 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 						},
 						"ssl_certificate_id": {
 							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"max_connection": {
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"x_forwarded_for": {
@@ -288,7 +316,34 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerHTTPSListenerAttribute error: %v", err)
 			}
 		case Tcp:
-			// TODO
+			args := slb.CreateDescribeLoadBalancerTCPListenerAttributeRequest()
+			args.LoadBalancerId = loadBalancerId
+			args.ListenerPort = requests.NewInteger(listener.ListenerPort)
+			resp, err := conn.DescribeLoadBalancerTCPListenerAttribute(args)
+			if err == nil {
+				mapping["backend_port"] = resp.BackendServerPort
+				mapping["status"] = resp.Status
+				mapping["bandwidth"] = resp.Bandwidth
+				mapping["scheduler"] = resp.Scheduler
+				mapping["server_group_id"] = resp.VServerGroupId
+				mapping["master_slave_server_group_id"] = resp.MasterSlaveServerGroupId
+				mapping["syn_proxy"] = resp.SynProxy
+				mapping["persistence_timeout"] = resp.PersistenceTimeout
+				mapping["established_timeout"] = resp.EstablishedTimeout
+				mapping["health_check"] = resp.HealthCheck
+				mapping["health_check_type"] = resp.HealthCheckType
+				mapping["health_check_domain"] = resp.HealthCheckDomain
+				mapping["health_check_uri"] = resp.HealthCheckURI
+				mapping["health_check_connect_port"] = resp.HealthCheckConnectPort
+				mapping["health_check_connect_timeout"] = resp.HealthCheckConnectTimeout
+				mapping["healthy_threshold"] = resp.HealthyThreshold
+				mapping["unhealthy_threshold"] = resp.UnhealthyThreshold
+				mapping["health_check_interval"] = resp.HealthCheckInterval
+				mapping["health_check_http_code"] = resp.HealthCheckHttpCode
+				mapping["max_connection"] = resp.MaxConnection
+			} else {
+				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerTCPListenerAttribute error: %v", err)
+			}
 		case Udp:
 			// TODO
 		}

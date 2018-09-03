@@ -45,11 +45,41 @@ func TestAccAlicloudSlbListenersDataSource_http(t *testing.T) {
 	})
 }
 
-/*
 func TestAccAlicloudSlbListenersDataSource_tcp(t *testing.T) {
-	// TODO
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckAlicloudSlbListenersDataSourceTcp,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAlicloudDataSourceID("data.alicloud_slb_listeners.slb_listeners"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.#", "1"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.backend_port", "22"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.frontend_port", "22"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.protocol", "tcp"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.status", "running"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.bandwidth", "10"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.scheduler", "wrr"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.syn_proxy", "ENABLE"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.persistence_timeout", "0"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.established_timeout", "900"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check", "on"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_type", "tcp"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_connect_port", "20"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_connect_timeout", "8"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.healthy_threshold", "8"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.unhealthy_threshold", "8"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_timeout", "0"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_interval", "5"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.max_connection", "0"),
+				),
+			},
+		},
+	})
 }
 
+/*
 func TestAccAlicloudSlbListenersDataSource_udp(t *testing.T) {
 	// TODO
 }
@@ -114,3 +144,46 @@ data "alicloud_slb_listeners" "slb_listeners_with_filters" {
 }
 `
 
+const testAccCheckAlicloudSlbListenersDataSourceTcp = `
+variable "name" {
+	default = "testAccCheckAlicloudSlbListenersDataSourceTcp"
+}
+
+data "alicloud_zones" "az" {
+	"available_resource_creation"= "VSwitch"
+}
+
+resource "alicloud_vpc" "sample_vpc" {
+  name = "${var.name}"
+  cidr_block = "172.16.0.0/12"
+}
+
+resource "alicloud_vswitch" "sample_vswitch" {
+  vpc_id = "${alicloud_vpc.sample_vpc.id}"
+  cidr_block = "172.16.0.0/16"
+  availability_zone = "${data.alicloud_zones.az.zones.0.id}"
+}
+
+resource "alicloud_slb" "sample_slb" {
+  name = "${var.name}"
+  vswitch_id = "${alicloud_vswitch.sample_vswitch.id}"
+}
+
+resource "alicloud_slb_listener" "sample_slb_listener" {
+  load_balancer_id = "${alicloud_slb.sample_slb.id}"
+  backend_port = 22
+  frontend_port = 22
+  protocol = "tcp"
+  health_check_connect_port = 20
+  healthy_threshold = 8
+  unhealthy_threshold = 8
+  health_check_timeout = 8
+  health_check_interval = 5
+  health_check_type = "tcp"
+  bandwidth = 10
+}
+
+data "alicloud_slb_listeners" "slb_listeners" {
+  load_balancer_id = "${alicloud_slb_listener.sample_slb_listener.load_balancer_id}"
+}
+`
