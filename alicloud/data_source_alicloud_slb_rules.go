@@ -37,6 +37,18 @@ func dataSourceAlicloudSlbRules() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"domain": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"url": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"server_group_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 
 						// TODO add more attributes
 					},
@@ -76,8 +88,11 @@ func slbRulesDescriptionAttributes(d *schema.ResourceData, rules []slb.Rule, met
 
 	for _, rule := range rules {
 		mapping := map[string]interface{}{
-			"id":   rule.RuleId,
-			"name": rule.RuleName,
+			"id":              rule.RuleId,
+			"name":            rule.RuleName,
+			"domain":          rule.Domain,
+			"url":             rule.Url,
+			"server_group_id": rule.VServerGroupId,
 		}
 
 		log.Printf("[DEBUG] alicloud_slb_rules - adding slb_ruler mapping: %v", mapping)
