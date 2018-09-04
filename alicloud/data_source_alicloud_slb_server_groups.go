@@ -45,7 +45,22 @@ func dataSourceAlicloudSlbServerGroups() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						// TODO add more attributes
+						"backend_servers": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"instance_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"weight": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -110,6 +125,8 @@ func dataSourceAlicloudSlbServerGroupsRead(d *schema.ResourceData, meta interfac
 }
 
 func slbServerGroupsDescriptionAttributes(d *schema.ResourceData, serverGroups []slb.VServerGroup, meta interface{}) error {
+	conn := meta.(*AliyunClient).slbconn
+
 	var ids []string
 	var s []map[string]interface{}
 
@@ -117,6 +134,21 @@ func slbServerGroupsDescriptionAttributes(d *schema.ResourceData, serverGroups [
 		mapping := map[string]interface{}{
 			"id":   serverGroup.VServerGroupId,
 			"name": serverGroup.VServerGroupName,
+		}
+
+		args := slb.CreateDescribeVServerGroupAttributeRequest()
+		args.VServerGroupId = serverGroup.VServerGroupId
+		resp, err := conn.DescribeVServerGroupAttribute(args)
+		if err == nil && resp != nil && len(resp.BackendServers.BackendServer) > 0 {
+			var backendServerMappings []map[string]interface{}
+			for _, backendServer := range resp.BackendServers.BackendServer {
+				backendServerMapping := map[string]interface{}{
+					"instance_id": backendServer.ServerId,
+					"weight":      backendServer.Weight,
+				}
+				backendServerMappings = append(backendServerMappings, backendServerMapping)
+			}
+			mapping["backend_servers"] = backendServerMappings
 		}
 
 		log.Printf("[DEBUG] alicloud_slb_server_groups - adding slb_server_group mapping: %v", mapping)
