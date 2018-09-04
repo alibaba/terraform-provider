@@ -33,9 +33,10 @@ func TestAccAlicloudSlbListenersDataSource_http(t *testing.T) {
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_interval", "5"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_http_code", "http_2xx,http_3xx"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.gzip", "on"),
-					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.x_forwarded_for.retrieve_slb_ip", "on"),
-					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.x_forwarded_for.retrieve_slb_id", "on"),
-					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.x_forwarded_for.retrieve_slb_proto", "off"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.x_forwarded_for", "on"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.x_forwarded_for_slb_ip", "on"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.x_forwarded_for_slb_id", "on"),
+					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.x_forwarded_for_slb_proto", "off"),
 
 					testAccCheckAlicloudDataSourceID("data.alicloud_slb_listeners.slb_listeners_with_filters"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners_with_filters", "slb_listeners.#", "1"),
@@ -61,7 +62,6 @@ func TestAccAlicloudSlbListenersDataSource_tcp(t *testing.T) {
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.status", "running"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.bandwidth", "10"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.scheduler", "wrr"),
-					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.syn_proxy", "ENABLE"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.persistence_timeout", "0"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.established_timeout", "900"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check", "on"),
@@ -72,7 +72,6 @@ func TestAccAlicloudSlbListenersDataSource_tcp(t *testing.T) {
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.unhealthy_threshold", "8"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_timeout", "0"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_interval", "5"),
-					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.max_connection", "0"),
 				),
 			},
 		},
@@ -95,8 +94,6 @@ func TestAccAlicloudSlbListenersDataSource_udp(t *testing.T) {
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.status", "running"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.bandwidth", "10"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.scheduler", "wrr"),
-					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.persistence_timeout", "12"),
-					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.established_timeout", "0"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check", "on"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_connect_port", "20"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_connect_timeout", "8"),
@@ -104,7 +101,6 @@ func TestAccAlicloudSlbListenersDataSource_udp(t *testing.T) {
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.unhealthy_threshold", "8"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_timeout", "0"),
 					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.health_check_interval", "5"),
-					resource.TestCheckResourceAttr("data.alicloud_slb_listeners.slb_listeners", "slb_listeners.0.max_connection", "0"),
 				),
 			},
 		},
@@ -250,7 +246,6 @@ resource "alicloud_slb_listener" "sample_slb_listener" {
   unhealthy_threshold = 8
   health_check_timeout = 8
   health_check_interval = 5
-  persistence_timeout = 12
   bandwidth = 10
 }
 

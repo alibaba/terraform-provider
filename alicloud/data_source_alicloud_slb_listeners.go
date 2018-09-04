@@ -71,10 +71,6 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"syn_proxy": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"persistence_timeout": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -151,29 +147,25 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"max_connection": {
-							Type:     schema.TypeInt,
+						"ca_certificate_id": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"x_forwarded_for": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeString,
 							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"retrieve_slb_ip": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-									"retrieve_slb_id": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-									"retrieve_slb_proto": {
-										Type:     schema.TypeBool,
-										Computed: true,
-									},
-								},
-							},
+						},
+						"x_forwarded_for_slb_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"x_forwarded_for_slb_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"x_forwarded_for_slb_proto": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},
@@ -268,13 +260,10 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				mapping["health_check_interval"] = resp.HealthCheckInterval
 				mapping["health_check_http_code"] = resp.HealthCheckHttpCode
 				mapping["gzip"] = resp.Gzip
-				if resp.XForwardedFor == string(OnFlag) {
-					mapping["x_forwarded_for"] = map[string]interface{}{
-						"retrieve_slb_ip":    resp.XForwardedForSLBIP,
-						"retrieve_slb_id":    resp.XForwardedForSLBID,
-						"retrieve_slb_proto": resp.XForwardedForProto,
-					}
-				}
+				mapping["x_forwarded_for"] = resp.XForwardedFor
+				mapping["x_forwarded_for_slb_ip"] = resp.XForwardedForSLBIP
+				mapping["x_forwarded_for_slb_id"] = resp.XForwardedForSLBID
+				mapping["x_forwarded_for_slb_proto"] = resp.XForwardedForProto
 			} else {
 				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerHTTPListenerAttribute error: %v", err)
 			}
@@ -305,13 +294,11 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				mapping["health_check_http_code"] = resp.HealthCheckHttpCode
 				mapping["gzip"] = resp.Gzip
 				mapping["ssl_certificate_id"] = resp.ServerCertificateId
-				if resp.XForwardedFor == string(OnFlag) {
-					mapping["x_forwarded_for"] = map[string]interface{}{
-						"retrieve_slb_ip":    resp.XForwardedForSLBIP,
-						"retrieve_slb_id":    resp.XForwardedForSLBID,
-						"retrieve_slb_proto": resp.XForwardedForProto,
-					}
-				}
+				mapping["ca_certificate_id"] = resp.CACertificateId
+				mapping["x_forwarded_for"] = resp.XForwardedFor
+				mapping["x_forwarded_for_slb_ip"] = resp.XForwardedForSLBIP
+				mapping["x_forwarded_for_slb_id"] = resp.XForwardedForSLBID
+				mapping["x_forwarded_for_slb_proto"] = resp.XForwardedForProto
 			} else {
 				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerHTTPSListenerAttribute error: %v", err)
 			}
@@ -327,7 +314,6 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				mapping["scheduler"] = resp.Scheduler
 				mapping["server_group_id"] = resp.VServerGroupId
 				mapping["master_slave_server_group_id"] = resp.MasterSlaveServerGroupId
-				mapping["syn_proxy"] = resp.SynProxy
 				mapping["persistence_timeout"] = resp.PersistenceTimeout
 				mapping["established_timeout"] = resp.EstablishedTimeout
 				mapping["health_check"] = resp.HealthCheck
@@ -340,7 +326,6 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				mapping["unhealthy_threshold"] = resp.UnhealthyThreshold
 				mapping["health_check_interval"] = resp.HealthCheckInterval
 				mapping["health_check_http_code"] = resp.HealthCheckHttpCode
-				mapping["max_connection"] = resp.MaxConnection
 			} else {
 				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerTCPListenerAttribute error: %v", err)
 			}
@@ -363,7 +348,6 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				mapping["healthy_threshold"] = resp.HealthyThreshold
 				mapping["unhealthy_threshold"] = resp.UnhealthyThreshold
 				mapping["health_check_interval"] = resp.HealthCheckInterval
-				mapping["max_connection"] = resp.MaxConnection
 			} else {
 				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerUDPListenerAttribute error: %v", err)
 			}
