@@ -1,12 +1,13 @@
 package alicloud
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"fmt"
 	"log"
 	"regexp"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func dataSourceAlicloudSlbRules() *schema.Resource {

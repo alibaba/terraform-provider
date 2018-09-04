@@ -1,10 +1,11 @@
 package alicloud
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"fmt"
 	"log"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func dataSourceAlicloudSlbAttachments() *schema.Resource {
