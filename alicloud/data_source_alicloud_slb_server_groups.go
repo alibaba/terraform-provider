@@ -45,7 +45,7 @@ func dataSourceAlicloudSlbServerGroups() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"backend_servers": {
+						"servers": {
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem: &schema.Resource{
@@ -148,7 +148,7 @@ func slbServerGroupsDescriptionAttributes(d *schema.ResourceData, serverGroups [
 				}
 				backendServerMappings = append(backendServerMappings, backendServerMapping)
 			}
-			mapping["backend_servers"] = backendServerMappings
+			mapping["servers"] = backendServerMappings
 		}
 
 		log.Printf("[DEBUG] alicloud_slb_server_groups - adding slb_server_group mapping: %v", mapping)
