@@ -3,23 +3,18 @@ package alicloud
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"fmt"
-	"log"
 	"regexp"
+	"log"
 )
 
-func dataSourceAlicloudSlbRules() *schema.Resource {
+func dataSourceAlicloudSlbServerGroups() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAlicloudSlbRulesRead,
+		Read: dataSourceAlicloudSlbServerGroupsRead,
 
 		Schema: map[string]*schema.Schema{
 			"load_balancer_id": {
 				Type:     schema.TypeString,
-				Required: true,
-			},
-			"frontend_port": {
-				Type:     schema.TypeInt,
 				Required: true,
 			},
 			"ids": {
@@ -37,7 +32,7 @@ func dataSourceAlicloudSlbRules() *schema.Resource {
 			},
 
 			// Computed values
-			"slb_rules": {
+			"slb_server_groups": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -50,18 +45,7 @@ func dataSourceAlicloudSlbRules() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"domain": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"url": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"server_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
+						// TODO add more attributes
 					},
 				},
 			},
@@ -69,12 +53,11 @@ func dataSourceAlicloudSlbRules() *schema.Resource {
 	}
 }
 
-func dataSourceAlicloudSlbRulesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceAlicloudSlbServerGroupsRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).slbconn
 
-	args := slb.CreateDescribeRulesRequest()
+	args := slb.CreateDescribeVServerGroupsRequest()
 	args.LoadBalancerId = d.Get("load_balancer_id").(string)
-	args.ListenerPort = requests.NewInteger(d.Get("frontend_port").(int))
 
 	idsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok {
@@ -83,66 +66,66 @@ func dataSourceAlicloudSlbRulesRead(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	resp, err := conn.DescribeRules(args)
+	response := slb.CreateDescribeVServerGroupsResponse()
+	err := conn.DoAction(args, response)
+
+	resp, err := conn.DescribeVServerGroups(args)
 	if err != nil {
-		return fmt.Errorf("DescribeRules got an error: %#v", err)
+		return fmt.Errorf("DescribeVServerGroups got an error: %#v", err)
 	}
 	if resp == nil {
 		return fmt.Errorf("there is no SLB with the ID %s. Please change your search criteria and try again", args.LoadBalancerId)
 	}
 
-	var filteredRulesTemp []slb.Rule
+	var filteredServerGroupsTemp []slb.VServerGroup
 	nameRegex, ok := d.GetOk("name_regex")
 	if (ok && nameRegex.(string) != "") || (len(idsMap) > 0) {
 		var r *regexp.Regexp
 		if nameRegex != "" {
 			r = regexp.MustCompile(nameRegex.(string))
 		}
-		for _, rule := range resp.Rules.Rule {
-			if r != nil && !r.MatchString(rule.RuleName) {
+		for _, serverGroup := range resp.VServerGroups.VServerGroup {
+			if r != nil && !r.MatchString(serverGroup.VServerGroupName) {
 				continue
 			}
 			if len(idsMap) > 0 {
-				if _, ok := idsMap[rule.RuleId]; !ok {
+				if _, ok := idsMap[serverGroup.VServerGroupId]; !ok {
 					continue
 				}
 			}
 
-			filteredRulesTemp = append(filteredRulesTemp, rule)
+			filteredServerGroupsTemp = append(filteredServerGroupsTemp, serverGroup)
 		}
 	} else {
-		filteredRulesTemp = resp.Rules.Rule
+		filteredServerGroupsTemp = resp.VServerGroups.VServerGroup
 	}
 
-	if len(filteredRulesTemp) < 1 {
+	if len(filteredServerGroupsTemp) < 1 {
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
-	log.Printf("[DEBUG] alicloud_slb_rules - Slb rules found: %#v", filteredRulesTemp)
+	log.Printf("[DEBUG] alicloud_slb_server_groups - Slb server groups found: %#v", filteredServerGroupsTemp)
 
-	return slbRulesDescriptionAttributes(d, filteredRulesTemp)
+	return slbServerGroupsDescriptionAttributes(d, filteredServerGroupsTemp, meta)
 }
 
-func slbRulesDescriptionAttributes(d *schema.ResourceData, rules []slb.Rule) error {
+func slbServerGroupsDescriptionAttributes(d *schema.ResourceData, serverGroups []slb.VServerGroup, meta interface{}) error {
 	var ids []string
 	var s []map[string]interface{}
 
-	for _, rule := range rules {
+	for _, serverGroup := range serverGroups {
 		mapping := map[string]interface{}{
-			"id":              rule.RuleId,
-			"name":            rule.RuleName,
-			"domain":          rule.Domain,
-			"url":             rule.Url,
-			"server_group_id": rule.VServerGroupId,
+			"id":   serverGroup.VServerGroupId,
+			"name": serverGroup.VServerGroupName,
 		}
 
-		log.Printf("[DEBUG] alicloud_slb_rules - adding slb_rule mapping: %v", mapping)
-		ids = append(ids, rule.RuleId)
+		log.Printf("[DEBUG] alicloud_slb_server_groups - adding slb_server_group mapping: %v", mapping)
+		ids = append(ids, serverGroup.VServerGroupId)
 		s = append(s, mapping)
 	}
 
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("slb_rules", s); err != nil {
+	if err := d.Set("slb_server_groups", s); err != nil {
 		return err
 	}
 
