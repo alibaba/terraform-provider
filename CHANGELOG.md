@@ -1,18 +1,29 @@
-## 1.14.0 (Unreleased)
-
-FEATURES:
-
-- **New Resource:** `alicloud_vpn_customer_gateway` ([#639](https://github.com/alibaba/terraform-provider/pull/639))
+## 1.14.1 (Unreleased)
 
 IMPROVEMENTS:
 
 - Retrieve the account_id automatically if needed ([#631](https://github.com/alibaba/terraform-provider/pull/631))
+
+## 1.14.0 (August 31, 2018)
+
+FEATURES:
+
+- **New Resource:** `alicloud_vpn_connection` ([#651](https://github.com/alibaba/terraform-provider/pull/651))
+- **New Resource:** `alicloud_vpn_customer_gateway` ([#639](https://github.com/alibaba/terraform-provider/pull/639))
+
+IMPROVEMENTS:
+
+- Add 'force' to make key pair affect immediately ([#650](https://github.com/alibaba/terraform-provider/pull/650))
+- Improve http proxy support ([#640](https://github.com/alibaba/terraform-provider/pull/640))
+- Add flags to skip tests that use features not supported in all regions ([#633](https://github.com/alibaba/terraform-provider/pull/633))
+- Improve data source dns_domains test case ([#641](https://github.com/alibaba/terraform-provider/pull/641))
 - Change SDK config timeout ([#638](https://github.com/alibaba/terraform-provider/pull/638))
 - Support ClientToken for some request ([#638](https://github.com/alibaba/terraform-provider/pull/638))
 - Enlarge sdk default timeout to fix some timeout scenario ([#637](https://github.com/alibaba/terraform-provider/pull/637))
 
 BUG FIXES:
 
+- Fix container cluster SDK timezone error ([#649](https://github.com/alibaba/terraform-provider/pull/649))
 - Fix network products throttling error ([#638](https://github.com/alibaba/terraform-provider/pull/638))
 
 ## 1.13.0 (August 29, 2018)
