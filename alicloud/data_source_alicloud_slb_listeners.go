@@ -345,7 +345,28 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerTCPListenerAttribute error: %v", err)
 			}
 		case Udp:
-			// TODO
+			args := slb.CreateDescribeLoadBalancerUDPListenerAttributeRequest()
+			args.LoadBalancerId = loadBalancerId
+			args.ListenerPort = requests.NewInteger(listener.ListenerPort)
+			resp, err := conn.DescribeLoadBalancerUDPListenerAttribute(args)
+			if err == nil {
+				mapping["backend_port"] = resp.BackendServerPort
+				mapping["status"] = resp.Status
+				mapping["bandwidth"] = resp.Bandwidth
+				mapping["scheduler"] = resp.Scheduler
+				mapping["server_group_id"] = resp.VServerGroupId
+				mapping["master_slave_server_group_id"] = resp.MasterSlaveServerGroupId
+				mapping["persistence_timeout"] = resp.PersistenceTimeout
+				mapping["health_check"] = resp.HealthCheck
+				mapping["health_check_connect_port"] = resp.HealthCheckConnectPort
+				mapping["health_check_connect_timeout"] = resp.HealthCheckConnectTimeout
+				mapping["healthy_threshold"] = resp.HealthyThreshold
+				mapping["unhealthy_threshold"] = resp.UnhealthyThreshold
+				mapping["health_check_interval"] = resp.HealthCheckInterval
+				mapping["max_connection"] = resp.MaxConnection
+			} else {
+				log.Printf("[WARN] alicloud_slb_listeners - DescribeLoadBalancerUDPListenerAttribute error: %v", err)
+			}
 		}
 
 		log.Printf("[DEBUG] alicloud_slb_listeners - adding slb_listener mapping: %v", mapping)
