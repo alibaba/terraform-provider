@@ -35,5 +35,5 @@ The following arguments are supported:
 The following attributes are exported in addition to the arguments listed above:
 
 * `slb_attachments` - A list of SLB attachments. Each element contains the following attributes:
-  * `instance_id` - ID of the attached ECS instance ID.
+  * `instance_id` - ID of the attached ECS instance.
   * `weight` - Weight associated to the ECS instance.
