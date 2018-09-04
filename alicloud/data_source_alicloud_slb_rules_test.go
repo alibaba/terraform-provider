@@ -125,5 +125,7 @@ resource "alicloud_slb_rule" "sample_rule" {
 data "alicloud_slb_rules" "slb_rules" {
   load_balancer_id = "${alicloud_slb_rule.sample_rule.load_balancer_id}"
   frontend_port = "${alicloud_slb_rule.sample_rule.frontend_port}"
+  ids = ["${alicloud_slb_rule.sample_rule.id}"]
+  name_regex = "${var.name}"
 }
 `

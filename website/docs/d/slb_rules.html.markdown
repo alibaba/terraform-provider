@@ -29,6 +29,8 @@ The following arguments are supported:
 
 * `load_balancer_id` - ID of the SLB with listener rules.
 * `frontend_port` - SLB listener port.
+* `ids` - (Optional) A list of rules IDs to filter results.
+* `name_regex` - (Optional) A regex string to filter results by rule name.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
