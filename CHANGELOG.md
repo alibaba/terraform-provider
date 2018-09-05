@@ -6,8 +6,14 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Base64 encode ESS scaling config user_data ([#632](https://github.com/alibaba/terraform-provider/pull/632))
 - Reback website ([#655](https://github.com/alibaba/terraform-provider/pull/655))
 - Retrieve the account_id automatically if needed ([#631](https://github.com/alibaba/terraform-provider/pull/631))
+
+BUG FIXES:
+
+- Fix DB database not found error ([#656](https://github.com/alibaba/terraform-provider/pull/656))
+
 
 ## 1.14.0 (August 31, 2018)
 

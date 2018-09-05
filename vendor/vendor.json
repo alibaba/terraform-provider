@@ -229,8 +229,10 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "N9A+9VmoMs38kijGWNVv0vsgi54=",
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/sts",
-			"revision": ""
+			"revision": "ca8896e696fef072e32e0a8df0e9b6d831a901ad",
+			"revisionTime": "2018-09-05T02:50:16Z"
 		},
 		{
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/tesladam",
