@@ -1,4 +1,10 @@
 ## 1.14.1 (Unreleased)
+
+FEATURES:
+
+- **New Resource:** `alicloud_ssl_vpn_server` ([#654](https://github.com/alibaba/terraform-provider/pull/654))
+
+
 ## 1.14.0 (August 31, 2018)
 
 FEATURES:
