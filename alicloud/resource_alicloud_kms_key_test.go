@@ -7,7 +7,81 @@ import (
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"strings"
 )
+
+
+func init() {
+	resource.AddTestSweepers("alicloud_kms_key", &resource.Sweeper{
+		Name: "alicloud_kms_key",
+		F:    testSweepKmsKeys,
+	})
+}
+
+func testSweepKeyPairs(region string) error {
+	client, err := sharedClientForRegion(region)
+	if err != nil {
+		return fmt.Errorf("error getting Alicloud client: %s", err)
+	}
+	conn := client.(*AliyunClient)
+
+	prefixes := []string{
+		"tf-testAcc",
+		"tf_testAcc",
+		"tf_test_",
+		"tf-test-",
+		"testAcc",
+		"terraform-test-",
+	}
+
+	var pairs []ecs.KeyPair
+	req := ecs.CreateDescribeKeyPairsRequest()
+	req.RegionId = conn.RegionId
+	req.PageSize = requests.NewInteger(PageSizeLarge)
+	req.PageNumber = requests.NewInteger(1)
+	for {
+		resp, err := conn.ecsconn.DescribeKeyPairs(req)
+		if err != nil {
+			return fmt.Errorf("Error retrieving Key Pairs: %s", err)
+		}
+		if resp == nil || len(resp.KeyPairs.KeyPair) < 1 {
+			break
+		}
+		pairs = append(pairs, resp.KeyPairs.KeyPair...)
+
+		if len(resp.KeyPairs.KeyPair) < PageSizeLarge {
+			break
+		}
+
+		if page, err := getNextpageNumber(req.PageNumber); err != nil {
+			return err
+		} else {
+			req.PageNumber = page
+		}
+	}
+
+	for _, v := range pairs {
+		name := v.KeyPairName
+		skip := true
+		for _, prefix := range prefixes {
+			if strings.HasPrefix(strings.ToLower(name), strings.ToLower(prefix)) {
+				skip = false
+				break
+			}
+		}
+		if skip {
+			log.Printf("[INFO] Skipping Key Pair: %s", name)
+			continue
+		}
+		log.Printf("[INFO] Deleting Key Pair: %s", name)
+		req := ecs.CreateDeleteKeyPairsRequest()
+		req.KeyPairNames = convertListToJsonString(append(make([]interface{}, 0, 1), name))
+		if _, err := conn.ecsconn.DeleteKeyPairs(req); err != nil {
+			log.Printf("[ERROR] Failed to delete Key Pair (%s): %s", name, err)
+		}
+	}
+	return nil
+}
 
 func TestAccAlicloudKmsKey_basic(t *testing.T) {
 	var keyBefore, keyAfter kms.KeyMetadata

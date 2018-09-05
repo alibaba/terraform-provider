@@ -153,6 +153,9 @@ func resourceAlicloudDBDatabaseDelete(d *schema.ResourceData, meta interface{}) 
 
 		db, err := meta.(*AliyunClient).DescribeDatabaseByName(parts[0], parts[1])
 		if err != nil {
+			if NotFoundError(err) {
+				return nil
+			}
 			return resource.NonRetryableError(fmt.Errorf("Error Describe DB InstanceAttribute: %#v", err))
 		}
 		if db == nil {
