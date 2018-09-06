@@ -82,9 +82,6 @@ func dataSourceAlicloudSlbServerGroupsRead(d *schema.ResourceData, meta interfac
 		}
 	}
 
-	response := slb.CreateDescribeVServerGroupsResponse()
-	err := conn.DoAction(args, response)
-
 	resp, err := conn.DescribeVServerGroups(args)
 	if err != nil {
 		return fmt.Errorf("DescribeVServerGroups got an error: %#v", err)
