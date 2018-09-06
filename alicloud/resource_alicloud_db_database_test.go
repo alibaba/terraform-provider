@@ -56,10 +56,6 @@ func testAccCheckDBDatabaseExists(n string, d *rds.Database) resource.TestCheckF
 			return err
 		}
 
-		if db == nil {
-			return fmt.Errorf("DB is not found in the instance %s.", parts[0])
-		}
-
 		*d = *db
 		return nil
 	}
@@ -75,19 +71,14 @@ func testAccCheckDBDatabaseDestroy(s *terraform.State) error {
 
 		parts := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 
-		db, err := client.DescribeDatabaseByName(parts[0], parts[1])
-
-		// Verify the error is what we want
-		if err != nil {
-			if NotFoundDBInstance(err) || IsExceptedError(err, InvalidDBNameNotFound) {
+		if _, err := client.DescribeDatabaseByName(parts[0], parts[1]); err != nil {
+			if NotFoundError(err) {
 				continue
 			}
 			return err
 		}
 
-		if db != nil {
-			return fmt.Errorf("Error database %s is still existing.", parts[1])
-		}
+		return fmt.Errorf("Error database %s is still existing.", parts[1])
 	}
 
 	return nil
@@ -95,7 +86,7 @@ func testAccCheckDBDatabaseDestroy(s *terraform.State) error {
 
 const testAccDBDatabase_basic = `
 variable "name" {
-	default = "testaccdbdatabase_basic"
+	default = "tf-testaccdbdatabase_basic"
 }
 data "alicloud_zones" "default" {
 	"available_resource_creation"= "Rds"
@@ -110,6 +101,7 @@ resource "alicloud_vswitch" "foo" {
  	vpc_id = "${alicloud_vpc.foo.id}"
  	cidr_block = "172.16.0.0/21"
  	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+ 	name = "${var.name}"
 }
 
 resource "alicloud_db_instance" "instance" {
