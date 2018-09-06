@@ -3,7 +3,7 @@ package alicloud
 import (
 	"fmt"
 	"testing"
-
+"log"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-log-go-sdk"
@@ -11,7 +11,63 @@ import (
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"strings"
 )
+
+func init() {
+	resource.AddTestSweepers("alicloud_fc_service", &resource.Sweeper{
+		Name: "alicloud_fc_service",
+		F:    testSweepFCServices,
+	})
+}
+
+func testSweepFCServices(region string) error {
+	client, err := sharedClientForRegion(region)
+	if err != nil {
+		return fmt.Errorf("error getting Alicloud client: %s", err)
+	}
+	conn := client.(*AliyunClient)
+
+	prefixes := []string{
+		"tf-testAcc",
+		"tf_testAcc",
+		"tf_test_",
+		"tf-test-",
+		"testAcc",
+	}
+
+	fcconn, err := conn.Fcconn()
+	if err != nil {
+		return fmt.Errorf("error getting fc conn: %s", err)
+	}
+
+	if services, err := fcconn.ListServices(fc.NewListServicesInput()); err != nil {
+		return fmt.Errorf("Error retrieving FC services: %s", err)
+	} else {
+		for _, v := range services.Services {
+			name := *v.ServiceName
+			id := *v.ServiceID
+			skip := true
+			for _, prefix := range prefixes {
+				if strings.HasPrefix(strings.ToLower(name), strings.ToLower(prefix)) {
+					skip = false
+					break
+				}
+			}
+			if skip {
+				log.Printf("[INFO] Skipping FC services: %s (%s)", name, id)
+				continue
+			}
+			log.Printf("[INFO] Deleting FC services: %s (%s)", name, id)
+			if _, err := conn.fcconn.DeleteService(&fc.DeleteServiceInput{
+				ServiceName: StringPointer(name),
+			}); err != nil {
+				log.Printf("[ERROR] Failed to delete FC services (%s (%s)): %s", name, id, err)
+			}
+		}
+	}
+	return nil
+}
 
 func TestAccAlicloudFCService_basic(t *testing.T) {
 	if !isRegionSupports(FunctionCompute) {
@@ -29,12 +85,12 @@ func TestAccAlicloudFCService_basic(t *testing.T) {
 		CheckDestroy: testAccCheckAlicloudFCServiceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAlicloudFCServiceBasic("testaccalicloudfcservicebasic", testFCRoleTemplate),
+				Config: testAlicloudFCServiceBasic("tf-testaccalicloudfcservicebasic", testFCRoleTemplate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudLogProjectExists("alicloud_log_project.foo", &project),
 					testAccCheckAlicloudLogStoreExists("alicloud_log_store.foo", &store),
 					testAccCheckAlicloudFCServiceExists("alicloud_fc_service.foo", &service),
-					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "name", "testaccalicloudfcservicebasic"),
+					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "name", "tf-testaccalicloudfcservicebasic"),
 					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "description", "tf unit test"),
 				),
 			},
@@ -63,7 +119,7 @@ func TestAccAlicloudFCService_update(t *testing.T) {
 				Config: testAlicloudFCServiceUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudFCServiceExists("alicloud_fc_service.foo", &service),
-					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "name", "testAlicloudFCServiceUpdate"),
+					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "name", "tf-testAlicloudFCServiceUpdate"),
 					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "description", "tf unit test"),
 					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "internet_access", "false"),
 				),
@@ -76,7 +132,7 @@ func TestAccAlicloudFCService_update(t *testing.T) {
 					testAccCheckSecurityGroupExists("alicloud_security_group.group", &group),
 					testAccCheckRamRoleExists("alicloud_ram_role.role", &role),
 					testAccCheckAlicloudFCServiceExists("alicloud_fc_service.foo", &service),
-					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "name", "testAlicloudFCServiceUpdate"),
+					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "name", "tf-testAlicloudFCServiceUpdate"),
 					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "description", "tf unit test"),
 					resource.TestCheckResourceAttr("alicloud_fc_service.foo", "internet_access", "false"),
 				),
@@ -180,7 +236,7 @@ resource "alicloud_fc_service" "foo" {
 
 const testAlicloudFCServiceUpdate = `
 variable "name" {
-    default = "testAlicloudFCServiceUpdate"
+    default = "tf-testAlicloudFCServiceUpdate"
 }
 resource "alicloud_fc_service" "foo" {
     name = "${var.name}"
@@ -192,7 +248,7 @@ resource "alicloud_fc_service" "foo" {
 func testAlicloudFCServiceVpc(role, policy string) string {
 	return fmt.Sprintf(`
 variable "name" {
-    default = "testAlicloudFCServiceUpdate"
+    default = "tf-testAlicloudFCServiceUpdate"
 }
 resource "alicloud_vpc" "vpc" {
   name = "${var.name}"

@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Support sweep test method ([#666](https://github.com/alibaba/terraform-provider/pull/666))
 - Base64 encode ESS scaling config user_data ([#632](https://github.com/alibaba/terraform-provider/pull/632))
 - Reback website ([#655](https://github.com/alibaba/terraform-provider/pull/655))
 - Retrieve the account_id automatically if needed ([#631](https://github.com/alibaba/terraform-provider/pull/631))
