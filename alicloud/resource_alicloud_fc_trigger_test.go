@@ -37,7 +37,7 @@ func TestAccAlicloudFCTrigger_log(t *testing.T) {
 					testAccCheckAlicloudFCServiceExists("alicloud_fc_service.foo", &service),
 					testAccCheckAlicloudFCFunctionExists("alicloud_fc_function.foo", &function),
 					testAccCheckAlicloudFCTriggerExists("alicloud_fc_trigger.foo", &trigger),
-					resource.TestCheckResourceAttr("alicloud_fc_trigger.foo", "name", "test-alicloud-fc-trigger"),
+					resource.TestCheckResourceAttr("alicloud_fc_trigger.foo", "name", "tf-test-acc-alicloud-fc-trigger"),
 					resource.TestCheckResourceAttrSet("alicloud_fc_trigger.foo", "config"),
 				),
 			},
@@ -45,7 +45,7 @@ func TestAccAlicloudFCTrigger_log(t *testing.T) {
 				Config: testAlicloudFCTriggerLogUpdate(testTriggerLogTemplateUpdate, testFCLogRoleTemplate, testFCLogPolicyTemplate),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAlicloudFCTriggerExists("alicloud_fc_trigger.foo", &trigger),
-					resource.TestCheckResourceAttr("alicloud_fc_trigger.foo", "name", "test-alicloud-fc-trigger"),
+					resource.TestCheckResourceAttr("alicloud_fc_trigger.foo", "name", "tf-test-acc-alicloud-fc-trigger"),
 					resource.TestCheckResourceAttrSet("alicloud_fc_trigger.foo", "config"),
 				),
 			},
@@ -106,7 +106,7 @@ func testAccCheckAlicloudFCTriggerDestroy(s *terraform.State) error {
 func testAlicloudFCTriggerLog(trigger, role, policy string) string {
 	return fmt.Sprintf(`
 variable "name" {
-  default = "test-alicloud-fc-trigger"
+  default = "tf-test-acc-alicloud-fc-trigger"
 }
 
 data "alicloud_regions" "current_region" {
@@ -203,7 +203,7 @@ resource "alicloud_ram_role_policy_attachment" "foo" {
 func testAlicloudFCTriggerLogUpdate(trigger, role, policy string) string {
 	return fmt.Sprintf(`
 variable "name" {
-  default = "test-alicloud-fc-trigger"
+  default = "tf-test-acc-alicloud-fc-trigger"
 }
 
 data "alicloud_regions" "current_region" {
