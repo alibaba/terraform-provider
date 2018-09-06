@@ -119,7 +119,7 @@ resource "alicloud_instance" "foo" {
 
 	# series III
 	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
-	internet_charge_type = "PayByBandwidth"
+	internet_charge_type = "PayByTraffic"
 	internet_max_bandwidth_out = "5"
 	system_disk_category = "cloud_efficiency"
 
