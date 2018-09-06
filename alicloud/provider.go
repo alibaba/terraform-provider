@@ -65,6 +65,7 @@ func Provider() terraform.ResourceProvider {
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 
+			"alicloud_account":        dataSourceAlicloudAccount(),
 			"alicloud_images":         dataSourceAlicloudImages(),
 			"alicloud_regions":        dataSourceAlicloudRegions(),
 			"alicloud_zones":          dataSourceAlicloudZones(),
@@ -91,6 +92,7 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_security_groups":      dataSourceAlicloudSecurityGroups(),
 			"alicloud_security_group_rules": dataSourceAlicloudSecurityGroupRules(),
 			"alicloud_slb_attachments":      dataSourceAlicloudSlbAttachments(),
+			"alicloud_slbs":                 dataSourceAlicloudSlbs(),
 			"alicloud_db_instances":         dataSourceAlicloudDBInstances(),
 			"alicloud_pvtz_zones":           dataSourceAlicloudPvtzZones(),
 			"alicloud_pvtz_zone_records":    dataSourceAlicloudPvtzZoneRecords(),
