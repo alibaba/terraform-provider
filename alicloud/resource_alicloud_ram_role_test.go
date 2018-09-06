@@ -65,6 +65,27 @@ func testSweepRamRoles(region string) error {
 			continue
 		}
 		sweeped = true
+
+		log.Printf("[INFO] Detaching Ram Role: %s (%s) policies.", name, id)
+		if resp, err := conn.ramconn.ListPoliciesForRole(ram.RoleQueryRequest{
+			RoleName: name,
+		}); err != nil {
+			log.Printf("[ERROR] Failed to list Ram Role (%s (%s)) policies: %s", name, id, err)
+		} else if len(resp.Policies.Policy) > 0 {
+			for _, v := range resp.Policies.Policy {
+				_, err = conn.ramconn.DetachPolicyFromRole(ram.AttachPolicyToRoleRequest{
+					PolicyRequest: ram.PolicyRequest{
+						PolicyName: v.PolicyName,
+						PolicyType: ram.Type(v.PolicyType),
+					},
+					RoleName: name,
+				})
+				if err != nil && !RamEntityNotExist(err) {
+					log.Printf("[ERROR] Failed detach Policy %s: %#v", v.PolicyName, err)
+				}
+			}
+		}
+
 		log.Printf("[INFO] Deleting Ram Role: %s (%s)", name, id)
 		req := ram.RoleQueryRequest{
 			RoleName: name,

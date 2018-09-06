@@ -77,6 +77,16 @@ func testSweepPvtzZones(region string) error {
 			continue
 		}
 		sweeped = true
+		log.Printf("[INFO] Unbinding VPC from Private Zone: %s (%s)", name, id)
+		request := pvtz.CreateBindZoneVpcRequest()
+		request.ZoneId = id
+		vpcs := make([]pvtz.BindZoneVpcVpcs, 0)
+		request.Vpcs = &vpcs
+
+		if _, err := conn.pvtzconn.BindZoneVpc(request); err != nil {
+			log.Printf("[ERROR] Failed to unbind VPC from Private Zone (%s (%s)): %s ", name, id, err)
+		}
+
 		log.Printf("[INFO] Deleting Private Zone: %s (%s)", name, id)
 		req := pvtz.CreateDeleteZoneRequest()
 		req.ZoneId = id

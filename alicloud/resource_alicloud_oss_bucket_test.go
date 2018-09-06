@@ -58,6 +58,21 @@ func testSweepOSSBuckets(region string) error {
 			continue
 		}
 		sweeped = true
+		bucket, err := conn.ossconn.Bucket(name)
+		if err != nil {
+			return fmt.Errorf("Error getting bucket (%s): %#v", name, err)
+		}
+		if objects, err := bucket.ListObjects(); err != nil {
+			log.Printf("[ERROR] Failed to list objects: %s", err)
+			}else if len(objects.Objects) > 0{
+			for _, o := range objects.Objects{
+				if err := bucket.DeleteObject(o.Key); err != nil {
+					log.Printf("[ERROR] Failed to delete object (%s): %s.",o.Key, err)
+				}
+			}
+
+		}
+
 		log.Printf("[INFO] Deleting OSS bucket: %s", name)
 
 		if err := conn.ossconn.DeleteBucket(name); err != nil {
