@@ -47,7 +47,7 @@ import (
 )
 
 // Config of aliyun
-type Config struct {
+type Config2 struct {
 	AccessKey       string
 	SecretKey       string
 	Region          common.Region
@@ -60,7 +60,7 @@ type Config struct {
 }
 
 // AliyunClient of aliyun
-type AliyunClient struct {
+type AliyunClient2 struct {
 	config   *Config
 	Region   common.Region
 	RegionId string

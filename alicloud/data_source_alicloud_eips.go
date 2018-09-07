@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudEips() *schema.Resource {
@@ -86,7 +87,7 @@ func dataSourceAlicloudEipsRead(d *schema.ResourceData, meta interface{}) error 
 	conn := meta.(*AliyunClient).vpcconn
 
 	args := vpc.CreateDescribeEipAddressesRequest()
-	args.RegionId = string(getRegion(d, meta))
+	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 
 	idsMap := make(map[string]string)

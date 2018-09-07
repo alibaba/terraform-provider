@@ -11,6 +11,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAliyunNatGateway() *schema.Resource {
@@ -99,7 +100,7 @@ func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) er
 	conn := meta.(*AliyunClient).vpcconn
 
 	args := vpc.CreateCreateNatGatewayRequest()
-	args.RegionId = string(getRegion(d, meta))
+	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	args.VpcId = string(d.Get("vpc_id").(string))
 	args.Spec = string(d.Get("specification").(string))
 	args.ClientToken = buildClientToken("TF-CreateNatGateway")
@@ -247,7 +248,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 	conn := client.vpcconn
 
 	packRequest := vpc.CreateDescribeBandwidthPackagesRequest()
-	packRequest.RegionId = string(getRegion(d, meta))
+	packRequest.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	packRequest.NatGatewayId = d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 
@@ -261,7 +262,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 		if resp != nil && len(resp.BandwidthPackages.BandwidthPackage) > 0 {
 			for _, pack := range resp.BandwidthPackages.BandwidthPackage {
 				request := vpc.CreateDeleteBandwidthPackageRequest()
-				request.RegionId = string(getRegion(d, meta))
+				request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 				request.BandwidthPackageId = pack.BandwidthPackageId
 				if _, err := conn.DeleteBandwidthPackage(request); err != nil {
 					if IsExceptedError(err, NatGatewayInvalidRegionId) {
@@ -278,7 +279,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 		}
 
 		args := vpc.CreateDeleteNatGatewayRequest()
-		args.RegionId = string(getRegion(d, meta))
+		args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 		args.NatGatewayId = d.Id()
 
 		if _, err := conn.DeleteNatGateway(args); err != nil {

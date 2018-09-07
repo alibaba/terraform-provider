@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAlicloudRouterInterface() *schema.Resource {
@@ -119,7 +120,7 @@ func resourceAlicloudRouterInterfaceCreate(d *schema.ResourceData, meta interfac
 
 	d.SetId(response.RouterInterfaceId)
 
-	if err := client.WaitForRouterInterface(getRegionId(d, meta), d.Id(), Idle, 300); err != nil {
+	if err := client.WaitForRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id(), Idle, 300); err != nil {
 		return fmt.Errorf("WaitForRouterInterface %s got error: %#v", Idle, err)
 	}
 
@@ -145,7 +146,7 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 	if d.HasChange("specification") && !d.IsNewResource() {
 		d.SetPartial("specification")
 		request := vpc.CreateModifyRouterInterfaceSpecRequest()
-		request.RegionId = string(getRegion(d, meta))
+		request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 		request.RouterInterfaceId = d.Id()
 		request.Spec = d.Get("specification").(string)
 		if _, err := conn.ModifyRouterInterfaceSpec(request); err != nil {
@@ -159,7 +160,7 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 
 func resourceAlicloudRouterInterfaceRead(d *schema.ResourceData, meta interface{}) error {
 
-	ri, err := meta.(*AliyunClient).DescribeRouterInterface(getRegionId(d, meta), d.Id())
+	ri, err := meta.(*AliyunClient).DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -189,7 +190,7 @@ func resourceAlicloudRouterInterfaceRead(d *schema.ResourceData, meta interface{
 func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 
-	if ri, err := client.DescribeRouterInterface(getRegionId(d, meta), d.Id()); err != nil {
+	if ri, err := client.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id()); err != nil {
 		if NotFoundError(err) {
 			return nil
 		}
@@ -201,7 +202,7 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 	}
 
 	args := vpc.CreateDeleteRouterInterfaceRequest()
-	args.RegionId = string(getRegion(d, meta))
+	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	args.RouterInterfaceId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -215,7 +216,7 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error deleting interface %s: %#v", d.Id(), err))
 		}
-		if _, err := client.DescribeRouterInterface(getRegionId(d, meta), d.Id()); err != nil {
+		if _, err := client.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id()); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}

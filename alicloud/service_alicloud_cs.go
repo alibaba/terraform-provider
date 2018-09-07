@@ -6,18 +6,21 @@ import (
 	"time"
 
 	"github.com/denverdino/aliyungo/cs"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
-func (client *AliyunClient) GetContainerClusterByName(name string) (cluster cs.ClusterType, err error) {
+func GetContainerClusterByName(name string, client *aliyunclient.AliyunClient) (cluster cs.ClusterType, err error) {
 	name = Trim(name)
 	invoker := NewInvoker()
 	var clusters []cs.ClusterType
 	err = invoker.Run(func() error {
-		resp, e := client.csconn.DescribeClusters(name)
+		rawResponse, e := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			return csClient.DescribeClusters(name)
+		})
 		if e != nil {
 			return e
 		}
-		clusters = resp
+		clusters = rawResponse.([]cs.ClusterType)
 		return nil
 	})
 
@@ -37,19 +40,21 @@ func (client *AliyunClient) GetContainerClusterByName(name string) (cluster cs.C
 	return cluster, GetNotFoundErrorFromString(GetNotFoundMessage("Container Cluster", name))
 }
 
-func (client *AliyunClient) GetApplicationClientByClusterName(name string) (c *cs.ProjectClient, err error) {
-	cluster, err := client.GetContainerClusterByName(name)
+func GetApplicationClientByClusterName(name string, client *aliyunclient.AliyunClient) (c *cs.ProjectClient, err error) {
+	cluster, err := GetContainerClusterByName(name, client)
 	if err != nil {
 		return nil, err
 	}
 	var certs cs.ClusterCerts
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		c, e := client.csconn.GetClusterCerts(cluster.ClusterID)
+		raw, e := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			return csClient.GetClusterCerts(cluster.ClusterID)
+		})
 		if e != nil {
 			return e
 		}
-		certs = c
+		certs = raw.(cs.ClusterCerts)
 		return nil
 	})
 
@@ -68,9 +73,9 @@ func (client *AliyunClient) GetApplicationClientByClusterName(name string) (c *c
 	return
 }
 
-func (client *AliyunClient) DescribeContainerApplication(clusterName, appName string) (app cs.GetProjectResponse, err error) {
+func DescribeContainerApplication(clusterName, appName string, client *aliyunclient.AliyunClient) (app cs.GetProjectResponse, err error) {
 	appName = Trim(appName)
-	conn, err := client.GetApplicationClientByClusterName(clusterName)
+	conn, err := GetApplicationClientByClusterName(clusterName, client)
 	if err != nil {
 		return app, err
 	}
@@ -87,13 +92,13 @@ func (client *AliyunClient) DescribeContainerApplication(clusterName, appName st
 	return
 }
 
-func (client *AliyunClient) WaitForContainerApplication(clusterName, appName string, status Status, timeout int) error {
+func WaitForContainerApplication(clusterName, appName string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 
 	for {
-		app, err := client.DescribeContainerApplication(clusterName, appName)
+		app, err := DescribeContainerApplication(clusterName, appName, client)
 		if err != nil {
 			return err
 		}

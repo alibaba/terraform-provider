@@ -13,6 +13,7 @@ import (
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAlicloudCSKubernetes() *schema.Resource {
@@ -262,7 +263,7 @@ func resourceAlicloudCSKubernetesCreate(d *schema.ResourceData, meta interface{}
 	}
 	invoker := NewInvoker()
 	if err := invoker.Run(func() error {
-		cluster, err := conn.CreateKubernetesCluster(getRegion(d, meta), args)
+		cluster, err := conn.CreateKubernetesCluster(meta.(*aliyunclient.AliyunClient).Region, args)
 		if err != nil {
 			return err
 		}

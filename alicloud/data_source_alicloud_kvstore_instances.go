@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudKVStoreInstances() *schema.Resource {
@@ -147,7 +148,7 @@ func dataSourceAlicloudKVStoreInstancesRead(d *schema.ResourceData, meta interfa
 	conn := meta.(*AliyunClient).rkvconn
 
 	args := r_kvstore.CreateDescribeInstancesRequest()
-	args.RegionId = getRegionId(d, meta)
+	args.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
 	args.VpcId = d.Get("vpc_id").(string)
 	args.VSwitchId = d.Get("vswitch_id").(string)
 	args.InstanceType = d.Get("instance_type").(string)

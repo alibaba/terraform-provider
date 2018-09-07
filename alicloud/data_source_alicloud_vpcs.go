@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudVpcs() *schema.Resource {
@@ -107,7 +108,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 	conn := meta.(*AliyunClient).vpcconn
 
 	args := vpc.CreateDescribeVpcsRequest()
-	args.RegionId = string(getRegion(d, meta))
+	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)
 
@@ -165,7 +166,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 
 		request := vpc.CreateDescribeVRoutersRequest()
 		request.VRouterId = v.VRouterId
-		request.RegionId = string(getRegion(d, meta))
+		request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 
 		vrs, err := conn.DescribeVRouters(request)
 		if err != nil {

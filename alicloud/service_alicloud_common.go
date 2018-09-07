@@ -7,14 +7,14 @@ import (
 
 	"io/ioutil"
 
-	"fmt"
-	"strings"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
-	"github.com/denverdino/aliyungo/common"
-	"github.com/denverdino/aliyungo/location"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
+	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
+	"github.com/denverdino/aliyungo/location"
+	"github.com/denverdino/aliyungo/common"
+	"strings"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
@@ -80,9 +80,7 @@ func loadFileContent(v string) ([]byte, error) {
 	return fileContent, nil
 }
 
-func (client *AliyunClient) DescribeEndpointByCode(region string, code ServiceCode) (string, error) {
-	endpointClient := location.NewClient(client.AccessKey, client.SecretKey)
-	endpointClient.SetSecurityToken(client.SecurityToken)
+func DescribeEndpointByCode(region string, code ServiceCode, client *aliyunclient.AliyunClient) (string, error) {
 	args := &location.DescribeEndpointsArgs{
 		Id:          common.Region(region),
 		ServiceCode: strings.ToLower(string(code)),
@@ -91,11 +89,13 @@ func (client *AliyunClient) DescribeEndpointByCode(region string, code ServiceCo
 	invoker := NewInvoker()
 	var endpoints *location.DescribeEndpointsResponse
 	if err := invoker.Run(func() error {
-		es, err := endpointClient.DescribeEndpoints(args)
+		es, err := client.RunSafelyWithLocationClient(func(locationClient *location.Client) (interface{}, error) {
+			return locationClient.DescribeEndpoints(args)
+		})
 		if err != nil {
 			return err
 		}
-		endpoints = es
+		endpoints = es.(*location.DescribeEndpointsResponse)
 		return nil
 	}); err != nil {
 		return "", fmt.Errorf("Describe %s endpoint using region: %#v got an error: %#v.", code, client.RegionId, err)
@@ -112,7 +112,7 @@ func (client *AliyunClient) DescribeEndpointByCode(region string, code ServiceCo
 	return endpoint, nil
 }
 
-func (client *AliyunClient) GetCallerIdentity() (*sts.GetCallerIdentityResponse, error) {
+func GetCallerIdentity(client *aliyunclient.AliyunClient) (*sts.GetCallerIdentityResponse, error) {
 	args := sts.CreateGetCallerIdentityRequest()
 	args.Scheme = "https"
 
@@ -120,10 +120,13 @@ func (client *AliyunClient) GetCallerIdentity() (*sts.GetCallerIdentityResponse,
 
 	invoker := NewInvoker()
 	err := invoker.Run(func() error {
-		identity, err := client.stsconn.GetCallerIdentity(args)
+		result, err := client.RunSafelyWithStsClient(func(stsClient *sts.Client) (interface{}, error) {
+			return stsClient.GetCallerIdentity(args)
+		})
 		if err != nil {
 			return err
 		}
+		identity := result.(*sts.GetCallerIdentityResponse)
 		if identity == nil {
 			return GetNotFoundErrorFromString("Caller identity not found.")
 		}

@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAliyunVpc() *schema.Resource {
@@ -119,7 +120,7 @@ func resourceAliyunVpcRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("description", resp.Description)
 	d.Set("router_id", resp.VRouterId)
 	request := vpc.CreateDescribeVRoutersRequest()
-	request.RegionId = getRegionId(d, meta)
+	request.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
 	request.VRouterId = resp.VRouterId
 	var response vpc.DescribeVRoutersResponse
 	if err := resource.Retry(6*time.Minute, func() *resource.RetryError {
@@ -204,7 +205,7 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 
 func buildAliyunVpcArgs(d *schema.ResourceData, meta interface{}) *vpc.CreateVpcRequest {
 	request := vpc.CreateCreateVpcRequest()
-	request.RegionId = string(getRegion(d, meta))
+	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	request.CidrBlock = d.Get("cidr_block").(string)
 
 	if v := d.Get("name").(string); v != "" {

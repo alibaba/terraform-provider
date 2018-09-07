@@ -16,10 +16,8 @@ import (
 	"math/rand"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/helper/schema"
 )
 
 type InstanceNetWork string
@@ -139,14 +137,6 @@ const (
 	PageSizeMedium = 20
 	PageSizeLarge  = 50
 )
-
-func getRegion(d *schema.ResourceData, meta interface{}) common.Region {
-	return meta.(*AliyunClient).Region
-}
-
-func getRegionId(d *schema.ResourceData, meta interface{}) string {
-	return meta.(*AliyunClient).RegionId
-}
 
 // Protocol represents network protocol
 type Protocol string
@@ -268,25 +258,6 @@ func getPagination(pageNumber, pageSize int) (pagination common.Pagination) {
 }
 
 const CharityPageUrl = "http://promotion.alicdn.com/help/oss/error.html"
-
-func (client *AliyunClient) JudgeRegionValidation(key, region string) error {
-	resp, err := client.ecsconn.DescribeRegions(ecs.CreateDescribeRegionsRequest())
-	if err != nil {
-		return fmt.Errorf("DescribeRegions got an error: %#v", err)
-	}
-	if resp == nil || len(resp.Regions.Region) < 1 {
-		return GetNotFoundErrorFromString("There is no any available region.")
-	}
-
-	var rs []string
-	for _, v := range resp.Regions.Region {
-		if v.RegionId == region {
-			return nil
-		}
-		rs = append(rs, v.RegionId)
-	}
-	return fmt.Errorf("'%s' is invalid. Expected on %v.", key, strings.Join(rs, ", "))
-}
 
 func userDataHashSum(user_data string) string {
 	// Check whether the user_data is not Base64 encoded.

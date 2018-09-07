@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAliyunSnatEntry() *schema.Resource {
@@ -40,7 +41,7 @@ func resourceAliyunSnatEntryCreate(d *schema.ResourceData, meta interface{}) err
 	conn := meta.(*AliyunClient).vpcconn
 
 	request := vpc.CreateCreateSnatEntryRequest()
-	request.RegionId = string(getRegion(d, meta))
+	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	request.SnatTableId = d.Get("snat_table_id").(string)
 	request.SourceVSwitchId = d.Get("source_vswitch_id").(string)
 	request.SnatIp = d.Get("snat_ip").(string)
@@ -93,7 +94,7 @@ func resourceAliyunSnatEntryUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(true)
 	attributeUpdate := false
 	request := vpc.CreateModifySnatEntryRequest()
-	request.RegionId = string(getRegion(d, meta))
+	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	request.SnatTableId = snatEntry.SnatTableId
 	request.SnatEntryId = snatEntry.SnatEntryId
 
@@ -124,7 +125,7 @@ func resourceAliyunSnatEntryUpdate(d *schema.ResourceData, meta interface{}) err
 func resourceAliyunSnatEntryDelete(d *schema.ResourceData, meta interface{}) error {
 
 	request := vpc.CreateDeleteSnatEntryRequest()
-	request.RegionId = string(getRegion(d, meta))
+	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	request.SnatTableId = d.Get("snat_table_id").(string)
 	request.SnatEntryId = d.Id()
 

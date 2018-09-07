@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAliyunSslVpnServer() *schema.Resource {
@@ -234,7 +235,7 @@ func resourceAliyunSslVpnServerDelete(d *schema.ResourceData, meta interface{}) 
 
 func buildAliyunSslVpnServerArgs(d *schema.ResourceData, meta interface{}) *vpc.CreateSslVpnServerRequest {
 	request := vpc.CreateCreateSslVpnServerRequest()
-	request.RegionId = string(getRegion(d, meta))
+	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	request.VpnGatewayId = d.Get("vpn_gateway_id").(string)
 	request.ClientIpPool = d.Get("client_ip_pool").(string)
 	request.LocalSubnet = d.Get("local_subnet").(string)

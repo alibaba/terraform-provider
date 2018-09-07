@@ -9,6 +9,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAliyunSecurityGroupRule() *schema.Resource {
@@ -255,7 +256,7 @@ func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interfac
 }
 
 func buildAliyunSGRuleRequest(d *schema.ResourceData, meta interface{}) (*requests.CommonRequest, error) {
-	request := CommonRequestInit(getRegionId(d, meta), ECSCode, ECSDomain)
+	request := CommonRequestInit(meta.(*aliyunclient.AliyunClient).RegionId, ECSCode, ECSDomain)
 
 	client := meta.(*AliyunClient)
 

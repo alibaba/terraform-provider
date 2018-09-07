@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAliyunForwardEntry() *schema.Resource {
@@ -55,7 +56,7 @@ func resourceAliyunForwardEntryCreate(d *schema.ResourceData, meta interface{}) 
 	conn := meta.(*AliyunClient).vpcconn
 
 	args := vpc.CreateCreateForwardEntryRequest()
-	args.RegionId = string(getRegion(d, meta))
+	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	args.ForwardTableId = d.Get("forward_table_id").(string)
 	args.ExternalIp = d.Get("external_ip").(string)
 	args.ExternalPort = d.Get("external_port").(string)
@@ -116,7 +117,7 @@ func resourceAliyunForwardEntryUpdate(d *schema.ResourceData, meta interface{}) 
 	d.Partial(true)
 	attributeUpdate := false
 	args := vpc.CreateModifyForwardEntryRequest()
-	args.RegionId = string(getRegion(d, meta))
+	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	args.ForwardTableId = forwardEntry.ForwardTableId
 	args.ForwardEntryId = forwardEntry.ForwardEntryId
 	args.ExternalIp = forwardEntry.ExternalIp
@@ -158,7 +159,7 @@ func resourceAliyunForwardEntryDelete(d *schema.ResourceData, meta interface{}) 
 
 	client := meta.(*AliyunClient)
 	args := vpc.CreateDeleteForwardEntryRequest()
-	args.RegionId = string(getRegion(d, meta))
+	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	args.ForwardTableId = d.Get("forward_table_id").(string)
 	args.ForwardEntryId = d.Id()
 

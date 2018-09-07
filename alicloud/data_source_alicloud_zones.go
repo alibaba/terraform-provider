@@ -12,6 +12,7 @@ import (
 	//"github.com/denverdino/aliyungo/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudZones() *schema.Resource {
@@ -126,7 +127,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("[ERROR] There is no available region for RDS.")
 		} else {
 			for _, r := range regions.Regions.RDSRegion {
-				if multi && strings.Contains(r.ZoneId, MULTI_IZ_SYMBOL) && r.RegionId == string(getRegion(d, meta)) {
+				if multi && strings.Contains(r.ZoneId, MULTI_IZ_SYMBOL) && r.RegionId == string(meta.(*aliyunclient.AliyunClient).Region) {
 					zoneIds = append(zoneIds, r.ZoneId)
 					continue
 				}
@@ -143,7 +144,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		} else {
 			for _, r := range regions.RegionIds.KVStoreRegion {
 				for _, zoneID := range strings.Split(r.ZoneIds, ",") {
-					if multi && strings.Contains(zoneID, MULTI_IZ_SYMBOL) && r.RegionId == string(getRegion(d, meta)) {
+					if multi && strings.Contains(zoneID, MULTI_IZ_SYMBOL) && r.RegionId == string(meta.(*aliyunclient.AliyunClient).Region) {
 						zoneIds = append(zoneIds, zoneID)
 						continue
 					}
@@ -156,7 +157,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		sort.Strings(zoneIds)
 		return multiZonesDescriptionAttributes(d, zoneIds)
 	} else if multi {
-		return fmt.Errorf("There is no multi zones in the current region %s. Please change region and try again.", getRegion(d, meta))
+		return fmt.Errorf("There is no multi zones in the current region %s. Please change region and try again.", meta.(*aliyunclient.AliyunClient).Region)
 	}
 
 	_, validZones, err := client.DescribeAvailableResources(d, meta, ZoneResource)
@@ -178,7 +179,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if resp == nil || len(resp.Zones.Zone) < 1 {
-		return fmt.Errorf("There are no availability zones in the region: %#v.", getRegion(d, meta))
+		return fmt.Errorf("There are no availability zones in the region: %#v.", meta.(*aliyunclient.AliyunClient).Region)
 	}
 
 	mapZones := make(map[string]ecs.Zone)

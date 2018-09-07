@@ -9,6 +9,7 @@ import (
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAlicloudCSSwarm() *schema.Resource {
@@ -202,7 +203,7 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 		args.ECSImageID = imageId.(string)
 	}
 
-	region := getRegion(d, meta)
+	region := meta.(*aliyunclient.AliyunClient).Region
 	cluster, err := conn.CreateCluster(region, args)
 
 	if err != nil {

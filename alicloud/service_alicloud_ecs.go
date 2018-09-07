@@ -12,7 +12,27 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
+
+func (client *aliyunclient.AliyunClient) JudgeRegionValidation(key, region string) error {
+	resp, err := client.ecsconn.DescribeRegions(ecs.CreateDescribeRegionsRequest())
+	if err != nil {
+		return fmt.Errorf("DescribeRegions got an error: %#v", err)
+	}
+	if resp == nil || len(resp.Regions.Region) < 1 {
+		return GetNotFoundErrorFromString("There is no any available region.")
+	}
+
+	var rs []string
+	for _, v := range resp.Regions.Region {
+		if v.RegionId == region {
+			return nil
+		}
+		rs = append(rs, v.RegionId)
+	}
+	return fmt.Errorf("'%s' is invalid. Expected on %v.", key, strings.Join(rs, ", "))
+}
 
 // DescribeZone validate zoneId is valid in region
 func (client *AliyunClient) DescribeZone(zoneID string) (zone ecs.Zone, err error) {
@@ -216,7 +236,7 @@ func (client *AliyunClient) DescribeAvailableResources(d *schema.ResourceData, m
 	}
 
 	if resources == nil || len(resources.AvailableZones.AvailableZone) < 1 {
-		err = fmt.Errorf("There are no availability resources in the region: %s.", getRegionId(d, meta))
+		err = fmt.Errorf("There are no availability resources in the region: %s.", meta.(*aliyunclient.AliyunClient).RegionId)
 		return
 	}
 
@@ -241,18 +261,18 @@ func (client *AliyunClient) DescribeAvailableResources(d *schema.ResourceData, m
 	if zoneId != "" {
 		if !valid {
 			err = fmt.Errorf("Availability zone %s status is not available in the region %s. Expected availability zones: %s.",
-				zoneId, getRegionId(d, meta), strings.Join(expectedZones, ", "))
+				zoneId, meta.(*aliyunclient.AliyunClient).RegionId, strings.Join(expectedZones, ", "))
 			return
 		}
 		if soldout {
 			err = fmt.Errorf("Availability zone %s status is sold out in the region %s. Expected availability zones: %s.",
-				zoneId, getRegionId(d, meta), strings.Join(expectedZones, ", "))
+				zoneId, meta.(*aliyunclient.AliyunClient).RegionId, strings.Join(expectedZones, ", "))
 			return
 		}
 	}
 
 	if len(validZones) <= 0 {
-		err = fmt.Errorf("There is no availability resources in the region %s. Please choose another region.", getRegionId(d, meta))
+		err = fmt.Errorf("There is no availability resources in the region %s. Please choose another region.", meta.(*aliyunclient.AliyunClient).RegionId)
 		return
 	}
 

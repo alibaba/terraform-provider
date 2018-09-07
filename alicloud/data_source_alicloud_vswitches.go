@@ -9,6 +9,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudVSwitches() *schema.Resource {
@@ -100,7 +101,7 @@ func dataSourceAlicloudVSwitchesRead(d *schema.ResourceData, meta interface{}) e
 	conn := meta.(*AliyunClient).vpcconn
 
 	args := vpc.CreateDescribeVSwitchesRequest()
-	args.RegionId = string(getRegion(d, meta))
+	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	if v, ok := d.GetOk("zone_id"); ok {
 		args.ZoneId = Trim(v.(string))

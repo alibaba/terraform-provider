@@ -9,6 +9,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudMongoInstances() *schema.Resource {
@@ -168,7 +169,7 @@ func dataSourceAlicloudMongoInstancesRead(d *schema.ResourceData, meta interface
 
 	args := dds.CreateDescribeDBInstancesRequest()
 
-	args.RegionId = getRegionId(d, meta)
+	args.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
 	args.DBInstanceType = d.Get("instance_type").(string)
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)

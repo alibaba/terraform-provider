@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAliyunSslVpnClientCert() *schema.Resource {
@@ -132,7 +133,7 @@ func resourceAliyunSslVpnClientCertDelete(d *schema.ResourceData, meta interface
 
 func buildAliyunSslVpnClientCertArgs(d *schema.ResourceData, meta interface{}) *vpc.CreateSslVpnClientCertRequest {
 	request := vpc.CreateCreateSslVpnClientCertRequest()
-	request.RegionId = string(getRegion(d, meta))
+	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	request.SslVpnServerId = d.Get("ssl_vpn_server_id").(string)
 
 	if v := d.Get("name").(string); v != "" {

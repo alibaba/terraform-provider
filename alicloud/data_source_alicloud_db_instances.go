@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudDBInstances() *schema.Resource {
@@ -169,7 +170,7 @@ func dataSourceAlicloudDBInstancesRead(d *schema.ResourceData, meta interface{})
 
 	args := rds.CreateDescribeDBInstancesRequest()
 
-	args.RegionId = getRegionId(d, meta)
+	args.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
 	args.Engine = d.Get("engine").(string)
 	args.DBInstanceStatus = d.Get("status").(string)
 	args.DBInstanceType = d.Get("db_type").(string)

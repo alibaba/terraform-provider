@@ -6,6 +6,7 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudRegions() *schema.Resource {
@@ -56,7 +57,7 @@ func dataSourceAlicloudRegions() *schema.Resource {
 
 func dataSourceAlicloudRegionsRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AliyunClient).ecsconn
-	currentRegion := getRegionId(d, meta)
+	currentRegion := meta.(*aliyunclient.AliyunClient).RegionId
 
 	resp, err := conn.DescribeRegions(ecs.CreateDescribeRegionsRequest())
 	if err != nil {

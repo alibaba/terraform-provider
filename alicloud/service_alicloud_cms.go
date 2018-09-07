@@ -7,6 +7,7 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func BuildCmsCommonRequest(region string) *requests.CommonRequest {
@@ -16,7 +17,7 @@ func BuildCmsCommonRequest(region string) *requests.CommonRequest {
 	return request
 }
 
-func (client *AliyunClient) BuildCmsAlarmRequest(id string) *requests.CommonRequest {
+func BuildCmsAlarmRequest(id string, client *aliyunclient.AliyunClient) *requests.CommonRequest {
 
 	request := BuildCmsCommonRequest(client.RegionId)
 	request.QueryParams["Id"] = id
@@ -24,15 +25,18 @@ func (client *AliyunClient) BuildCmsAlarmRequest(id string) *requests.CommonRequ
 	return request
 }
 
-func (client *AliyunClient) DescribeAlarm(id string) (alarm cms.AlarmInListAlarm, err error) {
+func DescribeAlarm(id string, client *aliyunclient.AliyunClient) (alarm cms.AlarmInListAlarm, err error) {
 
 	request := cms.CreateListAlarmRequest()
 
 	request.Id = id
-	response, err := client.cmsconn.ListAlarm(request)
+	rawResponse, err := client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+		return cmsClient.ListAlarm(request)
+	})
 	if err != nil {
 		return alarm, err
 	}
+	response := rawResponse.(*cms.ListAlarmResponse)
 
 	if len(response.AlarmList.Alarm) < 1 {
 		return alarm, GetNotFoundErrorFromString(GetNotFoundMessage("Alarm Rule", id))
@@ -41,13 +45,13 @@ func (client *AliyunClient) DescribeAlarm(id string) (alarm cms.AlarmInListAlarm
 	return response.AlarmList.Alarm[0], nil
 }
 
-func (client *AliyunClient) WaitForCmsAlarm(id string, enabled bool, timeout int) error {
+func WaitForCmsAlarm(id string, enabled bool, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 
 	for {
-		alarm, err := client.DescribeAlarm(id)
+		alarm, err := DescribeAlarm(id, client)
 		if err != nil {
 			return err
 		}

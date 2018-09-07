@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAlicloudDBInstance() *schema.Resource {
@@ -392,7 +393,7 @@ func resourceAlicloudDBInstanceDelete(d *schema.ResourceData, meta interface{}) 
 func buildDBCreateRequest(d *schema.ResourceData, meta interface{}) (*rds.CreateDBInstanceRequest, error) {
 	client := meta.(*AliyunClient)
 	request := rds.CreateCreateDBInstanceRequest()
-	request.RegionId = string(getRegion(d, meta))
+	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	request.EngineVersion = Trim(d.Get("engine_version").(string))
 	request.Engine = Trim(d.Get("engine").(string))
 	request.DBInstanceStorage = requests.NewInteger(d.Get("instance_storage").(int))

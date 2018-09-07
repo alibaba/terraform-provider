@@ -9,6 +9,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAliyunEip() *schema.Resource {
@@ -82,7 +83,7 @@ func resourceAliyunEipCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 
 	request := vpc.CreateAllocateEipAddressRequest()
-	request.RegionId = string(getRegion(d, meta))
+	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 	request.Bandwidth = strconv.Itoa(d.Get("bandwidth").(int))
 	request.InternetChargeType = d.Get("internet_charge_type").(string)
 	request.InstanceChargeType = d.Get("instance_charge_type").(string)
