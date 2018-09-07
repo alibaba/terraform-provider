@@ -2,6 +2,7 @@
 
 FEATURES:
 
+- **New Resource:** `alicloud_ess_alarm` ([#652](https://github.com/alibaba/terraform-provider/pull/652))
 - **New Resource:** `alicloud_ssl_vpn_client_cert` ([#671](https://github.com/alibaba/terraform-provider/pull/671))
 - **New Resource:** `alicloud_cen_instance` ([#671](https://github.com/alibaba/terraform-provider/pull/671))
 - **New Data Source:** `alicloud_slb_server_groups`  ([#664](https://github.com/alibaba/terraform-provider/pull/664))
@@ -14,6 +15,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Change the TestAccAlicloudInstance tests by using VPC network ([#668](https://github.com/alibaba/terraform-provider/pull/668))
 - Add cen instance sweeper ([#672](https://github.com/alibaba/terraform-provider/pull/672))
 - Improve oss_bucket sweeper ([#670](https://github.com/alibaba/terraform-provider/pull/670))
 - Improve fc_service sweeper ([#669](https://github.com/alibaba/terraform-provider/pull/669))
