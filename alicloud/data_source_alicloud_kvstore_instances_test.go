@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccAlicloudRKVInstancesDataSource(t *testing.T) {
+func TestAccAlicloudKVStoreInstancesDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -33,10 +33,29 @@ data "alicloud_kvstore_instances" "rkvs" {
   name_regex = "${alicloud_kvstore_instance.rkv.instance_name}"
 }
 
+data "alicloud_zones" "default" {
+	available_resource_creation = "KVStore"
+}
+variable "name" {
+	default = "tf-testAccCheckAlicloudRKVInstancesDataSourceConfig"
+}
+resource "alicloud_vpc" "foo" {
+	name = "${var.name}"
+	cidr_block = "172.16.0.0/16"
+}
+
+resource "alicloud_vswitch" "foo" {
+ 	vpc_id = "${alicloud_vpc.foo.id}"
+ 	cidr_block = "172.16.0.0/24"
+ 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+ 	name = "${var.name}"
+}
+
 resource "alicloud_kvstore_instance" "rkv" {
 	instance_class = "redis.master.small.default"
-	instance_name  = "tf-testAccCheckAlicloudRKVInstancesDataSourceConfig"
+	instance_name  = "${var.name}"
 	password       = "Test12345"
-	engine_version = "2.8"
-  }
+	vswitch_id     = "${alicloud_vswitch.foo.id}"
+	private_ip     = "172.16.0.10"
+}
 `

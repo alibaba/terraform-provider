@@ -5,50 +5,89 @@ import (
 	"log"
 	"testing"
 
+	"strings"
+	"time"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccAlicloudKVStoreInstance_basic(t *testing.T) {
-	var instance r_kvstore.DBInstanceAttribute
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-
-		// module name
-		IDRefreshName: "alicloud_kvstore_instance.foo",
-
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKVStoreInstanceDestroy,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccKVStoreInstanceConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKVStoreInstanceExists(
-						"alicloud_kvstore_instance.foo", &instance),
-					resource.TestCheckResourceAttr(
-						"alicloud_kvstore_instance.foo",
-						"instance_class",
-						"redis.master.small.default"),
-					resource.TestCheckResourceAttr(
-						"alicloud_kvstore_instance.foo",
-						"engine_version",
-						"2.8"),
-					resource.TestCheckResourceAttr(
-						"alicloud_kvstore_instance.foo",
-						"instance_type",
-						"Redis"),
-					resource.TestCheckResourceAttr(
-						"alicloud_kvstore_instance.foo",
-						"instance_name",
-						"testAccKVStoreInstanceConfig"),
-				),
-			},
-		},
+func init() {
+	resource.AddTestSweepers("alicloud_kvstore_instance", &resource.Sweeper{
+		Name: "alicloud_kvstore_instance",
+		F:    testSweepKVStoreInstances,
 	})
+}
+
+func testSweepKVStoreInstances(region string) error {
+	client, err := sharedClientForRegion(region)
+	if err != nil {
+		return fmt.Errorf("error getting Alicloud client: %s", err)
+	}
+	conn := client.(*AliyunClient)
+
+	prefixes := []string{
+		"tf-testAcc",
+		"testAcc",
+	}
+
+	var insts []r_kvstore.KVStoreInstance
+	req := r_kvstore.CreateDescribeInstancesRequest()
+	req.RegionId = conn.RegionId
+	req.PageSize = requests.NewInteger(PageSizeLarge)
+	req.PageNumber = requests.NewInteger(1)
+	for {
+		resp, err := conn.rkvconn.DescribeInstances(req)
+		if err != nil {
+			return fmt.Errorf("Error retrieving KVStore Instances: %s", err)
+		}
+		if resp == nil || len(resp.Instances.KVStoreInstance) < 1 {
+			break
+		}
+		insts = append(insts, resp.Instances.KVStoreInstance...)
+
+		if len(resp.Instances.KVStoreInstance) < PageSizeLarge {
+			break
+		}
+
+		if page, err := getNextpageNumber(req.PageNumber); err != nil {
+			return err
+		} else {
+			req.PageNumber = page
+		}
+	}
+
+	sweeped := false
+	for _, v := range insts {
+		name := v.InstanceName
+		id := v.InstanceId
+		skip := true
+		for _, prefix := range prefixes {
+			if strings.HasPrefix(strings.ToLower(name), strings.ToLower(prefix)) {
+				skip = false
+				break
+			}
+		}
+		if skip {
+			log.Printf("[INFO] Skipping KVStore Instance: %s (%s)", name, id)
+			continue
+		}
+
+		sweeped = true
+		log.Printf("[INFO] Deleting KVStore Instance: %s (%s)", name, id)
+		req := r_kvstore.CreateDeleteInstanceRequest()
+		req.InstanceId = id
+		if _, err := conn.rkvconn.DeleteInstance(req); err != nil {
+			log.Printf("[ERROR] Failed to delete KVStore Instance (%s (%s)): %s", name, id, err)
+		}
+	}
+	if sweeped {
+		// Waiting 30 seconds to eusure these KVStore instances have been deleted.
+		time.Sleep(30 * time.Second)
+	}
+	return nil
 }
 
 func TestAccAlicloudKVStoreInstance_vpc(t *testing.T) {
@@ -85,7 +124,11 @@ func TestAccAlicloudKVStoreInstance_vpc(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"alicloud_kvstore_instance.foo",
 						"instance_name",
-						"testAccKVStoreInstance_vpc"),
+						"tf-testAccKVStoreInstance_vpc"),
+					resource.TestCheckResourceAttr(
+						"alicloud_kvstore_instance.foo",
+						"private_ip",
+						"172.16.0.10"),
 				),
 			},
 		},
@@ -108,7 +151,7 @@ func TestAccAlicloudKVStoreInstance_upgradeClass(t *testing.T) {
 		CheckDestroy: testAccCheckKVStoreInstanceDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccKVStoreInstance_class,
+				Config: testAccKVStoreInstance_vpc,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckKVStoreInstanceExists(
 						"alicloud_kvstore_instance.foo", &instance),
@@ -122,6 +165,45 @@ func TestAccAlicloudKVStoreInstance_upgradeClass(t *testing.T) {
 					testAccCheckKVStoreInstanceExists(
 						"alicloud_kvstore_instance.foo", &instance),
 					resource.TestCheckResourceAttr("alicloud_kvstore_instance.foo", "instance_class", "redis.master.mid.default"),
+					resource.TestCheckResourceAttr("alicloud_kvstore_instance.foo", "instance_name", "tf-testAccKVStoreInstance_classUpgrade"),
+				),
+			},
+		},
+	})
+
+}
+
+func TestAccAlicloudKVStoreInstance_updateSecurityIps(t *testing.T) {
+	var instance r_kvstore.DBInstanceAttribute
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: "alicloud_kvstore_instance.foo",
+
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKVStoreInstanceDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccKVStoreInstance_vpc,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKVStoreInstanceExists(
+						"alicloud_kvstore_instance.foo", &instance),
+					resource.TestCheckResourceAttr("alicloud_kvstore_instance.foo", "instance_class", "redis.master.small.default"),
+				),
+			},
+
+			resource.TestStep{
+				Config: testAccKVStoreInstance_updateSecurityIps,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckKVStoreInstanceExists(
+						"alicloud_kvstore_instance.foo", &instance),
+					resource.TestCheckResourceAttr("alicloud_kvstore_instance.foo", "instance_class", "redis.master.mid.default"),
+					resource.TestCheckResourceAttr("alicloud_kvstore_instance.foo", "instance_name", "tf-testAccKVStoreInstance_updateSecurityIps"),
+					resource.TestCheckResourceAttr("alicloud_kvstore_instance.foo", "security_ips.#", "2"),
 				),
 			},
 		},
@@ -137,7 +219,7 @@ func testAccCheckKVStoreInstanceExists(n string, d *r_kvstore.DBInstanceAttribut
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No DB Instance ID is set")
+			return fmt.Errorf("No KVStore Instance ID is set")
 		}
 
 		client := testAccProvider.Meta().(*AliyunClient)
@@ -146,10 +228,6 @@ func testAccCheckKVStoreInstanceExists(n string, d *r_kvstore.DBInstanceAttribut
 
 		if err != nil {
 			return err
-		}
-
-		if attr == nil {
-			return fmt.Errorf("DB Instance not found")
 		}
 
 		*d = *attr
@@ -165,49 +243,35 @@ func testAccCheckKVStoreInstanceDestroy(s *terraform.State) error {
 			continue
 		}
 
-		ins, err := client.DescribeRKVInstanceById(rs.Primary.ID)
-
-		if ins != nil {
-			return fmt.Errorf("Error DB Instance still exist")
-		}
-
-		// Verify the error is what we want
-		if err != nil {
-			if NotFoundError(err) || IsExceptedError(err, InvalidKVStoreInstanceIdNotFound) {
+		if _, err := client.DescribeRKVInstanceById(rs.Primary.ID); err != nil {
+			if NotFoundError(err) {
 				continue
 			}
 			return err
 		}
+		return fmt.Errorf("Error KVStore Instance still exist")
 	}
 
 	return nil
 }
-
-const testAccKVStoreInstanceConfig = `
-resource "alicloud_kvstore_instance" "foo" {
-	instance_class = "redis.master.small.default"
-	instance_name  = "testAccKVStoreInstanceConfig"
-	password       = "Test12345"
-	engine_version = "2.8"
-  }
-`
 
 const testAccKVStoreInstance_vpc = `
 data "alicloud_zones" "default" {
 	available_resource_creation = "KVStore"
 }
 variable "name" {
-	default = "testAccKVStoreInstance_vpc"
+	default = "tf-testAccKVStoreInstance_vpc"
 }
 resource "alicloud_vpc" "foo" {
 	name = "${var.name}"
-	cidr_block = "172.16.0.0/12"
+	cidr_block = "172.16.0.0/16"
 }
 
 resource "alicloud_vswitch" "foo" {
  	vpc_id = "${alicloud_vpc.foo.id}"
- 	cidr_block = "172.16.0.0/21"
+ 	cidr_block = "172.16.0.0/24"
  	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+ 	name = "${var.name}"
 }
 
 resource "alicloud_kvstore_instance" "foo" {
@@ -215,25 +279,62 @@ resource "alicloud_kvstore_instance" "foo" {
 	instance_name  = "${var.name}"
 	password       = "Test12345"
 	vswitch_id     = "${alicloud_vswitch.foo.id}"
-}
-`
-const testAccKVStoreInstance_class = `
-variable "name" {
-	default = "testAccKVStoreInstance_class"
-}
-resource "alicloud_kvstore_instance" "foo" {
-	instance_class = "redis.master.small.default"
-	instance_name  = "${var.name}"
-	password       = "Test12345"
+	private_ip     = "172.16.0.10"
 }
 `
 const testAccKVStoreInstance_classUpgrade = `
-variable "name" {
-	default = "testAccKVStoreInstance_class"
+data "alicloud_zones" "default" {
+	available_resource_creation = "KVStore"
 }
+variable "name" {
+	default = "tf-testAccKVStoreInstance_classUpgrade"
+}
+resource "alicloud_vpc" "foo" {
+	name = "${var.name}"
+	cidr_block = "172.16.0.0/16"
+}
+
+resource "alicloud_vswitch" "foo" {
+ 	vpc_id = "${alicloud_vpc.foo.id}"
+ 	cidr_block = "172.16.0.0/24"
+ 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+ 	name = "${var.name}"
+}
+
 resource "alicloud_kvstore_instance" "foo" {
-	instance_class = "redis.master.mid.default"	
+	instance_class = "redis.master.mid.default"
 	instance_name  = "${var.name}"
 	password       = "Test12345"
+	vswitch_id     = "${alicloud_vswitch.foo.id}"
+	private_ip     = "172.16.0.10"
+}
+`
+
+const testAccKVStoreInstance_updateSecurityIps = `
+data "alicloud_zones" "default" {
+	available_resource_creation = "KVStore"
+}
+variable "name" {
+	default = "tf-testAccKVStoreInstance_updateSecurityIps"
+}
+resource "alicloud_vpc" "foo" {
+	name = "${var.name}"
+	cidr_block = "172.16.0.0/16"
+}
+
+resource "alicloud_vswitch" "foo" {
+ 	vpc_id = "${alicloud_vpc.foo.id}"
+ 	cidr_block = "172.16.0.0/24"
+ 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+ 	name = "${var.name}"
+}
+
+resource "alicloud_kvstore_instance" "foo" {
+	instance_class = "redis.master.mid.default"
+	instance_name  = "${var.name}"
+	password       = "Test12345"
+	vswitch_id     = "${alicloud_vswitch.foo.id}"
+	private_ip     = "172.16.0.10"
+	security_ips   = ["10.110.10.10", "10.110.10.20"]
 }
 `

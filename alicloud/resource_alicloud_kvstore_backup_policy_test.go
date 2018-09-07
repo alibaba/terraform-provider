@@ -44,20 +44,13 @@ func testAccCheckKVStoreBackupPolicyExists(n string, d *r_kvstore.DescribeBackup
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No DB account ID is set")
+			return fmt.Errorf("No KVStore Instance backup policy ID is set")
 		}
 
 		client := testAccProvider.Meta().(*AliyunClient)
-		conn := client.rkvconn
-
-		request := r_kvstore.CreateDescribeBackupPolicyRequest()
-		request.InstanceId = rs.Primary.ID
-		policy, err := conn.DescribeBackupPolicy(request)
+		policy, err := client.DescribeRKVInstancebackupPolicy(rs.Primary.ID)
 		if err != nil {
-			return fmt.Errorf("Error Describe DB backup policy: %#v", err)
-		}
-		if policy == nil {
-			return fmt.Errorf("Backup policy is not found in the instance %s.", rs.Primary.ID)
+			return fmt.Errorf("Error Describe KVStore Instance backup policy: %#v", err)
 		}
 
 		*d = *policy
@@ -67,23 +60,19 @@ func testAccCheckKVStoreBackupPolicyExists(n string, d *r_kvstore.DescribeBackup
 
 func testAccCheckKVStoreBackupPolicyDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*AliyunClient)
-	conn := client.rkvconn
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_kvstore_instance" {
 			continue
 		}
 
-		request := r_kvstore.CreateDescribeBackupPolicyRequest()
-		request.InstanceId = rs.Primary.ID
-		_, err := conn.DescribeBackupPolicy(request)
-
-		if err != nil {
-			if IsExceptedError(err, InvalidKVStoreInstanceIdNotFound) {
+		if _, err := client.DescribeRKVInstancebackupPolicy(rs.Primary.ID); err != nil {
+			if NotFoundError(err) {
 				continue
 			}
 			return fmt.Errorf("Error Describe DB backup policy: %#v", err)
 		}
+		return fmt.Errorf("KVStore Instance %s Policy sitll exists.", rs.Primary.ID)
 	}
 
 	return nil
@@ -94,7 +83,7 @@ data "alicloud_zones" "default" {
 	available_resource_creation = "KVStore"
 }
 variable "name" {
-	default = "testacckvstorebackuppolicy_basic"
+	default = "tf-testacckvstorebackuppolicy_basic"
 }
 resource "alicloud_vpc" "foo" {
 	name = "${var.name}"
@@ -105,6 +94,7 @@ resource "alicloud_vswitch" "foo" {
  	vpc_id = "${alicloud_vpc.foo.id}"
  	cidr_block = "172.16.0.0/21"
  	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
+ 	name = "${var.name}"
 }
 
 resource "alicloud_kvstore_instance" "foo" {

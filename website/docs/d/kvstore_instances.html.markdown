@@ -1,12 +1,12 @@
 ---
 layout: "alicloud"
 page_title: "Alicloud: alicloud_kvstore_instances"
-sidebar_current: "docs-alicloud-datasource-rkv-instances"
+sidebar_current: "docs-alicloud-datasource-kvstore-instances"
 description: |-
     Provides a collection of kvstore instances according to the specified filters.
 ---
 
-# alicloud\_db\_instances
+# alicloud\_kvstore\_instances
 
 The `alicloud_kvstore_instances` data source provides a collection of kvstore instances available in Alicloud account.
 Filters support regular expression for the instance name, searches by tags, and other filters which are listed below.
@@ -34,7 +34,7 @@ The following arguments are supported:
 * `instance_type` - (Optional) Database type. Options are `Memcache`, and `Redis`. If no value is specified, all types are returned.
 * `status` - (Optional) Status of the instance.
 * `instance_class`- (Optional) Type of the applied ApsaraDB for Redis instance.
-For more information, see [Instance type table](https://www.alibabacloud.com/help/doc-detail/61135.htm?spm=a2c63.p38356.a3.3.429a59abAfUku0).
+For more information, see [Instance type table](https://www.alibabacloud.com/help/doc-detail/61135.htm).
 * `vpc_id` - (Optional) Used to retrieve instances belong to specified VPC.
 * `vswitch_id` - (Optional) Used to retrieve instances belong to specified `vswitch` resources.
 * `tags` - (Optional) Query the instance bound to the tag. The format of the incoming value is `json` string, including `TagKey` and `TagValue`. `TagKey` cannot be null, and `TagValue` can be empty. Format example `{"key1":"value1"}`.
@@ -54,7 +54,7 @@ The following attributes are exported in addition to the arguments listed above:
   * `status` - Status of the instance.
   * `instance_type` - (Optional) Database type. Options are `Memcache`, and `Redis`. If no value is specified, all types are returned.
   * `instance_class`- (Optional) Type of the applied ApsaraDB for Redis instance.
-For more information, see [Instance type table](https://www.alibabacloud.com/help/doc-detail/61135.htm?spm=a2c63.p38356.a3.3.429a59abAfUku0).
+  For more information, see [Instance type table](https://www.alibabacloud.com/help/doc-detail/61135.htm).
   * `availability_zone` - Availability zone.
   * `vpc_id` - VPC ID the instance belongs to.
   * `vswitch_id` - VSwitch ID the instance belongs to.
