@@ -2,7 +2,7 @@
 
 FEATURES:
 
-- **New Resource:** `alicloud_ssl_vpn_client_cert` ([#672](https://github.com/alibaba/terraform-provider/pull/672))
+- **New Resource:** `alicloud_ssl_vpn_client_cert` ([#671](https://github.com/alibaba/terraform-provider/pull/671))
 - **New Resource:** `alicloud_cen_instance` ([#671](https://github.com/alibaba/terraform-provider/pull/671))
 - **New Data Source:** `alicloud_slb_server_groups`  ([#664](https://github.com/alibaba/terraform-provider/pull/664))
 - **New Data Source:** `alicloud_slb_rules`  ([#663](https://github.com/alibaba/terraform-provider/pull/663))
@@ -14,6 +14,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Add cen instance sweeper ([#672](https://github.com/alibaba/terraform-provider/pull/672))
 - Improve oss_bucket sweeper ([#670](https://github.com/alibaba/terraform-provider/pull/670))
 - Improve fc_service sweeper ([#669](https://github.com/alibaba/terraform-provider/pull/669))
 - Improve function compute tst cases ([#665](https://github.com/alibaba/terraform-provider/pull/665))
