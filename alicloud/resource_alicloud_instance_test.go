@@ -950,7 +950,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	image_id = "${data.alicloud_images.default.images.0.id}"
 
@@ -1003,7 +1002,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	image_id = "${data.alicloud_images.default.images.0.id}"
@@ -1077,6 +1075,7 @@ resource "alicloud_vpc" "vpc_bar" {
 
 resource "alicloud_vswitch" "vsw_foo" {
   provider = "alicloud.beijing"
+  name = "${var.name}"
   vpc_id = "${alicloud_vpc.vpc_foo.id}"
   cidr_block = "192.168.0.0/24"
   availability_zone = "${data.alicloud_zones.default.zones.0.id}"
@@ -1084,6 +1083,7 @@ resource "alicloud_vswitch" "vsw_foo" {
 
 resource "alicloud_vswitch" "vsw_bar" {
   provider = "alicloud.shanghai"
+  name = "${var.name}"
   vpc_id = "${alicloud_vpc.vpc_bar.id}"
   cidr_block = "192.168.0.0/24"
   availability_zone = "${data.alicloud_zones.sh.zones.0.id}"
@@ -1176,7 +1176,6 @@ resource "alicloud_security_group" "tf_test_bar" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	image_id = "${data.alicloud_images.default.images.0.id}"
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 
@@ -1235,7 +1234,6 @@ resource "alicloud_security_group" "tf_test_add_sg" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	image_id = "${data.alicloud_images.default.images.0.id}"
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 
@@ -1284,7 +1282,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	image_id = "${data.alicloud_images.default.images.0.id}"
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 
@@ -1333,7 +1330,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	image_id = "${data.alicloud_images.default.images.0.id}"
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
@@ -1383,7 +1379,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	image_id = "${data.alicloud_images.default.images.0.id}"
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
@@ -1432,7 +1427,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	image_id = "${data.alicloud_images.default.images.0.id}"
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
@@ -1484,7 +1478,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	image_id = "${data.alicloud_images.default.images.0.id}"
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
@@ -1561,7 +1554,6 @@ resource "alicloud_security_group_rule" "ssh-in" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	image_id = "${data.alicloud_images.default.images.0.id}"
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
@@ -1632,7 +1624,6 @@ resource "alicloud_security_group_rule" "ssh-in" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	image_id = "${data.alicloud_images.default.images.0.id}"
 	availability_zone = "${data.alicloud_zones.default.zones.0.id}"
 	instance_type = "${data.alicloud_instance_types.default.instance_types.0.id}"
@@ -1682,7 +1673,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 }
 
 resource "alicloud_instance" "foo" {
-	# cn-beijing
 	security_groups = ["${alicloud_security_group.tf_test_foo.id}"]
 	vswitch_id = "${alicloud_vswitch.foo.id}"
 	internet_max_bandwidth_out = 5
@@ -2043,7 +2033,6 @@ resource "alicloud_security_group" "tf_test_foo" {
 }
 
 resource "alicloud_instance" "spot" {
-  # cn-beijing
   vswitch_id = "${alicloud_vswitch.foo.id}"
   image_id = "${data.alicloud_images.default.images.0.id}"
   availability_zone = "${data.alicloud_zones.default.zones.0.id}"
