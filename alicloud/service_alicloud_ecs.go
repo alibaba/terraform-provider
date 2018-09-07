@@ -15,11 +15,14 @@ import (
 	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
-func (client *aliyunclient.AliyunClient) JudgeRegionValidation(key, region string) error {
-	resp, err := client.ecsconn.DescribeRegions(ecs.CreateDescribeRegionsRequest())
+func JudgeRegionValidation(key, region string, client *aliyunclient.AliyunClient) error {
+	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.DescribeRegions(ecs.CreateDescribeRegionsRequest())
+	})
 	if err != nil {
 		return fmt.Errorf("DescribeRegions got an error: %#v", err)
 	}
+	resp := raw.(*ecs.DescribeRegionsResponse)
 	if resp == nil || len(resp.Regions.Region) < 1 {
 		return GetNotFoundErrorFromString("There is no any available region.")
 	}
@@ -35,11 +38,14 @@ func (client *aliyunclient.AliyunClient) JudgeRegionValidation(key, region strin
 }
 
 // DescribeZone validate zoneId is valid in region
-func (client *AliyunClient) DescribeZone(zoneID string) (zone ecs.Zone, err error) {
-	resp, err := client.ecsconn.DescribeZones(ecs.CreateDescribeZonesRequest())
+func DescribeZone(zoneID string, client *aliyunclient.AliyunClient) (zone ecs.Zone, err error) {
+	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.DescribeZones(ecs.CreateDescribeZonesRequest())
+	})
 	if err != nil {
 		return
 	}
+	resp := raw.(*ecs.DescribeZonesResponse)
 	if resp == nil || len(resp.Zones.Zone) < 1 {
 		return zone, fmt.Errorf("There is no any availability zone in region %s.", client.RegionId)
 	}
