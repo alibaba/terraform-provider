@@ -2,8 +2,10 @@ package alicloud
 
 import (
 	"fmt"
+	"log"
+	"strings"
 	"testing"
-"log"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-log-go-sdk"
@@ -11,7 +13,6 @@ import (
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"strings"
 )
 
 func init() {
@@ -34,6 +35,7 @@ func testSweepFCServices(region string) error {
 		"tf_test_",
 		"tf-test-",
 		"testAcc",
+		"test-acc-alicloud",
 	}
 
 	fcconn, err := conn.Fcconn()

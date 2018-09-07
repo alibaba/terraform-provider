@@ -2,10 +2,19 @@
 
 FEATURES:
 
+- **New Data Source:** `alicloud_slb_server_groups`  ([#664](https://github.com/alibaba/terraform-provider/pull/664))
+- **New Data Source:** `alicloud_slb_rules`  ([#663](https://github.com/alibaba/terraform-provider/pull/663))
+- **New Data Source:** `alicloud_slb_listeners`  ([#662](https://github.com/alibaba/terraform-provider/pull/662))
+- **New Data Source:** `alicloud_slb_attachments`  ([#661](https://github.com/alibaba/terraform-provider/pull/661))
+- **New Data Source:** `alicloud_slbs`  ([#660](https://github.com/alibaba/terraform-provider/pull/660))
+- **New Data Source:** `alicloud_account`  ([#658](https://github.com/alibaba/terraform-provider/pull/658))
 - **New Resource:** `alicloud_ssl_vpn_server` ([#654](https://github.com/alibaba/terraform-provider/pull/654))
 
 IMPROVEMENTS:
 
+- Improve fc_service sweeper ([#669](https://github.com/alibaba/terraform-provider/pull/669))
+- Improve function compute tst cases ([#665](https://github.com/alibaba/terraform-provider/pull/665))
+- Improve fc test case using new datasource `alicloud_account` ([#659](https://github.com/alibaba/terraform-provider/pull/659))
 - Support sweep test method ([#666](https://github.com/alibaba/terraform-provider/pull/666))
 - Base64 encode ESS scaling config user_data ([#632](https://github.com/alibaba/terraform-provider/pull/632))
 - Reback website ([#655](https://github.com/alibaba/terraform-provider/pull/655))
@@ -13,6 +22,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix DNS tests falied error ([#657](https://github.com/alibaba/terraform-provider/pull/657))
 - Fix DB database not found error ([#656](https://github.com/alibaba/terraform-provider/pull/656))
 
 

@@ -2,14 +2,15 @@ package alicloud
 
 import (
 	"fmt"
+	"log"
+	"strings"
 	"testing"
-"log"
+	"time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"strings"
-	"time"
 )
 
 func init() {
