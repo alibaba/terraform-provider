@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- **New Resource:** `alicloud_ssl_vpn_client_cert` ([#672](https://github.com/alibaba/terraform-provider/pull/672))
+- **New Resource:** `alicloud_cen_instance` ([#671](https://github.com/alibaba/terraform-provider/pull/671))
 - **New Data Source:** `alicloud_slb_server_groups`  ([#664](https://github.com/alibaba/terraform-provider/pull/664))
 - **New Data Source:** `alicloud_slb_rules`  ([#663](https://github.com/alibaba/terraform-provider/pull/663))
 - **New Data Source:** `alicloud_slb_listeners`  ([#662](https://github.com/alibaba/terraform-provider/pull/662))
