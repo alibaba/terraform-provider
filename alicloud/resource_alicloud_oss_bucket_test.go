@@ -64,10 +64,10 @@ func testSweepOSSBuckets(region string) error {
 		}
 		if objects, err := bucket.ListObjects(); err != nil {
 			log.Printf("[ERROR] Failed to list objects: %s", err)
-			}else if len(objects.Objects) > 0{
-			for _, o := range objects.Objects{
+		} else if len(objects.Objects) > 0 {
+			for _, o := range objects.Objects {
 				if err := bucket.DeleteObject(o.Key); err != nil {
-					log.Printf("[ERROR] Failed to delete object (%s): %s.",o.Key, err)
+					log.Printf("[ERROR] Failed to delete object (%s): %s.", o.Key, err)
 				}
 			}
 

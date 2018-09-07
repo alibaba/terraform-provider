@@ -423,7 +423,6 @@ const testAccDBInstance_multiAZ = `
 data "alicloud_zones" "default" {
   available_resource_creation= "Rds"
   multi = true
-  output_file = "zone.json"
 }
 variable "name" {
 	default = "tf-testAccDBInstance_multiAZ"
