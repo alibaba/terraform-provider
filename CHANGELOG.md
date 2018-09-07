@@ -2,6 +2,9 @@
 
 FEATURES:
 
+- **New Resource:** `alicloud_kvstore_backup_policy` ([#587](https://github.com/alibaba/terraform-provider/pull/587))
+- **New Resource:** `alicloud_kvstore_instance` ([#587](https://github.com/alibaba/terraform-provider/pull/587))
+- **New Data Source:** `alicloud_kvstore_instance` ([#587](https://github.com/alibaba/terraform-provider/pull/587))
 - **New Resource:** `alicloud_ess_alarm` ([#652](https://github.com/alibaba/terraform-provider/pull/652))
 - **New Resource:** `alicloud_ssl_vpn_client_cert` ([#671](https://github.com/alibaba/terraform-provider/pull/671))
 - **New Resource:** `alicloud_cen_instance` ([#671](https://github.com/alibaba/terraform-provider/pull/671))
@@ -15,6 +18,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Improve KVStore resource ([#674](https://github.com/alibaba/terraform-provider/pull/674))
 - Change the TestAccAlicloudInstance tests by using VPC network ([#668](https://github.com/alibaba/terraform-provider/pull/668))
 - Add cen instance sweeper ([#672](https://github.com/alibaba/terraform-provider/pull/672))
 - Improve oss_bucket sweeper ([#670](https://github.com/alibaba/terraform-provider/pull/670))

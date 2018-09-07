@@ -8,6 +8,7 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
+
 	//"github.com/denverdino/aliyungo/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"

@@ -71,26 +71,16 @@ func resourceAlicloudKVStoreBackupPolicyCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceAlicloudKVStoreBackupPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
-	conn := client.rkvconn
-	instanceID := d.Id()
-
-	request := r_kvstore.CreateDescribeBackupPolicyRequest()
-	request.InstanceId = instanceID
-	policy, err := conn.DescribeBackupPolicy(request)
+	policy, err := meta.(*AliyunClient).DescribeRKVInstancebackupPolicy(d.Id())
 	if err != nil {
-		if IsExceptedError(err, InvalidKVStoreInstanceIdNotFound) {
+		if NotFoundError(err) {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Error Describe RKV Security IPs: %#v", err)
-	}
-	if policy == nil {
-		d.SetId("")
-		return nil
+		return err
 	}
 
-	d.Set("instance_id", instanceID)
+	d.Set("instance_id", d.Id())
 	d.Set("backup_time", policy.PreferredBackupTime)
 	d.Set("backup_period", strings.Split(policy.PreferredBackupPeriod, ","))
 

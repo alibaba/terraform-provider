@@ -2,12 +2,10 @@ package alicloud
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -87,11 +85,6 @@ func resourceAlicloudKVStoreInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"port": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-			},
 			"private_ip": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -130,34 +123,11 @@ func resourceAlicloudKVStoreInstanceCreate(d *schema.ResourceData, meta interfac
 	d.SetId(resp.InstanceId)
 
 	// wait instance status change from Creating to Normal
-
 	if err := client.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
 		return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 	}
 
-	// Adding security ips
-	if secIps, ok := d.GetOk("security_ips"); ok && secIps != nil {
-		request := r_kvstore.CreateModifySecurityIpsRequest()
-		request.SecurityIps = LOCAL_HOST_IP
-		request.SecurityIpGroupName = "default"
-		request.InstanceId = resp.InstanceId
-		if len(d.Get("security_ips").(*schema.Set).List()) > 0 {
-			request.SecurityIps = strings.Join(expandStringList(d.Get("security_ips").(*schema.Set).List())[:], COMMA_SEPARATED)
-		}
-
-		err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-			if _, err := conn.ModifySecurityIps(request); err != nil {
-				return resource.NonRetryableError(fmt.Errorf("Create security whitelist ips got an error: %#v", err))
-			}
-			return nil
-		})
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return resourceAlicloudKVStoreInstanceRead(d, meta)
+	return resourceAlicloudKVStoreInstanceUpdate(d, meta)
 }
 
 func resourceAlicloudKVStoreInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -165,10 +135,39 @@ func resourceAlicloudKVStoreInstanceUpdate(d *schema.ResourceData, meta interfac
 	conn := client.rkvconn
 	d.Partial(true)
 
+	if d.HasChange("security_ips") {
+		request := r_kvstore.CreateModifySecurityIpsRequest()
+		request.SecurityIpGroupName = "default"
+		request.InstanceId = d.Id()
+		if len(d.Get("security_ips").(*schema.Set).List()) > 0 {
+			request.SecurityIps = strings.Join(expandStringList(d.Get("security_ips").(*schema.Set).List())[:], COMMA_SEPARATED)
+		} else {
+			return fmt.Errorf("Security ips cannot be empty")
+		}
+		// wait instance status is Normal before modifying
+		if err := client.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
+			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
+		}
+		if _, err := conn.ModifySecurityIps(request); err != nil {
+			return fmt.Errorf("Create security whitelist ips got an error: %#v", err)
+		}
+		d.SetPartial("security_ips")
+		// wait instance status is Normal after modifying
+		if err := client.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
+			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
+		}
+	}
+
+	if d.IsNewResource() {
+		d.Partial(false)
+		return resourceAlicloudKVStoreInstanceRead(d, meta)
+	}
+
 	if d.HasChange("instance_class") {
 		request := r_kvstore.CreateModifyInstanceSpecRequest()
 		request.InstanceId = d.Id()
 		request.InstanceClass = d.Get("instance_class").(string)
+		request.EffectiveTime = "Immediately"
 		if _, err := conn.ModifyInstanceSpec(request); err != nil {
 			return err
 		}
@@ -210,28 +209,6 @@ func resourceAlicloudKVStoreInstanceUpdate(d *schema.ResourceData, meta interfac
 		}
 	}
 
-	if d.HasChange("security_ips") {
-		request := r_kvstore.CreateModifySecurityIpsRequest()
-		request.SecurityIpGroupName = "default"
-		request.InstanceId = d.Id()
-		if len(d.Get("security_ips").(*schema.Set).List()) > 0 {
-			request.SecurityIps = strings.Join(expandStringList(d.Get("security_ips").(*schema.Set).List())[:], COMMA_SEPARATED)
-		} else {
-			return fmt.Errorf("Security ips cannot be empty")
-		}
-		// wait instance status is Normal before modifying
-		if err := client.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
-			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
-		}
-		if _, err := conn.ModifySecurityIps(request); err != nil {
-			return fmt.Errorf("Create security whitelist ips got an error: %#v", err)
-		}
-		// wait instance status is Normal after modifying
-		if err := client.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
-			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
-		}
-	}
-
 	d.Partial(false)
 	return resourceAlicloudKVStoreInstanceRead(d, meta)
 }
@@ -254,7 +231,6 @@ func resourceAlicloudKVStoreInstanceRead(d *schema.ResourceData, meta interface{
 	d.Set("vswitch_id", instance.VSwitchId)
 	d.Set("engine_version", instance.EngineVersion)
 	d.Set("connection_domain", instance.ConnectionDomain)
-	d.Set("port", instance.Port)
 	d.Set("private_ip", instance.PrivateIp)
 	d.Set("security_ips", strings.Split(instance.SecurityIPList, COMMA_SEPARATED))
 
@@ -269,7 +245,7 @@ func resourceAlicloudKVStoreInstanceDelete(d *schema.ResourceData, meta interfac
 		if NotFoundError(err) {
 			return nil
 		}
-		return fmt.Errorf("Error Describe DB InstanceAttribute: %#v", err)
+		return fmt.Errorf("Error Describe KVStore InstanceAttribute: %#v", err)
 	}
 	if PayType(instance.ChargeType) == Prepaid {
 		return fmt.Errorf("At present, 'Prepaid' instance cannot be deleted and must wait it to be expired and release it automatically")
@@ -284,21 +260,17 @@ func resourceAlicloudKVStoreInstanceDelete(d *schema.ResourceData, meta interfac
 			if IsExceptedError(err, InvalidKVStoreInstanceIdNotFound) {
 				return nil
 			}
-			return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v", err))
+			return resource.RetryableError(fmt.Errorf("Delete KVStore instance timeout and got an error: %#v", err))
 		}
 
-		instance, err := client.DescribeRKVInstanceById(d.Id())
-		if err != nil {
+		if _, err := client.DescribeRKVInstanceById(d.Id()); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}
-			return resource.NonRetryableError(fmt.Errorf("Error Describe DB InstanceAttribute: %#v", err))
-		}
-		if instance == nil {
-			return nil
+			return resource.NonRetryableError(fmt.Errorf("Error Describe KVStore InstanceAttribute: %#v", err))
 		}
 
-		return resource.RetryableError(fmt.Errorf("Delete DB instance timeout and got an error: %#v", err))
+		return resource.RetryableError(fmt.Errorf("Delete KVStore instance timeout and got an error: %#v", err))
 	})
 }
 
@@ -312,9 +284,7 @@ func buildKVStoreCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvs
 	request.ChargeType = Trim(d.Get("instance_charge_type").(string))
 	request.Password = Trim(d.Get("password").(string))
 	request.BackupId = Trim(d.Get("backup_id").(string))
-	if port, ok := d.GetOk("port"); ok && port.(int) != 0 {
-		request.Port = strconv.Itoa(port.(int))
-	}
+
 	if PayType(request.ChargeType) == PrePaid {
 		request.Period = d.Get("Period").(string)
 	}
@@ -349,11 +319,7 @@ func buildKVStoreCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvs
 		request.VpcId = vsw.VpcId
 	}
 
-	uuid, err := uuid.GenerateUUID()
-	if err != nil {
-		uuid = resource.UniqueId()
-	}
-	request.Token = fmt.Sprintf("%s", uuid)
+	request.Token = buildClientToken("TF-CreateKVStoreInstance")
 
 	return request, nil
 }

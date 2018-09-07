@@ -1,7 +1,6 @@
 package alicloud
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
@@ -14,18 +13,34 @@ func (client *AliyunClient) DescribeRKVInstanceById(id string) (instance *r_kvst
 	resp, err := client.rkvconn.DescribeInstanceAttribute(request)
 	if err != nil {
 		if IsExceptedError(err, InvalidKVStoreInstanceIdNotFound) {
-			return nil, GetNotFoundErrorFromString(fmt.Sprintf("DB instance %s is not found.", id))
+			return nil, GetNotFoundErrorFromString(GetNotFoundMessage("KVStore instance", id))
 		}
 		return nil, err
 	}
 
-	attr := resp.Instances.DBInstanceAttribute
-
-	if len(attr) <= 0 {
-		return nil, GetNotFoundErrorFromString(fmt.Sprintf("DB instance %s is not found.", id))
+	if resp == nil || len(resp.Instances.DBInstanceAttribute) <= 0 {
+		return nil, GetNotFoundErrorFromString(GetNotFoundMessage("KVStore instance", id))
 	}
 
-	return &attr[0], nil
+	return &resp.Instances.DBInstanceAttribute[0], nil
+}
+
+func (client *AliyunClient) DescribeRKVInstancebackupPolicy(id string) (policy *r_kvstore.DescribeBackupPolicyResponse, err error) {
+	request := r_kvstore.CreateDescribeBackupPolicyRequest()
+	request.InstanceId = id
+	policy, err = client.rkvconn.DescribeBackupPolicy(request)
+	if err != nil {
+		if IsExceptedError(err, InvalidKVStoreInstanceIdNotFound) {
+			return nil, GetNotFoundErrorFromString(GetNotFoundMessage("KVStore Instance Policy", id))
+		}
+		return nil, err
+	}
+
+	if policy == nil {
+		err = GetNotFoundErrorFromString(GetNotFoundMessage("KVStore Instance Policy", id))
+	}
+
+	return
 }
 
 func (client *AliyunClient) WaitForRKVInstance(instanceId string, status Status, timeout int) error {
