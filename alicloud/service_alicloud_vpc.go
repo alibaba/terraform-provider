@@ -1,6 +1,7 @@
 package alicloud
 
 import (
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"time"
 
 	"fmt"
@@ -96,19 +97,22 @@ func (client *AliyunClient) DescribeVpc(vpcId string) (v vpc.DescribeVpcAttribut
 	return
 }
 
-func (client *AliyunClient) DescribeVswitch(vswitchId string) (v vpc.DescribeVSwitchAttributesResponse, err error) {
+func DescribeVswitch(vswitchId string, client *aliyunclient.AliyunClient) (v vpc.DescribeVSwitchAttributesResponse, err error) {
 	request := vpc.CreateDescribeVSwitchAttributesRequest()
 	request.VSwitchId = vswitchId
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		resp, err := client.vpcconn.DescribeVSwitchAttributes(request)
+		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DescribeVSwitchAttributes(request)
+		})
 		if err != nil {
 			if IsExceptedError(err, InvalidVswitchIDNotFound) {
 				return GetNotFoundErrorFromString(GetNotFoundMessage("VSwitch", vswitchId))
 			}
 			return err
 		}
+		resp := raw.(*vpc.DescribeVSwitchAttributesResponse)
 		if resp == nil || resp.VSwitchId != vswitchId {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("VSwitch", vswitchId))
 		}
