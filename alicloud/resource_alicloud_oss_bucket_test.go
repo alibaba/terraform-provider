@@ -35,6 +35,7 @@ func testSweepOSSBuckets(region string) error {
 		"test-bucket-",
 		"tf-oss-test-",
 		"tf-object-test-",
+		"test-acc-alicloud-",
 	}
 
 	resp, err := conn.ossconn.ListBuckets()
