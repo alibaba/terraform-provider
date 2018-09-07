@@ -12,6 +12,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Improve oss_bucket sweeper ([#670](https://github.com/alibaba/terraform-provider/pull/670))
 - Improve fc_service sweeper ([#669](https://github.com/alibaba/terraform-provider/pull/669))
 - Improve function compute tst cases ([#665](https://github.com/alibaba/terraform-provider/pull/665))
 - Improve fc test case using new datasource `alicloud_account` ([#659](https://github.com/alibaba/terraform-provider/pull/659))
