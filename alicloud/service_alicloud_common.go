@@ -7,17 +7,21 @@ import (
 
 	"io/ioutil"
 
+	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
+	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/location"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
-	"fmt"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
-	"github.com/denverdino/aliyungo/location"
-	"github.com/denverdino/aliyungo/common"
 	"strings"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
-func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
+type CommonService struct {
+	client *aliyunclient.AliyunClient
+}
+
+func (s *CommonService) CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 	var obj1 interface{}
 	err := json.Unmarshal([]byte(tem1), &obj1)
 	if err != nil {
@@ -42,7 +46,7 @@ func CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 	return equal, nil
 }
 
-func CompareYmalTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
+func (s *CommonService) CompareYmalTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 	var obj1 interface{}
 	err := yaml.Unmarshal([]byte(tem1), &obj1)
 	if err != nil {
@@ -68,7 +72,7 @@ func CompareYmalTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 }
 
 // loadFileContent returns contents of a file in a given path
-func loadFileContent(v string) ([]byte, error) {
+func (s *CommonService) loadFileContent(v string) ([]byte, error) {
 	filename, err := homedir.Expand(v)
 	if err != nil {
 		return nil, err
@@ -80,7 +84,7 @@ func loadFileContent(v string) ([]byte, error) {
 	return fileContent, nil
 }
 
-func DescribeEndpointByCode(region string, code ServiceCode, client *aliyunclient.AliyunClient) (string, error) {
+func (s *CommonService) DescribeEndpointByCode(region string, code ServiceCode) (string, error) {
 	args := &location.DescribeEndpointsArgs{
 		Id:          common.Region(region),
 		ServiceCode: strings.ToLower(string(code)),
@@ -89,7 +93,7 @@ func DescribeEndpointByCode(region string, code ServiceCode, client *aliyunclien
 	invoker := NewInvoker()
 	var endpoints *location.DescribeEndpointsResponse
 	if err := invoker.Run(func() error {
-		es, err := client.RunSafelyWithLocationClient(func(locationClient *location.Client) (interface{}, error) {
+		es, err := s.client.RunSafelyWithLocationClient(func(locationClient *location.Client) (interface{}, error) {
 			return locationClient.DescribeEndpoints(args)
 		})
 		if err != nil {
@@ -98,12 +102,12 @@ func DescribeEndpointByCode(region string, code ServiceCode, client *aliyunclien
 		endpoints = es.(*location.DescribeEndpointsResponse)
 		return nil
 	}); err != nil {
-		return "", fmt.Errorf("Describe %s endpoint using region: %#v got an error: %#v.", code, client.RegionId, err)
+		return "", fmt.Errorf("Describe %s endpoint using region: %#v got an error: %#v.", code, s.client.RegionId, err)
 	}
 	endpointItem := endpoints.Endpoints.Endpoint
 	var endpoint string
 	if endpointItem == nil || len(endpointItem) <= 0 {
-		log.Printf("Cannot find endpoint in the region: %#v", client.RegionId)
+		log.Printf("Cannot find endpoint in the region: %#v", s.client.RegionId)
 		endpoint = ""
 	} else {
 		endpoint = endpointItem[0].Endpoint
@@ -112,7 +116,7 @@ func DescribeEndpointByCode(region string, code ServiceCode, client *aliyunclien
 	return endpoint, nil
 }
 
-func GetCallerIdentity(client *aliyunclient.AliyunClient) (*sts.GetCallerIdentityResponse, error) {
+func (s *CommonService) GetCallerIdentity() (*sts.GetCallerIdentityResponse, error) {
 	args := sts.CreateGetCallerIdentityRequest()
 	args.Scheme = "https"
 
@@ -120,7 +124,7 @@ func GetCallerIdentity(client *aliyunclient.AliyunClient) (*sts.GetCallerIdentit
 
 	invoker := NewInvoker()
 	err := invoker.Run(func() error {
-		result, err := client.RunSafelyWithStsClient(func(stsClient *sts.Client) (interface{}, error) {
+		result, err := s.client.RunSafelyWithStsClient(func(stsClient *sts.Client) (interface{}, error) {
 			return stsClient.GetCallerIdentity(args)
 		})
 		if err != nil {

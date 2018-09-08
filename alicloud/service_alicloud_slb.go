@@ -13,25 +13,30 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 )
 
-func BuildSlbCommonRequest(client *aliyunclient.AliyunClient) *requests.CommonRequest {
+type SlbService struct {
+	client *aliyunclient.AliyunClient
+}
+
+func (s *SlbService) BuildSlbCommonRequest() *requests.CommonRequest {
 	request := requests.NewCommonRequest()
-	endpoint := LoadEndpoint(client.RegionId, SLBCode)
+	endpoint := LoadEndpoint(s.client.RegionId, SLBCode)
 	if endpoint == "" {
-		endpoint, _ = DescribeEndpointByCode(client.RegionId, SLBCode, client)
+		commonService := CommonService{s.client}
+		endpoint, _ = commonService.DescribeEndpointByCode(s.client.RegionId, SLBCode)
 	}
 	if endpoint == "" {
-		endpoint = fmt.Sprintf("slb.%s.aliyuncs.com", client.RegionId)
+		endpoint = fmt.Sprintf("slb.%s.aliyuncs.com", s.client.RegionId)
 	}
 	request.Domain = endpoint
 	request.Version = ApiVersion20140515
-	request.RegionId = client.RegionId
+	request.RegionId = s.client.RegionId
 	return request
 }
-func DescribeLoadBalancerAttribute(slbId string, client *aliyunclient.AliyunClient) (loadBalancer *slb.DescribeLoadBalancerAttributeResponse, err error) {
+func (s *SlbService) DescribeLoadBalancerAttribute(slbId string) (loadBalancer *slb.DescribeLoadBalancerAttributeResponse, err error) {
 
 	req := slb.CreateDescribeLoadBalancerAttributeRequest()
 	req.LoadBalancerId = slbId
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeLoadBalancerAttribute(req)
 	})
 	loadBalancer = raw.(*slb.DescribeLoadBalancerAttributeResponse)
@@ -48,11 +53,11 @@ func DescribeLoadBalancerAttribute(slbId string, client *aliyunclient.AliyunClie
 	return
 }
 
-func DescribeLoadBalancerRuleId(slbId string, port int, domain, url string, client *aliyunclient.AliyunClient) (string, error) {
+func (s *SlbService) DescribeLoadBalancerRuleId(slbId string, port int, domain, url string) (string, error) {
 	req := slb.CreateDescribeRulesRequest()
 	req.LoadBalancerId = slbId
 	req.ListenerPort = requests.NewInteger(port)
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeRules(req)
 	})
 	if err != nil {
@@ -68,10 +73,10 @@ func DescribeLoadBalancerRuleId(slbId string, port int, domain, url string, clie
 	return "", GetNotFoundErrorFromString(fmt.Sprintf("Rule is not found based on domain %s and url %s.", domain, url))
 }
 
-func DescribeLoadBalancerRuleAttribute(ruleId string, client *aliyunclient.AliyunClient) (*slb.DescribeRuleAttributeResponse, error) {
+func (s *SlbService) DescribeLoadBalancerRuleAttribute(ruleId string) (*slb.DescribeRuleAttributeResponse, error) {
 	req := slb.CreateDescribeRuleAttributeRequest()
 	req.RuleId = ruleId
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeRuleAttribute(req)
 	})
 	if err != nil {
@@ -87,10 +92,10 @@ func DescribeLoadBalancerRuleAttribute(ruleId string, client *aliyunclient.Aliyu
 	return rule, err
 }
 
-func DescribeSlbVServerGroupAttribute(groupId string, client *aliyunclient.AliyunClient) (*slb.DescribeVServerGroupAttributeResponse, error) {
+func (s *SlbService) DescribeSlbVServerGroupAttribute(groupId string) (*slb.DescribeVServerGroupAttributeResponse, error) {
 	req := slb.CreateDescribeVServerGroupAttributeRequest()
 	req.VServerGroupId = groupId
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeVServerGroupAttribute(req)
 	})
 	if err != nil {
@@ -106,12 +111,12 @@ func DescribeSlbVServerGroupAttribute(groupId string, client *aliyunclient.Aliyu
 	return group, err
 }
 
-func DescribeLoadBalancerListenerAttribute(loadBalancerId string, port int, protocol Protocol, client *aliyunclient.AliyunClient) (listener map[string]interface{}, err error) {
-	req := BuildSlbCommonRequest(client)
+func (s *SlbService) DescribeLoadBalancerListenerAttribute(loadBalancerId string, port int, protocol Protocol) (listener map[string]interface{}, err error) {
+	req := s.BuildSlbCommonRequest()
 	req.ApiName = fmt.Sprintf("DescribeLoadBalancer%sListenerAttribute", strings.ToUpper(string(protocol)))
 	req.QueryParams["LoadBalancerId"] = loadBalancerId
 	req.QueryParams["ListenerPort"] = string(requests.NewInteger(port))
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.ProcessCommonRequest(req)
 	})
 	if err != nil {
@@ -126,13 +131,13 @@ func DescribeLoadBalancerListenerAttribute(loadBalancerId string, port int, prot
 
 }
 
-func WaitForLoadBalancer(loadBalancerId string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
+func (s *SlbService) WaitForLoadBalancer(loadBalancerId string, status Status, timeout int) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 
 	for {
-		lb, err := DescribeLoadBalancerAttribute(loadBalancerId, client)
+		lb, err := s.DescribeLoadBalancerAttribute(loadBalancerId)
 
 		if err != nil {
 			if !NotFoundError(err) {
@@ -152,13 +157,13 @@ func WaitForLoadBalancer(loadBalancerId string, status Status, timeout int, clie
 	return nil
 }
 
-func WaitForListener(loadBalancerId string, port int, protocol Protocol, status Status, timeout int, client *aliyunclient.AliyunClient) error {
+func (s *SlbService) WaitForListener(loadBalancerId string, port int, protocol Protocol, status Status, timeout int) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 
 	for {
-		listener, err := DescribeLoadBalancerListenerAttribute(loadBalancerId, port, protocol, client)
+		listener, err := s.DescribeLoadBalancerListenerAttribute(loadBalancerId, port, protocol)
 		if err != nil && !IsExceptedErrors(err, []string{LoadBalancerNotFound}) {
 			return err
 		}

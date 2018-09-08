@@ -11,18 +11,22 @@ import (
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 )
 
-func buildTableClient(instanceName string, client *aliyunclient.AliyunClient) *tablestore.TableStoreClient {
-	endpoint := LoadEndpoint(client.RegionId, OTSCode)
+type OtsService struct {
+	client *aliyunclient.AliyunClient
+}
+
+func (s *OtsService) buildTableClient(instanceName string) *tablestore.TableStoreClient {
+	endpoint := LoadEndpoint(s.client.RegionId, OTSCode)
 	if endpoint == "" {
-		endpoint = fmt.Sprintf("%s.%s.ots.aliyuncs.com", instanceName, client.RegionId)
+		endpoint = fmt.Sprintf("%s.%s.ots.aliyuncs.com", instanceName, s.client.RegionId)
 	}
 	if !strings.HasPrefix(endpoint, string(Https)) && !strings.HasPrefix(endpoint, string(Http)) {
 		endpoint = fmt.Sprintf("%s://%s", Https, endpoint)
 	}
-	return tablestore.NewClient(endpoint, instanceName, client.AccessKey, client.SecretKey)
+	return tablestore.NewClient(endpoint, instanceName, s.client.AccessKey, s.client.SecretKey)
 }
 
-func getPrimaryKeyType(primaryKeyType string) tablestore.PrimaryKeyType {
+func (s *OtsService) getPrimaryKeyType(primaryKeyType string) tablestore.PrimaryKeyType {
 	var keyType tablestore.PrimaryKeyType
 	t := PrimaryKeyTypeString(primaryKeyType)
 	switch t {
@@ -36,11 +40,11 @@ func getPrimaryKeyType(primaryKeyType string) tablestore.PrimaryKeyType {
 	return keyType
 }
 
-func DescribeOtsTable(instanceName, tableName string, client *aliyunclient.AliyunClient) (table *tablestore.DescribeTableResponse, err error) {
+func (s *OtsService) DescribeOtsTable(instanceName, tableName string) (table *tablestore.DescribeTableResponse, err error) {
 	describeTableReq := new(tablestore.DescribeTableRequest)
 	describeTableReq.TableName = tableName
 
-	table, err = buildTableClient(instanceName, client).DescribeTable(describeTableReq)
+	table, err = s.buildTableClient(instanceName).DescribeTable(describeTableReq)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), OTSObjectNotExist) {
 			err = GetNotFoundErrorFromString(GetNotFoundMessage("OTS Table", tableName))
@@ -53,18 +57,18 @@ func DescribeOtsTable(instanceName, tableName string, client *aliyunclient.Aliyu
 	return
 }
 
-func DeleteOtsTable(instanceName, tableName string, client *aliyunclient.AliyunClient) (bool, error) {
+func (s *OtsService) DeleteOtsTable(instanceName, tableName string) (bool, error) {
 
 	deleteReq := new(tablestore.DeleteTableRequest)
 	deleteReq.TableName = tableName
-	if _, err := buildTableClient(instanceName, client).DeleteTable(deleteReq); err != nil {
+	if _, err := s.buildTableClient(instanceName).DeleteTable(deleteReq); err != nil {
 		if NotFoundError(err) {
 			return true, nil
 		}
 		return false, err
 	}
 
-	describ, err := DescribeOtsTable(instanceName, tableName, client)
+	describ, err := s.DescribeOtsTable(instanceName, tableName)
 
 	if err != nil {
 		if NotFoundError(err) {
@@ -81,7 +85,7 @@ func DeleteOtsTable(instanceName, tableName string, client *aliyunclient.AliyunC
 }
 
 // Convert tablestore.PrimaryKeyType to PrimaryKeyTypeString
-func convertPrimaryKeyType(t tablestore.PrimaryKeyType) PrimaryKeyTypeString {
+func (s *OtsService) convertPrimaryKeyType(t tablestore.PrimaryKeyType) PrimaryKeyTypeString {
 	var typeString PrimaryKeyTypeString
 	switch t {
 	case tablestore.PrimaryKeyType_INTEGER:
@@ -94,11 +98,11 @@ func convertPrimaryKeyType(t tablestore.PrimaryKeyType) PrimaryKeyTypeString {
 	return typeString
 }
 
-func DescribeOtsInstance(name string, client *aliyunclient.AliyunClient) (inst ots.InstanceInfo, err error) {
+func (s *OtsService) DescribeOtsInstance(name string) (inst ots.InstanceInfo, err error) {
 	req := ots.CreateGetInstanceRequest()
 	req.InstanceName = name
 	req.Method = "GET"
-	raw, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 		return otsClient.GetInstance(req)
 	})
 
@@ -113,11 +117,11 @@ func DescribeOtsInstance(name string, client *aliyunclient.AliyunClient) (inst o
 	return resp.InstanceInfo, nil
 }
 
-func DescribeOtsInstanceVpc(name string, client *aliyunclient.AliyunClient) (inst ots.VpcInfo, err error) {
+func (s *OtsService) DescribeOtsInstanceVpc(name string) (inst ots.VpcInfo, err error) {
 	req := ots.CreateListVpcInfoByInstanceRequest()
 	req.Method = "GET"
 	req.InstanceName = name
-	raw, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 		return otsClient.ListVpcInfoByInstance(req)
 	})
 	if err != nil {
@@ -130,13 +134,13 @@ func DescribeOtsInstanceVpc(name string, client *aliyunclient.AliyunClient) (ins
 	return resp.VpcInfos.VpcInfo[0], nil
 }
 
-func WaitForOtsInstance(name string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
+func (s *OtsService) WaitForOtsInstance(name string, status Status, timeout int) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 
 	for {
-		inst, err := DescribeOtsInstance(name, client)
+		inst, err := s.DescribeOtsInstance(name)
 		if err != nil {
 			return err
 		}

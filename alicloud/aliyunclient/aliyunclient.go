@@ -563,7 +563,8 @@ func (client *AliyunClient) AccountId() (string, error) {
 
 	if client.accountId == "" {
 		log.Printf("[DEBUG] account_id not provided, attempting to retrieve it automatically...")
-		identity, err := alicloud.GetCallerIdentity(client)
+		commonService := alicloud.CommonService{client}
+		identity, err := commonService.GetCallerIdentity()
 		if err != nil {
 			return "", err
 		}

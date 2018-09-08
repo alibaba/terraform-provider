@@ -3,11 +3,15 @@ package alicloud
 import (
 	"time"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
 	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
 )
 
-func DescribeCenInstance(cenId string, client *aliyunclient.AliyunClient) (c cbn.Cen, err error) {
+type CenService struct {
+	client *aliyunclient.AliyunClient
+}
+
+func (s *CenService) DescribeCenInstance(cenId string) (c cbn.Cen, err error) {
 	request := cbn.CreateDescribeCensRequest()
 
 	values := []string{cenId}
@@ -20,7 +24,7 @@ func DescribeCenInstance(cenId string, client *aliyunclient.AliyunClient) (c cbn
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		rawResp, err := client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+		rawResp, err := s.client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.DescribeCens(request)
 		})
 		resp := rawResp.(*cbn.DescribeCensResponse)
@@ -40,13 +44,13 @@ func DescribeCenInstance(cenId string, client *aliyunclient.AliyunClient) (c cbn
 	return
 }
 
-func WaitForCenInstance(cenId string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
+func (s *CenService) WaitForCenInstance(cenId string, status Status, timeout int) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 
 	for {
-		cen, err := DescribeCenInstance(cenId, client)
+		cen, err := s.DescribeCenInstance(cenId)
 		if err != nil {
 			return err
 		}

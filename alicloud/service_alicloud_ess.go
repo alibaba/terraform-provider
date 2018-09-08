@@ -11,11 +11,15 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func DescribeEssAlarmById(alarmTaskId string, client *aliyunclient.AliyunClient) (alarm ess.Alarm, err error) {
+type EssService struct {
+	client *aliyunclient.AliyunClient
+}
+
+func (s *EssService) DescribeEssAlarmById(alarmTaskId string) (alarm ess.Alarm, err error) {
 	args := ess.CreateDescribeAlarmsRequest()
 	args.AlarmTaskId = alarmTaskId
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeAlarms(args)
 	})
 	if err != nil {
@@ -30,14 +34,14 @@ func DescribeEssAlarmById(alarmTaskId string, client *aliyunclient.AliyunClient)
 	return resp.AlarmList.Alarm[0], nil
 }
 
-func DescribeLifecycleHookById(hookId string, client *aliyunclient.AliyunClient) (hook ess.LifecycleHook, err error) {
+func (s *EssService) DescribeLifecycleHookById(hookId string) (hook ess.LifecycleHook, err error) {
 	args := ess.CreateDescribeLifecycleHooksRequest()
 	hookIds := []string{hookId}
 	var hookIdsPtr *[]string
 	hookIdsPtr = &hookIds
 	args.LifecycleHookId = hookIdsPtr
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeLifecycleHooks(args)
 	})
 	if err != nil {
@@ -52,11 +56,11 @@ func DescribeLifecycleHookById(hookId string, client *aliyunclient.AliyunClient)
 	return resp.LifecycleHooks.LifecycleHook[0], nil
 }
 
-func DescribeScalingGroupById(sgId string, client *aliyunclient.AliyunClient) (group ess.ScalingGroup, err error) {
+func (s *EssService) DescribeScalingGroupById(sgId string) (group ess.ScalingGroup, err error) {
 	args := ess.CreateDescribeScalingGroupsRequest()
 	args.ScalingGroupId1 = sgId
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingGroups(args)
 	})
 	if err != nil {
@@ -71,11 +75,11 @@ func DescribeScalingGroupById(sgId string, client *aliyunclient.AliyunClient) (g
 	return resp.ScalingGroups.ScalingGroup[0], nil
 }
 
-func DescribeScalingConfigurationById(configId string, client *aliyunclient.AliyunClient) (config ess.ScalingConfiguration, err error) {
+func (s *EssService) DescribeScalingConfigurationById(configId string) (config ess.ScalingConfiguration, err error) {
 	args := ess.CreateDescribeScalingConfigurationsRequest()
 	args.ScalingConfigurationId1 = configId
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingConfigurations(args)
 	})
 	if err != nil {
@@ -90,19 +94,19 @@ func DescribeScalingConfigurationById(configId string, client *aliyunclient.Aliy
 	return resp.ScalingConfigurations.ScalingConfiguration[0], nil
 }
 
-func ActiveScalingConfigurationById(sgId, configId string, client *aliyunclient.AliyunClient) error {
+func (s *EssService) ActiveScalingConfigurationById(sgId, configId string) error {
 	args := ess.CreateModifyScalingGroupRequest()
 	args.ScalingGroupId = sgId
 	args.ActiveScalingConfigurationId = configId
 
-	_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.ModifyScalingGroup(args)
 	})
 	return err
 }
 
 // Flattens an array of datadisk into a []map[string]interface{}
-func flattenDataDiskMappings(list []ess.DataDisk) []map[string]interface{} {
+func (s *EssService) flattenDataDiskMappings(list []ess.DataDisk) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(list))
 	for _, i := range list {
 		l := map[string]interface{}{
@@ -116,12 +120,12 @@ func flattenDataDiskMappings(list []ess.DataDisk) []map[string]interface{} {
 	return result
 }
 
-func DescribeScalingRuleById(sgId, ruleId string, client *aliyunclient.AliyunClient) (rule ess.ScalingRule, err error) {
+func (s *EssService) DescribeScalingRuleById(sgId, ruleId string) (rule ess.ScalingRule, err error) {
 	args := ess.CreateDescribeScalingRulesRequest()
 	args.ScalingGroupId = sgId
 	args.ScalingRuleId1 = ruleId
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingRules(args)
 	})
 	if err != nil {
@@ -139,21 +143,21 @@ func DescribeScalingRuleById(sgId, ruleId string, client *aliyunclient.AliyunCli
 	return resp.ScalingRules.ScalingRule[0], nil
 }
 
-func DeleteScalingRuleById(ruleId string, client *aliyunclient.AliyunClient) error {
+func (s *EssService) DeleteScalingRuleById(ruleId string) error {
 	args := ess.CreateDeleteScalingRuleRequest()
 	args.ScalingRuleId = ruleId
 
-	_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteScalingRule(args)
 	})
 	return err
 }
 
-func DescribeScheduleById(scheduleId string, client *aliyunclient.AliyunClient) (task ess.ScheduledTask, err error) {
+func (s *EssService) DescribeScheduleById(scheduleId string) (task ess.ScheduledTask, err error) {
 	args := ess.CreateDescribeScheduledTasksRequest()
 	args.ScheduledTaskId1 = scheduleId
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScheduledTasks(args)
 	})
 	if err != nil {
@@ -168,23 +172,23 @@ func DescribeScheduleById(scheduleId string, client *aliyunclient.AliyunClient) 
 	return resp.ScheduledTasks.ScheduledTask[0], nil
 }
 
-func DeleteScheduleById(scheduleId string, client *aliyunclient.AliyunClient) error {
+func (s *EssService) DeleteScheduleById(scheduleId string) error {
 	args := ess.CreateDeleteScheduledTaskRequest()
 	args.ScheduledTaskId = scheduleId
 
-	_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteScheduledTask(args)
 	})
 	return err
 }
 
-func DeleteScalingGroupById(sgId string, client *aliyunclient.AliyunClient) error {
+func (s *EssService) DeleteScalingGroupById(sgId string) error {
 	req := ess.CreateDeleteScalingGroupRequest()
 	req.ScalingGroupId = sgId
 	req.ForceDelete = requests.NewBoolean(true)
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 
-		_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		_, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DeleteScalingGroup(req)
 		})
 
@@ -194,7 +198,7 @@ func DeleteScalingGroupById(sgId string, client *aliyunclient.AliyunClient) erro
 			}
 		}
 
-		_, err = DescribeScalingGroupById(sgId, client)
+		_, err = s.DescribeScalingGroupById(sgId)
 		if err != nil {
 			if NotFoundError(err) {
 				return nil
@@ -206,7 +210,7 @@ func DeleteScalingGroupById(sgId string, client *aliyunclient.AliyunClient) erro
 	})
 }
 
-func DescribeScalingInstances(groupId, configurationId string, instanceIds []string, creationType string, client *aliyunclient.AliyunClient) (instances []ess.ScalingInstance, err error) {
+func (srv *EssService) DescribeScalingInstances(groupId, configurationId string, instanceIds []string, creationType string) (instances []ess.ScalingInstance, err error) {
 	req := ess.CreateDescribeScalingInstancesRequest()
 
 	req.ScalingGroupId = groupId
@@ -219,7 +223,7 @@ func DescribeScalingInstances(groupId, configurationId string, instanceIds []str
 		}
 	}
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := srv.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingInstances(req)
 	})
 	if err != nil {
@@ -233,14 +237,14 @@ func DescribeScalingInstances(groupId, configurationId string, instanceIds []str
 	return resp.ScalingInstances.ScalingInstance, nil
 }
 
-func DescribeScalingConfifurations(groupId string, client *aliyunclient.AliyunClient) (configs []ess.ScalingConfiguration, err error) {
+func (s *EssService) DescribeScalingConfifurations(groupId string) (configs []ess.ScalingConfiguration, err error) {
 	req := ess.CreateDescribeScalingConfigurationsRequest()
 	req.ScalingGroupId = groupId
 	req.PageNumber = requests.NewInteger(1)
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 
 	for {
-		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DescribeScalingConfigurations(req)
 		})
 		if err != nil {
@@ -264,12 +268,12 @@ func DescribeScalingConfifurations(groupId string, client *aliyunclient.AliyunCl
 	return
 }
 
-func EssRemoveInstances(groupId string, instanceIds []string, client *aliyunclient.AliyunClient) error {
+func (srv *EssService) EssRemoveInstances(groupId string, instanceIds []string) error {
 
 	if len(instanceIds) < 1 {
 		return nil
 	}
-	group, err := DescribeScalingGroupById(groupId, client)
+	group, err := srv.DescribeScalingGroupById(groupId)
 
 	if err != nil {
 		return fmt.Errorf("DescribeScalingGroupById %s error: %#v", groupId, err)
@@ -278,7 +282,7 @@ func EssRemoveInstances(groupId string, instanceIds []string, client *aliyunclie
 	if group.LifecycleState == string(Inactive) {
 		return fmt.Errorf("Scaling group current status is %s, please active it before attaching or removing ECS instances.", group.LifecycleState)
 	} else {
-		if err := WaitForScalingGroup(group.ScalingGroupId, Active, DefaultTimeout, client); err != nil {
+		if err := srv.WaitForScalingGroup(group.ScalingGroupId, Active, DefaultTimeout); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}
@@ -299,7 +303,7 @@ func EssRemoveInstances(groupId string, instanceIds []string, client *aliyunclie
 		} else {
 			return nil
 		}
-		_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		_, err := srv.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.RemoveInstances(req)
 		})
 		if err != nil {
@@ -320,7 +324,7 @@ func EssRemoveInstances(groupId string, instanceIds []string, client *aliyunclie
 			return resource.NonRetryableError(fmt.Errorf("Removing instances got an error: %#v", err))
 		}
 
-		instances, err := DescribeScalingInstances(groupId, "", instanceIds, "", client)
+		instances, err := srv.DescribeScalingInstances(groupId, "", instanceIds, "")
 		if err != nil {
 			if NotFoundError(err) || IsExceptedErrors(err, []string{InvalidScalingGroupIdNotFound}) {
 				return nil
@@ -340,12 +344,12 @@ func EssRemoveInstances(groupId string, instanceIds []string, client *aliyunclie
 }
 
 // WaitForScalingGroup waits for group to given status
-func WaitForScalingGroup(groupId string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
+func (s *EssService) WaitForScalingGroup(groupId string, status Status, timeout int) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 	for {
-		sg, err := DescribeScalingGroupById(groupId, client)
+		sg, err := s.DescribeScalingGroupById(groupId)
 		if err != nil {
 			return err
 		}
@@ -366,7 +370,7 @@ func WaitForScalingGroup(groupId string, status Status, timeout int, client *ali
 }
 
 // ess dimensions to map
-func flattenDimensionsToMap(dimensions []ess.Dimension) map[string]string {
+func (s *EssService) flattenDimensionsToMap(dimensions []ess.Dimension) map[string]string {
 	result := make(map[string]string)
 	for _, dimension := range dimensions {
 		if dimension.DimensionKey == UserId || dimension.DimensionKey == ScalingGroup {

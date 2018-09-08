@@ -12,11 +12,15 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
 
-func DescribeVpnGateway(vpnId string, client *aliyunclient.AliyunClient) (v vpc.DescribeVpnGatewayResponse, err error) {
+type VpnGatewayService struct {
+	client *aliyunclient.AliyunClient
+}
+
+func (s *VpnGatewayService) DescribeVpnGateway(vpnId string) (v vpc.DescribeVpnGatewayResponse, err error) {
 	request := vpc.CreateDescribeVpnGatewayRequest()
 	request.VpnGatewayId = vpnId
 
-	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeVpnGateway(request)
 	})
 	if err != nil {
@@ -32,11 +36,11 @@ func DescribeVpnGateway(vpnId string, client *aliyunclient.AliyunClient) (v vpc.
 	return *resp, nil
 }
 
-func DescribeCustomerGateway(cgwId string, client *aliyunclient.AliyunClient) (v vpc.DescribeCustomerGatewayResponse, err error) {
+func (s *VpnGatewayService) DescribeCustomerGateway(cgwId string) (v vpc.DescribeCustomerGatewayResponse, err error) {
 	request := vpc.CreateDescribeCustomerGatewayRequest()
 	request.CustomerGatewayId = cgwId
 
-	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeCustomerGateway(request)
 	})
 	if err != nil {
@@ -52,11 +56,11 @@ func DescribeCustomerGateway(cgwId string, client *aliyunclient.AliyunClient) (v
 	return *resp, nil
 }
 
-func DescribeVpnConnection(id string, client *aliyunclient.AliyunClient) (v vpc.DescribeVpnConnectionResponse, err error) {
+func (s *VpnGatewayService) DescribeVpnConnection(id string) (v vpc.DescribeVpnConnectionResponse, err error) {
 	request := vpc.CreateDescribeVpnConnectionRequest()
 	request.VpnConnectionId = id
 
-	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeVpnConnection(request)
 	})
 	if err != nil {
@@ -72,11 +76,11 @@ func DescribeVpnConnection(id string, client *aliyunclient.AliyunClient) (v vpc.
 	return *resp, nil
 }
 
-func DescribeSslVpnServer(sslId string, client *aliyunclient.AliyunClient) (v vpc.SslVpnServer, err error) {
+func (s *VpnGatewayService) DescribeSslVpnServer(sslId string) (v vpc.SslVpnServer, err error) {
 	request := vpc.CreateDescribeSslVpnServersRequest()
 	request.SslVpnServerId = sslId
 
-	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeSslVpnServers(request)
 	})
 	if err != nil {
@@ -97,11 +101,11 @@ func DescribeSslVpnServer(sslId string, client *aliyunclient.AliyunClient) (v vp
 	return resp.SslVpnServers.SslVpnServer[0], nil
 }
 
-func DescribeSslVpnClientCert(id string, client *aliyunclient.AliyunClient) (v vpc.DescribeSslVpnClientCertResponse, err error) {
+func (s *VpnGatewayService) DescribeSslVpnClientCert(id string) (v vpc.DescribeSslVpnClientCertResponse, err error) {
 	request := vpc.CreateDescribeSslVpnClientCertRequest()
 	request.SslVpnClientCertId = id
 
-	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeSslVpnClientCert(request)
 	})
 	if err != nil {
@@ -117,14 +121,14 @@ func DescribeSslVpnClientCert(id string, client *aliyunclient.AliyunClient) (v v
 	return *resp, nil
 }
 
-func WaitForVpn(vpnId string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
+func (s *VpnGatewayService) WaitForVpn(vpnId string, status Status, timeout int) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 
 	for {
 		//wait the order effective
-		vpn, err := DescribeVpnGateway(vpnId, client)
+		vpn, err := s.DescribeVpnGateway(vpnId)
 		if err != nil {
 			return err
 		}
@@ -140,7 +144,7 @@ func WaitForVpn(vpnId string, status Status, timeout int, client *aliyunclient.A
 	return nil
 }
 
-func WaitForCustomerGateway(id string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
+func (s *VpnGatewayService) WaitForCustomerGateway(id string, status Status, timeout int) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
@@ -152,7 +156,7 @@ func WaitForCustomerGateway(id string, status Status, timeout int, client *aliyu
 		}
 		time.Sleep(DefaultIntervalShort * time.Second)
 
-		_, err := DescribeCustomerGateway(id, client)
+		_, err := s.DescribeCustomerGateway(id)
 		if err != nil {
 			return err
 		} else {
@@ -162,7 +166,7 @@ func WaitForCustomerGateway(id string, status Status, timeout int, client *aliyu
 	return nil
 }
 
-func WaitForSslVpnClientCert(id string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
+func (s *VpnGatewayService) WaitForSslVpnClientCert(id string, status Status, timeout int) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
@@ -174,7 +178,7 @@ func WaitForSslVpnClientCert(id string, status Status, timeout int, client *aliy
 		}
 		time.Sleep(DefaultIntervalShort * time.Second)
 
-		resp, err := DescribeSslVpnClientCert(id, client)
+		resp, err := s.DescribeSslVpnClientCert(id)
 		if err != nil {
 			return err
 		}
@@ -186,7 +190,7 @@ func WaitForSslVpnClientCert(id string, status Status, timeout int, client *aliy
 	return nil
 }
 
-func ParseIkeConfig(ike vpc.IkeConfig) (ikeConfigs []map[string]interface{}) {
+func (s *VpnGatewayService) ParseIkeConfig(ike vpc.IkeConfig) (ikeConfigs []map[string]interface{}) {
 	item := map[string]interface{}{
 		"ike_auth_alg":  ike.IkeAuthAlg,
 		"ike_enc_alg":   ike.IkeEncAlg,
@@ -203,7 +207,7 @@ func ParseIkeConfig(ike vpc.IkeConfig) (ikeConfigs []map[string]interface{}) {
 	return
 }
 
-func ParseIpsecConfig(ipsec vpc.IpsecConfig) (ipsecConfigs []map[string]interface{}) {
+func (s *VpnGatewayService) ParseIpsecConfig(ipsec vpc.IpsecConfig) (ipsecConfigs []map[string]interface{}) {
 	item := map[string]interface{}{
 		"ipsec_auth_alg": ipsec.IpsecAuthAlg,
 		"ipsec_enc_alg":  ipsec.IpsecEncAlg,
@@ -215,7 +219,7 @@ func ParseIpsecConfig(ipsec vpc.IpsecConfig) (ipsecConfigs []map[string]interfac
 	return
 }
 
-func AssembleIkeConfig(ikeCfgParam []interface{}) (string, error) {
+func (s *VpnGatewayService) AssembleIkeConfig(ikeCfgParam []interface{}) (string, error) {
 	var ikeCfg IkeConfig
 	v := ikeCfgParam[0]
 	item := v.(map[string]interface{})
@@ -238,7 +242,7 @@ func AssembleIkeConfig(ikeCfgParam []interface{}) (string, error) {
 	return string(data), nil
 }
 
-func AssembleIpsecConfig(ipsecCfgParam []interface{}) (string, error) {
+func (s *VpnGatewayService) AssembleIpsecConfig(ipsecCfgParam []interface{}) (string, error) {
 	var ipsecCfg IpsecConfig
 	v := ipsecCfgParam[0]
 	item := v.(map[string]interface{})
@@ -256,7 +260,7 @@ func AssembleIpsecConfig(ipsecCfgParam []interface{}) (string, error) {
 	return string(data), nil
 }
 
-func AssembleNetworkSubnetToString(list []interface{}) string {
+func (s *VpnGatewayService) AssembleNetworkSubnetToString(list []interface{}) string {
 	if len(list) < 1 {
 		return ""
 	}

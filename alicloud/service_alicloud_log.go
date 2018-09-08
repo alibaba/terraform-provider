@@ -9,8 +9,12 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func DescribeLogProject(name string, client *aliyunclient.AliyunClient) (project *sls.LogProject, err error) {
-	raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+type LogService struct {
+	client *aliyunclient.AliyunClient
+}
+
+func (s *LogService) DescribeLogProject(name string) (project *sls.LogProject, err error) {
+	raw, err := s.client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return slsClient.GetProject(name)
 	})
 	if err != nil {
@@ -23,9 +27,9 @@ func DescribeLogProject(name string, client *aliyunclient.AliyunClient) (project
 	return
 }
 
-func DescribeLogStore(projectName, name string, client *aliyunclient.AliyunClient) (store *sls.LogStore, err error) {
+func (s *LogService) DescribeLogStore(projectName, name string) (store *sls.LogStore, err error) {
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		raw, err := s.client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return slsClient.GetLogStore(projectName, name)
 		})
 		if err != nil {
@@ -51,9 +55,9 @@ func DescribeLogStore(projectName, name string, client *aliyunclient.AliyunClien
 	return
 }
 
-func DescribeLogStoreIndex(projectName, name string, client *aliyunclient.AliyunClient) (index *sls.Index, err error) {
+func (s *LogService) DescribeLogStoreIndex(projectName, name string) (index *sls.Index, err error) {
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		raw, err := s.client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return slsClient.GetIndex(projectName, name)
 		})
 		if err != nil {
@@ -79,10 +83,10 @@ func DescribeLogStoreIndex(projectName, name string, client *aliyunclient.Aliyun
 	return
 }
 
-func DescribeLogMachineGroup(projectName, groupName string, client *aliyunclient.AliyunClient) (group *sls.MachineGroup, err error) {
+func (s *LogService) DescribeLogMachineGroup(projectName, groupName string) (group *sls.MachineGroup, err error) {
 
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		raw, err := s.client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return slsClient.GetMachineGroup(projectName, groupName)
 		})
 		if err != nil {

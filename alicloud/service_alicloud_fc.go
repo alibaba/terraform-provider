@@ -7,8 +7,12 @@ import (
 	"github.com/aliyun/fc-go-sdk"
 )
 
-func DescribeFcService(name string, client *aliyunclient.AliyunClient) (service *fc.GetServiceOutput, err error) {
-	raw, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+type FcService struct {
+	client *aliyunclient.AliyunClient
+}
+
+func (s *FcService) DescribeFcService(name string) (service *fc.GetServiceOutput, err error) {
+	raw, err := s.client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 		return fcClient.GetService(&fc.GetServiceInput{ServiceName: &name})
 	})
 	if err != nil {
@@ -26,8 +30,8 @@ func DescribeFcService(name string, client *aliyunclient.AliyunClient) (service 
 	return
 }
 
-func DescribeFcFunction(service, name string, client *aliyunclient.AliyunClient) (function *fc.GetFunctionOutput, err error) {
-	raw, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+func (s *FcService) DescribeFcFunction(service, name string) (function *fc.GetFunctionOutput, err error) {
+	raw, err := s.client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 		return fcClient.GetFunction(&fc.GetFunctionInput{
 			ServiceName:  &service,
 			FunctionName: &name,
@@ -48,8 +52,8 @@ func DescribeFcFunction(service, name string, client *aliyunclient.AliyunClient)
 	return
 }
 
-func DescribeFcTrigger(service, function, name string, client *aliyunclient.AliyunClient) (trigger *fc.GetTriggerOutput, err error) {
-	raw, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+func (s *FcService) DescribeFcTrigger(service, function, name string) (trigger *fc.GetTriggerOutput, err error) {
+	raw, err := s.client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 		return fcClient.GetTrigger(&fc.GetTriggerInput{
 			ServiceName:  &service,
 			FunctionName: &function,

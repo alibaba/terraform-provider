@@ -7,13 +7,17 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/pvtz"
 )
 
-func DescribePvtzZoneInfo(zoneId string, client *aliyunclient.AliyunClient) (zone pvtz.DescribeZoneInfoResponse, err error) {
+type PvtzService struct {
+	client *aliyunclient.AliyunClient
+}
+
+func (s *PvtzService) DescribePvtzZoneInfo(zoneId string) (zone pvtz.DescribeZoneInfoResponse, err error) {
 	request := pvtz.CreateDescribeZoneInfoRequest()
 	request.ZoneId = zoneId
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		raw, err := s.client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.DescribeZoneInfo(request)
 		})
 		if err != nil {
@@ -34,13 +38,13 @@ func DescribePvtzZoneInfo(zoneId string, client *aliyunclient.AliyunClient) (zon
 
 }
 
-func DescribeZoneRecord(recordId int, zoneId string, client *aliyunclient.AliyunClient) (record pvtz.Record, err error) {
+func (s *PvtzService) DescribeZoneRecord(recordId int, zoneId string) (record pvtz.Record, err error) {
 	request := pvtz.CreateDescribeZoneRecordsRequest()
 	request.ZoneId = zoneId
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		raw, err := s.client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.DescribeZoneRecords(request)
 		})
 
