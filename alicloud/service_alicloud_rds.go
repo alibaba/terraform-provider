@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
 	"time"
 
@@ -24,15 +25,17 @@ import (
 // The API return 200 for resource not found.
 // When getInstance is empty, then throw InstanceNotfound error.
 // That the business layer only need to check error.
-func (client *AliyunClient) DescribeDBInstanceById(id string) (instance *rds.DBInstanceAttribute, err error) {
+func DescribeDBInstanceById(id string, client *aliyunclient.AliyunClient) (instance *rds.DBInstanceAttribute, err error) {
 
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
 	request.DBInstanceId = id
-	resp, err := client.rdsconn.DescribeDBInstanceAttribute(request)
+	raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		return rdsClient.DescribeDBInstanceAttribute(request)
+	})
 	if err != nil {
 		return nil, err
 	}
-
+	resp := raw.(*rds.DescribeDBInstanceAttributeResponse)
 	attr := resp.Items.DBInstanceAttribute
 
 	if len(attr) <= 0 {
@@ -42,33 +45,36 @@ func (client *AliyunClient) DescribeDBInstanceById(id string) (instance *rds.DBI
 	return &attr[0], nil
 }
 
-func (client *AliyunClient) DescribeDatabaseAccount(instanceId, accountName string) (ds *rds.DBInstanceAccount, err error) {
-	conn := client.rdsconn
+func DescribeDatabaseAccount(instanceId, accountName string, client *aliyunclient.AliyunClient) (ds *rds.DBInstanceAccount, err error) {
 
 	request := rds.CreateDescribeAccountsRequest()
 	request.DBInstanceId = instanceId
 	request.AccountName = accountName
 
-	resp, err := conn.DescribeAccounts(request)
+	raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		return rdsClient.DescribeAccounts(request)
+	})
 
 	if err != nil {
 		return nil, err
 	}
-
+	resp := raw.(*rds.DescribeAccountsResponse)
 	if len(resp.Accounts.DBInstanceAccount) < 1 {
 		return nil, GetNotFoundErrorFromString(fmt.Sprintf("Data account %s is not found in the instance %s.", accountName, instanceId))
 	}
 	return &resp.Accounts.DBInstanceAccount[0], nil
 }
 
-func (client *AliyunClient) DescribeDatabaseByName(instanceId, dbName string) (ds *rds.Database, err error) {
+func DescribeDatabaseByName(instanceId, dbName string, client *aliyunclient.AliyunClient) (ds *rds.Database, err error) {
 
 	request := rds.CreateDescribeDatabasesRequest()
 	request.DBInstanceId = instanceId
 	request.DBName = dbName
 
 	err = resource.Retry(3*time.Minute, func() *resource.RetryError {
-		resp, err := client.rdsconn.DescribeDatabases(request)
+		raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+			return rdsClient.DescribeDatabases(request)
+		})
 		if err != nil {
 			if IsExceptedError(err, DBInternalError) {
 				return resource.RetryableError(fmt.Errorf("Describe Databases got an error %#v.", err))
@@ -78,7 +84,7 @@ func (client *AliyunClient) DescribeDatabaseByName(instanceId, dbName string) (d
 			}
 			return resource.NonRetryableError(fmt.Errorf("Describe Databases got an error %#v.", err))
 		}
-
+		resp := raw.(*rds.DescribeDatabasesResponse)
 		if len(resp.Databases.Database) < 1 {
 			return resource.NonRetryableError(GetNotFoundErrorFromString(fmt.Sprintf("Database %s is not found in the instance %s.", dbName, instanceId)))
 		}
@@ -89,20 +95,22 @@ func (client *AliyunClient) DescribeDatabaseByName(instanceId, dbName string) (d
 	return ds, err
 }
 
-func (client *AliyunClient) AllocateDBPublicConnection(instanceId, prefix, port string) error {
-	conn := client.rdsconn
+func AllocateDBPublicConnection(instanceId, prefix, port string, client *aliyunclient.AliyunClient) error {
 	request := rds.CreateAllocateInstancePublicConnectionRequest()
 	request.DBInstanceId = instanceId
 	request.ConnectionStringPrefix = prefix
 	request.Port = port
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		if _, err := conn.AllocateInstancePublicConnection(request); err != nil {
+		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+			return rdsClient.AllocateInstancePublicConnection(request)
+		})
+		if err != nil {
 			if IsExceptedError(err, ConnectionOperationDenied) && IsExceptedError(err, ConnectionConflictMessage) {
 				return resource.NonRetryableError(fmt.Errorf("Specified connection prefix %s has already been occupied. Please modify it and try again.", prefix))
 			}
 			if IsExceptedError(err, NetTypeExists) {
-				connection, err := client.DescribeDBInstanceNetInfoByIpType(instanceId, Public)
+				connection, err := DescribeDBInstanceNetInfoByIpType(instanceId, Public, client)
 				if err != nil {
 					return resource.NonRetryableError(err)
 				}
@@ -122,26 +130,28 @@ func (client *AliyunClient) AllocateDBPublicConnection(instanceId, prefix, port 
 		return err
 	}
 
-	if err := client.WaitForDBConnection(instanceId, Public, 300); err != nil {
+	if err := WaitForDBConnection(instanceId, Public, 300, client); err != nil {
 		return fmt.Errorf("WaitForDBConnection got error: %#v", err)
 	}
 	// wait instance running after allocating
-	if err := client.WaitForDBInstance(instanceId, Running, 300); err != nil {
+	if err := WaitForDBInstance(instanceId, Running, 300, client); err != nil {
 		return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 	}
 	return nil
 }
 
-func (client *AliyunClient) DescribeDBInstanceNetInfos(instanceId string) ([]rds.DBInstanceNetInfo, error) {
+func DescribeDBInstanceNetInfos(instanceId string, client *aliyunclient.AliyunClient) ([]rds.DBInstanceNetInfo, error) {
 
 	request := rds.CreateDescribeDBInstanceNetInfoRequest()
 	request.DBInstanceId = instanceId
-	resp, err := client.rdsconn.DescribeDBInstanceNetInfo(request)
+	raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		return rdsClient.DescribeDBInstanceNetInfo(request)
+	})
 
 	if err != nil {
 		return nil, err
 	}
-
+	resp := raw.(*rds.DescribeDBInstanceNetInfoResponse)
 	if len(resp.DBInstanceNetInfos.DBInstanceNetInfo) < 1 {
 		return nil, GetNotFoundErrorFromString(fmt.Sprintf("DB instance %s does not have any connection.", instanceId))
 	}
@@ -149,9 +159,9 @@ func (client *AliyunClient) DescribeDBInstanceNetInfos(instanceId string) ([]rds
 	return resp.DBInstanceNetInfos.DBInstanceNetInfo, nil
 }
 
-func (client *AliyunClient) DescribeDBInstanceNetInfoByIpType(instanceId string, ipType IPType) (*rds.DBInstanceNetInfo, error) {
+func DescribeDBInstanceNetInfoByIpType(instanceId string, ipType IPType, client *aliyunclient.AliyunClient) (*rds.DBInstanceNetInfo, error) {
 
-	resps, err := client.DescribeDBInstanceNetInfos(instanceId)
+	resps, err := DescribeDBInstanceNetInfos(instanceId, client)
 
 	if err != nil {
 		return nil, err
@@ -170,7 +180,7 @@ func (client *AliyunClient) DescribeDBInstanceNetInfoByIpType(instanceId string,
 	return nil, GetNotFoundErrorFromString(fmt.Sprintf("DB instance %s does not have specified type %s connection.", instanceId, ipType))
 }
 
-func (client *AliyunClient) GrantAccountPrivilege(instanceId, account, dbName, privilege string) error {
+func GrantAccountPrivilege(instanceId, account, dbName, privilege string, client *aliyunclient.AliyunClient) error {
 	request := rds.CreateGrantAccountPrivilegeRequest()
 	request.DBInstanceId = instanceId
 	request.AccountName = account
@@ -179,7 +189,10 @@ func (client *AliyunClient) GrantAccountPrivilege(instanceId, account, dbName, p
 
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		rq := request
-		if _, err := client.rdsconn.GrantAccountPrivilege(rq); err != nil {
+		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+			return rdsClient.GrantAccountPrivilege(rq)
+		})
+		if err != nil {
 			if IsExceptedErrors(err, OperationDeniedDBStatus) {
 				return resource.RetryableError(fmt.Errorf("Grant DB %s account %s privilege got an error: %#v.", dbName, account, err))
 			}
@@ -192,14 +205,14 @@ func (client *AliyunClient) GrantAccountPrivilege(instanceId, account, dbName, p
 		return err
 	}
 
-	if err := client.WaitForAccountPrivilege(instanceId, account, dbName, privilege, 300); err != nil {
+	if err := WaitForAccountPrivilege(instanceId, account, dbName, privilege, 300, client); err != nil {
 		return fmt.Errorf("Wait for grantting DB %s account %s privilege got an error: %#v.", dbName, account, err)
 	}
 
 	return nil
 }
 
-func (client *AliyunClient) RevokeAccountPrivilege(instanceId, account, dbName string) error {
+func RevokeAccountPrivilege(instanceId, account, dbName string, client *aliyunclient.AliyunClient) error {
 
 	request := rds.CreateRevokeAccountPrivilegeRequest()
 	request.DBInstanceId = instanceId
@@ -208,7 +221,10 @@ func (client *AliyunClient) RevokeAccountPrivilege(instanceId, account, dbName s
 
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		ag := request
-		if _, err := client.rdsconn.RevokeAccountPrivilege(ag); err != nil {
+		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+			return rdsClient.RevokeAccountPrivilege(ag)
+		})
+		if err != nil {
 			if IsExceptedErrors(err, OperationDeniedDBStatus) {
 				return resource.RetryableError(fmt.Errorf("Revoke DB %s account %s privilege got an error: %#v.", dbName, account, err))
 			}
@@ -221,26 +237,29 @@ func (client *AliyunClient) RevokeAccountPrivilege(instanceId, account, dbName s
 		return err
 	}
 
-	if err := client.WaitForAccountPrivilegeRevoked(instanceId, account, dbName, 300); err != nil {
+	if err := WaitForAccountPrivilegeRevoked(instanceId, account, dbName, 300, client); err != nil {
 		return fmt.Errorf("Wait for revoking DB %s account %s privilege got an error: %#v.", dbName, account, err)
 	}
 
 	return nil
 }
 
-func (client *AliyunClient) ReleaseDBPublicConnection(instanceId, connection string) error {
+func ReleaseDBPublicConnection(instanceId, connection string, client *aliyunclient.AliyunClient) error {
 
 	request := rds.CreateReleaseInstancePublicConnectionRequest()
 	request.DBInstanceId = instanceId
 	request.CurrentConnectionString = connection
 
-	if _, err := client.rdsconn.ReleaseInstancePublicConnection(request); err != nil {
+	_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		return rdsClient.ReleaseInstancePublicConnection(request)
+	})
+	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (client *AliyunClient) ModifyDBBackupPolicy(instanceId, backupTime, backupPeriod, retentionPeriod, backupLog, LogBackupRetentionPeriod string) error {
+func ModifyDBBackupPolicy(instanceId, backupTime, backupPeriod, retentionPeriod, backupLog, LogBackupRetentionPeriod string, client *aliyunclient.AliyunClient) error {
 
 	request := rds.CreateModifyBackupPolicyRequest()
 	request.DBInstanceId = instanceId
@@ -250,46 +269,55 @@ func (client *AliyunClient) ModifyDBBackupPolicy(instanceId, backupTime, backupP
 	request.BackupLog = backupLog
 	request.LogBackupRetentionPeriod = LogBackupRetentionPeriod
 
-	if _, err := client.rdsconn.ModifyBackupPolicy(request); err != nil {
+	_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		return rdsClient.ModifyBackupPolicy(request)
+	})
+	if err != nil {
 		return err
 	}
 
-	if err := client.WaitForDBInstance(instanceId, Running, 600); err != nil {
+	if err := WaitForDBInstance(instanceId, Running, 600, client); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (client *AliyunClient) ModifyDBSecurityIps(instanceId, ips string) error {
+func ModifyDBSecurityIps(instanceId, ips string, client *aliyunclient.AliyunClient) error {
 
 	request := rds.CreateModifySecurityIpsRequest()
 	request.DBInstanceId = instanceId
 	request.SecurityIps = ips
 
-	if _, err := client.rdsconn.ModifySecurityIps(request); err != nil {
+	_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		return rdsClient.ModifySecurityIps(request)
+	})
+	if err != nil {
 		return err
 	}
 
-	if err := client.WaitForDBInstance(instanceId, Running, 600); err != nil {
+	if err := WaitForDBInstance(instanceId, Running, 600, client); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (client *AliyunClient) DescribeDBSecurityIps(instanceId string) (ips []rds.DBInstanceIPArray, err error) {
+func DescribeDBSecurityIps(instanceId string, client *aliyunclient.AliyunClient) (ips []rds.DBInstanceIPArray, err error) {
 
 	request := rds.CreateDescribeDBInstanceIPArrayListRequest()
 	request.DBInstanceId = instanceId
 
-	resp, err := client.rdsconn.DescribeDBInstanceIPArrayList(request)
+	raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		return rdsClient.DescribeDBInstanceIPArrayList(request)
+	})
 	if err != nil {
 		return nil, err
 	}
+	resp := raw.(*rds.DescribeDBInstanceIPArrayListResponse)
 	return resp.Items.DBInstanceIPArray, nil
 }
 
-func (client *AliyunClient) GetSecurityIps(instanceId string) ([]string, error) {
-	arr, err := client.DescribeDBSecurityIps(instanceId)
+func GetSecurityIps(instanceId string, client *aliyunclient.AliyunClient) ([]string, error) {
+	arr, err := DescribeDBSecurityIps(instanceId, client)
 	if err != nil {
 		return nil, err
 	}
@@ -316,11 +344,14 @@ func (client *AliyunClient) GetSecurityIps(instanceId string) ([]string, error) 
 }
 
 // return multiIZ list of current region
-func (client *AliyunClient) DescribeMultiIZByRegion() (izs []string, err error) {
-	resp, err := client.rdsconn.DescribeRegions(rds.CreateDescribeRegionsRequest())
+func DescribeMultiIZByRegion(client *aliyunclient.AliyunClient) (izs []string, err error) {
+	raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		return rdsClient.DescribeRegions(rds.CreateDescribeRegionsRequest())
+	})
 	if err != nil {
 		return nil, fmt.Errorf("error to list regions not found")
 	}
+	resp := raw.(*rds.DescribeRegionsResponse)
 	regions := resp.Regions.RDSRegion
 
 	zoneIds := []string{}
@@ -333,21 +364,24 @@ func (client *AliyunClient) DescribeMultiIZByRegion() (izs []string, err error) 
 	return zoneIds, nil
 }
 
-func (client *AliyunClient) DescribeBackupPolicy(instanceId string) (policy *rds.DescribeBackupPolicyResponse, err error) {
+func DescribeBackupPolicy(instanceId string, client *aliyunclient.AliyunClient) (policy *rds.DescribeBackupPolicyResponse, err error) {
 
 	request := rds.CreateDescribeBackupPolicyRequest()
 	request.DBInstanceId = instanceId
 
-	return client.rdsconn.DescribeBackupPolicy(request)
+	raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		return rdsClient.DescribeBackupPolicy(request)
+	})
+	return raw.(*rds.DescribeBackupPolicyResponse), err
 }
 
 // WaitForInstance waits for instance to given status
-func (client *AliyunClient) WaitForDBInstance(instanceId string, status Status, timeout int) error {
+func WaitForDBInstance(instanceId string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 	for {
-		instance, err := client.DescribeDBInstanceById(instanceId)
+		instance, err := DescribeDBInstanceById(instanceId, client)
 		if err != nil && !NotFoundError(err) && !IsExceptedError(err, InvalidDBInstanceIdNotFound) {
 			return err
 		}
@@ -365,12 +399,12 @@ func (client *AliyunClient) WaitForDBInstance(instanceId string, status Status, 
 	return nil
 }
 
-func (client *AliyunClient) WaitForDBConnection(instanceId string, netType IPType, timeout int) error {
+func WaitForDBConnection(instanceId string, netType IPType, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 	for {
-		resp, err := client.DescribeDBInstanceNetInfoByIpType(instanceId, netType)
+		resp, err := DescribeDBInstanceNetInfoByIpType(instanceId, netType, client)
 		if err != nil && !NotFoundError(err) {
 			return err
 		}
@@ -390,13 +424,13 @@ func (client *AliyunClient) WaitForDBConnection(instanceId string, netType IPTyp
 	return nil
 }
 
-func (client *AliyunClient) WaitForAccount(instanceId string, accountName string, status Status, timeout int) error {
+func WaitForAccount(instanceId string, accountName string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 	for {
 
-		account, err := client.DescribeDatabaseAccount(instanceId, accountName)
+		account, err := DescribeDatabaseAccount(instanceId, accountName, client)
 		if err != nil {
 			return err
 		}
@@ -416,13 +450,13 @@ func (client *AliyunClient) WaitForAccount(instanceId string, accountName string
 	return nil
 }
 
-func (client *AliyunClient) WaitForAccountPrivilege(instanceId, accountName, dbName, privilege string, timeout int) error {
+func WaitForAccountPrivilege(instanceId, accountName, dbName, privilege string, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 	for {
 
-		account, err := client.DescribeDatabaseAccount(instanceId, accountName)
+		account, err := DescribeDatabaseAccount(instanceId, accountName, client)
 		if err != nil {
 			return err
 		}
@@ -452,12 +486,12 @@ func (client *AliyunClient) WaitForAccountPrivilege(instanceId, accountName, dbN
 	return nil
 }
 
-func (client *AliyunClient) WaitForAccountPrivilegeRevoked(instanceId, accountName, dbName string, timeout int) error {
+func WaitForAccountPrivilegeRevoked(instanceId, accountName, dbName string, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 	for {
-		account, err := client.DescribeDatabaseAccount(instanceId, accountName)
+		account, err := DescribeDatabaseAccount(instanceId, accountName, client)
 		if err != nil {
 			return err
 		}

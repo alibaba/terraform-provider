@@ -3,6 +3,7 @@ package alicloud
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
 
 	"github.com/denverdino/aliyungo/ram"
@@ -135,13 +136,14 @@ func AssemblePolicyDocument(document []interface{}, version string) (string, err
 }
 
 // Judge whether the role policy contains service "ecs.aliyuncs.com"
-func (client *AliyunClient) JudgeRolePolicyPrincipal(roleName string) error {
-	conn := client.ramconn
-	resp, err := conn.GetRole(ram.RoleQueryRequest{RoleName: roleName})
+func JudgeRolePolicyPrincipal(roleName string, client *aliyunclient.AliyunClient) error {
+	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		return ramClient.GetRole(ram.RoleQueryRequest{RoleName: roleName})
+	})
 	if err != nil {
 		return fmt.Errorf("GetRole %s got an error: %#v", roleName, err)
 	}
-
+	resp := raw.(*ram.RoleResponse)
 	policy, err := ParseRolePolicyDocument(resp.Role.AssumeRolePolicyDocument)
 	if err != nil {
 		return err

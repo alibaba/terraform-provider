@@ -3,16 +3,17 @@ package aliyunclient
 import (
 	"fmt"
 	"log"
-	"strings"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"net/url"
 
 	"regexp"
 
+	"github.com/alibaba/terraform-provider/alicloud"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
@@ -42,7 +43,6 @@ import (
 	"github.com/denverdino/aliyungo/location"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/alibaba/terraform-provider/alicloud"
 	"sync"
 )
 
@@ -66,7 +66,7 @@ type AliyunClient struct {
 	slbconn         *slb.Client
 	ossconn         *oss.Client
 	dnsconn         *dns.Client
-	ramconn         *ram.RamClientInterface
+	ramconn         ram.RamClientInterface
 	csconn          *cs.Client
 	cdnconn         *cdn.CdnClient
 	kmsconn         *kms.Client
@@ -302,14 +302,14 @@ func (client *AliyunClient) RunSafelyWithDnsClient(do func(*dns.Client) (interfa
 	return do(client.dnsconn)
 }
 
-func (client *AliyunClient) RunSafelyWithRamClient(do func(*ram.RamClientInterface) (interface{}, error)) (interface{}, error) {
+func (client *AliyunClient) RunSafelyWithRamClient(do func(ram.RamClientInterface) (interface{}, error)) (interface{}, error) {
 	client.mutex.Lock()
 	defer client.mutex.Unlock()
 
 	// Initialize the RAM client if necessary
 	if client.ramconn == nil {
 		ramconn := ram.NewClientWithSecurityToken(client.config.AccessKey, client.config.SecretKey, client.config.SecurityToken)
-		client.ramconn = &ramconn
+		client.ramconn = ramconn
 	}
 
 	return do(client.ramconn)

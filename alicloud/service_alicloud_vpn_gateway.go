@@ -1,6 +1,7 @@
 package alicloud
 
 import (
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"time"
 
 	"strings"
@@ -11,69 +12,80 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
 
-func (client *AliyunClient) DescribeVpnGateway(vpnId string) (v vpc.DescribeVpnGatewayResponse, err error) {
+func DescribeVpnGateway(vpnId string, client *aliyunclient.AliyunClient) (v vpc.DescribeVpnGatewayResponse, err error) {
 	request := vpc.CreateDescribeVpnGatewayRequest()
 	request.VpnGatewayId = vpnId
 
-	resp, err := client.vpcconn.DescribeVpnGateway(request)
+	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		return vpcClient.DescribeVpnGateway(request)
+	})
 	if err != nil {
 		if IsExceptedErrors(err, []string{VpnForbidden, VpnNotFound}) {
 			return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN", vpnId))
 		}
 		return
 	}
+	resp := raw.(*vpc.DescribeVpnGatewayResponse)
 	if resp == nil || resp.VpnGatewayId != vpnId {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN", vpnId))
 	}
 	return *resp, nil
 }
 
-func (client *AliyunClient) DescribeCustomerGateway(cgwId string) (v vpc.DescribeCustomerGatewayResponse, err error) {
+func DescribeCustomerGateway(cgwId string, client *aliyunclient.AliyunClient) (v vpc.DescribeCustomerGatewayResponse, err error) {
 	request := vpc.CreateDescribeCustomerGatewayRequest()
 	request.CustomerGatewayId = cgwId
 
-	resp, err := client.vpcconn.DescribeCustomerGateway(request)
+	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		return vpcClient.DescribeCustomerGateway(request)
+	})
 	if err != nil {
 		if IsExceptedErrors(err, []string{VpnForbidden, CgwNotFound}) {
 			return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN customer gateway", cgwId))
 		}
 		return
 	}
+	resp := raw.(*vpc.DescribeCustomerGatewayResponse)
 	if resp == nil || resp.CustomerGatewayId != cgwId {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN", cgwId))
 	}
 	return *resp, nil
 }
 
-func (client *AliyunClient) DescribeVpnConnection(id string) (v vpc.DescribeVpnConnectionResponse, err error) {
+func DescribeVpnConnection(id string, client *aliyunclient.AliyunClient) (v vpc.DescribeVpnConnectionResponse, err error) {
 	request := vpc.CreateDescribeVpnConnectionRequest()
 	request.VpnConnectionId = id
 
-	resp, err := client.vpcconn.DescribeVpnConnection(request)
+	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		return vpcClient.DescribeVpnConnection(request)
+	})
 	if err != nil {
 		if IsExceptedErrors(err, []string{VpnForbidden, VpnConnNotFound}) {
 			return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN connection", id))
 		}
 		return
 	}
+	resp := raw.(*vpc.DescribeVpnConnectionResponse)
 	if resp == nil || resp.VpnConnectionId != id {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN connection", id))
 	}
 	return *resp, nil
 }
 
-func (client *AliyunClient) DescribeSslVpnServer(sslId string) (v vpc.SslVpnServer, err error) {
+func DescribeSslVpnServer(sslId string, client *aliyunclient.AliyunClient) (v vpc.SslVpnServer, err error) {
 	request := vpc.CreateDescribeSslVpnServersRequest()
 	request.SslVpnServerId = sslId
 
-	resp, err := client.vpcconn.DescribeSslVpnServers(request)
+	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		return vpcClient.DescribeSslVpnServers(request)
+	})
 	if err != nil {
 		if IsExceptedErrors(err, []string{VpnForbidden, SslVpnServerNotFound}) {
 			return v, GetNotFoundErrorFromString(GetNotFoundMessage("SSL VPN server", sslId))
 		}
 		return
 	}
-
+	resp := raw.(*vpc.DescribeSslVpnServersResponse)
 	if resp == nil || 0 == len(resp.SslVpnServers.SslVpnServer) {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("SSL VPN server", sslId))
 	}
@@ -85,31 +97,34 @@ func (client *AliyunClient) DescribeSslVpnServer(sslId string) (v vpc.SslVpnServ
 	return resp.SslVpnServers.SslVpnServer[0], nil
 }
 
-func (client *AliyunClient) DescribeSslVpnClientCert(id string) (v vpc.DescribeSslVpnClientCertResponse, err error) {
+func DescribeSslVpnClientCert(id string, client *aliyunclient.AliyunClient) (v vpc.DescribeSslVpnClientCertResponse, err error) {
 	request := vpc.CreateDescribeSslVpnClientCertRequest()
 	request.SslVpnClientCertId = id
 
-	resp, err := client.vpcconn.DescribeSslVpnClientCert(request)
+	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		return vpcClient.DescribeSslVpnClientCert(request)
+	})
 	if err != nil {
 		if IsExceptedErrors(err, []string{VpnForbidden, SslVpnClientCertNotFound}) {
 			return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN", id))
 		}
 		return
 	}
+	resp := raw.(*vpc.DescribeSslVpnClientCertResponse)
 	if resp == nil || resp.SslVpnClientCertId != id {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN", id))
 	}
 	return *resp, nil
 }
 
-func (client *AliyunClient) WaitForVpn(vpnId string, status Status, timeout int) error {
+func WaitForVpn(vpnId string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 
 	for {
 		//wait the order effective
-		vpn, err := client.DescribeVpnGateway(vpnId)
+		vpn, err := DescribeVpnGateway(vpnId, client)
 		if err != nil {
 			return err
 		}
@@ -125,7 +140,7 @@ func (client *AliyunClient) WaitForVpn(vpnId string, status Status, timeout int)
 	return nil
 }
 
-func (client *AliyunClient) WaitForCustomerGateway(id string, status Status, timeout int) error {
+func WaitForCustomerGateway(id string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
@@ -137,7 +152,7 @@ func (client *AliyunClient) WaitForCustomerGateway(id string, status Status, tim
 		}
 		time.Sleep(DefaultIntervalShort * time.Second)
 
-		_, err := client.DescribeCustomerGateway(id)
+		_, err := DescribeCustomerGateway(id, client)
 		if err != nil {
 			return err
 		} else {
@@ -147,7 +162,7 @@ func (client *AliyunClient) WaitForCustomerGateway(id string, status Status, tim
 	return nil
 }
 
-func (client *AliyunClient) WaitForSslVpnClientCert(id string, status Status, timeout int) error {
+func WaitForSslVpnClientCert(id string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
@@ -159,7 +174,7 @@ func (client *AliyunClient) WaitForSslVpnClientCert(id string, status Status, ti
 		}
 		time.Sleep(DefaultIntervalShort * time.Second)
 
-		resp, err := client.DescribeSslVpnClientCert(id)
+		resp, err := DescribeSslVpnClientCert(id, client)
 		if err != nil {
 			return err
 		}

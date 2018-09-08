@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
 
 	"time"
@@ -10,7 +11,7 @@ import (
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 )
 
-func (client *AliyunClient) buildTableClient(instanceName string) *tablestore.TableStoreClient {
+func buildTableClient(instanceName string, client *aliyunclient.AliyunClient) *tablestore.TableStoreClient {
 	endpoint := LoadEndpoint(client.RegionId, OTSCode)
 	if endpoint == "" {
 		endpoint = fmt.Sprintf("%s.%s.ots.aliyuncs.com", instanceName, client.RegionId)
@@ -35,11 +36,11 @@ func getPrimaryKeyType(primaryKeyType string) tablestore.PrimaryKeyType {
 	return keyType
 }
 
-func (client *AliyunClient) DescribeOtsTable(instanceName, tableName string) (table *tablestore.DescribeTableResponse, err error) {
+func DescribeOtsTable(instanceName, tableName string, client *aliyunclient.AliyunClient) (table *tablestore.DescribeTableResponse, err error) {
 	describeTableReq := new(tablestore.DescribeTableRequest)
 	describeTableReq.TableName = tableName
 
-	table, err = client.buildTableClient(instanceName).DescribeTable(describeTableReq)
+	table, err = buildTableClient(instanceName, client).DescribeTable(describeTableReq)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), OTSObjectNotExist) {
 			err = GetNotFoundErrorFromString(GetNotFoundMessage("OTS Table", tableName))
@@ -52,18 +53,18 @@ func (client *AliyunClient) DescribeOtsTable(instanceName, tableName string) (ta
 	return
 }
 
-func (client *AliyunClient) DeleteOtsTable(instanceName, tableName string) (bool, error) {
+func DeleteOtsTable(instanceName, tableName string, client *aliyunclient.AliyunClient) (bool, error) {
 
 	deleteReq := new(tablestore.DeleteTableRequest)
 	deleteReq.TableName = tableName
-	if _, err := client.buildTableClient(instanceName).DeleteTable(deleteReq); err != nil {
+	if _, err := buildTableClient(instanceName, client).DeleteTable(deleteReq); err != nil {
 		if NotFoundError(err) {
 			return true, nil
 		}
 		return false, err
 	}
 
-	describ, err := client.DescribeOtsTable(instanceName, tableName)
+	describ, err := DescribeOtsTable(instanceName, tableName, client)
 
 	if err != nil {
 		if NotFoundError(err) {
@@ -93,44 +94,49 @@ func convertPrimaryKeyType(t tablestore.PrimaryKeyType) PrimaryKeyTypeString {
 	return typeString
 }
 
-func (client *AliyunClient) DescribeOtsInstance(name string) (inst ots.InstanceInfo, err error) {
+func DescribeOtsInstance(name string, client *aliyunclient.AliyunClient) (inst ots.InstanceInfo, err error) {
 	req := ots.CreateGetInstanceRequest()
 	req.InstanceName = name
 	req.Method = "GET"
-	resp, err := client.otsconn.GetInstance(req)
+	raw, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+		return otsClient.GetInstance(req)
+	})
 
 	// OTS instance not found error code is "NotFound"
 	if err != nil {
 		return
 	}
-
+	resp := raw.(*ots.GetInstanceResponse)
 	if resp == nil || resp.InstanceInfo.InstanceName != name {
 		return inst, GetNotFoundErrorFromString(GetNotFoundMessage("OTS Instance", name))
 	}
 	return resp.InstanceInfo, nil
 }
 
-func (client *AliyunClient) DescribeOtsInstanceVpc(name string) (inst ots.VpcInfo, err error) {
+func DescribeOtsInstanceVpc(name string, client *aliyunclient.AliyunClient) (inst ots.VpcInfo, err error) {
 	req := ots.CreateListVpcInfoByInstanceRequest()
 	req.Method = "GET"
 	req.InstanceName = name
-	resp, err := client.otsconn.ListVpcInfoByInstance(req)
+	raw, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+		return otsClient.ListVpcInfoByInstance(req)
+	})
 	if err != nil {
 		return inst, err
 	}
+	resp := raw.(*ots.ListVpcInfoByInstanceResponse)
 	if resp == nil || resp.TotalCount < 1 {
 		return inst, GetNotFoundErrorFromString(GetNotFoundMessage("OTS Instance VPC", name))
 	}
 	return resp.VpcInfos.VpcInfo[0], nil
 }
 
-func (client *AliyunClient) WaitForOtsInstance(name string, status Status, timeout int) error {
+func WaitForOtsInstance(name string, status Status, timeout int, client *aliyunclient.AliyunClient) error {
 	if timeout <= 0 {
 		timeout = DefaultTimeout
 	}
 
 	for {
-		inst, err := client.DescribeOtsInstance(name)
+		inst, err := DescribeOtsInstance(name, client)
 		if err != nil {
 			return err
 		}
