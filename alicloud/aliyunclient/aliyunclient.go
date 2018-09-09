@@ -55,7 +55,6 @@ type AliyunClient struct {
 	SecretKey       string
 	SecurityToken   string
 	OtsInstanceName string
-	mutex           sync.RWMutex
 	accountIdMutex  sync.RWMutex
 	config          *Config
 	accountId       string
@@ -84,6 +83,8 @@ type AliyunClient struct {
 
 const businessInfoKey = "Terraform"
 
+var goSdkMutex = sync.RWMutex{} // The Go SDK is not thread-safe
+
 // Client for AliyunClient
 func (c *Config) Client() (*AliyunClient, error) {
 	err := c.loadAndValidate()
@@ -104,8 +105,8 @@ func (c *Config) Client() (*AliyunClient, error) {
 }
 
 func (client *AliyunClient) RunSafelyWithEcsClient(do func(*ecs.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the ECS client if necessary
 	if client.ecsconn == nil {
@@ -128,8 +129,8 @@ func (client *AliyunClient) RunSafelyWithEcsClient(do func(*ecs.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithRdsClient(do func(*rds.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the RDS client if necessary
 	if client.rdsconn == nil {
@@ -149,8 +150,8 @@ func (client *AliyunClient) RunSafelyWithRdsClient(do func(*rds.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithSlbClient(do func(*slb.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the SLB client if necessary
 	if client.slbconn == nil {
@@ -170,8 +171,8 @@ func (client *AliyunClient) RunSafelyWithSlbClient(do func(*slb.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithVpcClient(do func(*vpc.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the VPC client if necessary
 	if client.vpcconn == nil {
@@ -191,8 +192,8 @@ func (client *AliyunClient) RunSafelyWithVpcClient(do func(*vpc.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithCenClient(do func(*cbn.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the CEN client if necessary
 	if client.cenconn == nil {
@@ -212,8 +213,8 @@ func (client *AliyunClient) RunSafelyWithCenClient(do func(*cbn.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithEssClient(do func(*ess.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the ESS client if necessary
 	if client.essconn == nil {
@@ -233,8 +234,8 @@ func (client *AliyunClient) RunSafelyWithEssClient(do func(*ess.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithOssClient(do func(*oss.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the OSS client if necessary
 	if client.ossconn == nil {
@@ -286,8 +287,8 @@ func (client *AliyunClient) RunSafelyWithOssClient(do func(*oss.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithDnsClient(do func(*dns.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the DNS client if necessary
 	if client.dnsconn == nil {
@@ -303,8 +304,8 @@ func (client *AliyunClient) RunSafelyWithDnsClient(do func(*dns.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithRamClient(do func(ram.RamClientInterface) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the RAM client if necessary
 	if client.ramconn == nil {
@@ -316,8 +317,8 @@ func (client *AliyunClient) RunSafelyWithRamClient(do func(ram.RamClientInterfac
 }
 
 func (client *AliyunClient) RunSafelyWithCsClient(do func(*cs.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the CS client if necessary
 	if client.csconn == nil {
@@ -330,8 +331,8 @@ func (client *AliyunClient) RunSafelyWithCsClient(do func(*cs.Client) (interface
 }
 
 func (client *AliyunClient) RunSafelyWithCdnClient(do func(*cdn.CdnClient) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the CDN client if necessary
 	if client.cdnconn == nil {
@@ -346,8 +347,8 @@ func (client *AliyunClient) RunSafelyWithCdnClient(do func(*cdn.CdnClient) (inte
 }
 
 func (client *AliyunClient) RunSafelyWithKmsClient(do func(*kms.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the KMS client if necessary
 	if client.kmsconn == nil {
@@ -361,8 +362,8 @@ func (client *AliyunClient) RunSafelyWithKmsClient(do func(*kms.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithOtsClient(do func(*ots.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the OTS client if necessary
 	if client.otsconn == nil {
@@ -382,8 +383,8 @@ func (client *AliyunClient) RunSafelyWithOtsClient(do func(*ots.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithCmsClient(do func(*cms.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the CMS client if necessary
 	if client.cmsconn == nil {
@@ -399,8 +400,8 @@ func (client *AliyunClient) RunSafelyWithCmsClient(do func(*cms.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithPvtzClient(do func(*pvtz.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the PVTZ client if necessary
 	if client.pvtzconn == nil {
@@ -422,8 +423,8 @@ func (client *AliyunClient) RunSafelyWithPvtzClient(do func(*pvtz.Client) (inter
 }
 
 func (client *AliyunClient) RunSafelyWithStsClient(do func(*sts.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the STS client if necessary
 	if client.stsconn == nil {
@@ -443,8 +444,8 @@ func (client *AliyunClient) RunSafelyWithStsClient(do func(*sts.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithLogClient(do func(*sls.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the LOG client if necessary
 	if client.logconn == nil {
@@ -469,8 +470,8 @@ func (client *AliyunClient) RunSafelyWithLogClient(do func(*sls.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithDdsClient(do func(*dds.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the DDS client if necessary
 	if client.ddsconn == nil {
@@ -490,8 +491,8 @@ func (client *AliyunClient) RunSafelyWithDdsClient(do func(*dds.Client) (interfa
 }
 
 func (client *AliyunClient) RunSafelyWithRkvClient(do func(*r_kvstore.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the RKV client if necessary
 	if client.rkvconn == nil {
@@ -511,8 +512,8 @@ func (client *AliyunClient) RunSafelyWithRkvClient(do func(*r_kvstore.Client) (i
 }
 
 func (client *AliyunClient) RunSafelyWithFcClient(do func(*fc.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the FC client if necessary
 	if client.fcconn == nil {
@@ -544,8 +545,8 @@ func (client *AliyunClient) RunSafelyWithFcClient(do func(*fc.Client) (interface
 }
 
 func (client *AliyunClient) RunSafelyWithLocationClient(do func(*location.Client) (interface{}, error)) (interface{}, error) {
-	client.mutex.Lock()
-	defer client.mutex.Unlock()
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
 
 	// Initialize the LOCATION client if necessary
 	if client.locationconn == nil {

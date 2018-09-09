@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"regexp"
 	"strings"
@@ -122,7 +123,7 @@ func dataSourceAlicloudSlbs() *schema.Resource {
 }
 
 func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).slbconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := slb.CreateDescribeLoadBalancersRequest()
 
@@ -156,11 +157,13 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)
 	for {
-		resp, err := conn.DescribeLoadBalancers(args)
+		raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			return slbClient.DescribeLoadBalancers(args)
+		})
 		if err != nil {
 			return err
 		}
-
+		resp := raw.(*slb.DescribeLoadBalancersResponse)
 		if resp == nil || len(resp.LoadBalancers.LoadBalancer) < 1 {
 			break
 		}

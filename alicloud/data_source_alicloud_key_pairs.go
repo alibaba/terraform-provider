@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"regexp"
 
@@ -63,7 +64,7 @@ func dataSourceAlicloudKeyPairs() *schema.Resource {
 }
 
 func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	var regex *regexp.Regexp
 	if name, ok := d.GetOk("name_regex"); ok {
@@ -80,10 +81,13 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 	keyPairsAttach := make(map[string][]map[string]interface{})
 
 	for true {
-		results, err := conn.DescribeKeyPairs(args)
+		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.DescribeKeyPairs(args)
+		})
 		if err != nil {
 			return fmt.Errorf("Error DescribekeyPairs: %#v", err)
 		}
+		results := raw.(*ecs.DescribeKeyPairsResponse)
 		if results == nil || len(results.KeyPairs.KeyPair) < 1 {
 			break
 		}
@@ -108,10 +112,13 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 
 	for true {
-		resp, err := conn.DescribeInstances(req)
+		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.DescribeInstances(req)
+		})
 		if err != nil {
 			return fmt.Errorf("Error DescribeInstances: %#v", err)
 		}
+		resp := raw.(*ecs.DescribeInstancesResponse)
 		if resp == nil || len(resp.Instances.Instance) < 1 {
 			break
 		}

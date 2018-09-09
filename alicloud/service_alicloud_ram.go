@@ -147,7 +147,7 @@ func (s *RamService) JudgeRolePolicyPrincipal(roleName string) error {
 	if err != nil {
 		return fmt.Errorf("GetRole %s got an error: %#v", roleName, err)
 	}
-	resp := raw.(*ram.RoleResponse)
+	resp := raw.(ram.RoleResponse)
 	policy, err := s.ParseRolePolicyDocument(resp.Role.AssumeRolePolicyDocument)
 	if err != nil {
 		return err

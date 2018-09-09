@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"sort"
 	"strconv"
 	"strings"
@@ -155,9 +156,10 @@ func dataSourceAlicloudInstanceTypes() *schema.Resource {
 }
 
 func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	ecsService := EcsService{client}
 
-	zoneId, validZones, err := client.DescribeAvailableResources(d, meta, InstanceTypeResource)
+	zoneId, validZones, err := ecsService.DescribeAvailableResources(d, meta, InstanceTypeResource)
 	if err != nil {
 		return err
 	}
@@ -189,10 +191,13 @@ func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{
 	req := ecs.CreateDescribeInstanceTypesRequest()
 	req.InstanceTypeFamily = family
 
-	resp, err := client.ecsconn.DescribeInstanceTypes(req)
+	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.DescribeInstanceTypes(req)
+	})
 	if err != nil {
 		return err
 	}
+	resp := raw.(*ecs.DescribeInstanceTypesResponse)
 	if resp == nil || len(resp.InstanceTypes.InstanceType) < 1 {
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}

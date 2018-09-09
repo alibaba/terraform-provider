@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
 
 	"strconv"
@@ -116,17 +117,19 @@ func dataSourceAlicloudSecurityGroupRules() *schema.Resource {
 }
 
 func dataSourceAlicloudSecurityGroupRulesRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	req := ecs.CreateDescribeSecurityGroupAttributeRequest()
 	req.SecurityGroupId = d.Get("group_id").(string)
 	req.NicType = d.Get("nic_type").(string)
 	req.Direction = d.Get("direction").(string)
-	attr, err := conn.DescribeSecurityGroupAttribute(req)
+	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.DescribeSecurityGroupAttribute(req)
+	})
 	if err != nil {
 		return fmt.Errorf("DescribeSecurityGroupAttribute got an error: %#v", err)
 	}
-
+	attr := raw.(*ecs.DescribeSecurityGroupAttributeResponse)
 	var rules []map[string]interface{}
 
 	if attr == nil {

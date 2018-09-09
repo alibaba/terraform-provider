@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudRouterInterfaces() *schema.Resource {
@@ -149,7 +149,7 @@ func dataSourceAlicloudRouterInterfaces() *schema.Resource {
 	}
 }
 func dataSourceAlicloudRouterInterfacesRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).vpcconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := vpc.CreateDescribeRouterInterfacesRequest()
 	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
@@ -174,11 +174,13 @@ func dataSourceAlicloudRouterInterfacesRead(d *schema.ResourceData, meta interfa
 	for {
 		var response *vpc.DescribeRouterInterfacesResponse
 		if err := invoker.Run(func() error {
-			resp, err := conn.DescribeRouterInterfaces(args)
+			raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+				return vpcClient.DescribeRouterInterfaces(args)
+			})
 			if err != nil {
 				return err
 			}
-			response = resp
+			response = raw.(*vpc.DescribeRouterInterfacesResponse)
 			return nil
 		}); err != nil {
 			return err

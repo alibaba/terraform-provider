@@ -3,10 +3,10 @@ package alicloud
 import (
 	"regexp"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudKVStoreInstances() *schema.Resource {
@@ -145,7 +145,7 @@ func dataSourceAlicloudKVStoreInstances() *schema.Resource {
 }
 
 func dataSourceAlicloudKVStoreInstancesRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).rkvconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := r_kvstore.CreateDescribeInstancesRequest()
 	args.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
@@ -165,11 +165,13 @@ func dataSourceAlicloudKVStoreInstancesRead(d *schema.ResourceData, meta interfa
 	}
 
 	for {
-		resp, err := conn.DescribeInstances(args)
+		raw, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+			return rkvClient.DescribeInstances(args)
+		})
 		if err != nil {
 			return err
 		}
-
+		resp := raw.(*r_kvstore.DescribeInstancesResponse)
 		if resp == nil || len(resp.Instances.KVStoreInstance) < 1 {
 			break
 		}

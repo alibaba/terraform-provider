@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"regexp"
 
@@ -96,7 +97,7 @@ func dataSourceAlicloudDnsDomains() *schema.Resource {
 	}
 }
 func dataSourceAlicloudDnsDomainsRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).dnsconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := &dns.DescribeDomainsArgs{}
 
@@ -104,10 +105,13 @@ func dataSourceAlicloudDnsDomainsRead(d *schema.ResourceData, meta interface{}) 
 	pagination := getPagination(1, 50)
 	for {
 		args.Pagination = pagination
-		domains, err := conn.DescribeDomains(args)
+		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+			return dnsClient.DescribeDomains(args)
+		})
 		if err != nil {
 			return err
 		}
+		domains := raw.([]dns.DomainType)
 		allDomains = append(allDomains, domains...)
 
 		if len(domains) < pagination.PageSize {

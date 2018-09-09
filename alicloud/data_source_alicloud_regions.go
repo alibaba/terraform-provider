@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudRegions() *schema.Resource {
@@ -56,13 +56,16 @@ func dataSourceAlicloudRegions() *schema.Resource {
 }
 
 func dataSourceAlicloudRegionsRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+	client := meta.(*aliyunclient.AliyunClient)
 	currentRegion := meta.(*aliyunclient.AliyunClient).RegionId
 
-	resp, err := conn.DescribeRegions(ecs.CreateDescribeRegionsRequest())
+	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.DescribeRegions(ecs.CreateDescribeRegionsRequest())
+	})
 	if err != nil {
 		return err
 	}
+	resp := raw.(*ecs.DescribeRegionsResponse)
 	if resp == nil || len(resp.Regions.Region) == 0 {
 		return fmt.Errorf("no matching regions found")
 	}

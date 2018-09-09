@@ -5,11 +5,11 @@ import (
 	"log"
 	"regexp"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudVSwitches() *schema.Resource {
@@ -98,7 +98,7 @@ func dataSourceAlicloudVSwitches() *schema.Resource {
 	}
 }
 func dataSourceAlicloudVSwitchesRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).vpcconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := vpc.CreateDescribeVSwitchesRequest()
 	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
@@ -118,11 +118,13 @@ func dataSourceAlicloudVSwitchesRead(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 	for {
-		resp, err := conn.DescribeVSwitches(args)
+		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DescribeVSwitches(args)
+		})
 		if err != nil {
 			return err
 		}
-
+		resp := raw.(*vpc.DescribeVSwitchesResponse)
 		if resp == nil || len(resp.VSwitches.VSwitch) < 1 {
 			break
 		}
@@ -161,6 +163,7 @@ func dataSourceAlicloudVSwitchesRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func VSwitchesDecriptionAttributes(d *schema.ResourceData, vsws []vpc.VSwitch, meta interface{}) error {
+	client := meta.(*aliyunclient.AliyunClient)
 	var ids []string
 	var s []map[string]interface{}
 	instReq := ecs.CreateDescribeInstancesRequest()
@@ -179,10 +182,13 @@ func VSwitchesDecriptionAttributes(d *schema.ResourceData, vsws []vpc.VSwitch, m
 		instReq.VpcId = vsw.VpcId
 		instReq.VSwitchId = vsw.VSwitchId
 		instReq.ZoneId = vsw.ZoneId
-		resp, err := meta.(*AliyunClient).ecsconn.DescribeInstances(instReq)
+		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.DescribeInstances(instReq)
+		})
 		if err != nil {
 			return fmt.Errorf("DescribeInstances got an error: %#v.", err)
 		}
+		resp := raw.(*ecs.DescribeInstancesResponse)
 		if resp != nil && len(resp.Instances.Instance) > 0 {
 			instance_ids := make([]string, len(resp.Instances.Instance))
 			if len(instance_ids) > 0 {

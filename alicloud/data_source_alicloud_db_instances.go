@@ -3,10 +3,10 @@ package alicloud
 import (
 	"regexp"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func dataSourceAlicloudDBInstances() *schema.Resource {
@@ -166,7 +166,7 @@ func dataSourceAlicloudDBInstances() *schema.Resource {
 }
 
 func dataSourceAlicloudDBInstancesRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).rdsconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := rds.CreateDescribeDBInstancesRequest()
 
@@ -190,11 +190,13 @@ func dataSourceAlicloudDBInstancesRead(d *schema.ResourceData, meta interface{})
 	}
 
 	for {
-		resp, err := conn.DescribeDBInstances(args)
+		raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+			return rdsClient.DescribeDBInstances(args)
+		})
 		if err != nil {
 			return err
 		}
-
+		resp := raw.(*rds.DescribeDBInstancesResponse)
 		if resp == nil || len(resp.Items.DBInstance) < 1 {
 			break
 		}

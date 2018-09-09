@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"regexp"
 
@@ -71,7 +72,7 @@ func dataSourceAlicloudSlbRules() *schema.Resource {
 }
 
 func dataSourceAlicloudSlbRulesRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).slbconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := slb.CreateDescribeRulesRequest()
 	args.LoadBalancerId = d.Get("load_balancer_id").(string)
@@ -84,10 +85,13 @@ func dataSourceAlicloudSlbRulesRead(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	resp, err := conn.DescribeRules(args)
+	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		return slbClient.DescribeRules(args)
+	})
 	if err != nil {
 		return fmt.Errorf("DescribeRules got an error: %#v", err)
 	}
+	resp := raw.(*slb.DescribeRulesResponse)
 	if resp == nil {
 		return fmt.Errorf("there is no SLB with the ID %s. Please change your search criteria and try again", args.LoadBalancerId)
 	}

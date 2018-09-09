@@ -237,7 +237,8 @@ func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta int
 	if v, ok := d.GetOk("availability_zone"); ok && strings.TrimSpace(v.(string)) != "" {
 		zoneId = strings.TrimSpace(v.(string))
 	} else if v, ok := d.GetOk("vswitch_id"); ok && strings.TrimSpace(v.(string)) != "" {
-		if vsw, err := DescribeVswitch(strings.TrimSpace(v.(string)), s.client); err == nil {
+		vpcService := VpcService{s.client}
+		if vsw, err := vpcService.DescribeVswitch(strings.TrimSpace(v.(string))); err == nil {
 			zoneId = vsw.ZoneId
 		}
 	}
