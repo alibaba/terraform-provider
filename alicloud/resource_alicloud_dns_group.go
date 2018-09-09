@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"time"
 
 	"github.com/denverdino/aliyungo/common"
@@ -27,23 +28,25 @@ func resourceAlicloudDnsGroup() *schema.Resource {
 }
 
 func resourceAlicloudDnsGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).dnsconn
+	client := meta.(*aliyunclient.AliyunClient)
 	args := &dns.AddDomainGroupArgs{
 		GroupName: d.Get("name").(string),
 	}
 
-	response, err := conn.AddDomainGroup(args)
+	raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		return dnsClient.AddDomainGroup(args)
+	})
 	if err != nil {
 		return fmt.Errorf("AddDomainGroup got a error: %#v", err)
 	}
-
+	response := raw.(*dns.AddDomainGroupResponse)
 	d.SetId(response.GroupId)
 	d.Set("name", response.GroupName)
 	return resourceAlicloudDnsGroupUpdate(d, meta)
 }
 
 func resourceAlicloudDnsGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).dnsconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	d.Partial(true)
 	args := &dns.UpdateDomainGroupArgs{
@@ -53,7 +56,10 @@ func resourceAlicloudDnsGroupUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("name") && !d.IsNewResource() {
 		d.SetPartial("name")
 		args.GroupName = d.Get("name").(string)
-		if _, err := conn.UpdateDomainGroup(args); err != nil {
+		_, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+			return dnsClient.UpdateDomainGroup(args)
+		})
+		if err != nil {
 			return fmt.Errorf("UpdateDomainGroup got an error: %#v", err)
 		}
 	}
@@ -63,17 +69,19 @@ func resourceAlicloudDnsGroupUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudDnsGroupRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).dnsconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := &dns.DescribeDomainGroupsArgs{
 		KeyWord: d.Get("name").(string),
 	}
 
-	groups, err := conn.DescribeDomainGroups(args)
+	raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		return dnsClient.DescribeDomainGroups(args)
+	})
 	if err != nil {
 		return err
 	}
-
+	groups := raw.([]dns.DomainGroupType)
 	if groups == nil || len(groups) <= 0 {
 		return fmt.Errorf("No domain groups found.")
 	}
@@ -89,14 +97,16 @@ func resourceAlicloudDnsGroupRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlicloudDnsGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).dnsconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := &dns.DeleteDomainGroupArgs{
 		GroupId: d.Id(),
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := conn.DeleteDomainGroup(args)
+		_, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+			return dnsClient.DeleteDomainGroup(args)
+		})
 		if err != nil {
 			e, _ := err.(*common.Error)
 			if e.ErrorResponse.Code == FobiddenNotEmptyGroup {

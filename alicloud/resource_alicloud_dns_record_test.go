@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"testing"
 
@@ -52,17 +53,19 @@ func testAccCheckDnsRecordExists(n string, record *dns.RecordTypeNew) resource.T
 			return fmt.Errorf("No Domain Record ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
-		conn := client.dnsconn
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
 		request := &dns.DescribeDomainRecordInfoNewArgs{
 			RecordId: rs.Primary.ID,
 		}
 
-		response, err := conn.DescribeDomainRecordInfoNew(request)
+		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+			return dnsClient.DescribeDomainRecordInfoNew(request)
+		})
 		log.Printf("[WARN] Domain record id %#v", rs.Primary.ID)
 
 		if err == nil {
+			response := raw.(*dns.DescribeDomainRecordInfoNewResponse)
 			*record = response.RecordTypeNew
 			return nil
 		}
@@ -108,17 +111,19 @@ func testAccCheckDnsRecordDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the domain record
-		client := testAccProvider.Meta().(*AliyunClient)
-		conn := client.dnsconn
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
 		request := &dns.DescribeDomainRecordInfoNewArgs{
 			RecordId: rs.Primary.ID,
 		}
 
-		response, err := conn.DescribeDomainRecordInfoNew(request)
+		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+			return dnsClient.DescribeDomainRecordInfoNew(request)
+		})
 		if err != nil {
 			return err
 		}
+		response := raw.(*dns.DescribeDomainRecordInfoNewResponse)
 		if response.RecordId != "" {
 			return fmt.Errorf("Error Domain record still exist.")
 		}
