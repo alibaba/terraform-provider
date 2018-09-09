@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"strings"
 	"testing"
@@ -20,11 +21,11 @@ func init() {
 }
 
 func testSweepDisks(region string) error {
-	client, err := sharedClientForRegion(region)
+	rawClient, err := sharedClientForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	conn := client.(*AliyunClient)
+	client := rawClient.(*aliyunclient.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -36,14 +37,17 @@ func testSweepDisks(region string) error {
 
 	var disks []ecs.Disk
 	req := ecs.CreateDescribeDisksRequest()
-	req.RegionId = conn.RegionId
+	req.RegionId = client.RegionId
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		resp, err := conn.ecsconn.DescribeDisks(req)
+		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.DescribeDisks(req)
+		})
 		if err != nil {
 			return fmt.Errorf("Error retrieving Disks: %s", err)
 		}
+		resp := raw.(*ecs.DescribeDisksResponse)
 		if resp == nil || len(resp.Disks.Disk) < 1 {
 			break
 		}
@@ -77,7 +81,10 @@ func testSweepDisks(region string) error {
 		log.Printf("[INFO] Deleting Disk: %s (%s)", name, id)
 		req := ecs.CreateDeleteDiskRequest()
 		req.DiskId = id
-		if _, err := conn.ecsconn.DeleteDisk(req); err != nil {
+		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.DeleteDisk(req)
+		})
+		if err != nil {
 			log.Printf("[ERROR] Failed to delete Disk (%s (%s)): %s", name, id, err)
 		}
 	}
@@ -201,9 +208,10 @@ func testAccCheckDiskExists(n string, disk *ecs.Disk) resource.TestCheckFunc {
 			return fmt.Errorf("No Disk ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		ecsService := EcsService{client}
 
-		d, err := client.DescribeDiskById("", rs.Primary.ID)
+		d, err := ecsService.DescribeDiskById("", rs.Primary.ID)
 
 		if err != nil {
 			return fmt.Errorf("While checking disk existing, describing disk got an error: %#v.", err)
@@ -222,9 +230,10 @@ func testAccCheckDiskDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the Disk
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		ecsService := EcsService{client}
 
-		d, err := client.DescribeDiskById("", rs.Primary.ID)
+		d, err := ecsService.DescribeDiskById("", rs.Primary.ID)
 
 		if err != nil {
 			if NotFoundError(err) {
