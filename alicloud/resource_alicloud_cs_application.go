@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
 	"time"
 
@@ -50,7 +51,8 @@ func resourceAlicloudCSApplication() *schema.Resource {
 					if !d.HasChange("version") {
 						return true
 					}
-					equal, _ := CompareYmalTemplateAreEquivalent(old, new)
+					commonService := CommonService{nil}
+					equal, _ := commonService.CompareYmalTemplateAreEquivalent(old, new)
 					return equal
 				},
 				ValidateFunc: validateYamlString,
@@ -125,9 +127,10 @@ func resourceAlicloudCSApplication() *schema.Resource {
 }
 
 func resourceAlicloudCSApplicationCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	csService := CsService{client}
 	clusterName := Trim(d.Get("cluster_name").(string))
-	conn, err := client.GetApplicationClientByClusterName(clusterName)
+	conn, err := csService.GetApplicationClientByClusterName(clusterName)
 
 	args := &cs.ProjectCreationArgs{
 		Name:        d.Get("name").(string),
@@ -152,7 +155,7 @@ func resourceAlicloudCSApplicationCreate(d *schema.ResourceData, meta interface{
 
 	d.SetId(fmt.Sprintf("%s%s%s", clusterName, COLON_SEPARATED, args.Name))
 
-	if err = client.WaitForContainerApplication(clusterName, args.Name, Running, DefaultTimeoutMedium); err != nil {
+	if err = csService.WaitForContainerApplication(clusterName, args.Name, Running, DefaultTimeoutMedium); err != nil {
 		return fmt.Errorf("Waitting for container application %#v got an error: %#v", cs.Running, err)
 	}
 
@@ -162,7 +165,9 @@ func resourceAlicloudCSApplicationCreate(d *schema.ResourceData, meta interface{
 func resourceAlicloudCSApplicationRead(d *schema.ResourceData, meta interface{}) error {
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 
-	application, err := meta.(*AliyunClient).DescribeContainerApplication(parts[0], parts[1])
+	client := meta.(*aliyunclient.AliyunClient)
+	csService := CsService{client}
+	application, err := csService.DescribeContainerApplication(parts[0], parts[1])
 
 	if err != nil {
 		if NotFoundError(err) {
@@ -205,9 +210,10 @@ func resourceAlicloudCSApplicationRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	csService := CsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
-	conn, err := client.GetApplicationClientByClusterName(parts[0])
+	conn, err := csService.GetApplicationClientByClusterName(parts[0])
 	if err != nil {
 		return err
 	}
@@ -279,7 +285,7 @@ func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{
 					}); err != nil {
 						return fmt.Errorf("Rollbacking container application blue-green got an error: %#v", err)
 					}
-					if err := client.WaitForContainerApplication(parts[0], parts[1], Running, DefaultTimeoutMedium); err != nil {
+					if err := csService.WaitForContainerApplication(parts[0], parts[1], Running, DefaultTimeoutMedium); err != nil {
 						return fmt.Errorf("After rolling back blue-green project, waitting for container application %#v got an error: %#v", Running, err)
 					}
 					continue
@@ -299,7 +305,7 @@ func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	if err := client.WaitForContainerApplication(parts[0], parts[1], Running, DefaultTimeoutMedium); err != nil {
+	if err := csService.WaitForContainerApplication(parts[0], parts[1], Running, DefaultTimeoutMedium); err != nil {
 		return fmt.Errorf("After updating, waitting for container application %#v got an error: %#v", Running, err)
 	}
 
@@ -309,9 +315,10 @@ func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudCSApplicationDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	csService := CsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
-	conn, err := client.GetApplicationClientByClusterName(parts[0])
+	conn, err := csService.GetApplicationClientByClusterName(parts[0])
 	if err != nil {
 		if NotFoundError(err) {
 			return nil

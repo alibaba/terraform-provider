@@ -21,7 +21,7 @@ type CommonService struct {
 	client *aliyunclient.AliyunClient
 }
 
-func (s *CommonService) CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
+func (*CommonService) CompareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 	var obj1 interface{}
 	err := json.Unmarshal([]byte(tem1), &obj1)
 	if err != nil {
@@ -46,7 +46,7 @@ func (s *CommonService) CompareJsonTemplateAreEquivalent(tem1, tem2 string) (boo
 	return equal, nil
 }
 
-func (s *CommonService) CompareYmalTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
+func (*CommonService) CompareYmalTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
 	var obj1 interface{}
 	err := yaml.Unmarshal([]byte(tem1), &obj1)
 	if err != nil {
@@ -72,7 +72,7 @@ func (s *CommonService) CompareYmalTemplateAreEquivalent(tem1, tem2 string) (boo
 }
 
 // loadFileContent returns contents of a file in a given path
-func (s *CommonService) loadFileContent(v string) ([]byte, error) {
+func (*CommonService) loadFileContent(v string) ([]byte, error) {
 	filename, err := homedir.Expand(v)
 	if err != nil {
 		return nil, err
