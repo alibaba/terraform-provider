@@ -1,6 +1,7 @@
 package alicloud
 
 import (
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"testing"
 
 	"fmt"
@@ -72,14 +73,16 @@ func TestAccAlicloudCSKubernetes_autoVpc(t *testing.T) {
 }
 
 func testAccCheckKubernetesClusterDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient).csconn
+	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_cs_kubernetes" {
 			continue
 		}
 
-		cluster, err := client.DescribeCluster(rs.Primary.ID)
+		raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			return csClient.DescribeCluster(rs.Primary.ID)
+		})
 
 		if err != nil {
 			if NotFoundError(err) || IsExceptedError(err, ErrorClusterNotFound) {
@@ -87,7 +90,7 @@ func testAccCheckKubernetesClusterDestroy(s *terraform.State) error {
 			}
 			return err
 		}
-
+		cluster := raw.(cs.ClusterType)
 		if cluster.ClusterID != "" {
 			return fmt.Errorf("Error container cluster %s still exists.", rs.Primary.ID)
 		}

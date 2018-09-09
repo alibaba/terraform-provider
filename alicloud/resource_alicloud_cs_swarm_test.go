@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"testing"
 
@@ -21,11 +22,11 @@ func init() {
 }
 
 func testSweepCSSwarms(region string) error {
-	client, err := sharedClientForRegion(region)
+	rawClient, err := sharedClientForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	conn := client.(*AliyunClient)
+	client := rawClient.(*aliyunclient.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -35,11 +36,13 @@ func testSweepCSSwarms(region string) error {
 		"testAcc",
 	}
 
-	clusters, err := conn.csconn.DescribeClusters("")
+	raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		return csClient.DescribeClusters("")
+	})
 	if err != nil {
 		return fmt.Errorf("Error retrieving CS Swarm Clusters: %s", err)
 	}
-
+	clusters := raw.([]cs.ClusterType)
 	sweeped := false
 
 	for _, v := range clusters {
@@ -58,7 +61,10 @@ func testSweepCSSwarms(region string) error {
 		}
 		sweeped = true
 		log.Printf("[INFO] Deleting CS Swarm Clusters: %s (%s)", name, id)
-		if err := conn.csconn.DeleteCluster(id); err != nil {
+		_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			return nil, csClient.DeleteCluster(id)
+		})
+		if err != nil {
 			log.Printf("[ERROR] Failed to delete CS Swarm Clusters (%s (%s)): %s", name, id, err)
 		}
 	}
@@ -144,14 +150,16 @@ func testAccCheckContainerClusterExists(n string, d *cs.ClusterType) resource.Te
 			return fmt.Errorf("No Container cluster ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient).csconn
-		attr, err := client.DescribeCluster(cluster.Primary.ID)
-		log.Printf("[DEBUG] check cluster %s attribute %#v", cluster.Primary.ID, attr)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			return csClient.DescribeCluster(cluster.Primary.ID)
+		})
+		log.Printf("[DEBUG] check cluster %s attribute %#v", cluster.Primary.ID, raw)
 
 		if err != nil {
 			return err
 		}
-
+		attr := raw.(cs.ClusterType)
 		if attr.ClusterID == "" {
 			return fmt.Errorf("Container cluster not found")
 		}
@@ -162,14 +170,16 @@ func testAccCheckContainerClusterExists(n string, d *cs.ClusterType) resource.Te
 }
 
 func testAccCheckSwarmClusterDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient).csconn
+	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_cs_swarm" {
 			continue
 		}
 
-		cluster, err := client.DescribeCluster(rs.Primary.ID)
+		raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			return csClient.DescribeCluster(rs.Primary.ID)
+		})
 
 		if err != nil {
 			if NotFoundError(err) || IsExceptedError(err, ErrorClusterNotFound) {
@@ -177,7 +187,7 @@ func testAccCheckSwarmClusterDestroy(s *terraform.State) error {
 			}
 			return err
 		}
-
+		cluster := raw.(cs.ClusterType)
 		if cluster.ClusterID != "" {
 			return fmt.Errorf("Error container cluster %s still exists.", rs.Primary.ID)
 		}
