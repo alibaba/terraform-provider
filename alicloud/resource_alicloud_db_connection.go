@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
 	"time"
 
@@ -52,14 +53,15 @@ func resourceAlicloudDBConnection() *schema.Resource {
 }
 
 func resourceAlicloudDBConnectionCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	rdsService := RdsService{client}
 	instance_id := d.Get("instance_id").(string)
 	prefix, ok := d.GetOk("connection_prefix")
 	if !ok || prefix.(string) == "" {
 		prefix = fmt.Sprintf("%stf", instance_id)
 	}
 
-	if err := client.AllocateDBPublicConnection(instance_id, prefix.(string), d.Get("port").(string)); err != nil {
+	if err := rdsService.AllocateDBPublicConnection(instance_id, prefix.(string), d.Get("port").(string)); err != nil {
 		return fmt.Errorf("AllocateInstancePublicConnection got an error: %#v", err)
 	}
 
@@ -75,10 +77,12 @@ func resourceAlicloudDBConnectionRead(d *schema.ResourceData, meta interface{}) 
 
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 
-	conn, err := meta.(*AliyunClient).DescribeDBInstanceNetInfoByIpType(parts[0], Public)
+	client := meta.(*aliyunclient.AliyunClient)
+	rdsService := RdsService{client}
+	conn, err := rdsService.DescribeDBInstanceNetInfoByIpType(parts[0], Public)
 
 	if err != nil {
-		if NotFoundDBInstance(err) {
+		if rdsService.NotFoundDBInstance(err) {
 			d.SetId("")
 			return nil
 		}
@@ -95,7 +99,8 @@ func resourceAlicloudDBConnectionRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	rdsService := RdsService{client}
 	d.Partial(true)
 
 	if strings.HasSuffix(d.Id(), DBConnectionSuffix) {
@@ -112,12 +117,15 @@ func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}
 		request.Port = d.Get("port").(string)
 
 		// wait instance running before modifying
-		if err := client.WaitForDBInstance(request.DBInstanceId, Running, 500); err != nil {
+		if err := rdsService.WaitForDBInstance(request.DBInstanceId, Running, 500); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 
 		if err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-			if _, err := client.rdsconn.ModifyDBInstanceConnectionString(request); err != nil {
+			_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+				return rdsClient.ModifyDBInstanceConnectionString(request)
+			})
+			if err != nil {
 				if IsExceptedErrors(err, OperationDeniedDBStatus) {
 					return resource.RetryableError(fmt.Errorf("Modify DBInstance Connection Port got an error: %#v.", err))
 				}
@@ -129,7 +137,7 @@ func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}
 		}
 
 		// wait instance running after modifying
-		if err := client.WaitForDBInstance(request.DBInstanceId, Running, 500); err != nil {
+		if err := rdsService.WaitForDBInstance(request.DBInstanceId, Running, 500); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
 
@@ -142,7 +150,8 @@ func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAlicloudDBConnectionDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	rdsService := RdsService{client}
 	if strings.HasSuffix(d.Id(), DBConnectionSuffix) {
 		d.SetId(strings.Replace(d.Id(), DBConnectionSuffix, "", -1))
 	}
@@ -150,7 +159,7 @@ func resourceAlicloudDBConnectionDelete(d *schema.ResourceData, meta interface{}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		err := client.ReleaseDBPublicConnection(parts[0], fmt.Sprintf("%s%s", parts[1], DBConnectionSuffix))
+		err := rdsService.ReleaseDBPublicConnection(parts[0], fmt.Sprintf("%s%s", parts[1], DBConnectionSuffix))
 
 		if err != nil {
 			if IsExceptedError(err, InvalidCurrentConnectionStringNotFound) || IsExceptedError(err, AtLeastOneNetTypeExists) {
@@ -158,10 +167,10 @@ func resourceAlicloudDBConnectionDelete(d *schema.ResourceData, meta interface{}
 			}
 			return resource.RetryableError(fmt.Errorf("Release DB connection timeout and got an error: %#v.", err))
 		}
-		conn, err := meta.(*AliyunClient).DescribeDBInstanceNetInfoByIpType(parts[0], Public)
+		conn, err := rdsService.DescribeDBInstanceNetInfoByIpType(parts[0], Public)
 
 		if err != nil {
-			if NotFoundDBInstance(err) || IsExceptedError(err, InvalidCurrentConnectionStringNotFound) {
+			if rdsService.NotFoundDBInstance(err) || IsExceptedError(err, InvalidCurrentConnectionStringNotFound) {
 				return nil
 			}
 			return resource.NonRetryableError(fmt.Errorf("Release DB connection got an error: %#v.", err))

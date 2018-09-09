@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"testing"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
@@ -47,8 +48,9 @@ func testAccCheckDBBackupPolicyExists(n string, d *rds.DescribeBackupPolicyRespo
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No DB account ID is set")
 		}
-
-		resp, err := testAccProvider.Meta().(*AliyunClient).DescribeBackupPolicy(rs.Primary.ID)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		rdsService := RdsService{client}
+		resp, err := rdsService.DescribeBackupPolicy(rs.Primary.ID)
 		if err != nil {
 
 			return fmt.Errorf("Error Describe DB backup policy: %#v", err)
@@ -64,15 +66,17 @@ func testAccCheckDBBackupPolicyExists(n string, d *rds.DescribeBackupPolicyRespo
 }
 
 func testAccCheckDBBackupPolicyDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_db_account" {
 			continue
 		}
 
-		_, err := client.rdsconn.DescribeBackupPolicy(&rds.DescribeBackupPolicyRequest{
-			DBInstanceId: rs.Primary.ID,
+		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+			return rdsClient.DescribeBackupPolicy(&rds.DescribeBackupPolicyRequest{
+				DBInstanceId: rs.Primary.ID,
+			})
 		})
 		if err != nil {
 			if IsExceptedError(err, InvalidDBInstanceIdNotFound) || IsExceptedError(err, InvalidDBInstanceNameNotFound) {
