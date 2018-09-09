@@ -1,6 +1,7 @@
 package alicloud
 
 import (
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"os"
 
 	"github.com/denverdino/aliyungo/common"
@@ -201,7 +202,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			region = DEFAULT_REGION
 		}
 	}
-	config := Config{
+	config := aliyunclient.Config{
 		AccessKey: d.Get("access_key").(string),
 		SecretKey: d.Get("secret_key").(string),
 		Region:    common.Region(region.(string)),

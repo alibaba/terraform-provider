@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"testing"
 
@@ -50,17 +51,19 @@ func testAccCheckCdnDomainExists(n string, domain *cdn.DomainDetail) resource.Te
 			return fmt.Errorf("No Domain ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
-		conn := client.cdnconn
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
 		request := cdn.DescribeDomainRequest{
 			DomainName: rs.Primary.Attributes["domain_name"],
 		}
 
-		response, err := conn.DescribeCdnDomainDetail(request)
+		raw, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+			return cdnClient.DescribeCdnDomainDetail(request)
+		})
 		log.Printf("[WARN] Domain id %#v", rs.Primary.ID)
 
 		if err == nil {
+			response := raw.(cdn.DomainResponse)
 			*domain = response.GetDomainDetailModel
 			return nil
 		}
@@ -76,14 +79,15 @@ func testAccCheckCdnDomainDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the domain
-		client := testAccProvider.Meta().(*AliyunClient)
-		conn := client.cdnconn
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
 		request := cdn.DescribeDomainRequest{
 			DomainName: rs.Primary.Attributes["domain_name"],
 		}
 
-		_, err := conn.DescribeCdnDomainDetail(request)
+		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+			return cdnClient.DescribeCdnDomainDetail(request)
+		})
 
 		if err != nil && !IsExceptedErrors(err, []string{InvalidDomainNotFound}) {
 			return fmt.Errorf("Error Domain still exist.")
