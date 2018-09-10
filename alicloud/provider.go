@@ -239,6 +239,8 @@ func Provider() terraform.ResourceProvider {
 			"alicloud_api_gateway_group":                resourceAliyunApigatewayGroup(),
 			"alicloud_api_gateway_app":                  resourceAliyunApigatewayApp(),
 			"alicloud_common_bandwidth_package":         resourceAliyunCommonBandwidthPackage(),
+			"alicloud_mongodb_instance":                 resourceAlicloudMongoDBInstance(),
+			"alicloud_mongodb_backup_policy":            resourceAlicloudMongoDBBackupPolicy(),
 		},
 
 		ConfigureFunc: providerConfigure,
