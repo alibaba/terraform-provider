@@ -2,6 +2,8 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/aliyun/aliyun-log-go-sdk"
 	"time"
 
 	"github.com/aliyun/fc-go-sdk"
@@ -106,11 +108,7 @@ func resourceAlicloudFCService() *schema.Resource {
 }
 
 func resourceAlicloudFCServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
-	conn, err := client.Fcconn()
-	if err != nil {
-		return err
-	}
+	client := meta.(*aliyunclient.AliyunClient)
 
 	var name string
 	if v, ok := d.GetOk("name"); ok {
@@ -143,13 +141,16 @@ func resourceAlicloudFCServiceCreate(d *schema.ResourceData, meta interface{}) e
 
 	var service *fc.CreateServiceOutput
 	if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
-		service, err = conn.CreateService(input)
+		raw, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+			return fcClient.CreateService(input)
+		})
 		if err != nil {
 			if IsExceptedErrors(err, []string{AccessDenied, "does not exist"}) {
 				return resource.RetryableError(fmt.Errorf("Error creating function compute service got an error: %#v", err))
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error creating function compute service got an error: %#v", err))
 		}
+		service := raw.(*fc.CreateServiceOutput)
 		return nil
 
 	}); err != nil {
@@ -166,9 +167,10 @@ func resourceAlicloudFCServiceCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudFCServiceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	fcService := FcService{client}
 
-	service, err := client.DescribeFcService(d.Id())
+	service, err := fcService.DescribeFcService(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -208,11 +210,7 @@ func resourceAlicloudFCServiceRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudFCServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
-	conn, err := client.Fcconn()
-	if err != nil {
-		return err
-	}
+	client := meta.(*aliyunclient.AliyunClient)
 
 	d.Partial(true)
 	updateInput := &fc.UpdateServiceInput{}
@@ -250,7 +248,10 @@ func resourceAlicloudFCServiceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if updateInput != nil {
 		updateInput.ServiceName = StringPointer(d.Id())
-		if _, err := conn.UpdateService(updateInput); err != nil {
+		_, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+			return fcClient.UpdateService(updateInput)
+		})
+		if err != nil {
 			return fmt.Errorf("UpdateService %s got an error: %#v.", d.Id(), err)
 		}
 	}
@@ -260,23 +261,23 @@ func resourceAlicloudFCServiceUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudFCServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
-	conn, err := client.Fcconn()
-	if err != nil {
-		return err
-	}
+	client := meta.(*aliyunclient.AliyunClient)
+	fcService := FcService{client}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		if _, err := conn.DeleteService(&fc.DeleteServiceInput{
-			ServiceName: StringPointer(d.Id()),
-		}); err != nil {
+		_, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+			return fcClient.DeleteService(&fc.DeleteServiceInput{
+				ServiceName: StringPointer(d.Id()),
+			})
+		})
+		if err != nil {
 			if IsExceptedErrors(err, []string{ServiceNotFound}) {
 				return nil
 			}
 			return resource.NonRetryableError(fmt.Errorf("Deleting function service got an error: %#v.", err))
 		}
 
-		if _, err := client.DescribeFcService(d.Id()); err != nil {
+		if _, err := fcService.DescribeFcService(d.Id()); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}
@@ -288,6 +289,8 @@ func resourceAlicloudFCServiceDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func parseVpcConfig(d *schema.ResourceData, meta interface{}) (config *fc.VPCConfig, err error) {
+	client := meta.(*aliyunclient.AliyunClient)
+	vpcService := VpcService{client}
 	if v, ok := d.GetOk("vpc_config"); ok {
 
 		confs := v.([]interface{})
@@ -302,7 +305,7 @@ func parseVpcConfig(d *schema.ResourceData, meta interface{}) (config *fc.VPCCon
 		}
 		if conf != nil {
 			vswitch_ids := conf["vswitch_ids"].(*schema.Set).List()
-			vsw, e := meta.(*AliyunClient).DescribeVswitch(vswitch_ids[0].(string))
+			vsw, e := vpcService.DescribeVswitch(vswitch_ids[0].(string))
 			if e != nil {
 				err = fmt.Errorf("While creating fc service, describing vswitch %s got an error: %#v.", vswitch_ids[0].(string), e)
 				return
@@ -318,6 +321,7 @@ func parseVpcConfig(d *schema.ResourceData, meta interface{}) (config *fc.VPCCon
 }
 
 func parseLogConfig(d *schema.ResourceData, meta interface{}) (project, logstore string, err error) {
+	client := meta.(*aliyunclient.AliyunClient)
 	if v, ok := d.GetOk("log_config"); ok {
 
 		configs := v.([]interface{})
@@ -334,7 +338,10 @@ func parseLogConfig(d *schema.ResourceData, meta interface{}) (project, logstore
 	}
 	if project != "" {
 		err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-			if _, e := meta.(*AliyunClient).logconn.CheckProjectExist(project); e != nil {
+			_, e := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+				return slsClient.CheckProjectExist(project)
+			})
+			if e != nil {
 				if NotFoundError(e) {
 					return resource.RetryableError(fmt.Errorf("Check log project %s failed: %#v.", project, e))
 				}
@@ -350,7 +357,10 @@ func parseLogConfig(d *schema.ResourceData, meta interface{}) (project, logstore
 
 	if logstore != "" {
 		err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-			if _, e := meta.(*AliyunClient).logconn.CheckLogstoreExist(project, logstore); e != nil {
+			_, e := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+				return slsClient.CheckLogstoreExist(project, logstore)
+			})
+			if e != nil {
 				if NotFoundError(e) {
 					return resource.RetryableError(fmt.Errorf("Check logstore %s failed: %#v.", logstore, e))
 				}
