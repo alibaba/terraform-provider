@@ -6,16 +6,16 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
-func TestAccAlicloudDatahubProject_import(t *testing.T) {
-	resourceName := "alicloud_datahub_project.basic"
+func TestAccAlicloudDatahubTopic_importBasic(t *testing.T) {
+	resourceName := "alicloud_datahub_topic.basic"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDatahubProjectDestroy,
+		CheckDestroy: testAccCheckDatahubTopicDestroy,
 		Steps: []resource.TestStep{
 			resource.TestStep{
-				Config: testAccDatahubProject,
+				Config: testAccDatahubTopic,
 			},
 			resource.TestStep{
 				ResourceName:      resourceName,

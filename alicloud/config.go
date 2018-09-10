@@ -220,11 +220,8 @@ func (c *Config) Client() (*AliyunClient, error) {
 		cenconn:         cenconn,
 		pvtzconn:        pvtzconn,
 		stsconn:         stsconn,
-<<<<<<< HEAD
 		rkvconn:         rkvconn,
-=======
 		dhconn:          dhconn,
->>>>>>> support Datahub
 	}, nil
 }
 
@@ -439,14 +436,14 @@ func (c *Config) ddsConn() (*dds.Client, error) {
 	return dds.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
 
-<<<<<<< HEAD
 func (c *Config) rkvConn() (*r_kvstore.Client, error) {
 	endpoint := LoadEndpoint(c.RegionId, KVSTORECode)
 	if endpoint != "" {
 		endpoints.AddEndpointMapping(c.RegionId, string(KVSTORECode), endpoint)
 	}
 	return r_kvstore.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
-=======
+}
+
 func (c *Config) dhConn() (*datahub.DataHub, error) {
 	endpoint := LoadEndpoint(c.RegionId, DATAHUBCode)
 	if endpoint == "" {
@@ -454,7 +451,6 @@ func (c *Config) dhConn() (*datahub.DataHub, error) {
 	}
 	log.Printf("[DEBUG] endpoint:%s", endpoint)
 	return datahub.New(c.AccessKey, c.SecretKey, endpoint), nil
->>>>>>> support Datahub
 }
 
 func getSdkConfig() *sdk.Config {
