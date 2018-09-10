@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAliyunEip() *schema.Resource {
@@ -80,7 +80,8 @@ func resourceAliyunEip() *schema.Resource {
 }
 
 func resourceAliyunEipCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpcService := VpcService{client}
 
 	request := vpc.CreateAllocateEipAddressRequest()
 	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
@@ -99,15 +100,17 @@ func resourceAliyunEipCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	request.ClientToken = buildClientToken("TF-AllocateEip")
 
-	eip, err := client.vpcconn.AllocateEipAddress(request)
+	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		return vpcClient.AllocateEipAddress(request)
+	})
 	if err != nil {
 		if IsExceptedError(err, COMMODITYINVALID_COMPONENT) && request.InternetChargeType == string(PayByBandwidth) {
 			return fmt.Errorf("Your account is international and it can only create '%s' elastic IP. Please change it and try again.", PayByTraffic)
 		}
 		return err
 	}
-
-	err = client.WaitForEip(eip.AllocationId, Available, 60)
+	eip := raw.(*vpc.AllocateEipAddressResponse)
+	err = vpcService.WaitForEip(eip.AllocationId, Available, 60)
 	if err != nil {
 		return fmt.Errorf("Error Waitting for EIP available: %#v", err)
 	}
@@ -118,9 +121,10 @@ func resourceAliyunEipCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunEipRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpcService := VpcService{client}
 
-	eip, err := client.DescribeEipAddress(d.Id())
+	eip, err := vpcService.DescribeEipAddress(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -149,7 +153,7 @@ func resourceAliyunEipRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunEipUpdate(d *schema.ResourceData, meta interface{}) error {
-
+	client := meta.(*aliyunclient.AliyunClient)
 	d.Partial(true)
 
 	update := false
@@ -172,7 +176,10 @@ func resourceAliyunEipUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.SetPartial("description")
 	}
 	if update {
-		if _, err := meta.(*AliyunClient).vpcconn.ModifyEipAddressAttribute(request); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.ModifyEipAddressAttribute(request)
+		})
+		if err != nil {
 			return err
 		}
 	}
@@ -183,13 +190,17 @@ func resourceAliyunEipUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunEipDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpcService := VpcService{client}
 
 	request := vpc.CreateReleaseEipAddressRequest()
 	request.AllocationId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		if _, err := client.vpcconn.ReleaseEipAddress(request); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.ReleaseEipAddress(request)
+		})
+		if err != nil {
 			if IsExceptedError(err, EipIncorrectStatus) {
 				return resource.RetryableError(fmt.Errorf("Delete EIP timeout and got an error:%#v.", err))
 			}
@@ -197,7 +208,7 @@ func resourceAliyunEipDelete(d *schema.ResourceData, meta interface{}) error {
 
 		}
 
-		eip, descErr := client.DescribeEipAddress(d.Id())
+		eip, descErr := vpcService.DescribeEipAddress(d.Id())
 
 		if descErr != nil {
 			if NotFoundError(descErr) {
