@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"testing"
 
@@ -23,11 +24,11 @@ func init() {
 }
 
 func testSweepEssGroups(region string) error {
-	client, err := sharedClientForRegion(region)
+	rawClient, err := sharedClientForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	conn := client.(*AliyunClient)
+	client := rawClient.(*aliyunclient.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -39,14 +40,17 @@ func testSweepEssGroups(region string) error {
 
 	var groups []ess.ScalingGroup
 	req := ess.CreateDescribeScalingGroupsRequest()
-	req.RegionId = conn.RegionId
+	req.RegionId = client.RegionId
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		resp, err := conn.essconn.DescribeScalingGroups(req)
+		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+			return essClient.DescribeScalingGroups(req)
+		})
 		if err != nil {
 			return fmt.Errorf("Error retrieving Scaling groups: %s", err)
 		}
+		resp := raw.(*ess.DescribeScalingGroupsResponse)
 		if resp == nil || len(resp.ScalingGroups.ScalingGroup) < 1 {
 			break
 		}
@@ -83,7 +87,10 @@ func testSweepEssGroups(region string) error {
 		req := ess.CreateDeleteScalingGroupRequest()
 		req.ScalingGroupId = id
 		req.ForceDelete = requests.NewBoolean(true)
-		if _, err := conn.essconn.DeleteScalingGroup(req); err != nil {
+		_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+			return essClient.DeleteScalingGroup(req)
+		})
+		if err != nil {
 			log.Printf("[ERROR] Failed to delete Scaling Group (%s (%s)): %s", name, id, err)
 		}
 	}
@@ -255,8 +262,9 @@ func testAccCheckEssScalingGroupExists(n string, d *ess.ScalingGroup) resource.T
 			return fmt.Errorf("No ESS Scaling Group ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
-		attr, err := client.DescribeScalingGroupById(rs.Primary.ID)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		essService := EssService{client}
+		attr, err := essService.DescribeScalingGroupById(rs.Primary.ID)
 		log.Printf("[DEBUG] check scaling group %s attribute %#v", rs.Primary.ID, attr)
 
 		if err != nil {
@@ -269,14 +277,15 @@ func testAccCheckEssScalingGroupExists(n string, d *ess.ScalingGroup) resource.T
 }
 
 func testAccCheckEssScalingGroupDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	essService := EssService{client}
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_ess_scaling_group" {
 			continue
 		}
 
-		if _, err := client.DescribeScalingGroupById(rs.Primary.ID); err != nil {
+		if _, err := essService.DescribeScalingGroupById(rs.Primary.ID); err != nil {
 			if NotFoundError(err) {
 				continue
 			}
