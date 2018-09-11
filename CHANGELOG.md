@@ -1,4 +1,15 @@
 ## 1.16.0 (Unreleased)
+
+IMPROVEMENTS:
+
+- Improve client token using timestemp ([#679](https://github.com/alibaba/terraform-provider/pull/679))
+
+BUG FIXES:
+
+- Fix retriving kvstore multi zones bug ([#679](https://github.com/alibaba/terraform-provider/pull/679))
+- Fix kvstore instance period bug ([#679](https://github.com/alibaba/terraform-provider/pull/679))
+- Fix kvstore docs bug ([#679](https://github.com/alibaba/terraform-provider/pull/679))
+
 ## 1.15.0 (September 08, 2018)
 
 FEATURES:

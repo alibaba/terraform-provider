@@ -493,6 +493,12 @@
 			"revisionTime": "2016-01-25T20:49:56Z"
 		},
 		{
+			"checksumSHA1": "lBRyy5oCx4cd0VMmO5poYqZ+sTk=",
+			"path": "github.com/google/uuid",
+			"revision": "e704694aed0ea004bb7eb1fc2e911d048a54606a",
+			"revisionTime": "2018-08-28T18:15:55Z"
+		},
+		{
 			"checksumSHA1": "bnWJ5VK7fHAcqpLqY09k0nX8QNs=",
 			"path": "github.com/pierrec/lz4",
 			"revision": "ed8d4cc3b461464e69798080a0092bd028910298",
