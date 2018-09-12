@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"testing"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/pvtz"
@@ -116,8 +117,9 @@ func testAccAlicloudPvtzZoneAttachmentExists(n string, zone *pvtz.DescribeZoneIn
 			return fmt.Errorf("No ZONE ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
-		instance, err := client.DescribePvtzZoneInfo(rs.Primary.ID)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		pvtzService := PvtzService{client}
+		instance, err := pvtzService.DescribePvtzZoneInfo(rs.Primary.ID)
 
 		if err != nil {
 			return err
@@ -140,14 +142,15 @@ func testAccAlicloudPvtzZoneAttachmentExists(n string, zone *pvtz.DescribeZoneIn
 }
 
 func testAccAlicloudPvtzZoneAttachmentDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	pvtzService := PvtzService{client}
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_pvtz_zone_attachment" {
 			continue
 		}
 
-		instance, err := client.DescribePvtzZoneInfo(rs.Primary.ID)
+		instance, err := pvtzService.DescribePvtzZoneInfo(rs.Primary.ID)
 
 		if err != nil && !NotFoundError(err) {
 			return err

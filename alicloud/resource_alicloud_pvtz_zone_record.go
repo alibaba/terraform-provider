@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strconv"
 	"strings"
 	"time"
@@ -53,8 +54,7 @@ func resourceAlicloudPvtzZoneRecord() *schema.Resource {
 }
 
 func resourceAlicloudPvtzZoneRecordCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
-	conn := client.pvtzconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	args := pvtz.CreateAddZoneRecordRequest()
 
@@ -82,11 +82,14 @@ func resourceAlicloudPvtzZoneRecordCreate(d *schema.ResourceData, meta interface
 		args.Ttl = requests.NewInteger(d.Get("ttl").(int))
 	}
 
-	resp, err := conn.AddZoneRecord(args)
+	raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		return pvtzClient.AddZoneRecord(args)
+	})
 
 	if err != nil {
 		return fmt.Errorf("AddZoneRecord got a error: %#v", err)
 	}
+	resp := raw.(*pvtz.AddZoneRecordResponse)
 	if resp == nil {
 		return fmt.Errorf("AddZoneRecord got a nil response: %#v", resp)
 	}
@@ -136,7 +139,11 @@ func resourceAlicloudPvtzZoneRecordUpdate(d *schema.ResourceData, meta interface
 	}
 
 	if attributeUpdate {
-		if _, err := meta.(*AliyunClient).pvtzconn.UpdateZoneRecord(args); err != nil {
+		client := meta.(*aliyunclient.AliyunClient)
+		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+			return pvtzClient.UpdateZoneRecord(args)
+		})
+		if err != nil {
 			return err
 		}
 	}
@@ -148,7 +155,8 @@ func resourceAlicloudPvtzZoneRecordUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceAlicloudPvtzZoneRecordRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	pvtzService := PvtzService{client}
 
 	recordIdStr, zoneId, _ := getRecordIdAndZoneId(d, meta)
 	recordId, e := strconv.Atoi(recordIdStr)
@@ -156,7 +164,7 @@ func resourceAlicloudPvtzZoneRecordRead(d *schema.ResourceData, meta interface{}
 		return e
 	}
 
-	record, err := client.DescribeZoneRecord(recordId, zoneId)
+	record, err := pvtzService.DescribeZoneRecord(recordId, zoneId)
 	if err != nil {
 		if NotFoundError(e) {
 			d.SetId("")
@@ -178,8 +186,8 @@ func resourceAlicloudPvtzZoneRecordRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAlicloudPvtzZoneRecordDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
-	conn := client.pvtzconn
+	client := meta.(*aliyunclient.AliyunClient)
+	pvtzService := PvtzService{client}
 
 	request := pvtz.CreateDeleteZoneRecordRequest()
 	recordIdStr, zoneId, _ := getRecordIdAndZoneId(d, meta)
@@ -190,13 +198,15 @@ func resourceAlicloudPvtzZoneRecordDelete(d *schema.ResourceData, meta interface
 	request.RecordId = requests.NewInteger(recordId)
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := conn.DeleteZoneRecord(request)
+		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+			return pvtzClient.DeleteZoneRecord(request)
+		})
 
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Error deleting zone record failed: %#v", err))
 		}
 
-		if _, e := client.DescribeZoneRecord(recordId, zoneId); e != nil {
+		if _, e := pvtzService.DescribeZoneRecord(recordId, zoneId); e != nil {
 			if NotFoundError(e) {
 				return nil
 			}
