@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"time"
 
 	"strings"
@@ -56,15 +57,18 @@ func resourceAlicloudLogMachineGroup() *schema.Resource {
 }
 
 func resourceAlicloudLogMachineGroupCreate(d *schema.ResourceData, meta interface{}) error {
-
-	if err := meta.(*AliyunClient).logconn.CreateMachineGroup(d.Get("project").(string), &sls.MachineGroup{
-		Name:          d.Get("name").(string),
-		MachineIDType: d.Get("identify_type").(string),
-		MachineIDList: expandStringList(d.Get("identify_list").(*schema.Set).List()),
-		Attribute: sls.MachinGroupAttribute{
-			TopicName: d.Get("topic").(string),
-		},
-	}); err != nil {
+	client := meta.(*aliyunclient.AliyunClient)
+	_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		return nil, slsClient.CreateMachineGroup(d.Get("project").(string), &sls.MachineGroup{
+			Name:          d.Get("name").(string),
+			MachineIDType: d.Get("identify_type").(string),
+			MachineIDList: expandStringList(d.Get("identify_list").(*schema.Set).List()),
+			Attribute: sls.MachinGroupAttribute{
+				TopicName: d.Get("topic").(string),
+			},
+		})
+	})
+	if err != nil {
 		return fmt.Errorf("CreateLogMachineGroup got an error: %#v.", err)
 	}
 
@@ -74,9 +78,11 @@ func resourceAlicloudLogMachineGroupCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudLogMachineGroupRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*aliyunclient.AliyunClient)
+	logService := LogService{client}
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
-	group, err := meta.(*AliyunClient).DescribeLogMachineGroup(split[0], split[1])
+	group, err := logService.DescribeLogMachineGroup(split[0], split[1])
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -113,14 +119,18 @@ func resourceAlicloudLogMachineGroupUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	if update {
-		if err := meta.(*AliyunClient).logconn.UpdateMachineGroup(split[0], &sls.MachineGroup{
-			Name:          split[1],
-			MachineIDType: d.Get("identify_type").(string),
-			MachineIDList: expandStringList(d.Get("identify_list").(*schema.Set).List()),
-			Attribute: sls.MachinGroupAttribute{
-				TopicName: d.Get("topic").(string),
-			},
-		}); err != nil {
+		client := meta.(*aliyunclient.AliyunClient)
+		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+			return nil, slsClient.UpdateMachineGroup(split[0], &sls.MachineGroup{
+				Name:          split[1],
+				MachineIDType: d.Get("identify_type").(string),
+				MachineIDList: expandStringList(d.Get("identify_list").(*schema.Set).List()),
+				Attribute: sls.MachinGroupAttribute{
+					TopicName: d.Get("topic").(string),
+				},
+			})
+		})
+		if err != nil {
 			return fmt.Errorf("UpdateLogMachineGroup %s got an error: %#v.", split[1], err)
 		}
 	}
@@ -130,15 +140,19 @@ func resourceAlicloudLogMachineGroupUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudLogMachineGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	logService := LogService{client}
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		if err := client.logconn.DeleteMachineGroup(split[0], split[1]); err != nil {
+		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+			return nil, slsClient.DeleteMachineGroup(split[0], split[1])
+		})
+		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("Deleting log machine group %s got an error: %#v", split[1], err))
 		}
 
-		if _, err := client.DescribeLogMachineGroup(split[0], split[1]); err != nil {
+		if _, err := logService.DescribeLogMachineGroup(split[0], split[1]); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}

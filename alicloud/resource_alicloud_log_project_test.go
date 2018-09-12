@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"strings"
 	"testing"
@@ -19,11 +20,11 @@ func init() {
 }
 
 func testSweepLogProjects(region string) error {
-	client, err := sharedClientForRegion(region)
+	rawClient, err := sharedClientForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	conn := client.(*AliyunClient)
+	client := rawClient.(*aliyunclient.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -32,10 +33,13 @@ func testSweepLogProjects(region string) error {
 		"tf-test-",
 	}
 
-	names, err := conn.logconn.ListProject()
+	raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		return slsClient.ListProject()
+	})
 	if err != nil {
 		return fmt.Errorf("Error retrieving Log Projects: %s", err)
 	}
+	names := raw.([]string)
 
 	for _, v := range names {
 		name := v
@@ -51,7 +55,10 @@ func testSweepLogProjects(region string) error {
 			continue
 		}
 		log.Printf("[INFO] Deleting Log Project: %s", name)
-		if err := conn.logconn.DeleteProject(name); err != nil {
+		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+			return nil, slsClient.DeleteProject(name)
+		})
+		if err != nil {
 			log.Printf("[ERROR] Failed to delete Log Project (%s): %s", name, err)
 		}
 	}
@@ -88,9 +95,10 @@ func testAccCheckAlicloudLogProjectExists(name string, project *sls.LogProject) 
 			return fmt.Errorf("No Log project ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		logService := LogService{client}
 
-		p, err := client.DescribeLogProject(rs.Primary.ID)
+		p, err := logService.DescribeLogProject(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -104,19 +112,21 @@ func testAccCheckAlicloudLogProjectExists(name string, project *sls.LogProject) 
 }
 
 func testAccCheckAlicloudLogProjectDestroy(s *terraform.State) error {
-	conn := testAccProvider.Meta().(*AliyunClient).logconn
+	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_log_project" {
 			continue
 		}
 
-		exist, err := conn.CheckProjectExist(rs.Primary.ID)
+		raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+			return slsClient.CheckProjectExist(rs.Primary.ID)
+		})
 
 		if err != nil {
 			return fmt.Errorf("Check log project got an error: %#v.", err)
 		}
-
+		exist := raw.(bool)
 		if !exist {
 			return nil
 		}

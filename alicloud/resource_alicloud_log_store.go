@@ -2,6 +2,8 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/aliyun/aliyun-log-go-sdk"
 	"time"
 
 	"strings"
@@ -77,8 +79,12 @@ func resourceAlicloudLogStore() *schema.Resource {
 }
 
 func resourceAlicloudLogStoreCreate(d *schema.ResourceData, meta interface{}) error {
-	if err := meta.(*AliyunClient).logconn.CreateLogStore(d.Get("project").(string), d.Get("name").(string),
-		d.Get("retention_period").(int), d.Get("shard_count").(int)); err != nil {
+	client := meta.(*aliyunclient.AliyunClient)
+	_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		return nil, slsClient.CreateLogStore(d.Get("project").(string), d.Get("name").(string),
+			d.Get("retention_period").(int), d.Get("shard_count").(int))
+	})
+	if err != nil {
 		return fmt.Errorf("CreateLogStore got an error: %#v.", err)
 	}
 
@@ -88,9 +94,11 @@ func resourceAlicloudLogStoreCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudLogStoreRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*aliyunclient.AliyunClient)
+	logService := LogService{client}
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
-	store, err := meta.(*AliyunClient).DescribeLogStore(split[0], split[1])
+	store, err := logService.DescribeLogStore(split[0], split[1])
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -123,7 +131,8 @@ func resourceAlicloudLogStoreRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlicloudLogStoreUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	logService := LogService{client}
 
 	if d.IsNewResource() {
 		return resourceAlicloudLogStoreRead(d, meta)
@@ -139,11 +148,14 @@ func resourceAlicloudLogStoreUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if update {
-		store, err := client.DescribeLogStore(split[0], split[1])
+		store, err := logService.DescribeLogStore(split[0], split[1])
 		if err != nil {
 			return err
 		}
-		if err = client.logconn.UpdateLogStore(split[0], split[1], d.Get("retention_period").(int), store.ShardCount); err != nil {
+		_, err = client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+			return nil, slsClient.UpdateLogStore(split[0], split[1], d.Get("retention_period").(int), store.ShardCount)
+		})
+		if err != nil {
 			return fmt.Errorf("UpdateLogStore %s got an error: %#v.", split[1], err)
 		}
 	}
@@ -153,11 +165,12 @@ func resourceAlicloudLogStoreUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudLogStoreDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	logService := LogService{client}
 
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
-	project, err := client.DescribeLogProject(split[0])
+	project, err := logService.DescribeLogProject(split[0])
 	if err != nil {
 		return err
 	}
@@ -166,7 +179,7 @@ func resourceAlicloudLogStoreDelete(d *schema.ResourceData, meta interface{}) er
 			return resource.NonRetryableError(fmt.Errorf("Deleting log store %s got an error: %#v", split[1], err))
 		}
 
-		store, err := client.DescribeLogStore(split[0], split[1])
+		store, err := logService.DescribeLogStore(split[0], split[1])
 		if err != nil {
 			if NotFoundError(err) {
 				return nil
