@@ -7,6 +7,7 @@ import (
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func TestAccAlicloudKmsKey_basic(t *testing.T) {
@@ -46,13 +47,15 @@ func testAccCheckAlicloudKmsKeyExists(name string, key *kms.KeyMetadata) resourc
 			return fmt.Errorf("No KMS Key ID is set")
 		}
 
-		conn := testAccProvider.Meta().(*AliyunClient).kmsconn
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
-		o, err := conn.DescribeKey(rs.Primary.ID)
+		raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+			return kmsClient.DescribeKey(rs.Primary.ID)
+		})
 		if err != nil {
 			return err
 		}
-
+		o := raw.(*kms.DescribeKeyResponse)
 		meta := o.KeyMetadata
 		key = &meta
 
@@ -61,19 +64,21 @@ func testAccCheckAlicloudKmsKeyExists(name string, key *kms.KeyMetadata) resourc
 }
 
 func testAccCheckAlicloudKmsKeyDestroy(s *terraform.State) error {
-	conn := testAccProvider.Meta().(*AliyunClient).kmsconn
+	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_kms_key" {
 			continue
 		}
 
-		out, err := conn.DescribeKey(rs.Primary.ID)
+		raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+			return kmsClient.DescribeKey(rs.Primary.ID)
+		})
 
 		if err != nil && !IsExceptedError(err, ForbiddenKeyNotFound) {
 			return err
 		}
-
+		out := raw.(*kms.DescribeKeyResponse)
 		if KeyState(out.KeyMetadata.KeyState) == PendingDeletion {
 			return nil
 		}
