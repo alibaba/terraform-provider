@@ -1,5 +1,9 @@
 ## 1.16.0 (Unreleased)
 
+FEATURES:
+
+- **New Resource:** `alicloud_cen_instance_attachment` ([#681](https://github.com/alibaba/terraform-provider/pull/681))
+
 IMPROVEMENTS:
 
 - Improve client token using timestemp ([#680](https://github.com/alibaba/terraform-provider/pull/680))
