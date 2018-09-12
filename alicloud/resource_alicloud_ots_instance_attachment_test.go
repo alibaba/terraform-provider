@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"fmt"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"testing"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
@@ -58,9 +59,10 @@ func testAccCheckOtsInstanceAttachmentExist(n string, instance *ots.VpcInfo) res
 			return fmt.Errorf("no OTS table ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		otsService := OtsService{client}
 
-		response, err := client.DescribeOtsInstanceVpc(rs.Primary.ID)
+		response, err := otsService.DescribeOtsInstanceVpc(rs.Primary.ID)
 
 		if err != nil {
 			return err
@@ -76,9 +78,10 @@ func testAccCheckOtsInstanceAttachmentDestroy(s *terraform.State) error {
 			continue
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		otsService := OtsService{client}
 
-		if _, err := client.DescribeOtsInstanceVpc(rs.Primary.ID); err != nil {
+		if _, err := otsService.DescribeOtsInstanceVpc(rs.Primary.ID); err != nil {
 			if NotFoundError(err) {
 				continue
 			}
