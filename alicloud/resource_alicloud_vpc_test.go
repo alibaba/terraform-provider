@@ -10,6 +10,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func init() {
@@ -29,11 +30,11 @@ func init() {
 }
 
 func testSweepVpcs(region string) error {
-	client, err := sharedClientForRegion(region)
+	rawClient, err := sharedClientForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	conn := client.(*AliyunClient)
+	client := rawClient.(*aliyunclient.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -45,14 +46,17 @@ func testSweepVpcs(region string) error {
 
 	var vpcs []vpc.Vpc
 	req := vpc.CreateDescribeVpcsRequest()
-	req.RegionId = conn.RegionId
+	req.RegionId = client.RegionId
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		resp, err := conn.vpcconn.DescribeVpcs(req)
+		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DescribeVpcs(req)
+		})
 		if err != nil {
 			return fmt.Errorf("Error retrieving VPCs: %s", err)
 		}
+		resp := raw.(*vpc.DescribeVpcsResponse)
 		if resp == nil || len(resp.Vpcs.Vpc) < 1 {
 			break
 		}
@@ -86,7 +90,10 @@ func testSweepVpcs(region string) error {
 		log.Printf("[INFO] Deleting VPC: %s (%s)", name, id)
 		req := vpc.CreateDeleteVpcRequest()
 		req.VpcId = id
-		if _, err := conn.vpcconn.DeleteVpc(req); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DeleteVpc(req)
+		})
+		if err != nil {
 			log.Printf("[ERROR] Failed to delete VPC (%s (%s)): %s", name, id, err)
 		}
 	}
@@ -192,8 +199,9 @@ func testAccCheckVpcExists(n string, vpc *vpc.DescribeVpcAttributeResponse) reso
 			return fmt.Errorf("No VPC ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
-		instance, err := client.DescribeVpc(rs.Primary.ID)
+		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		vpcService := VpcService{client}
+		instance, err := vpcService.DescribeVpc(rs.Primary.ID)
 
 		if err != nil {
 			return err
@@ -205,7 +213,8 @@ func testAccCheckVpcExists(n string, vpc *vpc.DescribeVpcAttributeResponse) reso
 }
 
 func testAccCheckVpcDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	vpcService := VpcService{client}
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_vpc" {
@@ -213,7 +222,7 @@ func testAccCheckVpcDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the VPC
-		instance, err := client.DescribeVpc(rs.Primary.ID)
+		instance, err := vpcService.DescribeVpc(rs.Primary.ID)
 
 		if err != nil {
 			if NotFoundError(err) {
