@@ -24,10 +24,10 @@ func TestAccAlicloudDatahubSubscription_Basic(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDatahubSubscription,
 				Check: resource.ComposeTestCheckFunc(
-					// testAccCheckDatahubProjectExist(
-					// "alicloud_datahub_project.basic"),
-					// testAccCheckDatahubTopicExist(
-					// "alicloud_datahub_topic.basic"),
+					testAccCheckDatahubProjectExist(
+						"alicloud_datahub_project.basic"),
+					testAccCheckDatahubTopicExist(
+						"alicloud_datahub_topic.basic"),
 					testAccCheckDatahubSubscriptionExist(
 						"alicloud_datahub_subscription.basic"),
 					resource.TestCheckResourceAttr(
@@ -105,9 +105,24 @@ variable "project_name" {
 variable "topic_name" {
   default = "tftestDatahubTopic"
 }
+variable "record_type" {
+  default = "BLOB"
+}
+resource "alicloud_datahub_project" "basic" {
+  name = "${var.project_name}"
+  comment = "project for basic"
+}
+resource "alicloud_datahub_topic" "basic" {
+  project_name = "${alicloud_datahub_project.basic.name}"
+  topic_name = "${var.topic_name}"
+  record_type = "${var.record_type}"
+  shard_count = 3
+  life_cycle = 7
+  comment = "topic for basic."
+}
 resource "alicloud_datahub_subscription" "basic" {
-  project_name = "${var.project_name}"
-  topic_name = "${var.project_name}"
-  comment = "Datahub subscription towards ${${var.project_name}}.${var.topic_name} is used for test only. Any question, please feel free to contact Kuien Liu."
+  project_name = "${alicloud_datahub_project.basic.name}"
+  topic_name = "${alicloud_datahub_topic.basic.topic_name}"
+  comment = "subscription for basic."
 }
 `

@@ -2,7 +2,10 @@ package alicloud
 
 import (
 	"fmt"
+	"strings"
 	"time"
+
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -31,9 +34,7 @@ func resourceAlicloudDatahubProject() *schema.Resource {
 				Default:      "project added by terraform",
 				ValidateFunc: validateStringLengthInRange(0, 255),
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return !d.IsNewResource()
-					//		TODO: Delete/Update api are not supported yet in Golang SDK
-					//		&& strings.ToLower(new) == strings.ToLower(old)
+					return strings.ToLower(new) == strings.ToLower(old)
 				},
 			},
 			"create_time": {
@@ -48,7 +49,6 @@ func resourceAlicloudDatahubProject() *schema.Resource {
 	}
 }
 
-//FIXME: CreateProject is NOT supported yet in Dahahub's Golang SDK
 func resourceAliyunDatahubProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	dh := meta.(*AliyunClient).dhconn
 
@@ -57,10 +57,7 @@ func resourceAliyunDatahubProjectCreate(d *schema.ResourceData, meta interface{}
 
 	err := dh.CreateProject(projectName, projectComment)
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return nil
-		}
+		d.SetId("")
 		return fmt.Errorf("failed to create project '%s' with error: %s", projectName, err)
 	}
 
@@ -74,21 +71,17 @@ func resourceAliyunDatahubProjectRead(d *schema.ResourceData, meta interface{}) 
 	projectName := d.Id()
 	project, err := dh.GetProject(projectName)
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return nil
-		}
+		d.SetId("")
 		return fmt.Errorf("failed to create project '%s' with error: %s", projectName, err)
 	}
 
-	d.Set("name", project.Name)
+	d.Set("name", projectName)
 	d.Set("comment", project.Comment)
-	d.Set("create_time", convUint64ToDate(project.CreateTime))
-	d.Set("last_modify_time", convUint64ToDate(project.LastModifyTime))
+	d.Set("create_time", utils.Uint64ToTimeString(project.CreateTime))
+	d.Set("last_modify_time", utils.Uint64ToTimeString(project.LastModifyTime))
 	return nil
 }
 
-//FIXME: UpdateProject is NOT supported yet in Dahahub's Golang SDK
 func resourceAliyunDatahubProjectUpdate(d *schema.ResourceData, meta interface{}) error {
 	dh := meta.(*AliyunClient).dhconn
 
@@ -105,14 +98,13 @@ func resourceAliyunDatahubProjectUpdate(d *schema.ResourceData, meta interface{}
 	return resourceAliyunDatahubProjectRead(d, meta)
 }
 
-//FIXME: DeleteProject is NOT supported yet in Dahahub's Golang SDK
 func resourceAliyunDatahubProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	dh := meta.(*AliyunClient).dhconn
 
 	projectName := d.Id()
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
 		_, err := dh.GetProject(projectName)
-		if err != nil && !NotFoundError(err) {
+		if err != nil {
 			return resource.RetryableError(fmt.Errorf("when deleting project '%s', failed to access it with error: %s", projectName, err))
 		}
 

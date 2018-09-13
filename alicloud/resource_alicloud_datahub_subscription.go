@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -72,7 +74,7 @@ func resourceAliyunDatahubSubscriptionCreate(d *schema.ResourceData, meta interf
 	topicName := d.Get("topic_name").(string)
 	subComment := d.Get("comment").(string)
 
-	ret, err := dh.CreateSubscription(projectName, topicName, subComment)
+	subId, err := dh.CreateSubscription(projectName, topicName, subComment)
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -81,7 +83,7 @@ func resourceAliyunDatahubSubscriptionCreate(d *schema.ResourceData, meta interf
 		return fmt.Errorf("failed to create subscription to '%s/%s' with error: %s", projectName, topicName, err)
 	}
 
-	d.SetId(fmt.Sprintf("%s%s%s%s%s", projectName, COLON_SEPARATED, topicName, COLON_SEPARATED, ret.SubId))
+	d.SetId(fmt.Sprintf("%s%s%s%s%s", projectName, COLON_SEPARATED, topicName, COLON_SEPARATED, subId))
 	return resourceAliyunDatahubSubscriptionUpdate(d, meta)
 }
 
@@ -115,12 +117,12 @@ func resourceAliyunDatahubSubscriptionRead(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("failed to get subscription %s with error: %s", subId, err)
 	}
 
-	d.Set("project_name", sub.ProjectName)
+	d.Set("project_name", projectName)
 	d.Set("topic_name", sub.TopicName)
 	d.Set("sub_id", sub.SubId)
 	d.Set("comment", sub.Comment)
-	d.Set("create_time", convUint64ToDate(sub.CreateTime))
-	d.Set("last_modify_time", convUint64ToDate(sub.LastModifyTime))
+	d.Set("create_time", utils.Uint64ToTimeString(sub.CreateTime))
+	d.Set("last_modify_time", utils.Uint64ToTimeString(sub.LastModifyTime))
 	d.Set("is_owner", sub.IsOwner)
 	d.Set("state", sub.State)
 	return nil

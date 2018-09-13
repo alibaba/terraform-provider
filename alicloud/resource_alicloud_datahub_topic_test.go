@@ -5,6 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	// DEBUG only
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -90,14 +93,14 @@ func testAccCheckDatahubTopicExist(n string) resource.TestCheckFunc {
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 		projectName := split[0]
 		topicName := split[1]
-		_, err := dh.GetTopic(topicName, projectName)
+		// _, err := dh.GetTopic(topicName, projectName)
 
 		// XXX DEBUG only
-		// topic, err := dh.GetTopic(topicName, projectName)
-		// fmt.Printf("\nXXX:life_cycle:%d\n", topic.Lifecycle)
-		// fmt.Printf("XXX:comment:%s\n", topic.Comment)
-		// fmt.Printf("XXX:create_time:%s\n", convUint64ToDate(topic.CreateTime))
-		// fmt.Printf("XXX:last_modify_time:%s\n", convUint64ToDate(topic.LastModifyTime))
+		topic, err := dh.GetTopic(topicName, projectName)
+		fmt.Printf("\nXXX:life_cycle:%d\n", topic.Lifecycle)
+		fmt.Printf("XXX:comment:%s\n", topic.Comment)
+		fmt.Printf("XXX:create_time:%s\n", utils.Uint64ToTimeString(topic.CreateTime))
+		fmt.Printf("XXX:last_modify_time:%s\n", utils.Uint64ToTimeString(topic.LastModifyTime))
 
 		if err != nil {
 			return err
@@ -139,16 +142,20 @@ variable "project_name" {
 variable "topic_name" {
   default = "tftestDatahubTopicBasic"
 }
+variable "record_type" {
+  default = "BLOB"
+}
 resource "alicloud_datahub_project" "basic" {
   name = "${var.project_name}"
-  comment = "Datahub project ${var.project_name} is used for terraform test only."
+  comment = "project for basic"
 }
 resource "alicloud_datahub_topic" "basic" {
-  project_name = "${var.project_name}"
+  project_name = "${alicloud_datahub_project.basic.name}"
   topic_name = "${var.topic_name}"
+  record_type = "${var.record_type}"
   shard_count = 3
   life_cycle = 7
-  comment = "Datahub topic ${var.topic_name} is used for terraform test only."
+  comment = "topic for basic."
 }
 `
 const testAccDatahubTopicUpdate = `
@@ -161,15 +168,19 @@ variable "project_name" {
 variable "topic_name" {
   default = "tftestDatahubTopicBasic"
 }
+variable "record_type" {
+  default = "BLOB"
+}
 resource "alicloud_datahub_project" "basic" {
   name = "${var.project_name}"
-  comment = "Datahub project ${var.project_name} is used for terraform test only."
+  comment = "project for basic"
 }
 resource "alicloud_datahub_topic" "basic" {
-  project_name = "${var.project_name}"
+  project_name = "${alicloud_datahub_project.basic.name}"
   topic_name = "${var.topic_name}"
+  record_type = "${var.record_type}"
   shard_count = 3
   life_cycle = 1
-  comment = "Datahub topic ${var.topic_name} is used for terraform test only.\nNow being updated."
+  comment = "topic for update."
 }
 `

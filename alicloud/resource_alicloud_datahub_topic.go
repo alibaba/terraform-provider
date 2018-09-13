@@ -7,6 +7,7 @@ import (
 
 	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/models"
 	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/types"
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -49,11 +50,27 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 			"comment": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "blob topic added by terraform",
+				Default:      "topic added by terraform",
 				ValidateFunc: validateStringLengthInRange(0, 255),
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return strings.ToLower(new) == strings.ToLower(old)
 				},
+			},
+			"record_type": &schema.Schema{
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
+				ValidateFunc: validateAllowedStringValue([]string{string(types.TUPLE), string(types.BLOB)}),
+			},
+			"record_schema": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return !d.IsNewResource()
+					// equal, _ := CompareJsonTemplateAreEquivalent(old, new)
+					// return equal
+				},
+				ValidateFunc: validateJsonString,
 			},
 			"create_time": {
 				Type:     schema.TypeString, //uint64 value from sdk
@@ -75,21 +92,32 @@ func resourceAliyunDatahubTopicCreate(d *schema.ResourceData, meta interface{}) 
 	shardCount := d.Get("shard_count").(int)
 	lifeCycle := d.Get("life_cycle").(int)
 	topicComment := d.Get("comment").(string)
+	recordType := d.Get("record_type").(string)
+	recordSchema := d.Get("record_schema").(string)
 
 	t := &models.Topic{
-		Name:        topicName,
 		ProjectName: projectName,
+		TopicName:   topicName,
 		ShardCount:  shardCount,
 		Lifecycle:   lifeCycle,
 		Comment:     topicComment,
 	}
-	t.RecordType = types.BLOB
+	if recordType == "TUPLE" {
+		t.RecordType = types.TUPLE
+		schema, err := models.NewRecordSchemaFromJson(recordSchema)
+		if err != nil {
+			return fmt.Errorf("failed to create topic'%s/%s' with invalid record schema: %s", projectName, topicName, recordSchema)
+		}
+		t.RecordSchema = schema
+	} else if recordType == "BLOB" {
+		t.RecordType = types.BLOB
+	} else {
+		return fmt.Errorf("failed to create topic'%s/%s' with invalid record type: %s", projectName, topicName, recordType)
+	}
+
 	err := dh.CreateTopic(t)
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return nil
-		}
+		d.SetId("")
 		return fmt.Errorf("failed to create topic'%s/%s' with error: %s", projectName, topicName, err)
 	}
 
@@ -127,12 +155,14 @@ func resourceAliyunDatahubTopicRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	d.Set("project_name", topic.ProjectName)
-	d.Set("topic_name", topic.Name)
+	d.Set("topic_name", topic.TopicName)
 	d.Set("shard_count", topic.ShardCount)
 	d.Set("life_cycle", topic.Lifecycle)
 	d.Set("comment", topic.Comment)
-	d.Set("create_time", convUint64ToDate(topic.CreateTime))
-	d.Set("last_modify_time", convUint64ToDate(topic.LastModifyTime))
+	d.Set("record_type", topic.RecordType.String())
+	d.Set("record_schema", topic.RecordSchema.String())
+	d.Set("create_time", utils.Uint64ToTimeString(topic.CreateTime))
+	d.Set("last_modify_time", utils.Uint64ToTimeString(topic.LastModifyTime))
 	return nil
 }
 

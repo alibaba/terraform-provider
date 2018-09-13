@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	// DEBUG only
+	// "github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -86,10 +89,10 @@ func testAccCheckDatahubProjectExist(n string) resource.TestCheckFunc {
 
 		// XXX DEBUG only
 		// prj, err := dh.GetProject(rs.Primary.ID)
-		// fmt.Printf("\nXXX:life_cycle:%d\n", prj.Lifecycle)
+		// fmt.Printf("\nXXX:name:%s\n", rs.Primary.ID)
 		// fmt.Printf("XXX:comment:%s\n", prj.Comment)
-		// fmt.Printf("XXX:create_time:%s\n", convUint64ToDate(prj.CreateTime))
-		// fmt.Printf("XXX:last_modify_time:%s\n", convUint64ToDate(prj.LastModifyTime))
+		// fmt.Printf("XXX:create_time:%s\n", utils.Uint64ToTimeString(prj.CreateTime))
+		// fmt.Printf("XXX:last_modify_time:%s\n", utils.Uint64ToTimeString(prj.LastModifyTime))
 
 		if err != nil {
 			return err
@@ -108,10 +111,7 @@ func testAccCheckDatahubProjectDestroy(s *terraform.State) error {
 		_, err := dh.GetProject(rs.Primary.ID)
 
 		if err != nil {
-			if NotFoundError(err) {
-				continue
-			}
-			return err
+			continue
 		}
 
 		return fmt.Errorf("Datahub project %s still exists", rs.Primary.ID)
