@@ -22,11 +22,11 @@ func init() {
 }
 
 func testSweepVPNGateways(region string) error {
-	client, err := sharedClientForRegion(region)
+	rawClient, err := sharedClientForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	conn := client.(*aliyunclient.AliyunClient)
+	client := rawClient.(*aliyunclient.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -38,14 +38,17 @@ func testSweepVPNGateways(region string) error {
 
 	var gws []vpc.VpnGateway
 	req := vpc.CreateDescribeVpnGatewaysRequest()
-	req.RegionId = conn.RegionId
+	req.RegionId = client.RegionId
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		resp, err := conn.vpcconn.DescribeVpnGateways(req)
+		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DescribeVpnGateways(req)
+		})
 		if err != nil {
 			return fmt.Errorf("Error retrieving VPN Gateways: %s", err)
 		}
+		resp := raw.(*vpc.DescribeVpnGatewaysResponse)
 		if resp == nil || len(resp.VpnGateways.VpnGateway) < 1 {
 			break
 		}
@@ -81,7 +84,10 @@ func testSweepVPNGateways(region string) error {
 		log.Printf("[INFO] Deleting VPN Gateway: %s (%s)", name, id)
 		req := vpc.CreateDeleteVpnGatewayRequest()
 		req.VpnGatewayId = id
-		if _, err := conn.vpcconn.DeleteVpnGateway(req); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DeleteVpnGateway(req)
+		})
+		if err != nil {
 			log.Printf("[ERROR] Failed to delete VPN Gateway (%s (%s)): %s", name, id, err)
 		}
 	}
