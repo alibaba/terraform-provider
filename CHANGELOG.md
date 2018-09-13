@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- cs_kubernetes supports multi-az ([#682](https://github.com/alibaba/terraform-provider/pull/682))
 - Improve client token using timestemp ([#680](https://github.com/alibaba/terraform-provider/pull/680))
 
 BUG FIXES:
