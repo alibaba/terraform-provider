@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 )
 
 func resourceAliyunSecurityGroupRule() *schema.Resource {
@@ -95,8 +96,7 @@ func resourceAliyunSecurityGroupRule() *schema.Resource {
 }
 
 func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
-	conn := client.ecsconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	direction := d.Get("type").(string)
 	sgId := d.Get("security_group_id").(string)
@@ -122,10 +122,14 @@ func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interfac
 
 	if direction == string(DirectionIngress) {
 		request.ApiName = "AuthorizeSecurityGroup"
-		_, err = conn.ProcessCommonRequest(request)
+		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
 	} else {
 		request.ApiName = "AuthorizeSecurityGroupEgress"
-		_, err = conn.ProcessCommonRequest(request)
+		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
 	}
 	if err != nil {
 		return fmt.Errorf("Error authorizing security group rule type %s: %s", direction, err)
@@ -143,7 +147,8 @@ func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	ecsService := EcsService{client}
 	parts := strings.Split(d.Id(), ":")
 	policy := parseSecurityRuleId(d, meta, 6)
 	strPriority := parseSecurityRuleId(d, meta, 7)
@@ -162,7 +167,7 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 	sgId := parts[0]
 	direction := parts[1]
 
-	rule, err := client.DescribeSecurityGroupRule(sgId, direction, parts[2], parts[3], parts[4], parts[5], policy, priority)
+	rule, err := ecsService.DescribeSecurityGroupRule(sgId, direction, parts[2], parts[3], parts[4], parts[5], policy, priority)
 	if err != nil {
 		if NotFoundError(err) || IsExceptedError(err, InvalidSecurityGroupIdNotFound) {
 			d.SetId("")
@@ -196,7 +201,7 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 }
 
 func deleteSecurityGroupRule(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
 	ruleType := d.Get("type").(string)
 	request, err := buildAliyunSGRuleRequest(d, meta)
 	if err != nil {
@@ -205,17 +210,22 @@ func deleteSecurityGroupRule(d *schema.ResourceData, meta interface{}) error {
 
 	if ruleType == string(DirectionIngress) {
 		request.ApiName = "RevokeSecurityGroup"
-		_, err = client.ecsconn.ProcessCommonRequest(request)
+		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
 	} else {
 		request.ApiName = "RevokeSecurityGroupEgress"
-		_, err = client.ecsconn.ProcessCommonRequest(request)
+		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
 	}
 
 	return err
 }
 
 func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	ecsService := EcsService{client}
 	parts := strings.Split(d.Id(), ":")
 	policy := parseSecurityRuleId(d, meta, 6)
 	strPriority := parseSecurityRuleId(d, meta, 7)
@@ -242,7 +252,7 @@ func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interfac
 			resource.RetryableError(fmt.Errorf("Delete security group rule timeout and got an error: %#v", err))
 		}
 
-		_, err = client.DescribeSecurityGroupRule(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], policy, priority)
+		_, err = ecsService.DescribeSecurityGroupRule(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], policy, priority)
 		if err != nil {
 			if NotFoundError(err) || IsExceptedError(err, InvalidSecurityGroupIdNotFound) {
 				return nil
@@ -258,7 +268,8 @@ func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interfac
 func buildAliyunSGRuleRequest(d *schema.ResourceData, meta interface{}) (*requests.CommonRequest, error) {
 	request := CommonRequestInit(meta.(*aliyunclient.AliyunClient).RegionId, ECSCode, ECSDomain)
 
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	ecsService := EcsService{client}
 
 	direction := d.Get("type").(string)
 
@@ -312,7 +323,7 @@ func buildAliyunSGRuleRequest(d *schema.ResourceData, meta interface{}) (*reques
 
 	sgId := d.Get("security_group_id").(string)
 
-	group, err := client.DescribeSecurityGroupAttribute(sgId)
+	group, err := ecsService.DescribeSecurityGroupAttribute(sgId)
 	if err != nil {
 		return nil, fmt.Errorf("Error get security group %s error: %#v", sgId, err)
 	}
