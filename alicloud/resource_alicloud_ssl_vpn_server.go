@@ -86,12 +86,14 @@ func resourceAliyunSslVpnServer() *schema.Resource {
 }
 
 func resourceAliyunSslVpnServerCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
 	var sslVpnServer *vpc.CreateSslVpnServerResponse
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		args := buildAliyunSslVpnServerArgs(d, meta)
 
-		resp, err := client.vpcconn.CreateSslVpnServer(args)
+		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.CreateSslVpnServer(args)
+		})
 		if err != nil {
 			if IsExceptedError(err, VpnConfiguring) {
 				time.Sleep(10 * time.Second)
@@ -99,7 +101,7 @@ func resourceAliyunSslVpnServerCreate(d *schema.ResourceData, meta interface{}) 
 			}
 			return resource.NonRetryableError(err)
 		}
-		sslVpnServer = resp
+		sslVpnServer = raw.(*vpc.CreateSslVpnServerResponse)
 		return nil
 	})
 	if err != nil {
@@ -112,10 +114,10 @@ func resourceAliyunSslVpnServerCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAliyunSslVpnServerRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*aliyunclient.AliyunClient)
+	vpnGatewayService := VpnGatewayService{client}
 
-	client := meta.(*AliyunClient)
-
-	resp, err := client.DescribeSslVpnServer(d.Id())
+	resp, err := vpnGatewayService.DescribeSslVpnServer(d.Id())
 
 	if err != nil {
 		if NotFoundError(err) {
@@ -141,6 +143,7 @@ func resourceAliyunSslVpnServerRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAliyunSslVpnServerUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*aliyunclient.AliyunClient)
 	attributeUpdate := false
 	request := vpc.CreateModifySslVpnServerRequest()
 	request.SslVpnServerId = d.Id()
@@ -183,7 +186,9 @@ func resourceAliyunSslVpnServerUpdate(d *schema.ResourceData, meta interface{}) 
 	if attributeUpdate {
 
 		res := resource.Retry(5*time.Minute, func() *resource.RetryError {
-			_, err := meta.(*AliyunClient).vpcconn.ModifySslVpnServer(request)
+			_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+				return vpcClient.ModifySslVpnServer(request)
+			})
 
 			if err != nil {
 				if IsExceptedError(err, VpnConfiguring) {
@@ -203,12 +208,15 @@ func resourceAliyunSslVpnServerUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAliyunSslVpnServerDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpnGatewayService := VpnGatewayService{client}
 	request := vpc.CreateDeleteSslVpnServerRequest()
 	request.SslVpnServerId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.vpcconn.DeleteSslVpnServer(request)
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DeleteSslVpnServer(request)
+		})
 
 		if err != nil {
 			if IsExceptedError(err, VpnConfiguring) {
@@ -222,7 +230,7 @@ func resourceAliyunSslVpnServerDelete(d *schema.ResourceData, meta interface{}) 
 			return resource.NonRetryableError(fmt.Errorf("Delete SslVpnServer timeout and got an error: %#v.", err))
 		}
 
-		if _, err := client.DescribeSslVpnServer(d.Id()); err != nil {
+		if _, err := vpnGatewayService.DescribeSslVpnServer(d.Id()); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}
