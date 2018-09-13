@@ -79,7 +79,6 @@ type AliyunClient struct {
 	ddsconn                      *dds.Client
 	stsconn                      *sts.Client
 	rkvconn                      *r_kvstore.Client
-	locationconn                 *location.Client
 	tablestoreconnByInstanceName map[string]*tablestore.TableStoreClient
 	csprojectconnByKey           map[string]*cs.ProjectClient
 }
@@ -586,20 +585,6 @@ func (client *AliyunClient) RunSafelyWithCsProjectClient(clusterId, endpoint str
 	return do(csProjectClient)
 }
 
-func (client *AliyunClient) RunSafelyWithLocationClient(do func(*location.Client) (interface{}, error)) (interface{}, error) {
-	goSdkMutex.Lock()
-	defer goSdkMutex.Unlock()
-
-	// Initialize the LOCATION client if necessary
-	if client.locationconn == nil {
-		locationconn := location.NewClient(client.AccessKey, client.SecretKey)
-		locationconn.SetSecurityToken(client.SecurityToken)
-		client.locationconn = locationconn
-	}
-
-	return do(client.locationconn)
-}
-
 func (client *AliyunClient) NewCommonRequest(serviceCode ServiceCode, apiVersion ApiVersion) *requests.CommonRequest {
 	request := requests.NewCommonRequest()
 	endpoint := loadEndpoint(client.RegionId, serviceCode)
@@ -704,10 +689,9 @@ func (client *AliyunClient) describeEndpointForService(serviceCode ServiceCode) 
 		ServiceCode: strings.ToLower(string(serviceCode)),
 		Type:        "openAPI",
 	}
-	raw, err := client.RunSafelyWithLocationClient(func(locationClient *location.Client) (interface{}, error) {
-		return locationClient.DescribeEndpoints(args)
-	})
-	endpointsResponse := raw.(*location.DescribeEndpointsResponse)
+	locationClient := location.NewClient(client.AccessKey, client.SecretKey)
+	locationClient.SetSecurityToken(client.SecurityToken)
+	endpointsResponse, err := locationClient.DescribeEndpoints(args)
 	if err != nil {
 		log.Printf("[DEBUG] Describe %s endpoint using region: %#v got an error: %#v.", serviceCode, client.RegionId, err)
 	} else if endpointsResponse != nil && len(endpointsResponse.Endpoints.Endpoint) > 0 {
@@ -721,13 +705,19 @@ func (client *AliyunClient) getCallerIdentity() (*sts.GetCallerIdentityResponse,
 	args := sts.CreateGetCallerIdentityRequest()
 	args.Scheme = "https"
 
-	result, err := client.RunSafelyWithStsClient(func(stsClient *sts.Client) (interface{}, error) {
-		return stsClient.GetCallerIdentity(args)
-	})
+	endpoint := loadEndpoint(client.config.RegionId, STSCode)
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(client.config.RegionId, string(STSCode), endpoint)
+	}
+	stsClient, err := sts.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialize the STS client: %#v", err)
+	}
+
+	identity, err := stsClient.GetCallerIdentity(args)
 	if err != nil {
 		return nil, err
 	}
-	identity := result.(*sts.GetCallerIdentityResponse)
 	if identity == nil {
 		return nil, fmt.Errorf("caller identity not found")
 	}
