@@ -107,20 +107,23 @@ func resourceAlicloudRouterInterface() *schema.Resource {
 }
 
 func resourceAlicloudRouterInterfaceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpcService := VpcService{client}
 	args, err := buildAlicloudRouterInterfaceCreateArgs(d, meta)
 	if err != nil {
 		return err
 	}
 
-	response, err := client.vpcconn.CreateRouterInterface(args)
+	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		return vpcClient.CreateRouterInterface(args)
+	})
 	if err != nil {
 		return fmt.Errorf("CreateRouterInterface got an error: %#v", err)
 	}
-
+	response := raw.(*vpc.CreateRouterInterfaceResponse)
 	d.SetId(response.RouterInterfaceId)
 
-	if err := client.WaitForRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id(), Idle, 300); err != nil {
+	if err := vpcService.WaitForRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id(), Idle, 300); err != nil {
 		return fmt.Errorf("WaitForRouterInterface %s got error: %#v", Idle, err)
 	}
 
@@ -128,7 +131,7 @@ func resourceAlicloudRouterInterfaceCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).vpcconn
+	client := meta.(*aliyunclient.AliyunClient)
 
 	d.Partial(true)
 
@@ -138,7 +141,10 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	if attributeUpdate {
-		if _, err := conn.ModifyRouterInterfaceAttribute(args); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.ModifyRouterInterfaceAttribute(args)
+		})
+		if err != nil {
 			return fmt.Errorf("ModifyRouterInterfaceAttribute got an error: %#v", err)
 		}
 	}
@@ -149,7 +155,10 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 		request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
 		request.RouterInterfaceId = d.Id()
 		request.Spec = d.Get("specification").(string)
-		if _, err := conn.ModifyRouterInterfaceSpec(request); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.ModifyRouterInterfaceSpec(request)
+		})
+		if err != nil {
 			return fmt.Errorf("ModifyRouterInterfaceSpec got an error: %#v", err)
 		}
 	}
@@ -159,8 +168,10 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudRouterInterfaceRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*aliyunclient.AliyunClient)
+	vpcService := VpcService{client}
 
-	ri, err := meta.(*AliyunClient).DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id())
+	ri, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -188,15 +199,16 @@ func resourceAlicloudRouterInterfaceRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpcService := VpcService{client}
 
-	if ri, err := client.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id()); err != nil {
+	if ri, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id()); err != nil {
 		if NotFoundError(err) {
 			return nil
 		}
 		return fmt.Errorf("When deleting router interface %s, describing it got an error: %#v.", d.Id(), err)
 	} else if ri.Status == string(Active) {
-		if err := client.DeactivateRouterInterface(d.Id()); err != nil {
+		if err := vpcService.DeactivateRouterInterface(d.Id()); err != nil {
 			return fmt.Errorf("When deleting router interface %s, deactiving it got an error: %#v.", d.Id(), err)
 		}
 	}
@@ -206,7 +218,10 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 	args.RouterInterfaceId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		if _, err := client.vpcconn.DeleteRouterInterface(args); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DeleteRouterInterface(args)
+		})
+		if err != nil {
 			if IsExceptedErrors(err, []string{InvalidInstanceIdNotFound}) {
 				return nil
 			}
@@ -216,7 +231,7 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error deleting interface %s: %#v", d.Id(), err))
 		}
-		if _, err := client.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id()); err != nil {
+		if _, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id()); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}
@@ -227,10 +242,11 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 }
 
 func buildAlicloudRouterInterfaceCreateArgs(d *schema.ResourceData, meta interface{}) (*vpc.CreateRouterInterfaceRequest, error) {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	ecsService := EcsService{client}
 
 	oppositeRegion := d.Get("opposite_region").(string)
-	if err := client.JudgeRegionValidation("opposite_region", oppositeRegion); err != nil {
+	if err := ecsService.JudgeRegionValidation("opposite_region", oppositeRegion); err != nil {
 		return nil, err
 	}
 
@@ -259,9 +275,14 @@ func buildAlicloudRouterInterfaceCreateArgs(d *schema.ResourceData, meta interfa
 			Value: &values,
 		}}
 		req.Filter = &filters
-		if resp, err := client.vpcconn.DescribeVirtualBorderRouters(req); err != nil {
+		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DescribeVirtualBorderRouters(req)
+		})
+		if err != nil {
 			return request, fmt.Errorf("Describing VBR %s got an error: %#v.", request.RouterId, err)
-		} else if resp != nil && resp.TotalCount > 0 {
+		}
+		resp := raw.(*vpc.DescribeVirtualBorderRoutersResponse)
+		if resp != nil && resp.TotalCount > 0 {
 			request.AccessPointId = resp.VirtualBorderRouterSet.VirtualBorderRouterType[0].AccessPointId
 		}
 	}
