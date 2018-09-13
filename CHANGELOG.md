@@ -11,6 +11,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix knstore productId ([#685](https://github.com/alibaba/terraform-provider/pull/685))
 - Fix retriving kvstore multi zones bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
 - Fix kvstore instance period bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
 - Fix kvstore docs bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
