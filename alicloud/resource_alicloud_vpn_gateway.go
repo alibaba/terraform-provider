@@ -96,7 +96,8 @@ func resourceAliyunVpnGateway() *schema.Resource {
 }
 
 func resourceAliyunVpnGatewayCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpnGatewayService := VpnGatewayService{client}
 	args := vpc.CreateCreateVpnGatewayRequest()
 	args.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
 
@@ -134,16 +135,18 @@ func resourceAliyunVpnGatewayCreate(d *schema.ResourceData, meta interface{}) er
 
 	args.AutoPay = requests.NewBoolean(true)
 
-	vpn, err := client.vpcconn.CreateVpnGateway(args)
+	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		return vpcClient.CreateVpnGateway(args)
+	})
 
 	if err != nil {
 		return fmt.Errorf("Create Vpn got an error: %#v", err)
 	}
-
+	vpn := raw.(*vpc.CreateVpnGatewayResponse)
 	d.SetId(vpn.VpnGatewayId)
 
 	time.Sleep(10 * time.Second)
-	if err := client.WaitForVpn(vpn.VpnGatewayId, Active, 2*DefaultTimeout); err != nil {
+	if err := vpnGatewayService.WaitForVpn(vpn.VpnGatewayId, Active, 2*DefaultTimeout); err != nil {
 		return fmt.Errorf("WaitVpnGateway %s got error: %#v, %s", Active, err, vpn.VpnGatewayId)
 	}
 
@@ -152,9 +155,10 @@ func resourceAliyunVpnGatewayCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAliyunVpnGatewayRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpnGatewayService := VpnGatewayService{client}
 
-	resp, err := client.DescribeVpnGateway(d.Id())
+	resp, err := vpnGatewayService.DescribeVpnGateway(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -200,7 +204,7 @@ func resourceAliyunVpnGatewayRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunVpnGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
-	vpcconn := meta.(*AliyunClient).vpcconn
+	client := meta.(*aliyunclient.AliyunClient)
 	req := vpc.CreateModifyVpnGatewayAttributeRequest()
 	req.VpnGatewayId = d.Id()
 	update := false
@@ -216,7 +220,10 @@ func resourceAliyunVpnGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if update {
-		if _, err := vpcconn.ModifyVpnGatewayAttribute(req); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.ModifyVpnGatewayAttribute(req)
+		})
+		if err != nil {
 			return fmt.Errorf("ModifyVpnGatewayAttribute got an error: %#v", err)
 		}
 		d.SetPartial("name")
@@ -241,12 +248,16 @@ func resourceAliyunVpnGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAliyunVpnGatewayDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpnGatewayService := VpnGatewayService{client}
 
 	req := vpc.CreateDeleteVpnGatewayRequest()
 	req.VpnGatewayId = d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		if _, err := client.vpcconn.DeleteVpnGateway(req); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DeleteVpnGateway(req)
+		})
+		if err != nil {
 			if IsExceptedError(err, VpnNotFound) {
 				return nil
 			}
@@ -261,7 +272,7 @@ func resourceAliyunVpnGatewayDelete(d *schema.ResourceData, meta interface{}) er
 			return resource.NonRetryableError(fmt.Errorf("Error deleting vpn failed: %#v", err))
 		}
 
-		if _, err := client.DescribeVpnGateway(d.Id()); err != nil {
+		if _, err := vpnGatewayService.DescribeVpnGateway(d.Id()); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}

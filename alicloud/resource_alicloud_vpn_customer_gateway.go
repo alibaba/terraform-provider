@@ -39,16 +39,19 @@ func resourceAliyunVpnCustomerGateway() *schema.Resource {
 }
 
 func resourceAliyunVpnCustomerGatewayCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpnGatewayService := VpnGatewayService{client}
 	var cgw *vpc.CreateCustomerGatewayResponse
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		args := buildAliyunCustomerGatewayArgs(d, meta)
 
-		resp, err := client.vpcconn.CreateCustomerGateway(args)
+		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.CreateCustomerGateway(args)
+		})
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		cgw = resp
+		cgw = raw.(*vpc.CreateCustomerGatewayResponse)
 		return nil
 	})
 	if err != nil {
@@ -57,7 +60,7 @@ func resourceAliyunVpnCustomerGatewayCreate(d *schema.ResourceData, meta interfa
 
 	d.SetId(cgw.CustomerGatewayId)
 
-	err = client.WaitForCustomerGateway(d.Id(), Available, 60)
+	err = vpnGatewayService.WaitForCustomerGateway(d.Id(), Available, 60)
 	if err != nil {
 		return fmt.Errorf("Timeout when WaitforCustomerGateway: %#v", err)
 	}
@@ -67,9 +70,10 @@ func resourceAliyunVpnCustomerGatewayCreate(d *schema.ResourceData, meta interfa
 
 func resourceAliyunVpnCustomerGatewayRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpnGatewayService := VpnGatewayService{client}
 
-	resp, err := client.DescribeCustomerGateway(d.Id())
+	resp, err := vpnGatewayService.DescribeCustomerGateway(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -86,6 +90,7 @@ func resourceAliyunVpnCustomerGatewayRead(d *schema.ResourceData, meta interface
 }
 
 func resourceAliyunVpnCustomerGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*aliyunclient.AliyunClient)
 	attributeUpdate := false
 	request := vpc.CreateModifyCustomerGatewayAttributeRequest()
 	request.CustomerGatewayId = d.Id()
@@ -101,7 +106,10 @@ func resourceAliyunVpnCustomerGatewayUpdate(d *schema.ResourceData, meta interfa
 	}
 
 	if attributeUpdate {
-		if _, err := meta.(*AliyunClient).vpcconn.ModifyCustomerGatewayAttribute(request); err != nil {
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.ModifyCustomerGatewayAttribute(request)
+		})
+		if err != nil {
 			return err
 		}
 	}
@@ -110,11 +118,14 @@ func resourceAliyunVpnCustomerGatewayUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceAliyunVpnCustomerGatewayDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*AliyunClient)
+	client := meta.(*aliyunclient.AliyunClient)
+	vpnGatewayService := VpnGatewayService{client}
 	request := vpc.CreateDeleteCustomerGatewayRequest()
 	request.CustomerGatewayId = d.Id()
 	return resource.Retry(2*time.Minute, func() *resource.RetryError {
-		_, err := client.vpcconn.DeleteCustomerGateway(request)
+		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DeleteCustomerGateway(request)
+		})
 
 		if err != nil {
 			if IsExceptedError(err, CgwNotFound) {
@@ -128,7 +139,7 @@ func resourceAliyunVpnCustomerGatewayDelete(d *schema.ResourceData, meta interfa
 			return resource.NonRetryableError(fmt.Errorf("Delete CustomerGateway timeout and got an error: %#v.", err))
 		}
 
-		if _, err := client.DescribeCustomerGateway(d.Id()); err != nil {
+		if _, err := vpnGatewayService.DescribeCustomerGateway(d.Id()); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}
