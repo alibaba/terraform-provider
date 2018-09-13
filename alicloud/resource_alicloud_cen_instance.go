@@ -62,7 +62,7 @@ func resourceAlicloudCenInstance() *schema.Resource {
 
 func resourceAlicloudCenInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*aliyunclient.AliyunClient)
-	cenService := CenService{}
+	cenService := CenService{client}
 
 	var cen *cbn.CreateCenResponse
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
