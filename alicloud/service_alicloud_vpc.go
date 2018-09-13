@@ -15,25 +15,6 @@ type VpcService struct {
 	client *aliyunclient.AliyunClient
 }
 
-func (s *VpcService) BuildVpcCommonRequest(region string) *requests.CommonRequest {
-	request := requests.NewCommonRequest()
-	endpoint := LoadEndpoint(s.client.RegionId, VPCCode)
-	if region == "" {
-		region = s.client.RegionId
-	}
-	if endpoint == "" {
-		commonService := CommonService{s.client}
-		endpoint, _ = commonService.DescribeEndpointByCode(region, VPCCode)
-	}
-	if endpoint == "" {
-		endpoint = fmt.Sprintf("vpc.%s.aliyuncs.com", region)
-	}
-	request.Domain = endpoint
-	request.Version = ApiVersion20160428
-	request.RegionId = region
-	return request
-}
-
 func (s *VpcService) DescribeEipAddress(allocationId string) (eip vpc.EipAddress, err error) {
 
 	args := vpc.CreateDescribeEipAddressesRequest()

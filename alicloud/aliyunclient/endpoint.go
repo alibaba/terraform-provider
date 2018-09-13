@@ -1,11 +1,11 @@
 package aliyunclient
 
 import (
-	"strings"
-	"os"
-	"fmt"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
+	"os"
+	"strings"
 )
 
 // Load endpoints from endpoints.xml or environment variables to meet specified application scenario, like private cloud.

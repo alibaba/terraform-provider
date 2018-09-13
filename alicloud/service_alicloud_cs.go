@@ -44,7 +44,7 @@ func (s *CsService) GetContainerClusterByName(name string) (cluster cs.ClusterTy
 	return cluster, GetNotFoundErrorFromString(GetNotFoundMessage("Container Cluster", name))
 }
 
-func (s *CsService) GetApplicationClientByClusterName(name string) (c *cs.ProjectClient, err error) {
+func (s *CsService) RunSafelyWithCsProjectClientByClusterName(name string, do func(*cs.ProjectClient) (interface{}, error)) (interface{}, error) {
 	cluster, err := s.GetContainerClusterByName(name)
 	if err != nil {
 		return nil, err
@@ -63,27 +63,18 @@ func (s *CsService) GetApplicationClientByClusterName(name string) (c *cs.Projec
 	})
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	c, err = cs.NewProjectClient(cluster.ClusterID, cluster.MasterURL, certs)
-
-	if err != nil {
-		return nil, fmt.Errorf("Getting Application Client failed by cluster id %s: %#v.", cluster.ClusterID, err)
-	}
-	c.SetDebug(false)
-	c.SetUserAgent(getUserAgent())
-
-	return
+	return s.client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, certs, do)
 }
 
 func (s *CsService) DescribeContainerApplication(clusterName, appName string) (app cs.GetProjectResponse, err error) {
 	appName = Trim(appName)
-	conn, err := s.GetApplicationClientByClusterName(clusterName)
-	if err != nil {
-		return app, err
-	}
-	app, err = conn.GetProject(appName)
+	raw, err := s.RunSafelyWithCsProjectClientByClusterName(appName, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+		return csProjectClient.GetProject(appName)
+	})
+	app = raw.(cs.GetProjectResponse)
 	if err != nil {
 		if IsExceptedError(err, ApplicationNotFound) {
 			return app, GetNotFoundErrorFromString(GetNotFoundMessage("Container Application", appName))

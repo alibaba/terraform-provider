@@ -268,13 +268,7 @@ func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interfac
 func buildAliyunSGRuleRequest(d *schema.ResourceData, meta interface{}) (*requests.CommonRequest, error) {
 	client := meta.(*aliyunclient.AliyunClient)
 	ecsService := EcsService{client}
-	request := requests.NewCommonRequest()
-	request.Version = ApiVersion20140526
-	request.Domain = string(ECSDomain)
-	d := LoadEndpoint(client.RegionId, ECSCode)
-	if d != "" {
-		request.Domain = d
-	}
+	request := client.NewCommonRequest(aliyunclient.ECSCode, aliyunclient.ApiVersion20140526)
 
 	direction := d.Get("type").(string)
 

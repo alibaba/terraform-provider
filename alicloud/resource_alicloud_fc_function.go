@@ -277,10 +277,9 @@ func resourceAlicloudFCFunctionDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func getFunctionCode(d *schema.ResourceData, client *aliyunclient.AliyunClient) (*fc.Code, error) {
-	commonService := CommonService{client}
 	code := fc.NewCode()
 	if filename, ok := d.GetOk("filename"); ok && filename.(string) != "" {
-		file, err := commonService.loadFileContent(filename.(string))
+		file, err := loadFileContent(filename.(string))
 		if err != nil {
 			return code, fmt.Errorf("Unable to load %q: %s", filename.(string), err)
 		}

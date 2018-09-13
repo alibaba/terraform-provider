@@ -3,6 +3,9 @@ package aliyunclient
 import (
 	"fmt"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
+
 	"github.com/denverdino/aliyungo/common"
 )
 
@@ -37,4 +40,12 @@ func (c *Config) validateRegion() error {
 	}
 
 	return fmt.Errorf("Not a valid region: %s", c.Region)
+}
+
+func (c *Config) getAuthCredential(stsSupported bool) auth.Credential {
+	if stsSupported {
+		return credentials.NewStsTokenCredential(c.AccessKey, c.SecretKey, c.SecurityToken)
+	}
+
+	return credentials.NewAccessKeyCredential(c.AccessKey, c.SecretKey)
 }

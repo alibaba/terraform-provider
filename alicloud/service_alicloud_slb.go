@@ -19,20 +19,9 @@ type SlbService struct {
 }
 
 func (s *SlbService) BuildSlbCommonRequest() *requests.CommonRequest {
-	request := requests.NewCommonRequest()
-	endpoint := LoadEndpoint(s.client.RegionId, SLBCode)
-	if endpoint == "" {
-		commonService := CommonService{s.client}
-		endpoint, _ = commonService.DescribeEndpointByCode(s.client.RegionId, SLBCode)
-	}
-	if endpoint == "" {
-		endpoint = fmt.Sprintf("slb.%s.aliyuncs.com", s.client.RegionId)
-	}
-	request.Domain = endpoint
-	request.Version = ApiVersion20140515
-	request.RegionId = s.client.RegionId
-	return request
+	return s.client.NewCommonRequest(aliyunclient.SLBCode, aliyunclient.ApiVersion20140515)
 }
+
 func (s *SlbService) DescribeLoadBalancerAttribute(slbId string) (loadBalancer *slb.DescribeLoadBalancerAttributeResponse, err error) {
 
 	req := slb.CreateDescribeLoadBalancerAttributeRequest()

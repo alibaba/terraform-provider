@@ -308,11 +308,13 @@ func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("slb_id", cluster.ExternalLoadbalancerID)
 	d.Set("agent_version", cluster.AgentVersion)
 
-	project, err := csService.GetApplicationClientByClusterName(cluster.Name)
-	resp, err := project.GetSwarmClusterNodes()
+	raw, err = csService.RunSafelyWithCsProjectClientByClusterName(cluster.Name, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+		return csProjectClient.GetSwarmClusterNodes()
+	})
 	if err != nil {
 		return err
 	}
+	resp := raw.(cs.GetSwarmClusterNodesResponse)
 	var nodes []map[string]interface{}
 	var oneNode newsdk.Instance
 

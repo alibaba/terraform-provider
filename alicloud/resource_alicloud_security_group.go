@@ -66,19 +66,17 @@ func resourceAliyunSecurityGroupCreate(d *schema.ResourceData, meta interface{})
 
 func resourceAliyunSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*aliyunclient.AliyunClient)
+	ecsService := EcsService{client}
 
 	var sg *ecs.DescribeSecurityGroupAttributeResponse
 	err := resource.Retry(1*time.Minute, func() *resource.RetryError {
-		raw, e := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-			return ecsClient.DescribeSecurityGroupAttribute(d.Id())
-		})
+		group, e := ecsService.DescribeSecurityGroupAttribute(d.Id())
 		if e != nil {
 			if NotFoundError(e) || IsExceptedErrors(e, []string{InvalidSecurityGroupIdNotFound}) {
 				return nil
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error DescribeSecurityGroupAttribute: %#v", e))
 		}
-		group := raw.(*ecs.DescribeSecurityGroupAttributeResponse)
 		if group.SecurityGroupId != "" {
 			sg = &group
 			return nil

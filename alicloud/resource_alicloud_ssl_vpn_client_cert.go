@@ -114,6 +114,7 @@ func resourceAliyunSslVpnClientCertUpdate(d *schema.ResourceData, meta interface
 
 func resourceAliyunSslVpnClientCertDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*aliyunclient.AliyunClient)
+	vpnGatewayService := VpnGatewayService{client}
 	request := vpc.CreateDeleteSslVpnClientCertRequest()
 	request.SslVpnClientCertId = d.Id()
 
@@ -129,9 +130,7 @@ func resourceAliyunSslVpnClientCertDelete(d *schema.ResourceData, meta interface
 			return resource.RetryableError(fmt.Errorf("Delete SslVpnClientCert %s timeout and got an error: %#v.", request.SslVpnClientCertId, err))
 		}
 
-		_, err = client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
-			return vpcClient.DescribeSslVpnClientCert(d.Id())
-		})
+		_, err = vpnGatewayService.DescribeSslVpnClientCert(d.Id())
 		if err != nil {
 			if NotFoundError(err) {
 				return nil

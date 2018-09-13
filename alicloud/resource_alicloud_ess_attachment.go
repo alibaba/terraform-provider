@@ -88,7 +88,10 @@ func resourceAliyunEssAttachmentUpdate(d *schema.ResourceData, meta interface{})
 					s.FieldByName(fmt.Sprintf("InstanceId%d", i+1)).Set(reflect.ValueOf(id))
 				}
 
-				if _, err := client.essconn.AttachInstances(req); err != nil {
+				_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+					return essClient.AttachInstances(req)
+				})
+				if err != nil {
 					if IsExceptedError(err, IncorrectCapacityMaxSize) {
 						instances, err := essService.DescribeScalingInstances(d.Id(), "", make([]string, 0), "")
 						if err != nil {
@@ -173,8 +176,9 @@ func resourceAliyunEssAttachmentUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAliyunEssAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-
-	instances, err := meta.(*aliyunclient.AliyunClient).DescribeScalingInstances(d.Id(), "", make([]string, 0), string(Attached))
+	client := meta.(*aliyunclient.AliyunClient)
+	essService := EssService{client}
+	instances, err := essService.DescribeScalingInstances(d.Id(), "", make([]string, 0), string(Attached))
 
 	if err != nil {
 		if NotFoundError(err) {
@@ -202,8 +206,9 @@ func resourceAliyunEssAttachmentRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceAliyunEssAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*aliyunclient.AliyunClient)
+	essService := EssService{client}
 
-	group, err := client.DescribeScalingGroupById(d.Id())
+	group, err := essService.DescribeScalingGroupById(d.Id())
 	if err != nil {
 		return fmt.Errorf("DescribeScalingGroupById %s error: %#v", d.Id(), err)
 	}
@@ -211,7 +216,7 @@ func resourceAliyunEssAttachmentDelete(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("Scaling group current status is %s, please active it before attaching or removing ECS instances.", group.LifecycleState)
 	}
 
-	return client.EssRemoveInstances(d.Id(), convertArrayInterfaceToArrayString(d.Get("instance_ids").(*schema.Set).List()))
+	return essService.EssRemoveInstances(d.Id(), convertArrayInterfaceToArrayString(d.Get("instance_ids").(*schema.Set).List()))
 }
 
 func convertArrayInterfaceToArrayString(elm []interface{}) (arr []string) {

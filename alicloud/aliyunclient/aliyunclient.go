@@ -9,16 +9,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+
 	"net/url"
 
 	"regexp"
 
 	"sync"
 
-	"github.com/alibaba/terraform-provider/alicloud"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/resource"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/utils"
@@ -82,7 +81,16 @@ type AliyunClient struct {
 	rkvconn                      *r_kvstore.Client
 	locationconn                 *location.Client
 	tablestoreconnByInstanceName map[string]*tablestore.TableStoreClient
+	csprojectconnByKey           map[string]*cs.ProjectClient
 }
+
+type ApiVersion string
+
+const (
+	ApiVersion20140526 = ApiVersion("2014-05-26")
+	ApiVersion20160815 = ApiVersion("2016-08-15")
+	ApiVersion20140515 = ApiVersion("2014-05-15")
+)
 
 const businessInfoKey = "Terraform"
 
@@ -105,6 +113,7 @@ func (c *Config) Client() (*AliyunClient, error) {
 		OtsInstanceName:              c.OtsInstanceName,
 		accountId:                    c.AccountId,
 		tablestoreconnByInstanceName: make(map[string]*tablestore.TableStoreClient),
+		csprojectconnByKey:           make(map[string]*cs.ProjectClient),
 	}, nil
 }
 
@@ -118,7 +127,7 @@ func (client *AliyunClient) RunSafelyWithEcsClient(do func(*ecs.Client) (interfa
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ECSCode), endpoint)
 		}
-		ecsconn, err := ecs.NewClientWithOptions(client.config.RegionId, getSdkConfig().WithTimeout(60000000000), client.config.getAuthCredential(true))
+		ecsconn, err := ecs.NewClientWithOptions(client.config.RegionId, client.getSdkConfig().WithTimeout(60000000000), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ECS client: %#v", err)
 		}
@@ -142,7 +151,7 @@ func (client *AliyunClient) RunSafelyWithRdsClient(do func(*rds.Client) (interfa
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(RDSCode), endpoint)
 		}
-		rdsconn, err := rds.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		rdsconn, err := rds.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the RDS client: %#v", err)
 		}
@@ -163,7 +172,7 @@ func (client *AliyunClient) RunSafelyWithSlbClient(do func(*slb.Client) (interfa
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(SLBCode), endpoint)
 		}
-		slbconn, err := slb.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		slbconn, err := slb.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the SLB client: %#v", err)
 		}
@@ -184,7 +193,7 @@ func (client *AliyunClient) RunSafelyWithVpcClient(do func(*vpc.Client) (interfa
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(VPCCode), endpoint)
 		}
-		vpcconn, err := vpc.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		vpcconn, err := vpc.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the VPC client: %#v", err)
 		}
@@ -205,7 +214,7 @@ func (client *AliyunClient) RunSafelyWithCenClient(do func(*cbn.Client) (interfa
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(CENCode), endpoint)
 		}
-		cenconn, err := cbn.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		cenconn, err := cbn.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the CEN client: %#v", err)
 		}
@@ -226,7 +235,7 @@ func (client *AliyunClient) RunSafelyWithEssClient(do func(*ess.Client) (interfa
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ESSCode), endpoint)
 		}
-		essconn, err := ess.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		essconn, err := ess.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ESS client: %#v", err)
 		}
@@ -247,34 +256,17 @@ func (client *AliyunClient) RunSafelyWithOssClient(do func(*oss.Client) (interfa
 		endpointClient.SetSecurityToken(client.config.SecurityToken)
 		endpoint := loadEndpoint(client.config.RegionId, OSSCode)
 		if endpoint == "" {
-			args := &location.DescribeEndpointsArgs{
-				Id:          client.config.Region,
-				ServiceCode: "oss",
-				Type:        "openAPI",
-			}
-			invoker := NewInvoker()
-			var endpointsResponse *location.DescribeEndpointsResponse
-			if err := invoker.Run(func() error {
-				es, err := endpointClient.DescribeEndpoints(args)
-				if err != nil {
-					return err
-				}
-				endpointsResponse = es
-				return nil
-			}); err != nil {
-				log.Printf("[DEBUG] Describe endpoint using region: %#v got an error: %#v.", client.config.Region, err)
+			endpointItem := client.describeEndpointForService(OSSCode)
+			if endpointItem != nil {
+				endpoint = strings.ToLower(endpointItem.Protocols.Protocols[0]) + "://" + endpointItem.Endpoint
 			} else {
-				if endpointsResponse != nil && len(endpointsResponse.Endpoints.Endpoint) > 0 {
-					endpoint = strings.ToLower(endpointsResponse.Endpoints.Endpoint[0].Protocols.Protocols[0]) + "://" + endpointsResponse.Endpoints.Endpoint[0].Endpoint
-				} else {
-					endpoint = fmt.Sprintf("http://oss-%s.aliyuncs.com", client.config.Region)
-				}
+				endpoint = fmt.Sprintf("http://oss-%s.aliyuncs.com", client.RegionId)
 			}
 		}
 
 		log.Printf("[DEBUG] Instantiate OSS client using endpoint: %#v", endpoint)
-		clientOptions := []oss.ClientOption{oss.UserAgent(getUserAgent())}
-		proxyUrl := getHttpProxyUrl()
+		clientOptions := []oss.ClientOption{oss.UserAgent(client.getUserAgent())}
+		proxyUrl := client.getHttpProxyUrl()
 		if proxyUrl != nil {
 			clientOptions = append(clientOptions, oss.Proxy(proxyUrl.String()))
 		}
@@ -298,7 +290,7 @@ func (client *AliyunClient) RunSafelyWithDnsClient(do func(*dns.Client) (interfa
 	if client.dnsconn == nil {
 		dnsconn := dns.NewClientNew(client.config.AccessKey, client.config.SecretKey)
 		dnsconn.SetBusinessInfo(businessInfoKey)
-		dnsconn.SetUserAgent(getUserAgent())
+		dnsconn.SetUserAgent(client.getUserAgent())
 		dnsconn.SetSecurityToken(client.config.SecurityToken)
 
 		client.dnsconn = dnsconn
@@ -327,7 +319,7 @@ func (client *AliyunClient) RunSafelyWithCsClient(do func(*cs.Client) (interface
 	// Initialize the CS client if necessary
 	if client.csconn == nil {
 		csconn := cs.NewClientForAussumeRole(client.config.AccessKey, client.config.SecretKey, client.config.SecurityToken)
-		csconn.SetUserAgent(getUserAgent())
+		csconn.SetUserAgent(client.getUserAgent())
 		client.csconn = csconn
 	}
 
@@ -342,7 +334,7 @@ func (client *AliyunClient) RunSafelyWithCdnClient(do func(*cdn.CdnClient) (inte
 	if client.cdnconn == nil {
 		cdnconn := cdn.NewClient(client.config.AccessKey, client.config.SecretKey)
 		cdnconn.SetBusinessInfo(businessInfoKey)
-		cdnconn.SetUserAgent(getUserAgent())
+		cdnconn.SetUserAgent(client.getUserAgent())
 		cdnconn.SetSecurityToken(client.config.SecurityToken)
 		client.cdnconn = cdnconn
 	}
@@ -358,7 +350,7 @@ func (client *AliyunClient) RunSafelyWithKmsClient(do func(*kms.Client) (interfa
 	if client.kmsconn == nil {
 		kmsconn := kms.NewECSClientWithSecurityToken(client.config.AccessKey, client.config.SecretKey, client.config.SecurityToken, client.config.Region)
 		kmsconn.SetBusinessInfo(businessInfoKey)
-		kmsconn.SetUserAgent(getUserAgent())
+		kmsconn.SetUserAgent(client.getUserAgent())
 		client.kmsconn = kmsconn
 	}
 
@@ -375,7 +367,7 @@ func (client *AliyunClient) RunSafelyWithOtsClient(do func(*ots.Client) (interfa
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(OTSCode), endpoint)
 		}
-		otsconn, err := ots.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		otsconn, err := ots.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the OTS client: %#v", err)
 		}
@@ -392,7 +384,7 @@ func (client *AliyunClient) RunSafelyWithCmsClient(do func(*cms.Client) (interfa
 
 	// Initialize the CMS client if necessary
 	if client.cmsconn == nil {
-		cmsconn, err := cms.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(false))
+		cmsconn, err := cms.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(false))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the CMS client: %#v", err)
 		}
@@ -415,7 +407,7 @@ func (client *AliyunClient) RunSafelyWithPvtzClient(do func(*pvtz.Client) (inter
 		} else {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(PVTZCode), "pvtz.aliyuncs.com")
 		}
-		pvtzconn, err := pvtz.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		pvtzconn, err := pvtz.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the PVTZ client: %#v", err)
 		}
@@ -436,7 +428,7 @@ func (client *AliyunClient) RunSafelyWithStsClient(do func(*sts.Client) (interfa
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(STSCode), endpoint)
 		}
-		stsconn, err := sts.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		stsconn, err := sts.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the STS client: %#v", err)
 		}
@@ -466,7 +458,7 @@ func (client *AliyunClient) RunSafelyWithLogClient(do func(*sls.Client) (interfa
 			AccessKeySecret: client.config.SecretKey,
 			Endpoint:        endpoint,
 			SecurityToken:   client.config.SecurityToken,
-			UserAgent:       getUserAgent(),
+			UserAgent:       client.getUserAgent(),
 		}
 	}
 
@@ -483,7 +475,7 @@ func (client *AliyunClient) RunSafelyWithDdsClient(do func(*dds.Client) (interfa
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(DDSCode), endpoint)
 		}
-		ddsconn, err := dds.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		ddsconn, err := dds.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the DDS client: %#v", err)
 		}
@@ -504,7 +496,7 @@ func (client *AliyunClient) RunSafelyWithRkvClient(do func(*r_kvstore.Client) (i
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(KVSTORECode), endpoint)
 		}
-		rkvconn, err := r_kvstore.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
+		rkvconn, err := r_kvstore.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the RKV client: %#v", err)
 		}
@@ -534,13 +526,18 @@ func (client *AliyunClient) RunSafelyWithFcClient(do func(*fc.Client) (interface
 			return nil, err
 		}
 
-		config := getSdkConfig()
-		fcconn, err := fc.NewClient(fmt.Sprintf("%s%s%s", accountId, DOT_SEPARATED, endpoint), ApiVersion20160815, client.config.AccessKey, client.config.SecretKey, fc.WithTransport(config.HttpTransport))
+		config := client.getSdkConfig()
+		fcconn, err := fc.NewClient(
+			fmt.Sprintf("%s.%s", accountId, endpoint),
+			string(ApiVersion20160815),
+			client.config.AccessKey,
+			client.config.SecretKey,
+			fc.WithTransport(config.HttpTransport))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the FC client: %#v", err)
 		}
 
-		fcconn.Config.UserAgent = getUserAgent()
+		fcconn.Config.UserAgent = client.getUserAgent()
 		fcconn.Config.SecurityToken = client.config.SecurityToken
 		client.fcconn = fcconn
 	}
@@ -559,14 +556,34 @@ func (client *AliyunClient) RunSafelyWithTableStoreClient(instanceName string, d
 		if endpoint == "" {
 			endpoint = fmt.Sprintf("%s.%s.ots.aliyuncs.com", instanceName, client.RegionId)
 		}
-		if !strings.HasPrefix(endpoint, string(Https)) && !strings.HasPrefix(endpoint, string(Http)) {
-			endpoint = fmt.Sprintf("%s://%s", Https, endpoint)
+		if !strings.HasPrefix(endpoint, "https") && !strings.HasPrefix(endpoint, "http") {
+			endpoint = "https://" + endpoint
 		}
 		tableStoreClient = tablestore.NewClient(endpoint, instanceName, client.AccessKey, client.SecretKey)
 		client.tablestoreconnByInstanceName[instanceName] = tableStoreClient
 	}
 
 	return do(tableStoreClient)
+}
+
+func (client *AliyunClient) RunSafelyWithCsProjectClient(clusterId, endpoint string, clusterCerts cs.ClusterCerts, do func(*cs.ProjectClient) (interface{}, error)) (interface{}, error) {
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
+
+	// Initialize the PROJECT client if necessary
+	key := fmt.Sprintf("%s|%s|%s|%s|%s", clusterId, endpoint, clusterCerts.CA, clusterCerts.Cert, clusterCerts.Key)
+	csProjectClient, ok := client.csprojectconnByKey[key]
+	if !ok {
+		csProjectClient, err := cs.NewProjectClient(clusterId, endpoint, clusterCerts)
+		if err != nil {
+			return nil, fmt.Errorf("Getting Application Client failed by cluster id %s: %#v.", clusterCerts, err)
+		}
+		csProjectClient.SetDebug(false)
+		csProjectClient.SetUserAgent(client.getUserAgent())
+		client.csprojectconnByKey[key] = csProjectClient
+	}
+
+	return do(csProjectClient)
 }
 
 func (client *AliyunClient) RunSafelyWithLocationClient(do func(*location.Client) (interface{}, error)) (interface{}, error) {
@@ -583,19 +600,45 @@ func (client *AliyunClient) RunSafelyWithLocationClient(do func(*location.Client
 	return do(client.locationconn)
 }
 
+func (client *AliyunClient) NewCommonRequest(serviceCode ServiceCode, apiVersion ApiVersion) *requests.CommonRequest {
+	request := requests.NewCommonRequest()
+	endpoint := loadEndpoint(client.RegionId, serviceCode)
+	if endpoint == "" {
+		endpointItem := client.describeEndpointForService(serviceCode)
+		if endpointItem != nil {
+			endpoint = endpointItem.Endpoint
+		}
+	}
+	if endpoint == "" {
+		switch serviceCode {
+		case ECSCode:
+			endpoint = "ecs.aliyuncs.com"
+		case VPCCode:
+			endpoint = fmt.Sprintf("vpc.%s.aliyuncs.com", client.RegionId)
+		case SLBCode:
+			endpoint = fmt.Sprintf("slb.%s.aliyuncs.com", client.RegionId)
+		case ESSCode:
+			endpoint = "ess.aliyuncs.com"
+		}
+	}
+	request.Domain = endpoint
+	request.Version = string(apiVersion)
+	request.RegionId = client.RegionId
+	return request
+}
+
 func (client *AliyunClient) AccountId() (string, error) {
 	client.accountIdMutex.Lock()
 	defer client.accountIdMutex.Unlock()
 
 	if client.accountId == "" {
 		log.Printf("[DEBUG] account_id not provided, attempting to retrieve it automatically...")
-		commonService := alicloud.CommonService{client}
-		identity, err := commonService.GetCallerIdentity()
+		identity, err := client.getCallerIdentity()
 		if err != nil {
 			return "", err
 		}
 		if identity.AccountId == "" {
-			return "", alicloud.GetNotFoundErrorFromString("Caller identity doesn't contain any AccountId.")
+			return "", fmt.Errorf("caller identity doesn't contain any AccountId")
 		}
 		log.Printf("[DEBUG] account_id retrieved with success.")
 		client.accountId = identity.AccountId
@@ -603,7 +646,7 @@ func (client *AliyunClient) AccountId() (string, error) {
 	return client.accountId, nil
 }
 
-func getSdkConfig() *sdk.Config {
+func (client *AliyunClient) getSdkConfig() *sdk.Config {
 	// Fix bug "open /usr/local/go/lib/time/zoneinfo.zip: no such file or directory" which happened in windows.
 	if data, ok := resource.GetTZData("GMT"); ok {
 		utils.TZData = data
@@ -612,25 +655,17 @@ func getSdkConfig() *sdk.Config {
 	return sdk.NewConfig().
 		WithMaxRetryTime(5).
 		WithTimeout(time.Duration(30000000000)).
-		WithUserAgent(getUserAgent()).
+		WithUserAgent(client.getUserAgent()).
 		WithGoRoutinePoolSize(10).
 		WithDebug(false).
-		WithHttpTransport(getTransport())
+		WithHttpTransport(client.getTransport())
 }
 
-func (c *Config) getAuthCredential(stsSupported bool) auth.Credential {
-	if stsSupported {
-		return credentials.NewStsTokenCredential(c.AccessKey, c.SecretKey, c.SecurityToken)
-	}
-
-	return credentials.NewAccessKeyCredential(c.AccessKey, c.SecretKey)
-}
-
-func getUserAgent() string {
+func (client *AliyunClient) getUserAgent() string {
 	return fmt.Sprintf("HashiCorp-Terraform-v%s", strings.TrimSuffix(terraform.VersionString(), "-dev"))
 }
 
-func getTransport() *http.Transport {
+func (client *AliyunClient) getTransport() *http.Transport {
 	handshakeTimeout, err := strconv.Atoi(os.Getenv("TLSHandshakeTimeout"))
 	if err != nil {
 		handshakeTimeout = 120
@@ -639,16 +674,17 @@ func getTransport() *http.Transport {
 	transport.TLSHandshakeTimeout = time.Duration(handshakeTimeout) * time.Second
 
 	// After building a new transport and it need to set http proxy to support proxy.
-	proxyUrl := getHttpProxyUrl()
+	proxyUrl := client.getHttpProxyUrl()
 	if proxyUrl != nil {
 		transport.Proxy = http.ProxyURL(proxyUrl)
 	}
 	return transport
 }
 
-func getHttpProxyUrl() *url.URL {
+func (client *AliyunClient) getHttpProxyUrl() *url.URL {
 	for _, v := range []string{"HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy"} {
-		if value := alicloud.Trim(os.Getenv(v)); value != "" {
+		value := strings.Trim(os.Getenv(v), " ")
+		if value != "" {
 			if !regexp.MustCompile(`^http(s)?://`).MatchString(value) {
 				value = fmt.Sprintf("http://%s", value)
 			}
@@ -660,4 +696,40 @@ func getHttpProxyUrl() *url.URL {
 		}
 	}
 	return nil
+}
+
+func (client *AliyunClient) describeEndpointForService(serviceCode ServiceCode) *location.EndpointItem {
+	args := &location.DescribeEndpointsArgs{
+		Id:          common.Region(client.RegionId),
+		ServiceCode: strings.ToLower(string(serviceCode)),
+		Type:        "openAPI",
+	}
+	raw, err := client.RunSafelyWithLocationClient(func(locationClient *location.Client) (interface{}, error) {
+		return locationClient.DescribeEndpoints(args)
+	})
+	endpointsResponse := raw.(*location.DescribeEndpointsResponse)
+	if err != nil {
+		log.Printf("[DEBUG] Describe %s endpoint using region: %#v got an error: %#v.", serviceCode, client.RegionId, err)
+	} else if endpointsResponse != nil && len(endpointsResponse.Endpoints.Endpoint) > 0 {
+		endpointItem := endpointsResponse.Endpoints.Endpoint
+		return &endpointItem[0]
+	}
+	return nil
+}
+
+func (client *AliyunClient) getCallerIdentity() (*sts.GetCallerIdentityResponse, error) {
+	args := sts.CreateGetCallerIdentityRequest()
+	args.Scheme = "https"
+
+	result, err := client.RunSafelyWithStsClient(func(stsClient *sts.Client) (interface{}, error) {
+		return stsClient.GetCallerIdentity(args)
+	})
+	if err != nil {
+		return nil, err
+	}
+	identity := result.(*sts.GetCallerIdentityResponse)
+	if identity == nil {
+		return nil, fmt.Errorf("caller identity not found")
+	}
+	return identity, err
 }
