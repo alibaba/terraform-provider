@@ -5,10 +5,10 @@ import (
 	"log"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAlicloudKmsKey() *schema.Resource {

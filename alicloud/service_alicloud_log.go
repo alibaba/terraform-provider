@@ -2,8 +2,9 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"time"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/hashicorp/terraform/helper/resource"

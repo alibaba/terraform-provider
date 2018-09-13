@@ -1,8 +1,9 @@
 package alicloud
 
 import (
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"testing"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"fmt"
 

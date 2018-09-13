@@ -1,8 +1,9 @@
 package alicloud
 
 import (
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )

@@ -1,8 +1,9 @@
 package alicloud
 
 import (
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"time"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/denverdino/aliyungo/common"

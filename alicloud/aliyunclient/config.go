@@ -1,8 +1,9 @@
 package aliyunclient
 
 import (
-	"github.com/denverdino/aliyungo/common"
 	"fmt"
+
+	"github.com/denverdino/aliyungo/common"
 )
 
 // Config of aliyun

@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 )
 
 func resourceAliyunSecurityGroupRule() *schema.Resource {
@@ -266,10 +266,15 @@ func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interfac
 }
 
 func buildAliyunSGRuleRequest(d *schema.ResourceData, meta interface{}) (*requests.CommonRequest, error) {
-	request := CommonRequestInit(meta.(*aliyunclient.AliyunClient).RegionId, ECSCode, ECSDomain)
-
 	client := meta.(*aliyunclient.AliyunClient)
 	ecsService := EcsService{client}
+	request := requests.NewCommonRequest()
+	request.Version = ApiVersion20140526
+	request.Domain = string(ECSDomain)
+	d := LoadEndpoint(client.RegionId, ECSCode)
+	if d != "" {
+		request.Domain = d
+	}
 
 	direction := d.Get("type").(string)
 

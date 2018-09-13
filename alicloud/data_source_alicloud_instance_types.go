@@ -2,10 +2,11 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"

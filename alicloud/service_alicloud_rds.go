@@ -2,9 +2,10 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
 	"time"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/denverdino/aliyungo/common"

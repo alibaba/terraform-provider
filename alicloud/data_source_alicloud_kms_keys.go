@@ -2,8 +2,9 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"regexp"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/hashicorp/terraform/helper/schema"

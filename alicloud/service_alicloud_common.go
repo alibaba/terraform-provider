@@ -8,13 +8,14 @@ import (
 	"io/ioutil"
 
 	"fmt"
+	"strings"
+
 	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/location"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
-	"strings"
 )
 
 type CommonService struct {

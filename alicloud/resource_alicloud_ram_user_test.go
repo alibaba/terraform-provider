@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func init() {

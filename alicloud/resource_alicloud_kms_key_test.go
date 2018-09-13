@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func TestAccAlicloudKmsKey_basic(t *testing.T) {

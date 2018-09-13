@@ -3,11 +3,12 @@ package alicloud
 import (
 	"bytes"
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"io"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/hashicorp/terraform/helper/resource"

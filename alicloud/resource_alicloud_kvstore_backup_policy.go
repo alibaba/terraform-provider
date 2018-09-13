@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAlicloudKVStoreBackupPolicy() *schema.Resource {

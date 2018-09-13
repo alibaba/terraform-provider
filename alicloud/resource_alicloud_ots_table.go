@@ -2,9 +2,10 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
 	"time"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -73,7 +74,6 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 	tableMeta.TableName = tableName
 	client := meta.(*aliyunclient.AliyunClient)
 	otsService := OtsService{client}
-	tableClient := otsService.buildTableClient(instanceName)
 
 	for _, primaryKey := range d.Get("primary_key").([]interface{}) {
 		pk := primaryKey.(map[string]interface{})
@@ -91,7 +91,9 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 	createTableRequest.TableOption = tableOption
 	createTableRequest.ReservedThroughput = reservedThroughput
 
-	_, err := tableClient.CreateTable(createTableRequest)
+	_, err := client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+		return tableStoreClient.CreateTable(createTableRequest)
+	})
 	if err != nil {
 		return fmt.Errorf("failed to create table with error: %s", err)
 	}
@@ -143,8 +145,6 @@ func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	client := meta.(*aliyunclient.AliyunClient)
-	otsService := OtsService{client}
-	tableClient := otsService.buildTableClient(instanceName)
 	update := false
 
 	updateTableReq := new(tablestore.UpdateTableRequest)
@@ -165,7 +165,9 @@ func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if update {
 		updateTableReq.TableOption = tableOption
-		_, err := tableClient.UpdateTable(updateTableReq)
+		_, err := client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+			return tableStoreClient.UpdateTable(updateTableReq)
+		})
 
 		if err != nil {
 			return fmt.Errorf("failed to update table with error: %s", err)
@@ -191,7 +193,10 @@ func resourceAliyunOtsTableDelete(d *schema.ResourceData, meta interface{}) erro
 			}
 			return resource.NonRetryableError(fmt.Errorf("When deleting table %s, describing instance %s got an error: %#v.", tableName, instanceName, err))
 		}
-		if _, err := otsService.buildTableClient(instanceName).DeleteTable(req); err != nil {
+		_, err := client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+			return tableStoreClient.DeleteTable(req)
+		})
+		if err != nil {
 			if strings.HasPrefix(err.Error(), OTSObjectNotExist) {
 				return nil
 			}

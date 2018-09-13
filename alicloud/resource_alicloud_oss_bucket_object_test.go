@@ -2,13 +2,14 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"testing"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"

@@ -3,9 +3,9 @@ package alicloud
 import (
 	"fmt"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func resourceAlicloudRamGroupMembership() *schema.Resource {

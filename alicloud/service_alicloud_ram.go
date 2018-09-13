@@ -3,8 +3,9 @@ package alicloud
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/denverdino/aliyungo/ram"
 )

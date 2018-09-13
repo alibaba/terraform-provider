@@ -3,9 +3,10 @@ package alicloud
 import (
 	"bytes"
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"log"
 	"time"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/hashicorp/terraform/helper/hashcode"

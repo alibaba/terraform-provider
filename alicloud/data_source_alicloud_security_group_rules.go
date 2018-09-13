@@ -2,8 +2,9 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"strconv"
 

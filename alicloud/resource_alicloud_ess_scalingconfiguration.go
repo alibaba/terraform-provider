@@ -3,9 +3,10 @@ package alicloud
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
 	"time"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"reflect"
 

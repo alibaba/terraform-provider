@@ -1,9 +1,9 @@
 package alicloud
 
 import (
-	"fmt"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"strings"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"time"
 
@@ -13,17 +13,6 @@ import (
 
 type OtsService struct {
 	client *aliyunclient.AliyunClient
-}
-
-func (s *OtsService) buildTableClient(instanceName string) *tablestore.TableStoreClient {
-	endpoint := LoadEndpoint(s.client.RegionId, OTSCode)
-	if endpoint == "" {
-		endpoint = fmt.Sprintf("%s.%s.ots.aliyuncs.com", instanceName, s.client.RegionId)
-	}
-	if !strings.HasPrefix(endpoint, string(Https)) && !strings.HasPrefix(endpoint, string(Http)) {
-		endpoint = fmt.Sprintf("%s://%s", Https, endpoint)
-	}
-	return tablestore.NewClient(endpoint, instanceName, s.client.AccessKey, s.client.SecretKey)
 }
 
 func (s *OtsService) getPrimaryKeyType(primaryKeyType string) tablestore.PrimaryKeyType {
@@ -44,13 +33,16 @@ func (s *OtsService) DescribeOtsTable(instanceName, tableName string) (table *ta
 	describeTableReq := new(tablestore.DescribeTableRequest)
 	describeTableReq.TableName = tableName
 
-	table, err = s.buildTableClient(instanceName).DescribeTable(describeTableReq)
+	raw, err := s.client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+		return tableStoreClient.DescribeTable(describeTableReq)
+	})
 	if err != nil {
 		if strings.HasPrefix(err.Error(), OTSObjectNotExist) {
 			err = GetNotFoundErrorFromString(GetNotFoundMessage("OTS Table", tableName))
 		}
 		return
 	}
+	table = raw.(*tablestore.DescribeTableResponse)
 	if table == nil || table.TableMeta == nil || table.TableMeta.TableName != tableName {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("OTS Table", tableName))
 	}
@@ -61,7 +53,10 @@ func (s *OtsService) DeleteOtsTable(instanceName, tableName string) (bool, error
 
 	deleteReq := new(tablestore.DeleteTableRequest)
 	deleteReq.TableName = tableName
-	if _, err := s.buildTableClient(instanceName).DeleteTable(deleteReq); err != nil {
+	_, err := s.client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+		return tableStoreClient.DeleteTable(deleteReq)
+	})
+	if err != nil {
 		if NotFoundError(err) {
 			return true, nil
 		}

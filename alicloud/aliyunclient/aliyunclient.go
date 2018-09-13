@@ -13,6 +13,8 @@ import (
 
 	"regexp"
 
+	"sync"
+
 	"github.com/alibaba/terraform-provider/alicloud"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
@@ -34,6 +36,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 	"github.com/aliyun/fc-go-sdk"
 	"github.com/denverdino/aliyungo/cdn"
 	"github.com/denverdino/aliyungo/common"
@@ -43,7 +46,6 @@ import (
 	"github.com/denverdino/aliyungo/location"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/terraform"
-	"sync"
 )
 
 // AliyunClient of aliyun
@@ -51,34 +53,35 @@ type AliyunClient struct {
 	Region   common.Region
 	RegionId string
 	//In order to build ots table client, add accesskey and secretkey in aliyunclient temporarily.
-	AccessKey       string
-	SecretKey       string
-	SecurityToken   string
-	OtsInstanceName string
-	accountIdMutex  sync.RWMutex
-	config          *Config
-	accountId       string
-	ecsconn         *ecs.Client
-	essconn         *ess.Client
-	rdsconn         *rds.Client
-	vpcconn         *vpc.Client
-	slbconn         *slb.Client
-	ossconn         *oss.Client
-	dnsconn         *dns.Client
-	ramconn         ram.RamClientInterface
-	csconn          *cs.Client
-	cdnconn         *cdn.CdnClient
-	kmsconn         *kms.Client
-	otsconn         *ots.Client
-	cmsconn         *cms.Client
-	logconn         *sls.Client
-	fcconn          *fc.Client
-	cenconn         *cbn.Client
-	pvtzconn        *pvtz.Client
-	ddsconn         *dds.Client
-	stsconn         *sts.Client
-	rkvconn         *r_kvstore.Client
-	locationconn    *location.Client
+	AccessKey                    string
+	SecretKey                    string
+	SecurityToken                string
+	OtsInstanceName              string
+	accountIdMutex               sync.RWMutex
+	config                       *Config
+	accountId                    string
+	ecsconn                      *ecs.Client
+	essconn                      *ess.Client
+	rdsconn                      *rds.Client
+	vpcconn                      *vpc.Client
+	slbconn                      *slb.Client
+	ossconn                      *oss.Client
+	dnsconn                      *dns.Client
+	ramconn                      ram.RamClientInterface
+	csconn                       *cs.Client
+	cdnconn                      *cdn.CdnClient
+	kmsconn                      *kms.Client
+	otsconn                      *ots.Client
+	cmsconn                      *cms.Client
+	logconn                      *sls.Client
+	fcconn                       *fc.Client
+	cenconn                      *cbn.Client
+	pvtzconn                     *pvtz.Client
+	ddsconn                      *dds.Client
+	stsconn                      *sts.Client
+	rkvconn                      *r_kvstore.Client
+	locationconn                 *location.Client
+	tablestoreconnByInstanceName map[string]*tablestore.TableStoreClient
 }
 
 const businessInfoKey = "Terraform"
@@ -93,14 +96,15 @@ func (c *Config) Client() (*AliyunClient, error) {
 	}
 
 	return &AliyunClient{
-		config:          c,
-		Region:          c.Region,
-		RegionId:        c.RegionId,
-		AccessKey:       c.AccessKey,
-		SecretKey:       c.SecretKey,
-		SecurityToken:   c.SecurityToken,
-		OtsInstanceName: c.OtsInstanceName,
-		accountId:       c.AccountId,
+		config:                       c,
+		Region:                       c.Region,
+		RegionId:                     c.RegionId,
+		AccessKey:                    c.AccessKey,
+		SecretKey:                    c.SecretKey,
+		SecurityToken:                c.SecurityToken,
+		OtsInstanceName:              c.OtsInstanceName,
+		accountId:                    c.AccountId,
+		tablestoreconnByInstanceName: make(map[string]*tablestore.TableStoreClient),
 	}, nil
 }
 
@@ -110,9 +114,9 @@ func (client *AliyunClient) RunSafelyWithEcsClient(do func(*ecs.Client) (interfa
 
 	// Initialize the ECS client if necessary
 	if client.ecsconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.ECSCode)
+		endpoint := loadEndpoint(client.config.RegionId, ECSCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.ECSCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(ECSCode), endpoint)
 		}
 		ecsconn, err := ecs.NewClientWithOptions(client.config.RegionId, getSdkConfig().WithTimeout(60000000000), client.config.getAuthCredential(true))
 		if err != nil {
@@ -134,9 +138,9 @@ func (client *AliyunClient) RunSafelyWithRdsClient(do func(*rds.Client) (interfa
 
 	// Initialize the RDS client if necessary
 	if client.rdsconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.RDSCode)
+		endpoint := loadEndpoint(client.config.RegionId, RDSCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.RDSCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(RDSCode), endpoint)
 		}
 		rdsconn, err := rds.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -155,9 +159,9 @@ func (client *AliyunClient) RunSafelyWithSlbClient(do func(*slb.Client) (interfa
 
 	// Initialize the SLB client if necessary
 	if client.slbconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.SLBCode)
+		endpoint := loadEndpoint(client.config.RegionId, SLBCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.SLBCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(SLBCode), endpoint)
 		}
 		slbconn, err := slb.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -176,9 +180,9 @@ func (client *AliyunClient) RunSafelyWithVpcClient(do func(*vpc.Client) (interfa
 
 	// Initialize the VPC client if necessary
 	if client.vpcconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.VPCCode)
+		endpoint := loadEndpoint(client.config.RegionId, VPCCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.VPCCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(VPCCode), endpoint)
 		}
 		vpcconn, err := vpc.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -197,9 +201,9 @@ func (client *AliyunClient) RunSafelyWithCenClient(do func(*cbn.Client) (interfa
 
 	// Initialize the CEN client if necessary
 	if client.cenconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.CENCode)
+		endpoint := loadEndpoint(client.config.RegionId, CENCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.CENCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(CENCode), endpoint)
 		}
 		cenconn, err := cbn.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -218,9 +222,9 @@ func (client *AliyunClient) RunSafelyWithEssClient(do func(*ess.Client) (interfa
 
 	// Initialize the ESS client if necessary
 	if client.essconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.ESSCode)
+		endpoint := loadEndpoint(client.config.RegionId, ESSCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.ESSCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(ESSCode), endpoint)
 		}
 		essconn, err := ess.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -241,14 +245,14 @@ func (client *AliyunClient) RunSafelyWithOssClient(do func(*oss.Client) (interfa
 	if client.ossconn == nil {
 		endpointClient := location.NewClient(client.config.AccessKey, client.config.SecretKey)
 		endpointClient.SetSecurityToken(client.config.SecurityToken)
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.OSSCode)
+		endpoint := loadEndpoint(client.config.RegionId, OSSCode)
 		if endpoint == "" {
 			args := &location.DescribeEndpointsArgs{
 				Id:          client.config.Region,
 				ServiceCode: "oss",
 				Type:        "openAPI",
 			}
-			invoker := alicloud.NewInvoker()
+			invoker := NewInvoker()
 			var endpointsResponse *location.DescribeEndpointsResponse
 			if err := invoker.Run(func() error {
 				es, err := endpointClient.DescribeEndpoints(args)
@@ -367,9 +371,9 @@ func (client *AliyunClient) RunSafelyWithOtsClient(do func(*ots.Client) (interfa
 
 	// Initialize the OTS client if necessary
 	if client.otsconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.OTSCode)
+		endpoint := loadEndpoint(client.config.RegionId, OTSCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.OTSCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(OTSCode), endpoint)
 		}
 		otsconn, err := ots.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -405,11 +409,11 @@ func (client *AliyunClient) RunSafelyWithPvtzClient(do func(*pvtz.Client) (inter
 
 	// Initialize the PVTZ client if necessary
 	if client.pvtzconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.PVTZCode)
+		endpoint := loadEndpoint(client.config.RegionId, PVTZCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.PVTZCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(PVTZCode), endpoint)
 		} else {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.PVTZCode), "pvtz.aliyuncs.com")
+			endpoints.AddEndpointMapping(client.config.RegionId, string(PVTZCode), "pvtz.aliyuncs.com")
 		}
 		pvtzconn, err := pvtz.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -428,9 +432,9 @@ func (client *AliyunClient) RunSafelyWithStsClient(do func(*sts.Client) (interfa
 
 	// Initialize the STS client if necessary
 	if client.stsconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.STSCode)
+		endpoint := loadEndpoint(client.config.RegionId, STSCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.STSCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(STSCode), endpoint)
 		}
 		stsconn, err := sts.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -451,7 +455,7 @@ func (client *AliyunClient) RunSafelyWithLogClient(do func(*sls.Client) (interfa
 	if client.logconn == nil {
 		endpoint := client.config.LogEndpoint
 		if endpoint == "" {
-			endpoint = alicloud.LoadEndpoint(client.config.RegionId, alicloud.LOGCode)
+			endpoint = loadEndpoint(client.config.RegionId, LOGCode)
 			if endpoint == "" {
 				endpoint = fmt.Sprintf("%s.log.aliyuncs.com", client.config.RegionId)
 			}
@@ -475,9 +479,9 @@ func (client *AliyunClient) RunSafelyWithDdsClient(do func(*dds.Client) (interfa
 
 	// Initialize the DDS client if necessary
 	if client.ddsconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.DDSCode)
+		endpoint := loadEndpoint(client.config.RegionId, DDSCode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.DDSCode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(DDSCode), endpoint)
 		}
 		ddsconn, err := dds.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -496,9 +500,9 @@ func (client *AliyunClient) RunSafelyWithRkvClient(do func(*r_kvstore.Client) (i
 
 	// Initialize the RKV client if necessary
 	if client.rkvconn == nil {
-		endpoint := alicloud.LoadEndpoint(client.config.RegionId, alicloud.KVSTORECode)
+		endpoint := loadEndpoint(client.config.RegionId, KVSTORECode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(alicloud.KVSTORECode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(KVSTORECode), endpoint)
 		}
 		rkvconn, err := r_kvstore.NewClientWithOptions(client.config.RegionId, getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
@@ -519,7 +523,7 @@ func (client *AliyunClient) RunSafelyWithFcClient(do func(*fc.Client) (interface
 	if client.fcconn == nil {
 		endpoint := client.config.LogEndpoint
 		if endpoint == "" {
-			endpoint = alicloud.LoadEndpoint(client.config.RegionId, alicloud.FCCode)
+			endpoint = loadEndpoint(client.config.RegionId, FCCode)
 			if endpoint == "" {
 				endpoint = fmt.Sprintf("%s.fc.aliyuncs.com", client.config.RegionId)
 			}
@@ -531,7 +535,7 @@ func (client *AliyunClient) RunSafelyWithFcClient(do func(*fc.Client) (interface
 		}
 
 		config := getSdkConfig()
-		fcconn, err := fc.NewClient(fmt.Sprintf("%s%s%s", accountId, alicloud.DOT_SEPARATED, endpoint), alicloud.ApiVersion20160815, client.config.AccessKey, client.config.SecretKey, fc.WithTransport(config.HttpTransport))
+		fcconn, err := fc.NewClient(fmt.Sprintf("%s%s%s", accountId, DOT_SEPARATED, endpoint), ApiVersion20160815, client.config.AccessKey, client.config.SecretKey, fc.WithTransport(config.HttpTransport))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the FC client: %#v", err)
 		}
@@ -542,6 +546,27 @@ func (client *AliyunClient) RunSafelyWithFcClient(do func(*fc.Client) (interface
 	}
 
 	return do(client.fcconn)
+}
+
+func (client *AliyunClient) RunSafelyWithTableStoreClient(instanceName string, do func(*tablestore.TableStoreClient) (interface{}, error)) (interface{}, error) {
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
+
+	// Initialize the TABLESTORE client if necessary
+	tableStoreClient, ok := client.tablestoreconnByInstanceName[instanceName]
+	if !ok {
+		endpoint := loadEndpoint(client.RegionId, OTSCode)
+		if endpoint == "" {
+			endpoint = fmt.Sprintf("%s.%s.ots.aliyuncs.com", instanceName, client.RegionId)
+		}
+		if !strings.HasPrefix(endpoint, string(Https)) && !strings.HasPrefix(endpoint, string(Http)) {
+			endpoint = fmt.Sprintf("%s://%s", Https, endpoint)
+		}
+		tableStoreClient = tablestore.NewClient(endpoint, instanceName, client.AccessKey, client.SecretKey)
+		client.tablestoreconnByInstanceName[instanceName] = tableStoreClient
+	}
+
+	return do(tableStoreClient)
 }
 
 func (client *AliyunClient) RunSafelyWithLocationClient(do func(*location.Client) (interface{}, error)) (interface{}, error) {

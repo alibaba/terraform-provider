@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func TestAccAlicloudSlbListener_http(t *testing.T) {

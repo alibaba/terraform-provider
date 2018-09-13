@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 )
 
 func TestMain(m *testing.M) {
