@@ -573,7 +573,8 @@ func (client *AliyunClient) RunSafelyWithCsProjectClient(clusterId, endpoint str
 	key := fmt.Sprintf("%s|%s|%s|%s|%s", clusterId, endpoint, clusterCerts.CA, clusterCerts.Cert, clusterCerts.Key)
 	csProjectClient, ok := client.csprojectconnByKey[key]
 	if !ok {
-		csProjectClient, err := cs.NewProjectClient(clusterId, endpoint, clusterCerts)
+		var err error
+		csProjectClient, err = cs.NewProjectClient(clusterId, endpoint, clusterCerts)
 		if err != nil {
 			return nil, fmt.Errorf("Getting Application Client failed by cluster id %s: %#v.", clusterCerts, err)
 		}
