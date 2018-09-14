@@ -18,6 +18,7 @@ func TestAccAlicloudDisksDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.alicloud_disks.disks", "disks.0.id"),
 					resource.TestCheckResourceAttr("data.alicloud_disks.disks", "disks.0.name", "tf-testAccCheckAlicloudDisksDataSourceBasic"),
 					resource.TestCheckResourceAttr("data.alicloud_disks.disks", "disks.0.description", "tf-testAccCheckAlicloudDisksDataSourceBasic_description"),
+					resource.TestCheckResourceAttrSet("data.alicloud_disks.disks", "disks.0.region_id"),
 					resource.TestCheckResourceAttrSet("data.alicloud_disks.disks", "disks.0.availability_zone"),
 					resource.TestCheckResourceAttr("data.alicloud_disks.disks", "disks.0.status", "Available"),
 					resource.TestCheckResourceAttr("data.alicloud_disks.disks", "disks.0.type", "data"),
