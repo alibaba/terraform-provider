@@ -80,8 +80,9 @@ func resourceAlicloudEssScalingGroup() *schema.Resource {
 			"multi_az_policy": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "PRIORITY",
-				ValidateFunc: validateAllowedStringValue([]string{"PRIORITY", "BALANCE"}),
+				Default:      Priority,
+				ValidateFunc: validateAllowedStringValue([]string{string(Priority), string(Balance)}),
+				ForceNew:     true,
 			},
 		},
 	}
