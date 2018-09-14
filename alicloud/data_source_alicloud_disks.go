@@ -66,6 +66,10 @@ func dataSourceAlicloudDisks() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"region_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"availability_zone": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -217,6 +221,7 @@ func disksDescriptionAttributes(d *schema.ResourceData, disks []ecs.Disk) error 
 			"id":                disk.DiskId,
 			"name":              disk.DiskName,
 			"description":       disk.Description,
+			"region_id":         disk.RegionId,
 			"availability_zone": disk.ZoneId,
 			"status":            disk.Status,
 			"type":              disk.Type,
