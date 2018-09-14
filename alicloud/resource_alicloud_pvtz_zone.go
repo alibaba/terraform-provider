@@ -64,7 +64,7 @@ func resourceAlicloudPvtzZoneCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("AddZone got an error:%#v", err)
 	}
-	response := raw.(*pvtz.AddZoneResponse)
+	response, _ := raw.(*pvtz.AddZoneResponse)
 	if response == nil {
 		return fmt.Errorf("AddZone got a nil response: %#v", response)
 	}
@@ -92,7 +92,7 @@ func resourceAlicloudPvtzZoneRead(d *schema.ResourceData, meta interface{}) erro
 
 		return err
 	}
-	response := raw.(*pvtz.DescribeZoneInfoResponse)
+	response, _ := raw.(*pvtz.DescribeZoneInfoResponse)
 
 	d.Set("name", response.ZoneName)
 	d.Set("remark", response.Remark)

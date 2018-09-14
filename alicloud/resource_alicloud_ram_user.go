@@ -68,7 +68,7 @@ func resourceAlicloudRamUserCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("CreateUser got an error: %#v", err)
 	}
-	response := raw.(ram.UserResponse)
+	response, _ := raw.(ram.UserResponse)
 	d.SetId(response.User.UserName)
 	return resourceAlicloudRamUserUpdate(d, meta)
 }
@@ -146,7 +146,7 @@ func resourceAlicloudRamUserRead(d *schema.ResourceData, meta interface{}) error
 		}
 		return fmt.Errorf("GetUser got an error: %#v", err)
 	}
-	response := raw.(ram.UserResponse)
+	response, _ := raw.(ram.UserResponse)
 	user := response.User
 	d.Set("name", user.UserName)
 	d.Set("display_name", user.DisplayName)
@@ -172,7 +172,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return fmt.Errorf("Error listing access keys for User (%s) when trying to delete: %#v", d.Id(), err)
 		}
-		akResp := raw.(ram.AccessKeyListResponse)
+		akResp, _ := raw.(ram.AccessKeyListResponse)
 		if len(akResp.AccessKeys.AccessKey) > 0 {
 			for _, v := range akResp.AccessKeys.AccessKey {
 				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
@@ -194,7 +194,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return fmt.Errorf("Error listing policies for User (%s) when trying to delete: %#v", d.Id(), err)
 		}
-		policyResp := raw.(ram.PolicyListResponse)
+		policyResp, _ := raw.(ram.PolicyListResponse)
 		if len(policyResp.Policies.Policy) > 0 {
 			for _, v := range policyResp.Policies.Policy {
 				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
@@ -219,7 +219,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return fmt.Errorf("Error listing groups for User (%s) when trying to delete: %#v", d.Id(), err)
 		}
-		groupResp := raw.(ram.GroupListResponse)
+		groupResp, _ := raw.(ram.GroupListResponse)
 		if len(groupResp.Groups.Group) > 0 {
 			for _, v := range groupResp.Groups.Group {
 				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {

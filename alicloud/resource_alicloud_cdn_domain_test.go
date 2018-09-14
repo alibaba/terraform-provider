@@ -64,7 +64,7 @@ func testAccCheckCdnDomainExists(n string, domain *cdn.DomainDetail) resource.Te
 		log.Printf("[WARN] Domain id %#v", rs.Primary.ID)
 
 		if err == nil {
-			response := raw.(cdn.DomainResponse)
+			response, _ := raw.(cdn.DomainResponse)
 			*domain = response.GetDomainDetailModel
 			return nil
 		}

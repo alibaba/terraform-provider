@@ -47,7 +47,7 @@ func testSweepRouterInterfaces(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Router Interfaces: %s", err)
 		}
-		resp := raw.(*vpc.DescribeRouterInterfacesResponse)
+		resp, _ := raw.(*vpc.DescribeRouterInterfacesResponse)
 		if resp == nil || len(resp.RouterInterfaceSet.RouterInterfaceType) < 1 {
 			break
 		}

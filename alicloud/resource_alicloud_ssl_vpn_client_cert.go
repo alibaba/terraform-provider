@@ -54,7 +54,7 @@ func resourceAliyunSslVpnClientCertCreate(d *schema.ResourceData, meta interface
 			}
 			return resource.NonRetryableError(err)
 		}
-		sslVpnClientCert = raw.(*vpc.CreateSslVpnClientCertResponse)
+		sslVpnClientCert, _ = raw.(*vpc.CreateSslVpnClientCertResponse)
 		return nil
 	})
 

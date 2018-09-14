@@ -51,7 +51,7 @@ func testSweepEssSchedules(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Scheduled Tasks: %s", err)
 		}
-		resp := raw.(*ess.DescribeScheduledTasksResponse)
+		resp, _ := raw.(*ess.DescribeScheduledTasksResponse)
 		if resp == nil || len(resp.ScheduledTasks.ScheduledTask) < 1 {
 			break
 		}

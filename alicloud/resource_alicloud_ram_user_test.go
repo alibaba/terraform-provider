@@ -49,7 +49,7 @@ func testSweepRamUsers(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Ram users: %s", err)
 		}
-		resp := raw.(ram.ListUserResponse)
+		resp, _ := raw.(ram.ListUserResponse)
 		if len(resp.Users.User) < 1 {
 			break
 		}
@@ -155,7 +155,7 @@ func testAccCheckRamUserExists(n string, user *ram.User) resource.TestCheckFunc 
 		log.Printf("[WARN] User id %#v", rs.Primary.ID)
 
 		if err == nil {
-			response := raw.(ram.UserResponse)
+			response, _ := raw.(ram.UserResponse)
 			*user = response.User
 			return nil
 		}

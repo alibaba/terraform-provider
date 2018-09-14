@@ -108,7 +108,7 @@ func dataSourceAlicloudRamRolesRead(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("ListRoles got an error: %#v", err)
 	}
-	resp := raw.(ram.ListRoleResponse)
+	resp, _ := raw.(ram.ListRoleResponse)
 	for _, v := range resp.Roles.Role {
 		if nameRegexOk {
 			r := regexp.MustCompile(nameRegex.(string))
@@ -131,7 +131,7 @@ func dataSourceAlicloudRamRolesRead(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return fmt.Errorf("ListEntitiesForPolicy got an error: %#v", err)
 		}
-		resp := raw.(ram.PolicyListEntitiesResponse)
+		resp, _ := raw.(ram.PolicyListEntitiesResponse)
 		for _, v := range resp.Roles.Role {
 			policyFilterRolesMap[v.RoleName] = v
 		}
@@ -159,7 +159,7 @@ func ramRolesDescriptionAttributes(d *schema.ResourceData, meta interface{}, rol
 		raw, _ := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetRole(ram.RoleQueryRequest{RoleName: role.RoleName})
 		})
-		resp := raw.(ram.RoleResponse)
+		resp, _ := raw.(ram.RoleResponse)
 		mapping := map[string]interface{}{
 			"id":                          role.RoleId,
 			"name":                        role.RoleName,

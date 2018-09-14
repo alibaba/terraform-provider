@@ -74,7 +74,7 @@ func resourceAlicloudRamRolePolicyAttachmentRead(d *schema.ResourceData, meta in
 	if err != nil {
 		return fmt.Errorf("Get list policies for role got an error: %v", err)
 	}
-	response := raw.(ram.PolicyListResponse)
+	response, _ := raw.(ram.PolicyListResponse)
 	if len(response.Policies.Policy) > 0 {
 		for _, v := range response.Policies.Policy {
 			if v.PolicyName == d.Get("policy_name").(string) && v.PolicyType == d.Get("policy_type").(string) {
@@ -121,7 +121,7 @@ func resourceAlicloudRamRolePolicyAttachmentDelete(d *schema.ResourceData, meta 
 			}
 			return resource.NonRetryableError(err)
 		}
-		response := raw.(ram.PolicyListResponse)
+		response, _ := raw.(ram.PolicyListResponse)
 
 		if len(response.Policies.Policy) < 1 {
 			return nil

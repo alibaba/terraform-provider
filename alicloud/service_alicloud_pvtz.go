@@ -27,7 +27,7 @@ func (s *PvtzService) DescribePvtzZoneInfo(zoneId string) (zone pvtz.DescribeZon
 			}
 			return err
 		}
-		resp := raw.(*pvtz.DescribeZoneInfoResponse)
+		resp, _ := raw.(*pvtz.DescribeZoneInfoResponse)
 		if resp == nil || resp.ZoneId != zoneId {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("PrivateZone", zoneId))
 		}
@@ -57,7 +57,7 @@ func (s *PvtzService) DescribeZoneRecord(recordId int, zoneId string) (record pv
 			}
 			return err
 		}
-		resp := raw.(*pvtz.DescribeZoneRecordsResponse)
+		resp, _ := raw.(*pvtz.DescribeZoneRecordsResponse)
 		if resp == nil {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("PrivateZoneRecord", recordIdStr))
 		}

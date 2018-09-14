@@ -92,7 +92,7 @@ func dataSourceAlicloudSlbRulesRead(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("DescribeRules got an error: %#v", err)
 	}
-	resp := raw.(*slb.DescribeRulesResponse)
+	resp, _ := raw.(*slb.DescribeRulesResponse)
 	if resp == nil {
 		return fmt.Errorf("there is no SLB with the ID %s. Please change your search criteria and try again", args.LoadBalancerId)
 	}

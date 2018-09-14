@@ -32,13 +32,13 @@ func (s *CmsService) DescribeAlarm(id string) (alarm cms.AlarmInListAlarm, err e
 	request := cms.CreateListAlarmRequest()
 
 	request.Id = id
-	rawResponse, err := s.client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+	raw, err := s.client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 		return cmsClient.ListAlarm(request)
 	})
 	if err != nil {
 		return alarm, err
 	}
-	response := rawResponse.(*cms.ListAlarmResponse)
+	response, _ := raw.(*cms.ListAlarmResponse)
 
 	if len(response.AlarmList.Alarm) < 1 {
 		return alarm, GetNotFoundErrorFromString(GetNotFoundMessage("Alarm Rule", id))

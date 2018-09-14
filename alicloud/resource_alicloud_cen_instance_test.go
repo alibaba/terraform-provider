@@ -45,7 +45,7 @@ func testSweepCenInstances(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving CEN Instances: %s", err)
 		}
-		resp := raw.(*cbn.DescribeCensResponse)
+		resp, _ := raw.(*cbn.DescribeCensResponse)
 		if resp == nil || len(resp.Cens.Cen) < 1 {
 			break
 		}

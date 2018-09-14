@@ -200,7 +200,7 @@ func dataSourceAlicloudMongoInstancesRead(d *schema.ResourceData, meta interface
 		if err != nil {
 			return err
 		}
-		resp := raw.(*dds.DescribeDBInstancesResponse)
+		resp, _ := raw.(*dds.DescribeDBInstancesResponse)
 		if resp == nil || len(resp.DBInstances.DBInstance) < 1 {
 			break
 		}

@@ -196,7 +196,7 @@ func dataSourceAlicloudDBInstancesRead(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return err
 		}
-		resp := raw.(*rds.DescribeDBInstancesResponse)
+		resp, _ := raw.(*rds.DescribeDBInstancesResponse)
 		if resp == nil || len(resp.Items.DBInstance) < 1 {
 			break
 		}

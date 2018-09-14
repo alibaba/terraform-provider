@@ -16,6 +16,6 @@ func (s *OssService) QueryOssBucketById(id string) (info *oss.BucketInfo, err er
 	if err != nil {
 		return nil, err
 	}
-	bucket := raw.(oss.GetBucketInfoResult)
+	bucket, _ := raw.(oss.GetBucketInfoResult)
 	return &bucket.BucketInfo, nil
 }

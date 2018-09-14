@@ -259,7 +259,7 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 		}
 		return fmt.Errorf("Create load balancer got an error: %#v", err)
 	}
-	lb := raw.(*slb.CreateLoadBalancerResponse)
+	lb, _ := raw.(*slb.CreateLoadBalancerResponse)
 	d.SetId(lb.LoadBalancerId)
 
 	if err := slbService.WaitForLoadBalancer(lb.LoadBalancerId, Active, DefaultTimeout); err != nil {

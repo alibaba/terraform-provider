@@ -86,7 +86,7 @@ func resourceAliyunEssScheduleCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	rule := raw.(*ess.CreateScheduledTaskResponse)
+	rule, _ := raw.(*ess.CreateScheduledTaskResponse)
 	d.SetId(rule.ScheduledTaskId)
 
 	return resourceAliyunEssScheduleUpdate(d, meta)

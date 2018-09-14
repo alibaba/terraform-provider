@@ -84,7 +84,7 @@ func resourceAlicloudKeyPairCreate(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return fmt.Errorf("Error Import KeyPair: %s", err)
 		}
-		keypair := raw.(*ecs.ImportKeyPairResponse)
+		keypair, _ := raw.(*ecs.ImportKeyPairResponse)
 		d.SetId(keypair.KeyPairName)
 	} else {
 		args := ecs.CreateCreateKeyPairRequest()
@@ -95,7 +95,7 @@ func resourceAlicloudKeyPairCreate(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return fmt.Errorf("Error Create KeyPair: %s", err)
 		}
-		keypair := raw.(*ecs.CreateKeyPairResponse)
+		keypair, _ := raw.(*ecs.CreateKeyPairResponse)
 		d.SetId(keypair.KeyPairName)
 		if file, ok := d.GetOk("key_file"); ok {
 			ioutil.WriteFile(file.(string), []byte(keypair.PrivateKeyBody), 400)

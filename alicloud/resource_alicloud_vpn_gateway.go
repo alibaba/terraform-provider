@@ -142,7 +142,7 @@ func resourceAliyunVpnGatewayCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("Create Vpn got an error: %#v", err)
 	}
-	vpn := raw.(*vpc.CreateVpnGatewayResponse)
+	vpn, _ := raw.(*vpc.CreateVpnGatewayResponse)
 	d.SetId(vpn.VpnGatewayId)
 
 	time.Sleep(10 * time.Second)

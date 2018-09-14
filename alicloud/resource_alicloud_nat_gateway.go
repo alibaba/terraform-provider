@@ -138,7 +138,7 @@ func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) er
 			}
 			return resource.NonRetryableError(fmt.Errorf("CreateNatGateway got error: %#v", err))
 		}
-		resp := raw.(*vpc.CreateNatGatewayResponse)
+		resp, _ := raw.(*vpc.CreateNatGatewayResponse)
 		d.SetId(resp.NatGatewayId)
 		return nil
 	}); err != nil {
@@ -269,7 +269,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 			log.Printf("[ERROR] Describe bandwidth package is failed, natGateway Id: %s", d.Id())
 			return resource.NonRetryableError(err)
 		}
-		resp := raw.(*vpc.DescribeBandwidthPackagesResponse)
+		resp, _ := raw.(*vpc.DescribeBandwidthPackagesResponse)
 		retry := false
 		if resp != nil && len(resp.BandwidthPackages.BandwidthPackage) > 0 {
 			for _, pack := range resp.BandwidthPackages.BandwidthPackage {
@@ -368,7 +368,7 @@ func getPackages(packageId string, meta interface{}, d *schema.ResourceData) (pa
 		if err != nil {
 			return err
 		}
-		packages := raw.(*vpc.DescribeBandwidthPackagesResponse)
+		packages, _ := raw.(*vpc.DescribeBandwidthPackagesResponse)
 		if packages == nil || len(packages.BandwidthPackages.BandwidthPackage) < 1 {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("Bandwidth Package", packageId))
 		}

@@ -47,7 +47,7 @@ func testSweepKVStoreInstances(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving KVStore Instances: %s", err)
 		}
-		resp := raw.(*r_kvstore.DescribeInstancesResponse)
+		resp, _ := raw.(*r_kvstore.DescribeInstancesResponse)
 		if resp == nil || len(resp.Instances.KVStoreInstance) < 1 {
 			break
 		}

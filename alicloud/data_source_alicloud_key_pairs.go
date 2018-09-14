@@ -88,7 +88,7 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return fmt.Errorf("Error DescribekeyPairs: %#v", err)
 		}
-		results := raw.(*ecs.DescribeKeyPairsResponse)
+		results, _ := raw.(*ecs.DescribeKeyPairsResponse)
 		if results == nil || len(results.KeyPairs.KeyPair) < 1 {
 			break
 		}
@@ -119,7 +119,7 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return fmt.Errorf("Error DescribeInstances: %#v", err)
 		}
-		resp := raw.(*ecs.DescribeInstancesResponse)
+		resp, _ := raw.(*ecs.DescribeInstancesResponse)
 		if resp == nil || len(resp.Instances.Instance) < 1 {
 			break
 		}

@@ -51,7 +51,7 @@ func resourceAliyunVpnCustomerGatewayCreate(d *schema.ResourceData, meta interfa
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		cgw = raw.(*vpc.CreateCustomerGatewayResponse)
+		cgw, _ = raw.(*vpc.CreateCustomerGatewayResponse)
 		return nil
 	})
 	if err != nil {

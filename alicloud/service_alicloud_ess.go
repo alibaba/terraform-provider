@@ -27,7 +27,7 @@ func (s *EssService) DescribeEssAlarmById(alarmTaskId string) (alarm ess.Alarm, 
 		return
 	}
 
-	resp := raw.(*ess.DescribeAlarmsResponse)
+	resp, _ := raw.(*ess.DescribeAlarmsResponse)
 	if resp == nil || len(resp.AlarmList.Alarm) == 0 {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("Ess alarm", alarmTaskId))
 		return
@@ -48,7 +48,7 @@ func (s *EssService) DescribeLifecycleHookById(hookId string) (hook ess.Lifecycl
 	if err != nil {
 		return
 	}
-	resp := raw.(*ess.DescribeLifecycleHooksResponse)
+	resp, _ := raw.(*ess.DescribeLifecycleHooksResponse)
 	if resp == nil || len(resp.LifecycleHooks.LifecycleHook) == 0 {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("Lifecycle Hook", hookId))
 		return
@@ -67,7 +67,7 @@ func (s *EssService) DescribeScalingGroupById(sgId string) (group ess.ScalingGro
 	if err != nil {
 		return
 	}
-	resp := raw.(*ess.DescribeScalingGroupsResponse)
+	resp, _ := raw.(*ess.DescribeScalingGroupsResponse)
 	if resp == nil || len(resp.ScalingGroups.ScalingGroup) == 0 {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("Scaling Group", sgId))
 		return
@@ -86,7 +86,7 @@ func (s *EssService) DescribeScalingConfigurationById(configId string) (config e
 	if err != nil {
 		return
 	}
-	resp := raw.(*ess.DescribeScalingConfigurationsResponse)
+	resp, _ := raw.(*ess.DescribeScalingConfigurationsResponse)
 	if resp == nil || len(resp.ScalingConfigurations.ScalingConfiguration) < 1 {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("Scaling Configuration", configId))
 		return
@@ -135,7 +135,7 @@ func (s *EssService) DescribeScalingRuleById(sgId, ruleId string) (rule ess.Scal
 		}
 		return
 	}
-	resp := raw.(*ess.DescribeScalingRulesResponse)
+	resp, _ := raw.(*ess.DescribeScalingRulesResponse)
 	if resp == nil || len(resp.ScalingRules.ScalingRule) < 1 {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("Scaling rule", ruleId))
 		return
@@ -164,7 +164,7 @@ func (s *EssService) DescribeScheduleById(scheduleId string) (task ess.Scheduled
 	if err != nil {
 		return
 	}
-	resp := raw.(*ess.DescribeScheduledTasksResponse)
+	resp, _ := raw.(*ess.DescribeScheduledTasksResponse)
 	if resp == nil || len(resp.ScheduledTasks.ScheduledTask) < 1 {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("Schedule task", scheduleId))
 		return
@@ -230,7 +230,7 @@ func (srv *EssService) DescribeScalingInstances(groupId, configurationId string,
 	if err != nil {
 		return
 	}
-	resp := raw.(*ess.DescribeScalingInstancesResponse)
+	resp, _ := raw.(*ess.DescribeScalingInstancesResponse)
 	if resp == nil || len(resp.ScalingInstances.ScalingInstance) < 1 {
 		return instances, GetNotFoundErrorFromString(fmt.Sprintf("There is no any instances in the scaling group %s.", groupId))
 	}
@@ -251,7 +251,7 @@ func (s *EssService) DescribeScalingConfifurations(groupId string) (configs []es
 		if err != nil {
 			return configs, err
 		}
-		resp := raw.(*ess.DescribeScalingConfigurationsResponse)
+		resp, _ := raw.(*ess.DescribeScalingConfigurationsResponse)
 		if resp == nil || len(resp.ScalingConfigurations.ScalingConfiguration) < 1 {
 			break
 		}

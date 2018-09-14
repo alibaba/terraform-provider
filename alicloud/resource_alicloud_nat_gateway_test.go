@@ -48,7 +48,7 @@ func testSweepNatGateways(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Nat Gateways: %s", err)
 		}
-		resp := raw.(*vpc.DescribeNatGatewaysResponse)
+		resp, _ := raw.(*vpc.DescribeNatGatewaysResponse)
 		if resp == nil || len(resp.NatGateways.NatGateway) < 1 {
 			break
 		}

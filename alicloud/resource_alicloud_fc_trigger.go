@@ -139,7 +139,7 @@ func resourceAlicloudFCTriggerCreate(d *schema.ResourceData, meta interface{}) e
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error creating function compute trigger got an error: %#v", err))
 		}
-		trigger = raw.(*fc.CreateTriggerOutput)
+		trigger, _ = raw.(*fc.CreateTriggerOutput)
 		return nil
 
 	}); err != nil {

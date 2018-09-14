@@ -93,7 +93,7 @@ func dataSourceAlicloudPvtzZoneRecordsRead(d *schema.ResourceData, meta interfac
 		if err != nil {
 			return fmt.Errorf("Error DescribeZoneRecords: %#v", err)
 		}
-		results := raw.(*pvtz.DescribeZoneRecordsResponse)
+		results, _ := raw.(*pvtz.DescribeZoneRecordsResponse)
 		if results == nil || len(results.Records.Record) < 1 {
 			break
 		}

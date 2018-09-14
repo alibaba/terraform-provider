@@ -29,7 +29,7 @@ func (s *VpcService) DescribeEipAddress(allocationId string) (eip vpc.EipAddress
 		if err != nil {
 			return err
 		}
-		eips := raw.(*vpc.DescribeEipAddressesResponse)
+		eips, _ := raw.(*vpc.DescribeEipAddressesResponse)
 		if eips == nil || len(eips.EipAddresses.EipAddress) <= 0 {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("EIP", allocationId))
 		}
@@ -56,7 +56,7 @@ func (s *VpcService) DescribeNatGateway(natGatewayId string) (nat vpc.NatGateway
 			}
 			return err
 		}
-		resp := raw.(*vpc.DescribeNatGatewaysResponse)
+		resp, _ := raw.(*vpc.DescribeNatGatewaysResponse)
 		if resp == nil || len(resp.NatGateways.NatGateway) <= 0 {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("Nat Gateway", natGatewayId))
 		}
@@ -82,7 +82,7 @@ func (s *VpcService) DescribeVpc(vpcId string) (v vpc.DescribeVpcAttributeRespon
 			}
 			return err
 		}
-		resp := raw.(*vpc.DescribeVpcAttributeResponse)
+		resp, _ := raw.(*vpc.DescribeVpcAttributeResponse)
 		if resp == nil || resp.VpcId != vpcId {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("VPC", vpcId))
 		}
@@ -107,7 +107,7 @@ func (s *VpcService) DescribeVswitch(vswitchId string) (v vpc.DescribeVSwitchAtt
 			}
 			return err
 		}
-		resp := raw.(*vpc.DescribeVSwitchAttributesResponse)
+		resp, _ := raw.(*vpc.DescribeVSwitchAttributesResponse)
 		if resp == nil || resp.VSwitchId != vswitchId {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("VSwitch", vswitchId))
 		}
@@ -131,7 +131,7 @@ func (s *VpcService) DescribeSnatEntry(snatTableId string, snatEntryId string) (
 			raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 				return vpcClient.DescribeSnatTableEntries(request)
 			})
-			snatEntries = raw.(*vpc.DescribeSnatTableEntriesResponse)
+			snatEntries, _ = raw.(*vpc.DescribeSnatTableEntriesResponse)
 			return err
 		})
 
@@ -186,7 +186,7 @@ func (s *VpcService) DescribeForwardEntry(forwardTableId string, forwardEntryId 
 			}
 			return err
 		}
-		resp := raw.(*vpc.DescribeForwardTableEntriesResponse)
+		resp, _ := raw.(*vpc.DescribeForwardTableEntriesResponse)
 		if resp == nil || len(resp.ForwardTableEntries.ForwardTableEntry) <= 0 {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("Forward Entry", forwardTableId))
 		}
@@ -215,7 +215,7 @@ func (s *VpcService) QueryRouteTableById(routeTableId string) (rt vpc.RouteTable
 		if err != nil {
 			return err
 		}
-		rts := raw.(*vpc.DescribeRouteTablesResponse)
+		rts, _ := raw.(*vpc.DescribeRouteTablesResponse)
 		if rts == nil || len(rts.RouteTables.RouteTable) == 0 ||
 			rts.RouteTables.RouteTable[0].RouteTableId != routeTableId {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("Route Table", routeTableId))
@@ -260,7 +260,7 @@ func (s *VpcService) DescribeRouterInterface(regionId, interfaceId string) (ri v
 		if err != nil {
 			return err
 		}
-		resp := raw.(*vpc.DescribeRouterInterfacesResponse)
+		resp, _ := raw.(*vpc.DescribeRouterInterfacesResponse)
 		if resp == nil || len(resp.RouterInterfaceSet.RouterInterfaceType) <= 0 ||
 			resp.RouterInterfaceSet.RouterInterfaceType[0].RouterInterfaceId != interfaceId {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("Router Interface", interfaceId))

@@ -124,7 +124,7 @@ func resourceAlicloudRamLoginProfileRead(d *schema.ResourceData, meta interface{
 		}
 		return fmt.Errorf("GetLoginProfile got an error: %#v", err)
 	}
-	response := raw.(ram.ProfileResponse)
+	response, _ := raw.(ram.ProfileResponse)
 	profile := response.LoginProfile
 	d.Set("user_name", profile.UserName)
 	d.Set("mfa_bind_required", profile.MFABindRequired)
@@ -160,7 +160,7 @@ func resourceAlicloudRamLoginProfileDelete(d *schema.ResourceData, meta interfac
 
 			return resource.NonRetryableError(err)
 		}
-		response := raw.(ram.ProfileResponse)
+		response, _ := raw.(ram.ProfileResponse)
 		if response.LoginProfile.UserName == args.UserName {
 			return resource.RetryableError(fmt.Errorf("Error deleting login profile - trying again while it is deleted."))
 		}

@@ -50,7 +50,7 @@ func testSweepInstances(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Instances: %s", err)
 		}
-		resp := raw.(*ecs.DescribeInstancesResponse)
+		resp, _ := raw.(*ecs.DescribeInstancesResponse)
 		if resp == nil || len(resp.Instances.Instance) < 1 {
 			break
 		}

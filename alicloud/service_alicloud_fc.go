@@ -24,7 +24,7 @@ func (s *FcService) DescribeFcService(name string) (service *fc.GetServiceOutput
 		}
 		return
 	}
-	service = raw.(*fc.GetServiceOutput)
+	service, _ = raw.(*fc.GetServiceOutput)
 	if service == nil || *service.ServiceName == "" {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("FC Service", name))
 	}
@@ -46,7 +46,7 @@ func (s *FcService) DescribeFcFunction(service, name string) (function *fc.GetFu
 		}
 		return
 	}
-	function = raw.(*fc.GetFunctionOutput)
+	function, _ = raw.(*fc.GetFunctionOutput)
 	if function == nil || *function.FunctionName == "" {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("FC Function", name))
 	}
@@ -69,7 +69,7 @@ func (s *FcService) DescribeFcTrigger(service, function, name string) (trigger *
 		}
 		return
 	}
-	trigger = raw.(*fc.GetTriggerOutput)
+	trigger, _ = raw.(*fc.GetTriggerOutput)
 	if trigger == nil || *trigger.TriggerName == "" {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("FC Trigger", name))
 	}

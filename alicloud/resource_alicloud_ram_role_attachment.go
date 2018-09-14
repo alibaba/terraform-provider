@@ -88,7 +88,7 @@ func resourceAlicloudInstanceRoleAttachmentRead(d *schema.ResourceData, meta int
 			}
 			return resource.NonRetryableError(fmt.Errorf("DescribeInstanceRamRole got an error: %#v", err))
 		}
-		resp := raw.(*ecs.DescribeInstanceRamRoleResponse)
+		resp, _ := raw.(*ecs.DescribeInstanceRamRoleResponse)
 		instRoleSets := resp.InstanceRamRoleSets.InstanceRamRoleSet
 		if len(instRoleSets) > 0 {
 			var instIds []string

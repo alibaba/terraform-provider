@@ -99,7 +99,7 @@ func dataSourceAlicloudSecurityGroupsRead(d *schema.ResourceData, meta interface
 		if err != nil {
 			return fmt.Errorf("DescribeSecurityGroups: %#v", err)
 		}
-		resp := raw.(*ecs.DescribeSecurityGroupsResponse)
+		resp, _ := raw.(*ecs.DescribeSecurityGroupsResponse)
 		if resp == nil || len(resp.SecurityGroups.SecurityGroup) < 1 {
 			break
 		}

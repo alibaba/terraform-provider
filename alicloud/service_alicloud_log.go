@@ -21,7 +21,7 @@ func (s *LogService) DescribeLogProject(name string) (project *sls.LogProject, e
 	if err != nil {
 		return project, fmt.Errorf("GetProject %s got an error: %#v.", name, err)
 	}
-	project = raw.(*sls.LogProject)
+	project, _ = raw.(*sls.LogProject)
 	if project == nil || project.Name == "" {
 		return project, GetNotFoundErrorFromString(GetNotFoundMessage("Log Project", name))
 	}
@@ -42,7 +42,7 @@ func (s *LogService) DescribeLogStore(projectName, name string) (store *sls.LogS
 			}
 			return resource.NonRetryableError(fmt.Errorf("GetLogStore %s got an error: %#v.", name, err))
 		}
-		store = raw.(*sls.LogStore)
+		store, _ = raw.(*sls.LogStore)
 		return nil
 	})
 
@@ -70,7 +70,7 @@ func (s *LogService) DescribeLogStoreIndex(projectName, name string) (index *sls
 			}
 			return resource.NonRetryableError(fmt.Errorf("GetLogStore %s got an error: %#v.", name, err))
 		}
-		index = raw.(*sls.Index)
+		index, _ = raw.(*sls.Index)
 		return nil
 	})
 
@@ -99,7 +99,7 @@ func (s *LogService) DescribeLogMachineGroup(projectName, groupName string) (gro
 			}
 			return resource.NonRetryableError(fmt.Errorf("GetLogMachineGroup %s got an error: %#v.", groupName, err))
 		}
-		group = raw.(*sls.MachineGroup)
+		group, _ = raw.(*sls.MachineGroup)
 		return nil
 	})
 

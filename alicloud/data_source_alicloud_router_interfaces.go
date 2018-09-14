@@ -180,7 +180,7 @@ func dataSourceAlicloudRouterInterfacesRead(d *schema.ResourceData, meta interfa
 			if err != nil {
 				return err
 			}
-			response = raw.(*vpc.DescribeRouterInterfacesResponse)
+			response, _ = raw.(*vpc.DescribeRouterInterfacesResponse)
 			return nil
 		}); err != nil {
 			return err

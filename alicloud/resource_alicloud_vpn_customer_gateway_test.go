@@ -48,7 +48,7 @@ func testSweepVPNCustomerGateways(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving VPN Customer Gateways: %s", err)
 		}
-		resp := raw.(*vpc.DescribeCustomerGatewaysResponse)
+		resp, _ := raw.(*vpc.DescribeCustomerGatewaysResponse)
 		if resp == nil || len(resp.CustomerGateways.CustomerGateway) < 1 {
 			break
 		}

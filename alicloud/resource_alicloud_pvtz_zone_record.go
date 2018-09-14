@@ -90,7 +90,7 @@ func resourceAlicloudPvtzZoneRecordCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return fmt.Errorf("AddZoneRecord got a error: %#v", err)
 	}
-	resp := raw.(*pvtz.AddZoneRecordResponse)
+	resp, _ := raw.(*pvtz.AddZoneRecordResponse)
 	if resp == nil {
 		return fmt.Errorf("AddZoneRecord got a nil response: %#v", resp)
 	}

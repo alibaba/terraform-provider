@@ -140,7 +140,7 @@ func dataSourceAlicloudDnsRecordsRead(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return err
 		}
-		resp := raw.(*dns.DescribeDomainRecordsNewResponse)
+		resp, _ := raw.(*dns.DescribeDomainRecordsNewResponse)
 		records := resp.DomainRecords.Record
 		allRecords = append(allRecords, records...)
 

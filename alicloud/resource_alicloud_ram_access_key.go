@@ -53,7 +53,7 @@ func resourceAlicloudRamAccessKeyCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("CreateAccessKey got an error: %#v", err)
 	}
-	response := raw.(ram.AccessKeyResponse)
+	response, _ := raw.(ram.AccessKeyResponse)
 
 	// create a secret_file and write access key to it.
 	if output, ok := d.GetOk("secret_file"); ok && output != nil {
@@ -105,7 +105,7 @@ func resourceAlicloudRamAccessKeyRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("Get list access keys got an error: %#v", err)
 	}
-	response := raw.(ram.AccessKeyListResponse)
+	response, _ := raw.(ram.AccessKeyListResponse)
 	accessKeys := response.AccessKeys.AccessKey
 	if len(accessKeys) < 1 {
 		return fmt.Errorf("No access keys found.")
@@ -156,7 +156,7 @@ func resourceAlicloudRamAccessKeyDelete(d *schema.ResourceData, meta interface{}
 			}
 			return resource.NonRetryableError(err)
 		}
-		response := raw.(ram.AccessKeyListResponse)
+		response, _ := raw.(ram.AccessKeyListResponse)
 
 		if len(response.AccessKeys.AccessKey) < 1 {
 			return nil

@@ -25,7 +25,7 @@ func (s *KvstoreService) DescribeRKVInstanceById(id string) (instance *r_kvstore
 		}
 		return nil, err
 	}
-	resp := raw.(*r_kvstore.DescribeInstanceAttributeResponse)
+	resp, _ := raw.(*r_kvstore.DescribeInstanceAttributeResponse)
 	if resp == nil || len(resp.Instances.DBInstanceAttribute) <= 0 {
 		return nil, GetNotFoundErrorFromString(GetNotFoundMessage("KVStore instance", id))
 	}
@@ -45,7 +45,7 @@ func (s *KvstoreService) DescribeRKVInstancebackupPolicy(id string) (policy *r_k
 		}
 		return nil, err
 	}
-	policy = raw.(*r_kvstore.DescribeBackupPolicyResponse)
+	policy, _ = raw.(*r_kvstore.DescribeBackupPolicyResponse)
 
 	if policy == nil {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("KVStore Instance Policy", id))

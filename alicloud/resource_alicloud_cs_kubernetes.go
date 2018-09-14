@@ -268,7 +268,7 @@ func resourceAlicloudCSKubernetesCreate(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return err
 		}
-		cluster := raw.(cs.ClusterCreationResponse)
+		cluster, _ := raw.(cs.ClusterCreationResponse)
 		d.SetId(cluster.ClusterID)
 		return nil
 	}); err != nil {
@@ -356,7 +356,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 		if e != nil {
 			return e
 		}
-		cluster = raw.(cs.ClusterType)
+		cluster, _ = raw.(cs.ClusterType)
 		return nil
 	}); err != nil {
 		if NotFoundError(err) || IsExceptedError(err, ErrorClusterNotFound) {
@@ -391,8 +391,8 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 			if e != nil {
 				return e
 			}
-			result = raw.([]interface{})[0].([]cs.KubernetesNodeType)
-			pagination = raw.([]interface{})[1].(*cs.PaginationResult)
+			result, _ = raw.([]interface{})[0].([]cs.KubernetesNodeType)
+			pagination, _ = raw.([]interface{})[1].(*cs.PaginationResult)
 			return nil
 		}); err != nil {
 			return fmt.Errorf("[ERROR] GetKubernetesClusterNodes got an error: %#v.", err)
@@ -408,7 +408,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 					if e != nil {
 						return e
 					}
-					tmp := raw.([]cs.KubernetesNodeType)
+					tmp, _ := raw.([]cs.KubernetesNodeType)
 					if len(tmp) > 0 && tmp[0].InstanceId != "" {
 						result = tmp
 					}
@@ -488,7 +488,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("[ERROR] DescribeLoadBalancers by server id %s got an error: %#v.", workerId, err)
 	}
-	lbs := raw.(*slb.DescribeLoadBalancersResponse)
+	lbs, _ := raw.(*slb.DescribeLoadBalancersResponse)
 	for _, lb := range lbs.LoadBalancers.LoadBalancer {
 		if strings.ToLower(lb.AddressType) == strings.ToLower(string(Internet)) {
 			d.Set("slb_internet", lb.LoadBalancerId)
@@ -510,7 +510,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("[ERROR] DescribeNatGateways by VPC Id %s: %#v.", cluster.VPCID, err)
 	}
-	nat := raw.(*vpc.DescribeNatGatewaysResponse)
+	nat, _ := raw.(*vpc.DescribeNatGatewaysResponse)
 	if nat != nil && len(nat.NatGateways.NatGateway) > 0 {
 		d.Set("nat_gateway_id", nat.NatGateways.NatGateway[0].NatGatewayId)
 	}
@@ -522,7 +522,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return err
 		}
-		cert := raw.(cs.ClusterCerts)
+		cert, _ := raw.(cs.ClusterCerts)
 		if ce, ok := d.GetOk("client_cert"); ok && ce.(string) != "" {
 			if err := writeToFile(ce.(string), cert.Cert); err != nil {
 				return err
@@ -552,7 +552,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 			if e != nil {
 				return e
 			}
-			config = raw.(cs.ClusterConfig)
+			config, _ = raw.(cs.ClusterConfig)
 			return nil
 		}); err != nil {
 			return fmt.Errorf("GetClusterConfig got an error: %#v.", err)
@@ -589,7 +589,7 @@ func resourceAlicloudCSKubernetesDelete(d *schema.ResourceData, meta interface{}
 			if err != nil {
 				return err
 			}
-			cluster = raw.(cs.ClusterType)
+			cluster, _ = raw.(cs.ClusterType)
 			return nil
 		}); err != nil {
 			if NotFoundError(err) || IsExceptedError(err, ErrorClusterNotFound) {

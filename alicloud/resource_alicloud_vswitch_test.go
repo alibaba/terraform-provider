@@ -58,7 +58,7 @@ func testSweepVSwitches(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving VSwitches: %s", err)
 		}
-		resp := raw.(*vpc.DescribeVSwitchesResponse)
+		resp, _ := raw.(*vpc.DescribeVSwitchesResponse)
 		if resp == nil || len(resp.VSwitches.VSwitch) < 1 {
 			break
 		}

@@ -67,7 +67,7 @@ func testAccCheckDnsExists(n string, domain *dns.DomainType) resource.TestCheckF
 		log.Printf("[WARN] Domain id %#v", rs.Primary.ID)
 
 		if err == nil {
-			response := raw.(dns.DomainType)
+			response, _ := raw.(dns.DomainType)
 			*domain = response
 			return nil
 		}

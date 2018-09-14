@@ -121,7 +121,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return err
 		}
-		resp := raw.(*vpc.DescribeVpcsResponse)
+		resp, _ := raw.(*vpc.DescribeVpcsResponse)
 		if resp == nil || len(resp.Vpcs.Vpc) < 1 {
 			break
 		}
@@ -176,7 +176,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return fmt.Errorf("Error DescribVRouters by vrouter_id %s: %#v", v.VRouterId, err)
 		}
-		vrs := raw.(*vpc.DescribeVRoutersResponse)
+		vrs, _ := raw.(*vpc.DescribeVRoutersResponse)
 		if vrs != nil && len(vrs.VRouters.VRouter) > 0 {
 			route_tables = append(route_tables, vrs.VRouters.VRouter[0].RouteTableIds.RouteTableId[0])
 		} else {

@@ -50,7 +50,7 @@ func testSweepDBInstances(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving RDS Instances: %s", err)
 		}
-		resp := raw.(*rds.DescribeDBInstancesResponse)
+		resp, _ := raw.(*rds.DescribeDBInstancesResponse)
 		if resp == nil || len(resp.Items.DBInstance) < 1 {
 			break
 		}

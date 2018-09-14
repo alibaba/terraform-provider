@@ -122,7 +122,7 @@ func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return fmt.Errorf("ListPolicies got an error: %#v", err)
 		}
-		resp := raw.(ram.PolicyQueryResponse)
+		resp, _ := raw.(ram.PolicyQueryResponse)
 		for _, v := range resp.Policies.Policy {
 			if policyTypeOk && policyType.(string) != v.PolicyType {
 				continue
@@ -149,7 +149,7 @@ func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return fmt.Errorf("ListPoliciesForUser got an error: %#v", err)
 		}
-		resp := raw.(ram.PolicyListResponse)
+		resp, _ := raw.(ram.PolicyListResponse)
 		for _, v := range resp.Policies.Policy {
 			userFilterPoliciesMap[v.PolicyType+v.PolicyName] = v
 		}
@@ -164,7 +164,7 @@ func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return fmt.Errorf("ListPoliciesForGroup got an error: %#v", err)
 		}
-		resp := raw.(ram.PolicyListResponse)
+		resp, _ := raw.(ram.PolicyListResponse)
 		for _, v := range resp.Policies.Policy {
 			groupFilterPoliciesMap[v.PolicyType+v.PolicyName] = v
 		}
@@ -179,7 +179,7 @@ func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return fmt.Errorf("ListPoliciesForRole got an error: %#v", err)
 		}
-		resp := raw.(ram.PolicyListResponse)
+		resp, _ := raw.(ram.PolicyListResponse)
 		for _, v := range resp.Policies.Policy {
 			roleFilterPoliciesMap[v.PolicyType+v.PolicyName] = v
 		}
@@ -214,7 +214,7 @@ func ramPoliciesDescriptionAttributes(d *schema.ResourceData, policies []interfa
 		if err != nil {
 			return err
 		}
-		resp := raw.(ram.PolicyVersionResponseNew)
+		resp, _ := raw.(ram.PolicyVersionResponseNew)
 		mapping := map[string]interface{}{
 			"name":             policy.PolicyName,
 			"type":             policy.PolicyType,

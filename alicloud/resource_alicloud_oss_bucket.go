@@ -218,7 +218,7 @@ func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return err
 	}
-	isExist := raw.(bool)
+	isExist, _ := raw.(bool)
 	if isExist {
 		return fmt.Errorf("[ERROR] The specified bucket name: %#v is not available. The bucket namespace is shared by all users of the OSS system. Please select a different name and try again.", bucket)
 	}
@@ -243,7 +243,7 @@ func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		isExist := raw.(bool)
+		isExist, _ := raw.(bool)
 		if !isExist {
 			return resource.RetryableError(fmt.Errorf("Trying to ensure new OSS bucket %#v has been created successfully.", bucket))
 		}
@@ -273,7 +273,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 		}
 		return err
 	}
-	info := raw.(oss.GetBucketInfoResult)
+	info, _ := raw.(oss.GetBucketInfoResult)
 	d.Set("bucket", d.Id())
 
 	d.Set("acl", info.BucketInfo.ACL)
@@ -291,7 +291,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil && !IsExceptedErrors(err, []string{NoSuchCORSConfiguration}) {
 		return err
 	}
-	cors := raw.(oss.GetBucketCORSResult)
+	cors, _ := raw.(oss.GetBucketCORSResult)
 	if err == nil && cors.CORSRules != nil {
 		rules := make([]map[string]interface{}, 0, len(cors.CORSRules))
 		for _, r := range cors.CORSRules {
@@ -316,7 +316,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil && !IsExceptedErrors(err, []string{NoSuchWebsiteConfiguration}) {
 		return fmt.Errorf("Error getting bucket website: %#v", err)
 	}
-	ws := raw.(oss.GetBucketWebsiteResult)
+	ws, _ := raw.(oss.GetBucketWebsiteResult)
 	if err == nil && &ws != nil {
 		var websites []map[string]interface{}
 		w := make(map[string]interface{})
@@ -341,7 +341,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("Error getting bucket logging: %#v", err)
 	}
-	logging := raw.(oss.GetBucketLoggingResult)
+	logging, _ := raw.(oss.GetBucketLoggingResult)
 	logEnabled := false
 	if &logging != nil {
 		enable := logging.LoggingEnabled
@@ -372,7 +372,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("Error getting bucket referer: %#v", err)
 	}
-	referer := raw.(oss.GetBucketRefererResult)
+	referer, _ := raw.(oss.GetBucketRefererResult)
 	referers = append(referers, map[string]interface{}{
 		"allow_empty": referer.AllowEmptyReferer,
 		"referers":    referer.RefererList,
@@ -392,7 +392,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 		}
 		return fmt.Errorf("Error getting bucket lifecycle: %#v", err)
 	}
-	lifecycle := raw.(oss.GetBucketLifecycleResult)
+	lifecycle, _ := raw.(oss.GetBucketLifecycleResult)
 	if len(lifecycle.Rules) > 0 {
 		rules := make([]map[string]interface{}, 0, len(lifecycle.Rules))
 
@@ -737,7 +737,7 @@ func resourceAlicloudOssBucketDelete(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("OSS delete bucket got an error: %#v", err))
 		}
-		exist := raw.(bool)
+		exist, _ := raw.(bool)
 		if !exist {
 			return nil
 		}

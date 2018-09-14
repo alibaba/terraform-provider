@@ -40,7 +40,7 @@ func (s *RdsService) DescribeDBInstanceById(id string) (instance *rds.DBInstance
 	if err != nil {
 		return nil, err
 	}
-	resp := raw.(*rds.DescribeDBInstanceAttributeResponse)
+	resp, _ := raw.(*rds.DescribeDBInstanceAttributeResponse)
 	attr := resp.Items.DBInstanceAttribute
 
 	if len(attr) <= 0 {
@@ -63,7 +63,7 @@ func (s *RdsService) DescribeDatabaseAccount(instanceId, accountName string) (ds
 	if err != nil {
 		return nil, err
 	}
-	resp := raw.(*rds.DescribeAccountsResponse)
+	resp, _ := raw.(*rds.DescribeAccountsResponse)
 	if len(resp.Accounts.DBInstanceAccount) < 1 {
 		return nil, GetNotFoundErrorFromString(fmt.Sprintf("Data account %s is not found in the instance %s.", accountName, instanceId))
 	}
@@ -89,7 +89,7 @@ func (s *RdsService) DescribeDatabaseByName(instanceId, dbName string) (ds *rds.
 			}
 			return resource.NonRetryableError(fmt.Errorf("Describe Databases got an error %#v.", err))
 		}
-		resp := raw.(*rds.DescribeDatabasesResponse)
+		resp, _ := raw.(*rds.DescribeDatabasesResponse)
 		if len(resp.Databases.Database) < 1 {
 			return resource.NonRetryableError(GetNotFoundErrorFromString(fmt.Sprintf("Database %s is not found in the instance %s.", dbName, instanceId)))
 		}
@@ -156,7 +156,7 @@ func (s *RdsService) DescribeDBInstanceNetInfos(instanceId string) ([]rds.DBInst
 	if err != nil {
 		return nil, err
 	}
-	resp := raw.(*rds.DescribeDBInstanceNetInfoResponse)
+	resp, _ := raw.(*rds.DescribeDBInstanceNetInfoResponse)
 	if len(resp.DBInstanceNetInfos.DBInstanceNetInfo) < 1 {
 		return nil, GetNotFoundErrorFromString(fmt.Sprintf("DB instance %s does not have any connection.", instanceId))
 	}
@@ -317,7 +317,7 @@ func (s *RdsService) DescribeDBSecurityIps(instanceId string) (ips []rds.DBInsta
 	if err != nil {
 		return nil, err
 	}
-	resp := raw.(*rds.DescribeDBInstanceIPArrayListResponse)
+	resp, _ := raw.(*rds.DescribeDBInstanceIPArrayListResponse)
 	return resp.Items.DBInstanceIPArray, nil
 }
 
@@ -356,7 +356,7 @@ func (s *RdsService) DescribeMultiIZByRegion() (izs []string, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("error to list regions not found")
 	}
-	resp := raw.(*rds.DescribeRegionsResponse)
+	resp, _ := raw.(*rds.DescribeRegionsResponse)
 	regions := resp.Regions.RDSRegion
 
 	zoneIds := []string{}

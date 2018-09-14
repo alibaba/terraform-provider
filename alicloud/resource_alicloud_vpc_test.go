@@ -56,7 +56,7 @@ func testSweepVpcs(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving VPCs: %s", err)
 		}
-		resp := raw.(*vpc.DescribeVpcsResponse)
+		resp, _ := raw.(*vpc.DescribeVpcsResponse)
 		if resp == nil || len(resp.Vpcs.Vpc) < 1 {
 			break
 		}

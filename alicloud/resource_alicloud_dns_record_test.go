@@ -66,7 +66,7 @@ func testAccCheckDnsRecordExists(n string, record *dns.RecordTypeNew) resource.T
 		log.Printf("[WARN] Domain record id %#v", rs.Primary.ID)
 
 		if err == nil {
-			response := raw.(*dns.DescribeDomainRecordInfoNewResponse)
+			response, _ := raw.(*dns.DescribeDomainRecordInfoNewResponse)
 			*record = response.RecordTypeNew
 			return nil
 		}
@@ -124,7 +124,7 @@ func testAccCheckDnsRecordDestroy(s *terraform.State) error {
 		if err != nil {
 			return err
 		}
-		response := raw.(*dns.DescribeDomainRecordInfoNewResponse)
+		response, _ := raw.(*dns.DescribeDomainRecordInfoNewResponse)
 		if response.RecordId != "" {
 			return fmt.Errorf("Error Domain record still exist.")
 		}

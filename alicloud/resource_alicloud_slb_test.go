@@ -48,7 +48,7 @@ func testSweepSLBs(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving SLBs: %s", err)
 		}
-		resp := raw.(*slb.DescribeLoadBalancersResponse)
+		resp, _ := raw.(*slb.DescribeLoadBalancersResponse)
 		if resp == nil || len(resp.LoadBalancers.LoadBalancer) < 1 {
 			break
 		}

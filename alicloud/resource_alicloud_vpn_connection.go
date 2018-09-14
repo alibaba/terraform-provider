@@ -188,7 +188,7 @@ func resourceAliyunVpnConnectionCreate(d *schema.ResourceData, meta interface{})
 			}
 			return resource.NonRetryableError(err)
 		}
-		vpnConn = raw.(*vpc.CreateVpnConnectionResponse)
+		vpnConn, _ = raw.(*vpc.CreateVpnConnectionResponse)
 		return nil
 	})
 	if err != nil {

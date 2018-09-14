@@ -49,7 +49,7 @@ func testSweepEips(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving EIPs: %s", err)
 		}
-		resp := raw.(*vpc.DescribeEipAddressesResponse)
+		resp, _ := raw.(*vpc.DescribeEipAddressesResponse)
 		if resp == nil || len(resp.EipAddresses.EipAddress) < 1 {
 			break
 		}

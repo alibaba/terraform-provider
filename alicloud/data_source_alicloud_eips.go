@@ -115,7 +115,7 @@ func dataSourceAlicloudEipsRead(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return err
 		}
-		resp := raw.(*vpc.DescribeEipAddressesResponse)
+		resp, _ := raw.(*vpc.DescribeEipAddressesResponse)
 		if resp == nil || len(resp.EipAddresses.EipAddress) < 1 {
 			break
 		}

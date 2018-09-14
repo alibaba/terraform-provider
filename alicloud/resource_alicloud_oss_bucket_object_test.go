@@ -148,7 +148,7 @@ func testAccCheckOssBucketObjectExistsWithProviders(n string, bucket string, obj
 			raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 				return ossClient.Bucket(bucket)
 			})
-			buck := raw.(*oss.Bucket)
+			buck, _ := raw.(*oss.Bucket)
 			if err != nil {
 				return fmt.Errorf("Error getting bucket: %#v", err)
 			}

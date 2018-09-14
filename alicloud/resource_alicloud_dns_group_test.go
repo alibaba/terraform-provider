@@ -65,7 +65,7 @@ func testAccCheckDnsGroupExists(n string, group *dns.DomainGroupType) resource.T
 		log.Printf("[WARN] Group id %#v", rs.Primary.ID)
 
 		if err == nil {
-			response := raw.([]dns.DomainGroupType)
+			response, _ := raw.([]dns.DomainGroupType)
 			if response != nil && len(response) > 0 {
 				*group = response[0]
 				return nil
@@ -92,7 +92,7 @@ func testAccCheckDnsGroupDestroy(s *terraform.State) error {
 		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainGroups(request)
 		})
-		response := raw.([]dns.DomainGroupType)
+		response, _ := raw.([]dns.DomainGroupType)
 		if response != nil && len(response) > 0 {
 			return fmt.Errorf("Error groups still exist")
 		}

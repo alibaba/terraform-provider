@@ -189,7 +189,7 @@ func dataSourceAlicloudSlbListenersRead(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("DescribeLoadBalancerAttribute got an error: %#v", err)
 	}
-	resp := raw.(*slb.DescribeLoadBalancerAttributeResponse)
+	resp, _ := raw.(*slb.DescribeLoadBalancerAttributeResponse)
 	if resp == nil {
 		return fmt.Errorf("there is no SLB with the ID %s. Please change your search criteria and try again", args.LoadBalancerId)
 	}
@@ -249,7 +249,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				return slbClient.DescribeLoadBalancerHTTPListenerAttribute(args)
 			})
 			if err == nil {
-				resp := raw.(*slb.DescribeLoadBalancerHTTPListenerAttributeResponse)
+				resp, _ := raw.(*slb.DescribeLoadBalancerHTTPListenerAttributeResponse)
 				mapping["backend_port"] = resp.BackendServerPort
 				mapping["status"] = resp.Status
 				mapping["bandwidth"] = resp.Bandwidth
@@ -284,7 +284,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				return slbClient.DescribeLoadBalancerHTTPSListenerAttribute(args)
 			})
 			if err == nil {
-				resp := raw.(*slb.DescribeLoadBalancerHTTPSListenerAttributeResponse)
+				resp, _ := raw.(*slb.DescribeLoadBalancerHTTPSListenerAttributeResponse)
 				mapping["backend_port"] = resp.BackendServerPort
 				mapping["status"] = resp.Status
 				mapping["security_status"] = resp.SecurityStatus
@@ -322,7 +322,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				return slbClient.DescribeLoadBalancerTCPListenerAttribute(args)
 			})
 			if err == nil {
-				resp := raw.(*slb.DescribeLoadBalancerTCPListenerAttributeResponse)
+				resp, _ := raw.(*slb.DescribeLoadBalancerTCPListenerAttributeResponse)
 				mapping["backend_port"] = resp.BackendServerPort
 				mapping["status"] = resp.Status
 				mapping["bandwidth"] = resp.Bandwidth
@@ -352,7 +352,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 				return slbClient.DescribeLoadBalancerUDPListenerAttribute(args)
 			})
 			if err == nil {
-				resp := raw.(*slb.DescribeLoadBalancerUDPListenerAttributeResponse)
+				resp, _ := raw.(*slb.DescribeLoadBalancerUDPListenerAttributeResponse)
 				mapping["backend_port"] = resp.BackendServerPort
 				mapping["status"] = resp.Status
 				mapping["bandwidth"] = resp.Bandwidth

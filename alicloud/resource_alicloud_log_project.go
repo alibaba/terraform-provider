@@ -45,7 +45,7 @@ func resourceAlicloudLogProjectCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("CreateProject got an error: %#v.", err)
 	}
-	project := raw.(*sls.LogProject)
+	project, _ := raw.(*sls.LogProject)
 	d.SetId(project.Name)
 
 	return resourceAlicloudLogProjectRead(d, meta)
@@ -64,7 +64,7 @@ func resourceAlicloudLogProjectRead(d *schema.ResourceData, meta interface{}) er
 		}
 		return fmt.Errorf("GetProject got an error: %#v.", err)
 	}
-	project := raw.(*sls.LogProject)
+	project, _ := raw.(*sls.LogProject)
 	d.Set("name", project.Name)
 	d.Set("description", project.Description)
 
@@ -107,7 +107,7 @@ func resourceAlicloudLogProjectDelete(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("While deleting log project, checking project existing got an error: %#v.", err))
 		}
-		exist := raw.(bool)
+		exist, _ := raw.(bool)
 		if !exist {
 			return nil
 		}

@@ -114,7 +114,7 @@ func resourceAlicloudOssBucketObjectPut(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("Error getting bucket: %#v", err)
 	}
-	bucket := raw.(*oss.Bucket)
+	bucket, _ := raw.(*oss.Bucket)
 	var filePath string
 	var body io.Reader
 
@@ -162,7 +162,7 @@ func resourceAlicloudOssBucketObjectRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("Error getting bucket: %#v", err)
 	}
-	bucket := raw.(*oss.Bucket)
+	bucket, _ := raw.(*oss.Bucket)
 	options, err := buildObjectHeaderOptions(d)
 	if err != nil {
 		return fmt.Errorf("Error building object header options: %#v", err)
@@ -200,7 +200,7 @@ func resourceAlicloudOssBucketObjectDelete(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return fmt.Errorf("Error getting bucket: %#v", err)
 	}
-	bucket := raw.(*oss.Bucket)
+	bucket, _ := raw.(*oss.Bucket)
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		exist, err := bucket.IsObjectExist(d.Id())
 		if err != nil {

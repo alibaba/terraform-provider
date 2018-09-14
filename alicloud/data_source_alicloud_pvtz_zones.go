@@ -91,7 +91,7 @@ func dataSourceAlicloudPvtzZonesRead(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return fmt.Errorf("Error DescribeZones: %#v", err)
 		}
-		results := raw.(*pvtz.DescribeZonesResponse)
+		results, _ := raw.(*pvtz.DescribeZonesResponse)
 		if results == nil || len(results.Zones.Zone) < 1 {
 			break
 		}
@@ -109,7 +109,7 @@ func dataSourceAlicloudPvtzZonesRead(d *schema.ResourceData, meta interface{}) e
 			if errZoneInfo != nil {
 				return fmt.Errorf("Error DescribeZoneInfo: %#v", errZoneInfo)
 			}
-			response := raw.(*pvtz.DescribeZoneInfoResponse)
+			response, _ := raw.(*pvtz.DescribeZoneInfoResponse)
 
 			var vpcs []map[string]interface{}
 			for _, vpc := range response.BindVpcs.Vpc {

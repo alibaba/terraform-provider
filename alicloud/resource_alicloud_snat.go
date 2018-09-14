@@ -57,7 +57,7 @@ func resourceAliyunSnatEntryCreate(d *schema.ResourceData, meta interface{}) err
 			}
 			return resource.NonRetryableError(fmt.Errorf("CreateSnatEntry got error: %#v.", err))
 		}
-		resp := raw.(*vpc.CreateSnatEntryResponse)
+		resp, _ := raw.(*vpc.CreateSnatEntryResponse)
 		d.SetId(resp.SnatEntryId)
 		return nil
 	}); err != nil {

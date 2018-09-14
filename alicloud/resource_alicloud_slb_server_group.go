@@ -80,7 +80,7 @@ func resourceAliyunSlbServerGroupCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("CreateVServerGroup got an error: %#v", err)
 	}
-	group := raw.(*slb.CreateVServerGroupResponse)
+	group, _ := raw.(*slb.CreateVServerGroupResponse)
 	groupId = group.VServerGroupId
 
 	d.SetId(groupId)

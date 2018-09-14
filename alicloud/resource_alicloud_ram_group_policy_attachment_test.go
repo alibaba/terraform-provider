@@ -62,7 +62,7 @@ func testAccCheckRamGroupPolicyAttachmentExists(n string, policy *ram.Policy, gr
 			return ramClient.ListPoliciesForGroup(request)
 		})
 		if err == nil {
-			response := raw.(ram.PolicyListResponse)
+			response, _ := raw.(ram.PolicyListResponse)
 			if len(response.Policies.Policy) > 0 {
 				for _, v := range response.Policies.Policy {
 					if v.PolicyName == policy.PolicyName && v.PolicyType == policy.PolicyType {
@@ -97,7 +97,7 @@ func testAccCheckRamGroupPolicyAttachmentDestroy(s *terraform.State) error {
 		if err != nil && !RamEntityNotExist(err) {
 			return err
 		}
-		response := raw.(ram.PolicyListResponse)
+		response, _ := raw.(ram.PolicyListResponse)
 		if len(response.Policies.Policy) > 0 {
 			for _, v := range response.Policies.Policy {
 				if v.PolicyName == rs.Primary.Attributes["name"] && v.PolicyType == rs.Primary.Attributes["policy_type"] {

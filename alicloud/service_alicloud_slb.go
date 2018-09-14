@@ -29,7 +29,7 @@ func (s *SlbService) DescribeLoadBalancerAttribute(slbId string) (loadBalancer *
 	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeLoadBalancerAttribute(req)
 	})
-	loadBalancer = raw.(*slb.DescribeLoadBalancerAttributeResponse)
+	loadBalancer, _ = raw.(*slb.DescribeLoadBalancerAttributeResponse)
 
 	if err != nil {
 		if IsExceptedErrors(err, []string{LoadBalancerNotFound}) {
@@ -53,7 +53,7 @@ func (s *SlbService) DescribeLoadBalancerRuleId(slbId string, port int, domain, 
 	if err != nil {
 		return "", fmt.Errorf("DescribeRules got an error: %#v", err)
 	}
-	rules := raw.(*slb.DescribeRulesResponse)
+	rules, _ := raw.(*slb.DescribeRulesResponse)
 	for _, rule := range rules.Rules.Rule {
 		if rule.Domain == domain && rule.Url == url {
 			return rule.RuleId, nil
@@ -75,7 +75,7 @@ func (s *SlbService) DescribeLoadBalancerRuleAttribute(ruleId string) (*slb.Desc
 		}
 		return nil, fmt.Errorf("DescribeLoadBalancerRuleAttribute got an error: %#v", err)
 	}
-	rule := raw.(*slb.DescribeRuleAttributeResponse)
+	rule, _ := raw.(*slb.DescribeRuleAttributeResponse)
 	if rule == nil || rule.LoadBalancerId == "" {
 		return nil, GetNotFoundErrorFromString(GetNotFoundMessage("SLB Rule", ruleId))
 	}
@@ -94,7 +94,7 @@ func (s *SlbService) DescribeSlbVServerGroupAttribute(groupId string) (*slb.Desc
 		}
 		return nil, fmt.Errorf("DescribeSlbVServerGroupAttribute got an error: %#v", err)
 	}
-	group := raw.(*slb.DescribeVServerGroupAttributeResponse)
+	group, _ := raw.(*slb.DescribeVServerGroupAttributeResponse)
 	if group == nil || group.VServerGroupId == "" {
 		return nil, GetNotFoundErrorFromString(GetNotFoundMessage("SLB VServer Group", groupId))
 	}
@@ -112,7 +112,7 @@ func (s *SlbService) DescribeLoadBalancerListenerAttribute(loadBalancerId string
 	if err != nil {
 		return
 	}
-	resp := raw.(*responses.CommonResponse)
+	resp, _ := raw.(*responses.CommonResponse)
 	if err = json.Unmarshal(resp.GetHttpContentBytes(), &listener); err != nil {
 		err = fmt.Errorf("Unmarshalling body got an error: %#v.", err)
 	}

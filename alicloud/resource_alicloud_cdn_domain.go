@@ -404,7 +404,7 @@ func resourceAlicloudCdnDomainRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("DescribeCdnDomainDetail got an error: %#v", err)
 	}
-	response := raw.(cdn.DomainResponse)
+	response, _ := raw.(cdn.DomainResponse)
 	domain := response.GetDomainDetailModel
 	d.Set("domain_name", domain.DomainName)
 	d.Set("sources", domain.Sources.Source)
@@ -422,7 +422,7 @@ func resourceAlicloudCdnDomainRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("DescribeDomainConfigs got an error: %#v", err)
 	}
-	resp := raw.(cdn.DomainConfigResponse)
+	resp, _ := raw.(cdn.DomainConfigResponse)
 	configs := resp.DomainConfigs
 
 	queryStringConfig := configs.IgnoreQueryStringConfig
@@ -543,7 +543,7 @@ func enableConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceDat
 			"video_seek_enable":    cdnClient.SetVideoSeekConfig,
 		}, nil
 	})
-	relation := raw.(map[string]configFunc)
+	relation, _ := raw.(map[string]configFunc)
 
 	for key, fn := range relation {
 		if d.HasChange(key) {

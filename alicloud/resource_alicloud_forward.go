@@ -75,7 +75,7 @@ func resourceAliyunForwardEntryCreate(d *schema.ResourceData, meta interface{}) 
 			}
 			return resource.NonRetryableError(fmt.Errorf("CreateNatGateway got error: %#v", err))
 		}
-		resp := raw.(*vpc.CreateForwardEntryResponse)
+		resp, _ := raw.(*vpc.CreateForwardEntryResponse)
 		d.SetId(resp.ForwardEntryId)
 		d.Set("forward_table_id", d.Get("forward_table_id").(string))
 		return nil

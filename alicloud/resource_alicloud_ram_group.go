@@ -55,7 +55,7 @@ func resourceAlicloudRamGroupCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("CreateGroup got an error: %#v", err)
 	}
-	response := raw.(ram.GroupResponse)
+	response, _ := raw.(ram.GroupResponse)
 	d.SetId(response.Group.GroupName)
 	return resourceAlicloudRamGroupUpdate(d, meta)
 }
@@ -113,7 +113,7 @@ func resourceAlicloudRamGroupRead(d *schema.ResourceData, meta interface{}) erro
 		}
 		return fmt.Errorf("GetGroup got an error: %#v", err)
 	}
-	response := raw.(ram.GroupResponse)
+	response, _ := raw.(ram.GroupResponse)
 	group := response.Group
 	d.Set("name", group.GroupName)
 	d.Set("comments", group.Comments)
@@ -135,7 +135,7 @@ func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return fmt.Errorf("Error while listing users for group %s: %#v", d.Id(), err)
 		}
-		listUserResp := raw.(ram.ListUserResponse)
+		listUserResp, _ := raw.(ram.ListUserResponse)
 		users := listUserResp.Users.User
 		if len(users) > 0 {
 			for _, v := range users {
@@ -158,7 +158,7 @@ func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return fmt.Errorf("Error while listing policies for group %s: %#v", d.Id(), err)
 		}
-		listPolicyResp := raw.(ram.PolicyListResponse)
+		listPolicyResp, _ := raw.(ram.PolicyListResponse)
 		policies := listPolicyResp.Policies.Policy
 		if len(policies) > 0 {
 			for _, v := range policies {

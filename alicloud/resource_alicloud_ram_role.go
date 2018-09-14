@@ -98,7 +98,7 @@ func resourceAlicloudRamRoleCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("CreateRole got an error: %#v", err)
 	}
-	response := raw.(ram.RoleResponse)
+	response, _ := raw.(ram.RoleResponse)
 	d.SetId(response.Role.RoleName)
 	return resourceAlicloudRamRoleUpdate(d, meta)
 }
@@ -143,7 +143,7 @@ func resourceAlicloudRamRoleRead(d *schema.ResourceData, meta interface{}) error
 		}
 		return fmt.Errorf("GetRole got an error: %v", err)
 	}
-	response := raw.(ram.RoleResponse)
+	response, _ := raw.(ram.RoleResponse)
 	role := response.Role
 	rolePolicy, err := ramService.ParseRolePolicyDocument(role.AssumeRolePolicyDocument)
 	if err != nil {
@@ -177,7 +177,7 @@ func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return fmt.Errorf("Error listing Policies for Role (%s) when trying to delete: %#v", d.Id(), err)
 		}
-		resp := raw.(ram.PolicyListResponse)
+		resp, _ := raw.(ram.PolicyListResponse)
 		// Loop and remove the Policies from the Role
 		if len(resp.Policies.Policy) > 0 {
 			for _, v := range resp.Policies.Policy {

@@ -42,7 +42,7 @@ func (s *OtsService) DescribeOtsTable(instanceName, tableName string) (table *ta
 		}
 		return
 	}
-	table = raw.(*tablestore.DescribeTableResponse)
+	table, _ = raw.(*tablestore.DescribeTableResponse)
 	if table == nil || table.TableMeta == nil || table.TableMeta.TableName != tableName {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("OTS Table", tableName))
 	}
@@ -105,7 +105,7 @@ func (s *OtsService) DescribeOtsInstance(name string) (inst ots.InstanceInfo, er
 	if err != nil {
 		return
 	}
-	resp := raw.(*ots.GetInstanceResponse)
+	resp, _ := raw.(*ots.GetInstanceResponse)
 	if resp == nil || resp.InstanceInfo.InstanceName != name {
 		return inst, GetNotFoundErrorFromString(GetNotFoundMessage("OTS Instance", name))
 	}
@@ -122,7 +122,7 @@ func (s *OtsService) DescribeOtsInstanceVpc(name string) (inst ots.VpcInfo, err 
 	if err != nil {
 		return inst, err
 	}
-	resp := raw.(*ots.ListVpcInfoByInstanceResponse)
+	resp, _ := raw.(*ots.ListVpcInfoByInstanceResponse)
 	if resp == nil || resp.TotalCount < 1 {
 		return inst, GetNotFoundErrorFromString(GetNotFoundMessage("OTS Instance VPC", name))
 	}

@@ -69,7 +69,7 @@ func testAccCheckRamRoleAttachmentExists(n string, instanceA *ecs.Instance, inst
 			if IsExceptedError(err, RoleAttachmentUnExpectedJson) {
 				continue
 			}
-			response := raw.(*ecs.DescribeInstanceRamRoleResponse)
+			response, _ := raw.(*ecs.DescribeInstanceRamRoleResponse)
 			if err == nil {
 				if len(response.InstanceRamRoleSets.InstanceRamRoleSet) > 0 {
 					for _, v := range response.InstanceRamRoleSets.InstanceRamRoleSet {
@@ -109,7 +109,7 @@ func testAccCheckRamRoleAttachmentDestroy(s *terraform.State) error {
 				break
 			}
 			if err == nil {
-				response := raw.(*ecs.DescribeInstanceRamRoleResponse)
+				response, _ := raw.(*ecs.DescribeInstanceRamRoleResponse)
 				if len(response.InstanceRamRoleSets.InstanceRamRoleSet) > 0 {
 					for _, v := range response.InstanceRamRoleSets.InstanceRamRoleSet {
 						if v.RamRoleName != "" {

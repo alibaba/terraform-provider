@@ -24,10 +24,10 @@ func (s *CenService) DescribeCenInstance(cenId string) (c cbn.Cen, err error) {
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		rawResp, err := s.client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+		raw, err := s.client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.DescribeCens(request)
 		})
-		resp := rawResp.(*cbn.DescribeCensResponse)
+		resp, _ := raw.(*cbn.DescribeCensResponse)
 		if err != nil {
 			if IsExceptedError(err, ParameterCenInstanceIdNotExist) {
 				return GetNotFoundErrorFromString(GetNotFoundMessage("CEN Instance", cenId))

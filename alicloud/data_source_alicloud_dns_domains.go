@@ -112,7 +112,7 @@ func dataSourceAlicloudDnsDomainsRead(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return err
 		}
-		domains := raw.([]dns.DomainType)
+		domains, _ := raw.([]dns.DomainType)
 		allDomains = append(allDomains, domains...)
 
 		if len(domains) < pagination.PageSize {

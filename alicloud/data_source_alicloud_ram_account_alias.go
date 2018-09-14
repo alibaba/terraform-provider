@@ -32,7 +32,7 @@ func dataSourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return err
 	}
-	resp := raw.(ram.AccountAliasResponse)
+	resp, _ := raw.(ram.AccountAliasResponse)
 	d.SetId(resp.AccountAlias)
 	d.Set("account_alias", resp.AccountAlias)
 

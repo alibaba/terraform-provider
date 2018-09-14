@@ -47,7 +47,7 @@ func testSweepRamRoles(region string) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving Ram roles: %s", err)
 	}
-	resp := raw.(ram.ListRoleResponse)
+	resp, _ := raw.(ram.ListRoleResponse)
 	if len(resp.Roles.Role) < 1 {
 		return nil
 	}
@@ -76,7 +76,7 @@ func testSweepRamRoles(region string) error {
 				RoleName: name,
 			})
 		})
-		resp := raw.(ram.PolicyListResponse)
+		resp, _ := raw.(ram.PolicyListResponse)
 		if err != nil {
 			log.Printf("[ERROR] Failed to list Ram Role (%s (%s)) policies: %s", name, id, err)
 		} else if len(resp.Policies.Policy) > 0 {
@@ -170,7 +170,7 @@ func testAccCheckRamRoleExists(n string, role *ram.Role) resource.TestCheckFunc 
 		log.Printf("[WARN] Role id %#v", rs.Primary.ID)
 
 		if err == nil {
-			response := raw.(ram.RoleResponse)
+			response, _ := raw.(ram.RoleResponse)
 			*role = response.Role
 			return nil
 		}

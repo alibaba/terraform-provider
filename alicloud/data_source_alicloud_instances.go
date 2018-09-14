@@ -225,7 +225,7 @@ func dataSourceAlicloudInstancesRead(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		resp := raw.(*ecs.DescribeInstancesResponse)
+		resp, _ := raw.(*ecs.DescribeInstancesResponse)
 		if resp == nil || len(resp.Instances.Instance) < 1 {
 			break
 		}
@@ -340,7 +340,7 @@ func instanceDisksMappings(d *schema.ResourceData, instanceId string, meta inter
 		log.Printf("[ERROR] DescribeDisks for instance got error: %#v", err)
 		return nil
 	}
-	resp := raw.(*ecs.DescribeDisksResponse)
+	resp, _ := raw.(*ecs.DescribeDisksResponse)
 	if resp == nil || len(resp.Disks.Disk) < 1 {
 		return nil
 	}

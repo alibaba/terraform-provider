@@ -43,7 +43,7 @@ func testSweepAccountAliases(region string) error {
 		return fmt.Errorf("Error retrieving Ram account alias: %s", err)
 	}
 	sweeped := false
-	resp := raw.(ram.AccountAliasResponse)
+	resp, _ := raw.(ram.AccountAliasResponse)
 	name := resp.AccountAlias
 	skip := true
 	for _, prefix := range prefixes {
@@ -120,7 +120,7 @@ func testAccCheckRamAccountAliasExists(n string, alias *string) resource.TestChe
 		})
 
 		if err == nil {
-			response := raw.(ram.AccountAliasResponse)
+			response, _ := raw.(ram.AccountAliasResponse)
 			*alias = response.AccountAlias
 			return nil
 		}

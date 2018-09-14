@@ -56,7 +56,7 @@ func resourceAliyunSecurityGroupCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	resp := raw.(*ecs.CreateSecurityGroupResponse)
+	resp, _ := raw.(*ecs.CreateSecurityGroupResponse)
 	if resp == nil {
 		return fmt.Errorf("Creating security group got a nil response.")
 	}

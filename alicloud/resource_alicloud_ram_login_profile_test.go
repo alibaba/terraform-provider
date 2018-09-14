@@ -63,7 +63,7 @@ func testAccCheckRamLoginProfileExists(n string, profile *ram.LoginProfile) reso
 		if err != nil {
 			return fmt.Errorf("Error finding login profile %#v", rs.Primary.ID)
 		}
-		response := raw.(ram.ProfileResponse)
+		response, _ := raw.(ram.ProfileResponse)
 		*profile = response.LoginProfile
 		return nil
 	}

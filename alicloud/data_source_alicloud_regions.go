@@ -65,7 +65,7 @@ func dataSourceAlicloudRegionsRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return err
 	}
-	resp := raw.(*ecs.DescribeRegionsResponse)
+	resp, _ := raw.(*ecs.DescribeRegionsResponse)
 	if resp == nil || len(resp.Regions.Region) == 0 {
 		return fmt.Errorf("no matching regions found")
 	}

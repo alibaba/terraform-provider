@@ -46,7 +46,7 @@ func testSweepOSSBuckets(region string) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving OSS buckets: %s", err)
 	}
-	resp := raw.(oss.ListBucketsResult)
+	resp, _ := raw.(oss.ListBucketsResult)
 	sweeped := false
 
 	for _, v := range resp.Buckets {
@@ -69,7 +69,7 @@ func testSweepOSSBuckets(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error getting bucket (%s): %#v", name, err)
 		}
-		bucket := raw.(*oss.Bucket)
+		bucket, _ := raw.(*oss.Bucket)
 		if objects, err := bucket.ListObjects(); err != nil {
 			log.Printf("[ERROR] Failed to list objects: %s", err)
 		} else if len(objects.Objects) > 0 {

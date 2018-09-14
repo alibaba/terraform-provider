@@ -49,7 +49,7 @@ func testSweepKeyPairs(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Key Pairs: %s", err)
 		}
-		resp := raw.(*ecs.DescribeKeyPairsResponse)
+		resp, _ := raw.(*ecs.DescribeKeyPairsResponse)
 		if resp == nil || len(resp.KeyPairs.KeyPair) < 1 {
 			break
 		}

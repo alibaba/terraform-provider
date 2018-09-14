@@ -240,7 +240,7 @@ func resourceAlicloudDBInstanceCreate(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		return fmt.Errorf("Error creating Alicloud db instance: %#v", err)
 	}
-	resp := raw.(*rds.CreateDBInstanceResponse)
+	resp, _ := raw.(*rds.CreateDBInstanceResponse)
 	d.SetId(resp.DBInstanceId)
 
 	// wait instance status change from Creating to running

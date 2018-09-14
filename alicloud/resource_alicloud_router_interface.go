@@ -120,7 +120,7 @@ func resourceAlicloudRouterInterfaceCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return fmt.Errorf("CreateRouterInterface got an error: %#v", err)
 	}
-	response := raw.(*vpc.CreateRouterInterfaceResponse)
+	response, _ := raw.(*vpc.CreateRouterInterfaceResponse)
 	d.SetId(response.RouterInterfaceId)
 
 	if err := vpcService.WaitForRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id(), Idle, 300); err != nil {
@@ -281,7 +281,7 @@ func buildAlicloudRouterInterfaceCreateArgs(d *schema.ResourceData, meta interfa
 		if err != nil {
 			return request, fmt.Errorf("Describing VBR %s got an error: %#v.", request.RouterId, err)
 		}
-		resp := raw.(*vpc.DescribeVirtualBorderRoutersResponse)
+		resp, _ := raw.(*vpc.DescribeVirtualBorderRoutersResponse)
 		if resp != nil && resp.TotalCount > 0 {
 			request.AccessPointId = resp.VirtualBorderRouterSet.VirtualBorderRouterType[0].AccessPointId
 		}

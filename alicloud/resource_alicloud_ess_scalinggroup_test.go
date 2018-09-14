@@ -51,7 +51,7 @@ func testSweepEssGroups(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Scaling groups: %s", err)
 		}
-		resp := raw.(*ess.DescribeScalingGroupsResponse)
+		resp, _ := raw.(*ess.DescribeScalingGroupsResponse)
 		if resp == nil || len(resp.ScalingGroups.ScalingGroup) < 1 {
 			break
 		}

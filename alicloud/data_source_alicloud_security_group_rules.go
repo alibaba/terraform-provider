@@ -130,7 +130,7 @@ func dataSourceAlicloudSecurityGroupRulesRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		return fmt.Errorf("DescribeSecurityGroupAttribute got an error: %#v", err)
 	}
-	attr := raw.(*ecs.DescribeSecurityGroupAttributeResponse)
+	attr, _ := raw.(*ecs.DescribeSecurityGroupAttributeResponse)
 	var rules []map[string]interface{}
 
 	if attr == nil {

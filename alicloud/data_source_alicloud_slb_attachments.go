@@ -67,7 +67,7 @@ func dataSourceAlicloudSlbAttachmentsRead(d *schema.ResourceData, meta interface
 	if err != nil {
 		return fmt.Errorf("DescribeLoadBalancerAttribute got an error: %#v", err)
 	}
-	resp := raw.(*slb.DescribeLoadBalancerAttributeResponse)
+	resp, _ := raw.(*slb.DescribeLoadBalancerAttributeResponse)
 	if resp == nil {
 		return fmt.Errorf("there is no SLB with the ID %s. Please change your search criteria and try again", args.LoadBalancerId)
 	}

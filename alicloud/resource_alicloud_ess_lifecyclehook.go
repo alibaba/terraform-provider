@@ -79,7 +79,7 @@ func resourceAliyunEssLifeCycleHookCreate(d *schema.ResourceData, meta interface
 			}
 			return resource.NonRetryableError(fmt.Errorf("CreateLifecycleHook got an error: %#v.", err))
 		}
-		hook := raw.(*ess.CreateLifecycleHookResponse)
+		hook, _ := raw.(*ess.CreateLifecycleHookResponse)
 		d.SetId(hook.LifecycleHookId)
 		return nil
 	}); err != nil {

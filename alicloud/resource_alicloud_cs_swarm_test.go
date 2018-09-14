@@ -43,7 +43,7 @@ func testSweepCSSwarms(region string) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving CS Swarm Clusters: %s", err)
 	}
-	clusters := raw.([]cs.ClusterType)
+	clusters, _ := raw.([]cs.ClusterType)
 	sweeped := false
 
 	for _, v := range clusters {
@@ -160,7 +160,7 @@ func testAccCheckContainerClusterExists(n string, d *cs.ClusterType) resource.Te
 		if err != nil {
 			return err
 		}
-		attr := raw.(cs.ClusterType)
+		attr, _ := raw.(cs.ClusterType)
 		if attr.ClusterID == "" {
 			return fmt.Errorf("Container cluster not found")
 		}
@@ -188,7 +188,7 @@ func testAccCheckSwarmClusterDestroy(s *terraform.State) error {
 			}
 			return err
 		}
-		cluster := raw.(cs.ClusterType)
+		cluster, _ := raw.(cs.ClusterType)
 		if cluster.ClusterID != "" {
 			return fmt.Errorf("Error container cluster %s still exists.", rs.Primary.ID)
 		}

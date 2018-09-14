@@ -56,7 +56,7 @@ func resourceAlicloudDnsCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("AddDomain got an error: %#v", err)
 	}
-	response := raw.(*dns.AddDomainResponse)
+	response, _ := raw.(*dns.AddDomainResponse)
 	d.SetId(response.DomainName)
 	return resourceAlicloudDnsUpdate(d, meta)
 }
@@ -103,7 +103,7 @@ func resourceAlicloudDnsRead(d *schema.ResourceData, meta interface{}) error {
 		}
 		return fmt.Errorf("DescribeDomainInfo got an error: %#v", err)
 	}
-	domain := raw.(dns.DomainType)
+	domain, _ := raw.(dns.DomainType)
 	d.Set("group_id", domain.GroupId)
 	d.Set("name", domain.DomainName)
 	d.Set("dns_server", domain.DnsServers.DnsServer)

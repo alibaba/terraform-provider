@@ -198,7 +198,7 @@ func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return err
 	}
-	resp := raw.(*ecs.DescribeInstanceTypesResponse)
+	resp, _ := raw.(*ecs.DescribeInstanceTypesResponse)
 	if resp == nil || len(resp.InstanceTypes.InstanceType) < 1 {
 		return fmt.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}

@@ -62,7 +62,7 @@ func dataSourceAlicloudDnsGroupsRead(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		groups := raw.([]dns.DomainGroupType)
+		groups, _ := raw.([]dns.DomainGroupType)
 		allGroups = append(allGroups, groups...)
 
 		if len(groups) < pagination.PageSize {

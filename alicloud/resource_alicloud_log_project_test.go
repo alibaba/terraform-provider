@@ -40,7 +40,7 @@ func testSweepLogProjects(region string) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving Log Projects: %s", err)
 	}
-	names := raw.([]string)
+	names, _ := raw.([]string)
 
 	for _, v := range names {
 		name := v
@@ -127,7 +127,7 @@ func testAccCheckAlicloudLogProjectDestroy(s *terraform.State) error {
 		if err != nil {
 			return fmt.Errorf("Check log project got an error: %#v.", err)
 		}
-		exist := raw.(bool)
+		exist, _ := raw.(bool)
 		if !exist {
 			return nil
 		}

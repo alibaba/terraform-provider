@@ -30,7 +30,7 @@ func (s *VpnGatewayService) DescribeVpnGateway(vpnId string) (v vpc.DescribeVpnG
 		}
 		return
 	}
-	resp := raw.(*vpc.DescribeVpnGatewayResponse)
+	resp, _ := raw.(*vpc.DescribeVpnGatewayResponse)
 	if resp == nil || resp.VpnGatewayId != vpnId {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN", vpnId))
 	}
@@ -50,7 +50,7 @@ func (s *VpnGatewayService) DescribeCustomerGateway(cgwId string) (v vpc.Describ
 		}
 		return
 	}
-	resp := raw.(*vpc.DescribeCustomerGatewayResponse)
+	resp, _ := raw.(*vpc.DescribeCustomerGatewayResponse)
 	if resp == nil || resp.CustomerGatewayId != cgwId {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN", cgwId))
 	}
@@ -70,7 +70,7 @@ func (s *VpnGatewayService) DescribeVpnConnection(id string) (v vpc.DescribeVpnC
 		}
 		return
 	}
-	resp := raw.(*vpc.DescribeVpnConnectionResponse)
+	resp, _ := raw.(*vpc.DescribeVpnConnectionResponse)
 	if resp == nil || resp.VpnConnectionId != id {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN connection", id))
 	}
@@ -90,7 +90,7 @@ func (s *VpnGatewayService) DescribeSslVpnServer(sslId string) (v vpc.SslVpnServ
 		}
 		return
 	}
-	resp := raw.(*vpc.DescribeSslVpnServersResponse)
+	resp, _ := raw.(*vpc.DescribeSslVpnServersResponse)
 	if resp == nil || 0 == len(resp.SslVpnServers.SslVpnServer) {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("SSL VPN server", sslId))
 	}
@@ -115,7 +115,7 @@ func (s *VpnGatewayService) DescribeSslVpnClientCert(id string) (v vpc.DescribeS
 		}
 		return
 	}
-	resp := raw.(*vpc.DescribeSslVpnClientCertResponse)
+	resp, _ := raw.(*vpc.DescribeSslVpnClientCertResponse)
 	if resp == nil || resp.SslVpnClientCertId != id {
 		return v, GetNotFoundErrorFromString(GetNotFoundMessage("VPN", id))
 	}

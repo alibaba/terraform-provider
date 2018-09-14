@@ -101,7 +101,7 @@ func resourceAlicloudRamGroupMembershipRead(d *schema.ResourceData, meta interfa
 		}
 		return fmt.Errorf("ListUsersForGroup got an error: %#v", err)
 	}
-	response := raw.(ram.ListUserResponse)
+	response, _ := raw.(ram.ListUserResponse)
 	var users []string
 	if len(response.Users.User) > 0 {
 		for _, v := range response.Users.User {

@@ -358,7 +358,7 @@ func resourceAlicloudCSApplicationDelete(d *schema.ResourceData, meta interface{
 			if err != nil {
 				return err
 			}
-			project = raw.(cs.GetProjectResponse)
+			project, _ = raw.(cs.GetProjectResponse)
 			return nil
 		}); err != nil {
 			if IsExceptedError(err, ApplicationNotFound) || IsExceptedError(err, ApplicationErrorIgnore) {

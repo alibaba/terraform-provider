@@ -78,7 +78,7 @@ func resourceAlicloudKmsKeyCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("CreateKey got an error: %#v.", err)
 	}
-	resp := raw.(*kms.CreateKeyResponse)
+	resp, _ := raw.(*kms.CreateKeyResponse)
 	d.SetId(resp.KeyMetadata.KeyId)
 
 	return resourceAlicloudKmsKeyUpdate(d, meta)
@@ -96,7 +96,7 @@ func resourceAlicloudKmsKeyRead(d *schema.ResourceData, meta interface{}) error 
 		}
 		return fmt.Errorf("DescribeKey got an error: %#v.", err)
 	}
-	key := raw.(*kms.DescribeKeyResponse)
+	key, _ := raw.(*kms.DescribeKeyResponse)
 	if KeyState(key.KeyMetadata.KeyState) == PendingDeletion {
 		log.Printf("[WARN] Removing KMS key %s because it's already gone", d.Id())
 		d.SetId("")
@@ -124,7 +124,7 @@ func resourceAlicloudKmsKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return fmt.Errorf("DescribeKey got an error: %#v.", err)
 		}
-		key := raw.(*kms.DescribeKeyResponse)
+		key, _ := raw.(*kms.DescribeKeyResponse)
 		if d.Get("is_enabled").(bool) && KeyState(key.KeyMetadata.KeyState) == Disabled {
 			_, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 				return kmsClient.EnableKey(d.Id())
@@ -173,7 +173,7 @@ func resourceAlicloudKmsKeyDelete(d *schema.ResourceData, meta interface{}) erro
 			}
 			return resource.NonRetryableError(fmt.Errorf("DescribeKey got an error: %#v.", err))
 		}
-		key := raw.(*kms.DescribeKeyResponse)
+		key, _ := raw.(*kms.DescribeKeyResponse)
 
 		if key == nil || KeyState(key.KeyMetadata.KeyState) == PendingDeletion {
 			log.Printf("[WARN] Removing KMS key %s because it's already gone", d.Id())

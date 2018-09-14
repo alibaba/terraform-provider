@@ -122,7 +122,7 @@ func resourceAlicloudKVStoreInstanceCreate(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return fmt.Errorf("Error creating Alicloud db instance: %#v", err)
 	}
-	resp := raw.(*r_kvstore.CreateInstanceResponse)
+	resp, _ := raw.(*r_kvstore.CreateInstanceResponse)
 	d.SetId(resp.InstanceId)
 
 	// wait instance status change from Creating to Normal

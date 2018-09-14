@@ -51,7 +51,7 @@ func testSweepOtsInstances(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving OTS Instances: %s", err)
 		}
-		resp := raw.(*ots.ListInstanceResponse)
+		resp, _ := raw.(*ots.ListInstanceResponse)
 		if resp == nil || len(resp.InstanceInfos.InstanceInfo) < 1 {
 			break
 		}

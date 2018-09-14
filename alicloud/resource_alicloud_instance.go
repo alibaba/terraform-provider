@@ -270,7 +270,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("Error creating Aliyun ecs instance: %#v", err)
 	}
-	resp := raw.(*ecs.CreateInstanceResponse)
+	resp, _ := raw.(*ecs.CreateInstanceResponse)
 	if resp == nil {
 		return fmt.Errorf("Creating Ecs instance got a response: %#v.", resp)
 	}
@@ -390,7 +390,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			log.Printf("[ERROR] DescribeUserData for instance got error: %#v", err)
 		}
-		resp := raw.(*ecs.DescribeUserDataResponse)
+		resp, _ := raw.(*ecs.DescribeUserDataResponse)
 		if resp != nil {
 			d.Set("user_data", userDataHashSum(resp.UserData))
 		}
@@ -405,7 +405,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return fmt.Errorf("[ERROR] DescribeInstanceRamRole for instance got error: %#v", err)
 		}
-		response := raw.(*ecs.DescribeInstanceRamRoleResponse)
+		response, _ := raw.(*ecs.DescribeInstanceRamRoleResponse)
 		if response != nil && len(response.InstanceRamRoleSets.InstanceRamRoleSet) > 1 {
 			d.Set("role_name", response.InstanceRamRoleSets.InstanceRamRoleSet[0].RamRoleName)
 		}
@@ -420,7 +420,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return fmt.Errorf("DescribeInstanceAutoRenewAttribute got an error: %#v.", err)
 		}
-		resp := raw.(*ecs.DescribeInstanceAutoRenewAttributeResponse)
+		resp, _ := raw.(*ecs.DescribeInstanceAutoRenewAttributeResponse)
 		if resp != nil && len(resp.InstanceRenewAttributes.InstanceRenewAttribute) > 0 {
 			renew := resp.InstanceRenewAttributes.InstanceRenewAttribute[0]
 			d.Set("renewal_status", renew.RenewalStatus)

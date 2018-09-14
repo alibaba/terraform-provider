@@ -91,7 +91,7 @@ func testAccCheckKubernetesClusterDestroy(s *terraform.State) error {
 			}
 			return err
 		}
-		cluster := raw.(cs.ClusterType)
+		cluster, _ := raw.(cs.ClusterType)
 		if cluster.ClusterID != "" {
 			return fmt.Errorf("Error container cluster %s still exists.", rs.Primary.ID)
 		}

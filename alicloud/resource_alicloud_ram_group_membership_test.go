@@ -65,7 +65,7 @@ func testAccCheckRamGroupMembershipExists(n string, user *ram.User, user1 *ram.U
 		})
 
 		if err == nil {
-			response := raw.(ram.ListUserResponse)
+			response, _ := raw.(ram.ListUserResponse)
 			if len(response.Users.User) == 2 {
 				return nil
 			}
@@ -96,7 +96,7 @@ func testAccCheckRamGroupMembershipDestroy(s *terraform.State) error {
 		if err != nil && !RamEntityNotExist(err) {
 			return err
 		}
-		response := raw.(ram.ListUserResponse)
+		response, _ := raw.(ram.ListUserResponse)
 		if len(response.Users.User) > 0 {
 			for _, v := range response.Users.User {
 				for _, u := range rs.Primary.Meta["user_names"].([]string) {

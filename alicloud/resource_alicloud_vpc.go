@@ -87,7 +87,7 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 			}
 			return resource.NonRetryableError(err)
 		}
-		vpcResponse = raw.(*vpc.CreateVpcResponse)
+		vpcResponse, _ = raw.(*vpc.CreateVpcResponse)
 		return nil
 	})
 	if err != nil {
@@ -133,7 +133,7 @@ func resourceAliyunVpcRead(d *schema.ResourceData, meta interface{}) error {
 			time.Sleep(10 * time.Second)
 			return resource.RetryableError(e)
 		}
-		r := raw.(*vpc.DescribeVRoutersResponse)
+		r, _ := raw.(*vpc.DescribeVRoutersResponse)
 		response = *r
 		return resource.NonRetryableError(e)
 	}); err != nil {

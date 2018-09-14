@@ -49,7 +49,7 @@ func testSweepRamGroups(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Ram groups: %s", err)
 		}
-		resp := raw.(ram.GroupListResponse)
+		resp, _ := raw.(ram.GroupListResponse)
 		if len(resp.Groups.Group) < 1 {
 			break
 		}
@@ -147,7 +147,7 @@ func testAccCheckRamGroupExists(n string, group *ram.Group) resource.TestCheckFu
 		})
 
 		if err == nil {
-			response := raw.(ram.GroupResponse)
+			response, _ := raw.(ram.GroupResponse)
 			*group = response.Group
 			return nil
 		}

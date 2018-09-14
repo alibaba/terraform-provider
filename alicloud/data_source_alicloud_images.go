@@ -191,7 +191,7 @@ func dataSourceAlicloudImagesRead(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return err
 		}
-		resp := raw.(*ecs.DescribeImagesResponse)
+		resp, _ := raw.(*ecs.DescribeImagesResponse)
 		if resp == nil || len(resp.Images.Image) < 1 {
 			break
 		}

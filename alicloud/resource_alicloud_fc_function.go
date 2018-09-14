@@ -144,7 +144,7 @@ func resourceAlicloudFCFunctionCreate(d *schema.ResourceData, meta interface{}) 
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error creating function compute service got an error: %#v", err))
 		}
-		function = raw.(*fc.CreateFunctionOutput)
+		function, _ = raw.(*fc.CreateFunctionOutput)
 		return nil
 
 	}); err != nil {

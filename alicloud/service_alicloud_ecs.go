@@ -26,7 +26,7 @@ func (s *EcsService) JudgeRegionValidation(key, region string) error {
 	if err != nil {
 		return fmt.Errorf("DescribeRegions got an error: %#v", err)
 	}
-	resp := raw.(*ecs.DescribeRegionsResponse)
+	resp, _ := raw.(*ecs.DescribeRegionsResponse)
 	if resp == nil || len(resp.Regions.Region) < 1 {
 		return GetNotFoundErrorFromString("There is no any available region.")
 	}
@@ -49,7 +49,7 @@ func (s *EcsService) DescribeZone(zoneID string) (zone ecs.Zone, err error) {
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeZonesResponse)
+	resp, _ := raw.(*ecs.DescribeZonesResponse)
 	if resp == nil || len(resp.Zones.Zone) < 1 {
 		return zone, fmt.Errorf("There is no any availability zone in region %s.", s.client.RegionId)
 	}
@@ -74,7 +74,7 @@ func (s *EcsService) DescribeInstanceById(id string) (instance ecs.Instance, err
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeInstancesResponse)
+	resp, _ := raw.(*ecs.DescribeInstancesResponse)
 	if resp == nil || len(resp.Instances.Instance) < 1 {
 		return instance, GetNotFoundErrorFromString(GetNotFoundMessage("Instance", id))
 	}
@@ -92,7 +92,7 @@ func (s *EcsService) DescribeInstanceAttribute(id string) (instance ecs.Describe
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeInstanceAttributeResponse)
+	resp, _ := raw.(*ecs.DescribeInstanceAttributeResponse)
 	if resp == nil {
 		return instance, GetNotFoundErrorFromString(GetNotFoundMessage("Instance", id))
 	}
@@ -111,7 +111,7 @@ func (s *EcsService) QueryInstanceSystemDisk(id string) (disk ecs.Disk, err erro
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeDisksResponse)
+	resp, _ := raw.(*ecs.DescribeDisksResponse)
 	if resp != nil && len(resp.Disks.Disk) < 1 {
 		return disk, GetNotFoundErrorFromString(fmt.Sprintf("The specified system disk is not found by instance id %s.", id))
 	}
@@ -180,7 +180,7 @@ func (s *EcsService) DescribeSecurityGroupAttribute(securityGroupId string) (gro
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeSecurityGroupAttributeResponse)
+	resp, _ := raw.(*ecs.DescribeSecurityGroupAttributeResponse)
 	if resp == nil {
 		return group, GetNotFoundErrorFromString(GetNotFoundMessage("Security Group", securityGroupId))
 	}
@@ -200,7 +200,7 @@ func (s *EcsService) DescribeSecurityGroupRule(groupId, direction, ipProtocol, p
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeSecurityGroupAttributeResponse)
+	resp, _ := raw.(*ecs.DescribeSecurityGroupAttributeResponse)
 	if resp == nil {
 		return rule, GetNotFoundErrorFromString(GetNotFoundMessage("Security Group", groupId))
 	}
@@ -265,7 +265,7 @@ func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta int
 	if err != nil {
 		return "", nil, fmt.Errorf("Error DescribeAvailableResource: %#v", err)
 	}
-	resources := raw.(*ecs.DescribeAvailableResourceResponse)
+	resources, _ := raw.(*ecs.DescribeAvailableResourceResponse)
 
 	if resources == nil || len(resources.AvailableZones.AvailableZone) < 1 {
 		err = fmt.Errorf("There are no availability resources in the region: %s.", meta.(*aliyunclient.AliyunClient).RegionId)
@@ -358,7 +358,7 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keypair string) (
 			err = e
 			return
 		}
-		resp := raw.(*ecs.DescribeInstancesResponse)
+		resp, _ := raw.(*ecs.DescribeInstancesResponse)
 		if resp == nil || len(resp.Instances.Instance) < 0 {
 			return
 		}
@@ -389,7 +389,7 @@ func (s *EcsService) DescribeKeyPair(keyName string) (keypair ecs.KeyPair, err e
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeKeyPairsResponse)
+	resp, _ := raw.(*ecs.DescribeKeyPairsResponse)
 	if resp == nil || len(resp.KeyPairs.KeyPair) < 1 {
 		return keypair, GetNotFoundErrorFromString(GetNotFoundMessage("KeyPair", keyName))
 	}
@@ -410,7 +410,7 @@ func (s *EcsService) DescribeDiskById(instanceId, diskId string) (disk ecs.Disk,
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeDisksResponse)
+	resp, _ := raw.(*ecs.DescribeDisksResponse)
 	if resp == nil || len(resp.Disks.Disk) < 1 {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("ECS disk", diskId))
 		return
@@ -431,7 +431,7 @@ func (s *EcsService) DescribeDisksByType(instanceId string, diskType DiskType) (
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeDisksResponse)
+	resp, _ := raw.(*ecs.DescribeDisksResponse)
 	if resp == nil {
 		return
 	}
@@ -449,7 +449,7 @@ func (s *EcsService) DescribeTags(resourceId string, resourceType TagResourceTyp
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeTagsResponse)
+	resp, _ := raw.(*ecs.DescribeTagsResponse)
 	if resp == nil || len(resp.Tags.Tag) < 1 {
 		err = GetNotFoundErrorFromString(fmt.Sprintf("Describe %s tag by id %s got an error.", resourceType, resourceId))
 		return
@@ -467,7 +467,7 @@ func (s *EcsService) DescribeImageById(id string) (image ecs.Image, err error) {
 	if err != nil {
 		return
 	}
-	resp := raw.(*ecs.DescribeImagesResponse)
+	resp, _ := raw.(*ecs.DescribeImagesResponse)
 	if resp == nil || len(resp.Images.Image) < 1 {
 		return image, GetNotFoundErrorFromString(GetNotFoundMessage("Image", id))
 	}

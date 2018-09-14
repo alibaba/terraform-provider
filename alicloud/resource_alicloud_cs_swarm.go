@@ -212,7 +212,7 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("Creating container Cluster got an error: %#v", err)
 	}
-	cluster := raw.(cs.ClusterCreationResponse)
+	cluster, _ := raw.(cs.ClusterCreationResponse)
 	d.SetId(cluster.ClusterID)
 
 	_, err = client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
@@ -299,7 +299,7 @@ func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error
 		}
 		return err
 	}
-	cluster := raw.(cs.ClusterType)
+	cluster, _ := raw.(cs.ClusterType)
 	d.Set("name", cluster.Name)
 	d.Set("node_number", cluster.Size)
 	d.Set("vpc_id", cluster.VPCID)
@@ -314,7 +314,7 @@ func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	resp := raw.(cs.GetSwarmClusterNodesResponse)
+	resp, _ := raw.(cs.GetSwarmClusterNodesResponse)
 	var nodes []map[string]interface{}
 	var oneNode newsdk.Instance
 
@@ -373,7 +373,7 @@ func resourceAlicloudCSSwarmDelete(d *schema.ResourceData, meta interface{}) err
 			}
 			return resource.NonRetryableError(fmt.Errorf("Describe container cluster got an error: %#v", err))
 		}
-		resp := raw.(cs.ClusterType)
+		resp, _ := raw.(cs.ClusterType)
 		if resp.ClusterID == "" {
 			return nil
 		}

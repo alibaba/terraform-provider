@@ -134,7 +134,7 @@ func resourceAliyunEssAlarmCreate(d *schema.ResourceData, meta interface{}) erro
 			}
 			return resource.NonRetryableError(fmt.Errorf("CreateAlarm got an error: %#v.", err))
 		}
-		alarm := raw.(*ess.CreateAlarmResponse)
+		alarm, _ := raw.(*ess.CreateAlarmResponse)
 		d.SetId(alarm.AlarmTaskId)
 		return nil
 	}); err != nil {

@@ -90,7 +90,7 @@ func dataSourceAlicloudSlbServerGroupsRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return fmt.Errorf("DescribeVServerGroups got an error: %#v", err)
 	}
-	resp := raw.(*slb.DescribeVServerGroupsResponse)
+	resp, _ := raw.(*slb.DescribeVServerGroupsResponse)
 	if resp == nil {
 		return fmt.Errorf("there is no SLB with the ID %s. Please change your search criteria and try again", args.LoadBalancerId)
 	}
@@ -145,7 +145,7 @@ func slbServerGroupsDescriptionAttributes(d *schema.ResourceData, serverGroups [
 			return slbClient.DescribeVServerGroupAttribute(args)
 		})
 		if err == nil {
-			resp := raw.(*slb.DescribeVServerGroupAttributeResponse)
+			resp, _ := raw.(*slb.DescribeVServerGroupAttributeResponse)
 			if resp != nil && len(resp.BackendServers.BackendServer) > 0 {
 				var backendServerMappings []map[string]interface{}
 				for _, backendServer := range resp.BackendServers.BackendServer {

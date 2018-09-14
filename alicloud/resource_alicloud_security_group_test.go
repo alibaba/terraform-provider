@@ -53,7 +53,7 @@ func testSweepSecurityGroups(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Security Groups: %s", err)
 		}
-		resp := raw.(*ecs.DescribeSecurityGroupsResponse)
+		resp, _ := raw.(*ecs.DescribeSecurityGroupsResponse)
 		if resp == nil || len(resp.SecurityGroups.SecurityGroup) < 1 {
 			break
 		}

@@ -164,7 +164,7 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 		if err != nil {
 			return err
 		}
-		resp := raw.(*slb.DescribeLoadBalancersResponse)
+		resp, _ := raw.(*slb.DescribeLoadBalancersResponse)
 		if resp == nil || len(resp.LoadBalancers.LoadBalancer) < 1 {
 			break
 		}

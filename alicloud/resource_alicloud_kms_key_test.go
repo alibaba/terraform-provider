@@ -55,7 +55,7 @@ func testAccCheckAlicloudKmsKeyExists(name string, key *kms.KeyMetadata) resourc
 		if err != nil {
 			return err
 		}
-		o := raw.(*kms.DescribeKeyResponse)
+		o, _ := raw.(*kms.DescribeKeyResponse)
 		meta := o.KeyMetadata
 		key = &meta
 
@@ -78,7 +78,7 @@ func testAccCheckAlicloudKmsKeyDestroy(s *terraform.State) error {
 		if err != nil && !IsExceptedError(err, ForbiddenKeyNotFound) {
 			return err
 		}
-		out := raw.(*kms.DescribeKeyResponse)
+		out, _ := raw.(*kms.DescribeKeyResponse)
 		if KeyState(out.KeyMetadata.KeyState) == PendingDeletion {
 			return nil
 		}

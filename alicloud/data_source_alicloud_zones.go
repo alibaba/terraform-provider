@@ -129,7 +129,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return fmt.Errorf("[ERROR] DescribeRegions got an error: %#v", err)
 		}
-		regions := raw.(*rds.DescribeRegionsResponse)
+		regions, _ := raw.(*rds.DescribeRegionsResponse)
 		if len(regions.Regions.RDSRegion) <= 0 {
 			return fmt.Errorf("[ERROR] There is no available region for RDS.")
 		}
@@ -149,7 +149,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		if err != nil {
 			return fmt.Errorf("[ERROR] DescribeRegions got an error: %#v", err)
 		}
-		regions := raw.(*r_kvstore.DescribeRegionsResponse)
+		regions, _ := raw.(*r_kvstore.DescribeRegionsResponse)
 		if len(regions.RegionIds.KVStoreRegion) <= 0 {
 			return fmt.Errorf("[ERROR] There is no available region for KVStore")
 		}
@@ -189,7 +189,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return fmt.Errorf("DescribeZones got an error: %#v", err)
 	}
-	resp := raw.(*ecs.DescribeZonesResponse)
+	resp, _ := raw.(*ecs.DescribeZonesResponse)
 	if resp == nil || len(resp.Zones.Zone) < 1 {
 		return fmt.Errorf("There are no availability zones in the region: %#v.", meta.(*aliyunclient.AliyunClient).Region)
 	}

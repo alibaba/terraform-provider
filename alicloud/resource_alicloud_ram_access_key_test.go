@@ -65,7 +65,7 @@ func testAccCheckRamAccessKeyExists(n string, ak *ram.AccessKey) resource.TestCh
 		})
 
 		if err == nil {
-			response := raw.(ram.AccessKeyListResponse)
+			response, _ := raw.(ram.AccessKeyListResponse)
 			if len(response.AccessKeys.AccessKey) > 0 {
 				for _, v := range response.AccessKeys.AccessKey {
 					if v.AccessKeyId == rs.Primary.ID {
@@ -98,7 +98,7 @@ func testAccCheckRamAccessKeyDestroy(s *terraform.State) error {
 			return ramClient.ListAccessKeys(request)
 		})
 
-		response := raw.(ram.AccessKeyListResponse)
+		response, _ := raw.(ram.AccessKeyListResponse)
 		if len(response.AccessKeys.AccessKey) > 0 {
 			for _, v := range response.AccessKeys.AccessKey {
 				if v.AccessKeyId == rs.Primary.ID {

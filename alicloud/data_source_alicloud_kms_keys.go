@@ -105,7 +105,7 @@ func dataSourceAlicloudKmsKeysRead(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return fmt.Errorf("Error ListKeys: %#v", err)
 		}
-		results := raw.(*kms.ListKeysResponse)
+		results, _ := raw.(*kms.ListKeysResponse)
 		for _, key := range results.Keys.Key {
 			if idsMap != nil {
 				if _, ok := idsMap[key.KeyId]; ok {
@@ -141,7 +141,7 @@ func dataSourceAlicloudKmsKeysRead(d *schema.ResourceData, meta interface{}) err
 		if err != nil {
 			return fmt.Errorf("DescribeKey got an error: %#v", err)
 		}
-		key := raw.(*kms.DescribeKeyResponse)
+		key, _ := raw.(*kms.DescribeKeyResponse)
 		if r != nil && !r.MatchString(key.KeyMetadata.Description) {
 			continue
 		}

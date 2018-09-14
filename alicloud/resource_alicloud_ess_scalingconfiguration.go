@@ -210,7 +210,7 @@ func resourceAliyunEssScalingConfigurationCreate(d *schema.ResourceData, meta in
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error Create Scaling Configuration: %#v.", err))
 		}
-		scaling := raw.(*ess.CreateScalingConfigurationResponse)
+		scaling, _ := raw.(*ess.CreateScalingConfigurationResponse)
 		d.SetId(scaling.ScalingConfigurationId)
 		return nil
 	}); err != nil {
@@ -398,7 +398,7 @@ func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta in
 	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingConfigurations(req)
 	})
-	resp := raw.(*ess.DescribeScalingConfigurationsResponse)
+	resp, _ := raw.(*ess.DescribeScalingConfigurationsResponse)
 	if resp == nil || len(resp.ScalingConfigurations.ScalingConfiguration) < 1 {
 		return nil
 	}
@@ -544,7 +544,7 @@ func activeSubstituteScalingConfiguration(d *schema.ResourceData, meta interface
 	if err != nil {
 		return
 	}
-	resp := raw.(*ess.DescribeScalingConfigurationsResponse)
+	resp, _ := raw.(*ess.DescribeScalingConfigurationsResponse)
 	if resp == nil || len(resp.ScalingConfigurations.ScalingConfiguration) < 1 {
 		return
 	}

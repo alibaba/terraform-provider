@@ -102,7 +102,7 @@ func resourceAliyunEssScalingGroupCreate(d *schema.ResourceData, meta interface{
 			}
 			return resource.NonRetryableError(fmt.Errorf("CreateScalingGroup got an error: %#v.", err))
 		}
-		scaling := raw.(*ess.CreateScalingGroupResponse)
+		scaling, _ := raw.(*ess.CreateScalingGroupResponse)
 		d.SetId(scaling.ScalingGroupId)
 		return nil
 	}); err != nil {

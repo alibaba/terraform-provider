@@ -101,7 +101,7 @@ func resourceAliyunSslVpnServerCreate(d *schema.ResourceData, meta interface{}) 
 			}
 			return resource.NonRetryableError(err)
 		}
-		sslVpnServer = raw.(*vpc.CreateSslVpnServerResponse)
+		sslVpnServer, _ = raw.(*vpc.CreateSslVpnServerResponse)
 		return nil
 	})
 	if err != nil {

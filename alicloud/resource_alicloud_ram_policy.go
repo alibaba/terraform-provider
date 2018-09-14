@@ -120,7 +120,7 @@ func resourceAlicloudRamPolicyCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("CreatePolicy got an error: %#v", err)
 	}
-	response := raw.(ram.PolicyResponse)
+	response, _ := raw.(ram.PolicyResponse)
 	d.SetId(response.Policy.PolicyName)
 	return resourceAlicloudRamPolicyUpdate(d, meta)
 }
@@ -166,7 +166,7 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 		}
 		return fmt.Errorf("GetPolicy got an error: %#v", err)
 	}
-	policyResp := raw.(ram.PolicyResponse)
+	policyResp, _ := raw.(ram.PolicyResponse)
 	policy := policyResp.Policy
 
 	args.VersionId = policy.DefaultVersion
@@ -176,7 +176,7 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	if err != nil {
 		return fmt.Errorf("GetPolicyVersion got an error: %#v", err)
 	}
-	policyVersionResp := raw.(ram.PolicyVersionResponseNew)
+	policyVersionResp, _ := raw.(ram.PolicyVersionResponseNew)
 	statement, version, err := ramService.ParsePolicyDocument(policyVersionResp.PolicyVersion.PolicyDocument)
 	if err != nil {
 		return err
@@ -210,7 +210,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return fmt.Errorf("Error listing entities for policy %s when trying to delete: %#v", d.Id(), err)
 		}
-		response := raw.(ram.PolicyListEntitiesResponse)
+		response, _ := raw.(ram.PolicyListEntitiesResponse)
 		if len(response.Users.User) > 0 {
 			for _, v := range response.Users.User {
 				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
@@ -260,7 +260,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return fmt.Errorf("Error listing policy versions for policy %s:%#v", d.Id(), err)
 		}
-		pvResp := raw.(ram.PolicyVersionsResponse)
+		pvResp, _ := raw.(ram.PolicyVersionsResponse)
 		if len(pvResp.PolicyVersions.PolicyVersion) > 1 {
 			for _, v := range pvResp.PolicyVersions.PolicyVersion {
 				if !v.IsDefaultVersion {

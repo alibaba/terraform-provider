@@ -109,7 +109,7 @@ func resourceAliyunEipCreate(d *schema.ResourceData, meta interface{}) error {
 		}
 		return err
 	}
-	eip := raw.(*vpc.AllocateEipAddressResponse)
+	eip, _ := raw.(*vpc.AllocateEipAddressResponse)
 	err = vpcService.WaitForEip(eip.AllocationId, Available, 60)
 	if err != nil {
 		return fmt.Errorf("Error Waitting for EIP available: %#v", err)

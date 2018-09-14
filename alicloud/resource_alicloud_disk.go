@@ -137,7 +137,7 @@ func resourceAliyunDiskCreate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("CreateDisk got a error: %#v", err)
 	}
-	resp := raw.(*ecs.CreateDiskResponse)
+	resp, _ := raw.(*ecs.CreateDiskResponse)
 	if resp == nil {
 		return fmt.Errorf("CreateDisk got a nil response: %#v", resp)
 	}

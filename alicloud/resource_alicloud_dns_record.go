@@ -95,7 +95,7 @@ func resourceAlicloudDnsRecordCreate(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("AddDomainRecord got a error: %#v", err)
 	}
-	response := raw.(*dns.AddDomainRecordResponse)
+	response, _ := raw.(*dns.AddDomainRecordResponse)
 	d.SetId(response.RecordId)
 	return resourceAlicloudDnsRecordUpdate(d, meta)
 }
@@ -169,7 +169,7 @@ func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) err
 		}
 		return err
 	}
-	response := raw.(*dns.DescribeDomainRecordInfoNewResponse)
+	response, _ := raw.(*dns.DescribeDomainRecordInfoNewResponse)
 	record := response.RecordTypeNew
 	d.Set("ttl", record.TTL)
 	d.Set("priority", record.Priority)
@@ -212,7 +212,7 @@ func resourceAlicloudDnsRecordDelete(d *schema.ResourceData, meta interface{}) e
 			}
 			return resource.NonRetryableError(fmt.Errorf("Describe domain record got an error: %#v.", err))
 		}
-		response := raw.(*dns.DescribeDomainRecordInfoNewResponse)
+		response, _ := raw.(*dns.DescribeDomainRecordInfoNewResponse)
 		if response == nil {
 			return nil
 		}

@@ -43,7 +43,7 @@ func testSweepRamPolicies(region string) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving Ram policies: %s", err)
 	}
-	resp := raw.(ram.PolicyQueryResponse)
+	resp, _ := raw.(ram.PolicyQueryResponse)
 	sweeped := false
 
 	for _, v := range resp.Policies.Policy {
@@ -135,7 +135,7 @@ func testAccCheckRamPolicyExists(n string, policy *ram.Policy) resource.TestChec
 		log.Printf("[WARN] Policy id %#v", rs.Primary.ID)
 
 		if err == nil {
-			response := raw.(ram.PolicyResponse)
+			response, _ := raw.(ram.PolicyResponse)
 			*policy = response.Policy
 			return nil
 		}

@@ -68,7 +68,7 @@ func resourceAliyunEssScalingRuleCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return err
 	}
-	rule := raw.(*ess.CreateScalingRuleResponse)
+	rule, _ := raw.(*ess.CreateScalingRuleResponse)
 	d.SetId(d.Get("scaling_group_id").(string) + COLON_SEPARATED + rule.ScalingRuleId)
 
 	return resourceAliyunEssScalingRuleUpdate(d, meta)

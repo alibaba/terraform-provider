@@ -52,7 +52,7 @@ func resourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("GetAccountAlias got an error: %#v", err)
 	}
-	response := raw.(ram.AccountAliasResponse)
+	response, _ := raw.(ram.AccountAliasResponse)
 
 	d.Set("account_alias", response.AccountAlias)
 	return nil

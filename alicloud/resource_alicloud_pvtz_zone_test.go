@@ -49,7 +49,7 @@ func testSweepPvtzZones(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Private Zones: %s", err)
 		}
-		resp := raw.(*pvtz.DescribeZonesResponse)
+		resp, _ := raw.(*pvtz.DescribeZonesResponse)
 		if resp == nil || len(resp.Zones.Zone) < 1 {
 			break
 		}

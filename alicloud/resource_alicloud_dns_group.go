@@ -40,7 +40,7 @@ func resourceAlicloudDnsGroupCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("AddDomainGroup got a error: %#v", err)
 	}
-	response := raw.(*dns.AddDomainGroupResponse)
+	response, _ := raw.(*dns.AddDomainGroupResponse)
 	d.SetId(response.GroupId)
 	d.Set("name", response.GroupName)
 	return resourceAlicloudDnsGroupUpdate(d, meta)
@@ -82,7 +82,7 @@ func resourceAlicloudDnsGroupRead(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	groups := raw.([]dns.DomainGroupType)
+	groups, _ := raw.([]dns.DomainGroupType)
 	if groups == nil || len(groups) <= 0 {
 		return fmt.Errorf("No domain groups found.")
 	}

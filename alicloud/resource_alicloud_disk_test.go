@@ -48,7 +48,7 @@ func testSweepDisks(region string) error {
 		if err != nil {
 			return fmt.Errorf("Error retrieving Disks: %s", err)
 		}
-		resp := raw.(*ecs.DescribeDisksResponse)
+		resp, _ := raw.(*ecs.DescribeDisksResponse)
 		if resp == nil || len(resp.Disks.Disk) < 1 {
 			break
 		}

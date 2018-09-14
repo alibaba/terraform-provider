@@ -94,7 +94,7 @@ func dataSourceAlicloudRamGroupsRead(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return fmt.Errorf("ListGroup got an error: %#v", err)
 		}
-		resp := raw.(ram.GroupListResponse)
+		resp, _ := raw.(ram.GroupListResponse)
 		for _, v := range resp.Groups.Group {
 			if nameRegexOk {
 				r := regexp.MustCompile(nameRegex.(string))
@@ -118,7 +118,7 @@ func dataSourceAlicloudRamGroupsRead(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return fmt.Errorf("ListGroupsForUser got an error: %#v", err)
 		}
-		resp := raw.(ram.GroupListResponse)
+		resp, _ := raw.(ram.GroupListResponse)
 		for _, v := range resp.Groups.Group {
 			userFilterGroupsMap[v.GroupName] = v
 		}
@@ -137,7 +137,7 @@ func dataSourceAlicloudRamGroupsRead(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return fmt.Errorf("ListEntitiesForPolicy got an error: %#v", err)
 		}
-		resp := raw.(ram.PolicyListEntitiesResponse)
+		resp, _ := raw.(ram.PolicyListEntitiesResponse)
 		for _, v := range resp.Groups.Group {
 			policyFilterGroupsMap[v.GroupName] = v
 		}

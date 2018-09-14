@@ -107,7 +107,7 @@ func resourceAlicloudPvtzZoneAttachmentRead(d *schema.ResourceData, meta interfa
 
 		return err
 	}
-	response := raw.(*pvtz.DescribeZoneInfoResponse)
+	response, _ := raw.(*pvtz.DescribeZoneInfoResponse)
 	var vpcIds []string
 	vpcs := response.BindVpcs.Vpc
 	for _, vpc := range vpcs {

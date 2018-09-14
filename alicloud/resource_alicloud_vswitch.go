@@ -71,7 +71,7 @@ func resourceAliyunSwitchCreate(d *schema.ResourceData, meta interface{}) error 
 			}
 			return resource.NonRetryableError(err)
 		}
-		resp := raw.(*vpc.CreateVSwitchResponse)
+		resp, _ := raw.(*vpc.CreateVSwitchResponse)
 		vswitchID = resp.VSwitchId
 		return nil
 	}); err != nil {

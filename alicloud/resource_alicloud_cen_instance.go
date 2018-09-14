@@ -80,7 +80,7 @@ func resourceAlicloudCenInstanceCreate(d *schema.ResourceData, meta interface{})
 			return resource.NonRetryableError(err)
 		}
 
-		cen = raw.(*cbn.CreateCenResponse)
+		cen, _ = raw.(*cbn.CreateCenResponse)
 		return nil
 	})
 	if err != nil {

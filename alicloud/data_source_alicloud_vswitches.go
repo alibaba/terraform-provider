@@ -124,7 +124,7 @@ func dataSourceAlicloudVSwitchesRead(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return err
 		}
-		resp := raw.(*vpc.DescribeVSwitchesResponse)
+		resp, _ := raw.(*vpc.DescribeVSwitchesResponse)
 		if resp == nil || len(resp.VSwitches.VSwitch) < 1 {
 			break
 		}
@@ -188,7 +188,7 @@ func VSwitchesDecriptionAttributes(d *schema.ResourceData, vsws []vpc.VSwitch, m
 		if err != nil {
 			return fmt.Errorf("DescribeInstances got an error: %#v.", err)
 		}
-		resp := raw.(*ecs.DescribeInstancesResponse)
+		resp, _ := raw.(*ecs.DescribeInstancesResponse)
 		if resp != nil && len(resp.Instances.Instance) > 0 {
 			instance_ids := make([]string, len(resp.Instances.Instance))
 			if len(instance_ids) > 0 {

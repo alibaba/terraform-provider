@@ -18,13 +18,13 @@ func (s *CsService) GetContainerClusterByName(name string) (cluster cs.ClusterTy
 	invoker := NewInvoker()
 	var clusters []cs.ClusterType
 	err = invoker.Run(func() error {
-		rawResponse, e := s.client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		raw, e := s.client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return csClient.DescribeClusters(name)
 		})
 		if e != nil {
 			return e
 		}
-		clusters = rawResponse.([]cs.ClusterType)
+		clusters, _ = raw.([]cs.ClusterType)
 		return nil
 	})
 
@@ -58,7 +58,7 @@ func (s *CsService) RunSafelyWithCsProjectClientByClusterName(name string, do fu
 		if e != nil {
 			return e
 		}
-		certs = raw.(cs.ClusterCerts)
+		certs, _ = raw.(cs.ClusterCerts)
 		return nil
 	})
 
@@ -74,7 +74,7 @@ func (s *CsService) DescribeContainerApplication(clusterName, appName string) (a
 	raw, err := s.RunSafelyWithCsProjectClientByClusterName(appName, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 		return csProjectClient.GetProject(appName)
 	})
-	app = raw.(cs.GetProjectResponse)
+	app, _ = raw.(cs.GetProjectResponse)
 	if err != nil {
 		if IsExceptedError(err, ApplicationNotFound) {
 			return app, GetNotFoundErrorFromString(GetNotFoundMessage("Container Application", appName))

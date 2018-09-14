@@ -168,7 +168,7 @@ func resourceAlicloudCmsAlarmCreate(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return fmt.Errorf("Creating alarm got an error: %#v", err)
 	}
-	response := raw.(*cms.CreateAlarmResponse)
+	response, _ := raw.(*cms.CreateAlarmResponse)
 	d.SetId(response.Data)
 
 	return resourceAlicloudCmsAlarmUpdate(d, meta)

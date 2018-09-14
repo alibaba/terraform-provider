@@ -46,7 +46,7 @@ func testSweepFCServices(region string) error {
 	if err != nil {
 		return fmt.Errorf("Error retrieving FC services: %s", err)
 	}
-	services := raw.(*fc.ListServicesOutput)
+	services, _ := raw.(*fc.ListServicesOutput)
 	for _, v := range services.Services {
 		name := *v.ServiceName
 		id := *v.ServiceID
