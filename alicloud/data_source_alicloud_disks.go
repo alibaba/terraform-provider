@@ -38,7 +38,7 @@ func dataSourceAlicloudDisks() *schema.Resource {
 				ForceNew: true,
 			},
 			"encrypted": {
-				Type:     schema.TypeBool,
+				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
@@ -83,7 +83,7 @@ func dataSourceAlicloudDisks() *schema.Resource {
 							Computed: true,
 						},
 						"encrypted": {
-							Type:     schema.TypeBool,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"size": {
@@ -140,8 +140,12 @@ func dataSourceAlicloudDisksRead(d *schema.ResourceData, meta interface{}) error
 	if v, ok := d.GetOk("category"); ok && v.(string) != "" {
 		args.Category = v.(string)
 	}
-	if v, ok := d.GetOk("encrypted"); ok {
-		args.Encrypted = requests.NewBoolean(v.(bool))
+	if v, ok := d.GetOk("encrypted"); ok && v.(string) != "" {
+		if v == "on" {
+			args.Encrypted = requests.NewBoolean(true)
+		} else if v == "off" {
+			args.Encrypted = requests.NewBoolean(false)
+		}
 	}
 	if v, ok := d.GetOk("tags"); ok {
 		var tags []ecs.DescribeDisksTag
@@ -217,7 +221,7 @@ func disksDescriptionAttributes(d *schema.ResourceData, disks []ecs.Disk) error 
 			"status":            disk.Status,
 			"type":              disk.Type,
 			"category":          disk.Category,
-			"encrypted":         disk.Encrypted,
+			"encrypted":         "on",
 			"size":              disk.Size,
 			"image_id":          disk.ImageId,
 			"snapshot_id":       disk.SourceSnapshotId,
@@ -227,6 +231,9 @@ func disksDescriptionAttributes(d *schema.ResourceData, disks []ecs.Disk) error 
 			"detached_time":     disk.DetachedTime,
 			"expiration_time":   disk.ExpiredTime,
 			"tags":              tagsToMap(disk.Tags.Tag),
+		}
+		if !disk.Encrypted {
+			mapping["encrypted"] = "off"
 		}
 
 		log.Printf("[DEBUG] alicloud_disks - adding disk mapping: %v", mapping)
