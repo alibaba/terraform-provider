@@ -1,4 +1,5 @@
-## 1.16.0 (Unreleased)
+## 1.17.0 (Unreleased)
+## 1.16.0 (September 17, 2018)
 
 FEATURES:
 
