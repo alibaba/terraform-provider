@@ -7,11 +7,13 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Allow setting the scaling group balancing policy ([#643](https://github.com/alibaba/terraform-provider/pull/643))
 - cs_kubernetes supports multi-az ([#682](https://github.com/alibaba/terraform-provider/pull/682))
 - Improve client token using timestemp ([#680](https://github.com/alibaba/terraform-provider/pull/680))
 
 BUG FIXES:
 
+- Fix alicloud db connection ([#676](https://github.com/alibaba/terraform-provider/pull/676))
 - Fix knstore productId ([#685](https://github.com/alibaba/terraform-provider/pull/685))
 - Fix retriving kvstore multi zones bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
 - Fix kvstore instance period bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
