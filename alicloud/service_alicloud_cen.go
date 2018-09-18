@@ -82,7 +82,7 @@ func (s *CenService) DescribeCenAttachedChildInstanceById(instanceId, cenId stri
 		raw, err := s.client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.DescribeCenAttachedChildInstances(request)
 		})
-		response, _ := raw.()
+		response, _ := raw.(*cbn.DescribeCenAttachedChildInstancesResponse)
 		if err != nil {
 			return c, err
 		}

@@ -6,9 +6,10 @@ import (
 
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 	"errors"
 	"strconv"
+
+	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"

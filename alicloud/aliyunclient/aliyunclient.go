@@ -493,7 +493,7 @@ func (client *AliyunClient) RunSafelyWithRkvClient(do func(*r_kvstore.Client) (i
 	if client.rkvconn == nil {
 		endpoint := loadEndpoint(client.config.RegionId, KVSTORECode)
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(KVSTORECode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, fmt.Sprintf("R-%s", string(KVSTORECode)), endpoint)
 		}
 		rkvconn, err := r_kvstore.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {

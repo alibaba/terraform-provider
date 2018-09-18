@@ -19,9 +19,7 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/denverdino/aliyungo/common"
-	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/google/uuid"
-	"github.com/hashicorp/terraform/helper/schema"
 )
 
 type InstanceNetWork string
