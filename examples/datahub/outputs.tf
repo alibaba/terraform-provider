@@ -1,31 +1,32 @@
-output "id" {
-  value = "${alicloud_datahub_topic.example.id}"
+output "ProjectName" {
+  value = "${alicloud_datahub_project.example.project_name}"
 }
 
-output "Name" {
+output "ProjectCreateTime" {
+  value = "${alicloud_datahub_project.example.create_time}"
+}
+
+output "TopicName" {
   value = "${alicloud_datahub_topic.example.topic_name}"
 }
 
-output "ProjectName" {
-  value = "${alicloud_datahub_topic.example.project_name}"
+output "TopicCreateTime" {
+  value = "${alicloud_datahub_topic.example.create_time}"
 }
 
 output "ShardCount" {
   value = "${alicloud_datahub_topic.example.shard_count}"
 }
 
-output "Lifecycle" {
-  value = "${alicloud_datahub_topic.example.life_cycle}"
+output "SubscriptionId" {
+  value = "${alicloud_datahub_subscription.example.sub_id}"
 }
 
-output "Comment" {
-  value = "${alicloud_datahub_topic.example.comment}"
+output "SubscriptionCreateTime" {
+  value = "${alicloud_datahub_subscription.example.create_time}"
 }
 
-output "CreateTime" {
-  value = "${alicloud_datahub_topic.example.create_time}"
+output "SubscriptionComment" {
+  value = "${alicloud_datahub_subscription.example.comment}"
 }
 
-output "LastModifyTime" {
-  value = "${alicloud_datahub_topic.example.last_modify_time}"
-}

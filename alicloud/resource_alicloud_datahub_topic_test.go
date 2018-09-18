@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	// DEBUG only
-	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
+	// // DEBUG only
+	// "github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -33,7 +33,7 @@ func TestAccAlicloudDatahubTopic_Basic(t *testing.T) {
 						"alicloud_datahub_topic.basic"),
 					resource.TestCheckResourceAttr(
 						"alicloud_datahub_topic.basic",
-						"topic_name", "tftestDatahubTopicBasic"),
+						"topic_name", "tf_test_datahub_topic_basic"),
 				),
 			},
 		},
@@ -55,6 +55,8 @@ func TestAccAlicloudDatahubTopic_Update(t *testing.T) {
 			resource.TestStep{
 				Config: testAccDatahubTopic,
 				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDatahubProjectExist(
+						"alicloud_datahub_project.basic"),
 					testAccCheckDatahubTopicExist(
 						"alicloud_datahub_topic.basic"),
 					resource.TestCheckResourceAttr(
@@ -93,14 +95,16 @@ func testAccCheckDatahubTopicExist(n string) resource.TestCheckFunc {
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 		projectName := split[0]
 		topicName := split[1]
-		// _, err := dh.GetTopic(topicName, projectName)
+		_, err := dh.GetTopic(projectName, topicName)
 
-		// XXX DEBUG only
-		topic, err := dh.GetTopic(topicName, projectName)
-		fmt.Printf("\nXXX:life_cycle:%d\n", topic.Lifecycle)
-		fmt.Printf("XXX:comment:%s\n", topic.Comment)
-		fmt.Printf("XXX:create_time:%s\n", utils.Uint64ToTimeString(topic.CreateTime))
-		fmt.Printf("XXX:last_modify_time:%s\n", utils.Uint64ToTimeString(topic.LastModifyTime))
+		// // XXX DEBUG only
+		// topic, err := dh.GetTopic(projectName, topicName)
+		// fmt.Printf("\nXXX:project_name:%s\n", topic.ProjectName)
+		// fmt.Printf("XXX:topic_name:%s\n", topic.TopicName)
+		// fmt.Printf("XXX:life_cycle:%d\n", topic.Lifecycle)
+		// fmt.Printf("XXX:comment:%s\n", topic.Comment)
+		// fmt.Printf("XXX:create_time:%s\n", utils.Uint64ToTimeString(topic.CreateTime))
+		// fmt.Printf("XXX:last_modify_time:%s\n", utils.Uint64ToTimeString(topic.LastModifyTime))
 
 		if err != nil {
 			return err
@@ -120,7 +124,7 @@ func testAccCheckDatahubTopicDestroy(s *terraform.State) error {
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 		projectName := split[0]
 		topicName := split[1]
-		_, err := dh.GetTopic(topicName, projectName)
+		_, err := dh.GetTopic(projectName, topicName)
 
 		if err != nil {
 			continue
@@ -137,20 +141,20 @@ provider "alicloud" {
     region = "cn-beijing"
 }
 variable "project_name" {
-  default = "tftestDatahubProject"
+  default = "tf_test_datahub_project"
 }
 variable "topic_name" {
-  default = "tftestDatahubTopicBasic"
+  default = "tf_test_datahub_topic_basic"
 }
 variable "record_type" {
   default = "BLOB"
 }
 resource "alicloud_datahub_project" "basic" {
-  name = "${var.project_name}"
-  comment = "project for basic"
+  project_name = "${var.project_name}"
+  comment = "project for basic."
 }
 resource "alicloud_datahub_topic" "basic" {
-  project_name = "${alicloud_datahub_project.basic.name}"
+  project_name = "${alicloud_datahub_project.basic.project_name}"
   topic_name = "${var.topic_name}"
   record_type = "${var.record_type}"
   shard_count = 3
@@ -163,20 +167,20 @@ provider "alicloud" {
     region = "cn-beijing"
 }
 variable "project_name" {
-  default = "tftestDatahubProject"
+  default = "tf_test_datahub_project"
 }
 variable "topic_name" {
-  default = "tftestDatahubTopicBasic"
+  default = "tf_test_datahub_topic_basic"
 }
 variable "record_type" {
   default = "BLOB"
 }
 resource "alicloud_datahub_project" "basic" {
-  name = "${var.project_name}"
-  comment = "project for basic"
+  project_name = "${var.project_name}"
+  comment = "project for basic."
 }
 resource "alicloud_datahub_topic" "basic" {
-  project_name = "${alicloud_datahub_project.basic.name}"
+  project_name = "${alicloud_datahub_project.basic.project_name}"
   topic_name = "${var.topic_name}"
   record_type = "${var.record_type}"
   shard_count = 3

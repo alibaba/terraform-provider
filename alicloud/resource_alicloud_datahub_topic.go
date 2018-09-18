@@ -29,12 +29,18 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateDatahubProjectName,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.ToLower(new) == strings.ToLower(old)
+				},
 			},
 			"topic_name": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateDatahubTopicName,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.ToLower(new) == strings.ToLower(old)
+				},
 			},
 			"shard_count": &schema.Schema{
 				Type:         schema.TypeInt,
@@ -73,11 +79,11 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 				ValidateFunc: validateJsonString,
 			},
 			"create_time": {
-				Type:     schema.TypeString, //uint64 value from sdk
+				Type:     schema.TypeString, //converted from UTC(uint64) value
 				Computed: true,
 			},
 			"last_modify_time": {
-				Type:     schema.TypeString, //uint64 value from sdk
+				Type:     schema.TypeString, //converted from UTC(uint64) value
 				Computed: true,
 			},
 		},
@@ -145,12 +151,9 @@ func resourceAliyunDatahubTopicRead(d *schema.ResourceData, meta interface{}) er
 
 	dh := meta.(*AliyunClient).dhconn
 
-	topic, err := dh.GetTopic(topicName, projectName)
+	topic, err := dh.GetTopic(projectName, topicName)
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return nil
-		}
+		d.SetId("")
 		return fmt.Errorf("failed to access topic '%s/%s' with error: %s", projectName, topicName, err)
 	}
 
@@ -178,7 +181,7 @@ func resourceAliyunDatahubTopicUpdate(d *schema.ResourceData, meta interface{}) 
 		lifeCycle := d.Get("life_cycle").(int)
 		topicComment := d.Get("comment").(string)
 
-		err = dh.UpdateTopic(topicName, projectName, lifeCycle, topicComment)
+		err = dh.UpdateTopic(projectName, topicName, lifeCycle, topicComment)
 		if err != nil {
 			return fmt.Errorf("failed to update topic '%s/%s' with error: %s", projectName, topicName, err)
 		}
@@ -196,24 +199,22 @@ func resourceAliyunDatahubTopicDelete(d *schema.ResourceData, meta interface{}) 
 	dh := meta.(*AliyunClient).dhconn
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		_, err := dh.GetTopic(topicName, projectName)
+		_, err := dh.GetTopic(projectName, topicName)
 
 		if err != nil {
-			if NotFoundError(err) {
-				d.SetId("")
-				return nil
-			}
+			d.SetId("")
 			return resource.RetryableError(fmt.Errorf("while deleting '%s/%s', failed to access it with error: %s", projectName, topicName, err))
 		}
 
-		err = dh.DeleteTopic(topicName, projectName)
+		err = dh.DeleteTopic(projectName, topicName)
 		if err == nil || NotFoundError(err) {
 			return nil
 		}
+
 		if IsExceptedErrors(err, []string{"AuthFailed", "InvalidStatus", "ValidationFailed"}) {
 			return resource.RetryableError(fmt.Errorf("Deleting topic '%s/%s' timeout and got an error: %#v.", projectName, topicName, err))
 		}
 
-		return resource.RetryableError(fmt.Errorf("Deleting project '%s/%s' timeout.", projectName, topicName))
+		return resource.RetryableError(fmt.Errorf("Deleting topic '%s/%s' timeout.", projectName, topicName))
 	})
 }

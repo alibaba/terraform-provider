@@ -2,9 +2,11 @@ package alicloud
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/types"
 	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -23,16 +25,22 @@ func resourceAlicloudDatahubSubscription() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"project_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				//				ForceNew:     true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validateDatahubProjectName,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.ToLower(new) == strings.ToLower(old)
+				},
 			},
 			"topic_name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				//				ForceNew:     true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validateDatahubTopicName,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.ToLower(new) == strings.ToLower(old)
+				},
 			},
 			"comment": &schema.Schema{
 				Type:         schema.TypeString,
@@ -40,7 +48,7 @@ func resourceAlicloudDatahubSubscription() *schema.Resource {
 				Default:      "subscription added by terraform",
 				ValidateFunc: validateStringLengthInRange(0, 255),
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return !d.IsNewResource()
+					return strings.ToLower(new) == strings.ToLower(old)
 				},
 			},
 			"sub_id": &schema.Schema{
@@ -56,8 +64,12 @@ func resourceAlicloudDatahubSubscription() *schema.Resource {
 				Computed: true,
 			},
 			"state": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ValidateFunc: validateIntegerInRange(0, 3),
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return new == strconv.Itoa(types.SUB_CLEANED.Value())
+				},
 			},
 			"is_owner": {
 				Type:     schema.TypeBool,
@@ -76,10 +88,7 @@ func resourceAliyunDatahubSubscriptionCreate(d *schema.ResourceData, meta interf
 
 	subId, err := dh.CreateSubscription(projectName, topicName, subComment)
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return nil
-		}
+		d.SetId("")
 		return fmt.Errorf("failed to create subscription to '%s/%s' with error: %s", projectName, topicName, err)
 	}
 
@@ -110,10 +119,7 @@ func resourceAliyunDatahubSubscriptionRead(d *schema.ResourceData, meta interfac
 
 	sub, err := dh.GetSubscription(projectName, topicName, subId)
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return nil
-		}
+		d.SetId("")
 		return fmt.Errorf("failed to get subscription %s with error: %s", subId, err)
 	}
 
@@ -124,7 +130,7 @@ func resourceAliyunDatahubSubscriptionRead(d *schema.ResourceData, meta interfac
 	d.Set("create_time", utils.Uint64ToTimeString(sub.CreateTime))
 	d.Set("last_modify_time", utils.Uint64ToTimeString(sub.LastModifyTime))
 	d.Set("is_owner", sub.IsOwner)
-	d.Set("state", sub.State)
+	d.Set("state", sub.State.Value())
 	return nil
 }
 
@@ -136,12 +142,21 @@ func resourceAliyunDatahubSubscriptionUpdate(d *schema.ResourceData, meta interf
 
 	dh := meta.(*AliyunClient).dhconn
 
+	if d.HasChange("state") && !d.IsNewResource() {
+		subState := d.Get("state").(types.SubscriptionState)
+
+		err := dh.UpdateSubscriptionState(projectName, topicName, subId, subState)
+		if err != nil {
+			return fmt.Errorf("failed to update subscription %s's state  with error: %s", subId, err)
+		}
+	}
+
 	if d.HasChange("comment") && !d.IsNewResource() {
 		subComment := d.Get("comment").(string)
 
 		err := dh.UpdateSubscription(projectName, topicName, subId, subComment)
 		if err != nil {
-			return fmt.Errorf("failed to update subscription '%s' with error: %s", subId, err)
+			return fmt.Errorf("failed to update subscription %s's comment with error: %s", subId, err)
 		}
 	}
 
@@ -159,10 +174,7 @@ func resourceAliyunDatahubSubscriptionDelete(d *schema.ResourceData, meta interf
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
 		_, err := dh.GetSubscription(projectName, topicName, subId)
 		if err != nil {
-			if NotFoundError(err) {
-				d.SetId("")
-				return nil
-			}
+			d.SetId("")
 			return resource.RetryableError(fmt.Errorf("while deleting subscription '%s', failed to get it with error: %s", subId, err))
 		}
 

@@ -22,11 +22,14 @@ func resourceAlicloudDatahubProject() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"project_name": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateDatahubProjectName,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return strings.ToLower(new) == strings.ToLower(old)
+				},
 			},
 			"comment": &schema.Schema{
 				Type:         schema.TypeString,
@@ -52,7 +55,7 @@ func resourceAlicloudDatahubProject() *schema.Resource {
 func resourceAliyunDatahubProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	dh := meta.(*AliyunClient).dhconn
 
-	projectName := d.Get("name").(string)
+	projectName := d.Get("project_name").(string)
 	projectComment := d.Get("comment").(string)
 
 	err := dh.CreateProject(projectName, projectComment)
@@ -75,7 +78,7 @@ func resourceAliyunDatahubProjectRead(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("failed to create project '%s' with error: %s", projectName, err)
 	}
 
-	d.Set("name", projectName)
+	d.Set("project_name", projectName)
 	d.Set("comment", project.Comment)
 	d.Set("create_time", utils.Uint64ToTimeString(project.CreateTime))
 	d.Set("last_modify_time", utils.Uint64ToTimeString(project.LastModifyTime))
@@ -112,6 +115,7 @@ func resourceAliyunDatahubProjectDelete(d *schema.ResourceData, meta interface{}
 		if err == nil || NotFoundError(err) {
 			return nil
 		}
+
 		if IsExceptedErrors(err, []string{"AuthFailed", "InvalidStatus", "ValidationFailed"}) {
 			return resource.RetryableError(fmt.Errorf("Deleting project '%s' timeout and got an error: %#v.", projectName, err))
 		}

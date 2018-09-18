@@ -2,8 +2,8 @@ variable "region" {
   default = "cn-beijing"
 }
 variable "project_name" {
-  default = "tftestDatahubProjectExample"
+  default = "tf_test_datahub_project_example"
 }
 variable "topic_name" {
-  default = "tftestDatahubTopicExample"
+  default = "tf_test_datahub_topic_example"
 }

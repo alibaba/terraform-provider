@@ -30,7 +30,7 @@ func TestAccAlicloudDatahubProject_Basic(t *testing.T) {
 						"alicloud_datahub_project.basic"),
 					resource.TestCheckResourceAttr(
 						"alicloud_datahub_project.basic",
-						"name", "tftestDatahubProject"),
+						"project_name", "tf_test_datahub_project"),
 				),
 			},
 		},
@@ -55,7 +55,7 @@ func TestAccAlicloudDatahubProject_Update(t *testing.T) {
 						"alicloud_datahub_project.basic"),
 					resource.TestCheckResourceAttr(
 						"alicloud_datahub_project.basic",
-						"comment", "project for basic"),
+						"comment", "project for basic."),
 				),
 			},
 
@@ -66,7 +66,7 @@ func TestAccAlicloudDatahubProject_Update(t *testing.T) {
 						"alicloud_datahub_project.basic"),
 					resource.TestCheckResourceAttr(
 						"alicloud_datahub_project.basic",
-						"comment", "project for update"),
+						"comment", "project for update."),
 				),
 			},
 		},
@@ -124,12 +124,12 @@ const testAccDatahubProject = `
 provider "alicloud" {
     region = "cn-beijing"
 }
-variable "name" {
-  default = "tftestDatahubProject"
+variable "project_name" {
+  default = "tf_test_datahub_project"
 }
 resource "alicloud_datahub_project" "basic" {
-  name = "${var.name}"
-  comment = "project for basic"
+  project_name = "${var.project_name}"
+  comment = "project for basic."
 }
 `
 
@@ -137,11 +137,11 @@ const testAccDatahubProjectUpdate = `
 provider "alicloud" {
     region = "cn-beijing"
 }
-variable "name" {
-  default = "tftestDatahubProject"
+variable "project_name" {
+  default = "tf_test_datahub_project"
 }
 resource "alicloud_datahub_project" "basic" {
-  name = "${var.name}"
-  comment = "project for update"
+  project_name = "${var.project_name}"
+  comment = "project for update."
 }
 `
