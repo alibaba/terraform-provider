@@ -17,11 +17,11 @@ import (
 
 	"time"
 
-	"math/rand"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/google/uuid"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 type InstanceNetWork string
@@ -207,6 +207,14 @@ func flattenStringList(list []string) []interface{} {
 	return vs
 }
 
+func expandIntList(configured []interface{}) []int {
+	vs := make([]int, 0, len(configured))
+	for _, v := range configured {
+		vs = append(vs, v.(int))
+	}
+	return vs
+}
+
 // Convert the result for an array and returns a Json string
 func convertListToJsonString(configured []interface{}) string {
 	if len(configured) < 1 {
@@ -271,8 +279,6 @@ func userDataHashSum(user_data string) string {
 	}
 	return string(v)
 }
-
-const DBConnectionSuffix = ".mysql.rds.aliyuncs.com"
 
 // Remove useless blank in the string.
 func Trim(v string) string {
@@ -382,7 +388,7 @@ func (a *Invoker) Run(f func() error) error {
 }
 
 func buildClientToken(prefix string) string {
-	token := resource.PrefixedUniqueId(fmt.Sprintf("%s-%d-", prefix, rand.Int()))
+	token := strings.Replace(fmt.Sprintf("%s-%d-%s", prefix, time.Now().Unix(), uuid.New().String()), " ", "", -1)
 	if len(token) > 64 {
 		token = token[0:64]
 	}

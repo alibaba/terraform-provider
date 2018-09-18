@@ -7,10 +7,17 @@ import (
 
 	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
 
+	"regexp"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 )
+
+const dbConnectionSuffixRegex = "\\.mysql\\.([a-zA-Z0-9\\-]+\\.){0,1}rds\\.aliyuncs\\.com"
+const dbConnectionIdWithSuffixRegex = "^([a-zA-Z0-9\\-_]+:[a-zA-Z0-9\\-_]+)" + dbConnectionSuffixRegex + "$"
+
+var dbConnectionIdWithSuffixRegexp = regexp.MustCompile(dbConnectionIdWithSuffixRegex)
 
 func resourceAlicloudDBConnection() *schema.Resource {
 	return &schema.Resource{
@@ -72,8 +79,9 @@ func resourceAlicloudDBConnectionCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAlicloudDBConnectionRead(d *schema.ResourceData, meta interface{}) error {
-	if strings.HasSuffix(d.Id(), DBConnectionSuffix) {
-		d.SetId(strings.Replace(d.Id(), DBConnectionSuffix, "", -1))
+	submatch := dbConnectionIdWithSuffixRegexp.FindStringSubmatch(d.Id())
+	if len(submatch) > 1 {
+		d.SetId(submatch[1])
 	}
 
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
@@ -104,8 +112,9 @@ func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}
 	rdsService := RdsService{client}
 	d.Partial(true)
 
-	if strings.HasSuffix(d.Id(), DBConnectionSuffix) {
-		d.SetId(strings.Replace(d.Id(), DBConnectionSuffix, "", -1))
+	submatch := dbConnectionIdWithSuffixRegexp.FindStringSubmatch(d.Id())
+	if len(submatch) > 1 {
+		d.SetId(submatch[1])
 	}
 
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
@@ -113,7 +122,11 @@ func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}
 	if d.HasChange("port") && !d.IsNewResource() {
 		request := rds.CreateModifyDBInstanceConnectionStringRequest()
 		request.DBInstanceId = parts[0]
-		request.CurrentConnectionString = fmt.Sprintf("%s%s", parts[1], DBConnectionSuffix)
+		connectionString, err := getCurrentConnectionString(parts[0], meta)
+		if err != nil {
+			return fmt.Errorf("getCurrentConnectionString got error: %#v", err)
+		}
+		request.CurrentConnectionString = connectionString
 		request.ConnectionStringPrefix = parts[1]
 		request.Port = d.Get("port").(string)
 
@@ -153,14 +166,20 @@ func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}
 func resourceAlicloudDBConnectionDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*aliyunclient.AliyunClient)
 	rdsService := RdsService{client}
-	if strings.HasSuffix(d.Id(), DBConnectionSuffix) {
-		d.SetId(strings.Replace(d.Id(), DBConnectionSuffix, "", -1))
+
+	submatch := dbConnectionIdWithSuffixRegexp.FindStringSubmatch(d.Id())
+	if len(submatch) > 1 {
+		d.SetId(submatch[1])
 	}
 
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		err := rdsService.ReleaseDBPublicConnection(parts[0], fmt.Sprintf("%s%s", parts[1], DBConnectionSuffix))
+		connectionString, err := getCurrentConnectionString(parts[0], meta)
+		if err != nil {
+			return resource.NonRetryableError(fmt.Errorf("getCurrentConnectionString got error: %#v", err))
+		}
+		err = rdsService.ReleaseDBPublicConnection(parts[0], connectionString)
 
 		if err != nil {
 			if IsExceptedError(err, InvalidCurrentConnectionStringNotFound) || IsExceptedError(err, AtLeastOneNetTypeExists) {
@@ -184,4 +203,15 @@ func resourceAlicloudDBConnectionDelete(d *schema.ResourceData, meta interface{}
 
 		return resource.RetryableError(fmt.Errorf("Release DB connection timeout."))
 	})
+}
+
+func getCurrentConnectionString(dbInstanceId string, meta interface{}) (string, error) {
+	client := meta.(*aliyunclient.AliyunClient)
+	rdsService := RdsService{client}
+
+	resp, err := rdsService.DescribeDBInstanceNetInfoByIpType(dbInstanceId, Public)
+	if err != nil {
+		return "", err
+	}
+	return resp.ConnectionString, nil
 }

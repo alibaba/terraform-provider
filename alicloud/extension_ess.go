@@ -72,3 +72,10 @@ const (
 	AutoCreated = InstanceCreationType("AutoCreated")
 	Attached    = InstanceCreationType("Attached")
 )
+
+type MultiAzPolicy string
+
+const (
+	Priority = MultiAzPolicy("PRIORITY")
+	Balance  = MultiAzPolicy("BALANCE")
+)

@@ -1,4 +1,25 @@
-## 1.14.1 (Unreleased)
+## 1.17.0 (Unreleased)
+## 1.16.0 (September 17, 2018)
+
+FEATURES:
+
+- **New Resource:** `alicloud_cen_instance_attachment` ([#681](https://github.com/alibaba/terraform-provider/pull/681))
+
+IMPROVEMENTS:
+
+- Allow setting the scaling group balancing policy ([#643](https://github.com/alibaba/terraform-provider/pull/643))
+- cs_kubernetes supports multi-az ([#682](https://github.com/alibaba/terraform-provider/pull/682))
+- Improve client token using timestemp ([#680](https://github.com/alibaba/terraform-provider/pull/680))
+
+BUG FIXES:
+
+- Fix alicloud db connection ([#676](https://github.com/alibaba/terraform-provider/pull/676))
+- Fix knstore productId ([#685](https://github.com/alibaba/terraform-provider/pull/685))
+- Fix retriving kvstore multi zones bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
+- Fix kvstore instance period bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
+- Fix kvstore docs bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
+
+## 1.15.0 (September 08, 2018)
 
 FEATURES:
 
