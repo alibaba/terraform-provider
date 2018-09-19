@@ -55,6 +55,19 @@ func validateDiskCategory(v interface{}, k string) (ws []string, errors []error)
 	return
 }
 
+func validateDiskType(v interface{}, k string) (ws []string, errors []error) {
+	diskType := DiskType(v.(string))
+	if _, ok := SupportedDiskType[diskType]; !ok {
+		var valid []string
+		for key := range SupportedDiskType {
+			valid = append(valid, string(key))
+		}
+		errors = append(errors, fmt.Errorf("%s must be one of %s", k, strings.Join(valid, ", ")))
+	}
+
+	return
+}
+
 func validateInstanceName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) < 2 || len(value) > 128 {
