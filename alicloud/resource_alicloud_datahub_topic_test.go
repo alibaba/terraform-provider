@@ -40,6 +40,34 @@ func TestAccAlicloudDatahubTopic_Basic(t *testing.T) {
 	})
 }
 
+func TestAccAlicloudDatahubTopic_Tuple(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: "alicloud_datahub_topic.basic",
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckDatahubTopicDestroy,
+
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccDatahubTopicTuple,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDatahubProjectExist(
+						"alicloud_datahub_project.basic"),
+					testAccCheckDatahubTopicExist(
+						"alicloud_datahub_topic.basic"),
+					resource.TestCheckResourceAttr(
+						"alicloud_datahub_topic.basic",
+						"topic_name", "tf_test_datahub_topic_tuple"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccAlicloudDatahubTopic_Update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -162,6 +190,7 @@ resource "alicloud_datahub_topic" "basic" {
   comment = "topic for basic."
 }
 `
+
 const testAccDatahubTopicUpdate = `
 provider "alicloud" {
     region = "cn-beijing"
@@ -186,5 +215,33 @@ resource "alicloud_datahub_topic" "basic" {
   shard_count = 3
   life_cycle = 1
   comment = "topic for update."
+}
+`
+
+const testAccDatahubTopicTuple = `
+provider "alicloud" {
+    region = "cn-beijing"
+}
+variable "project_name" {
+  default = "tf_test_datahub_project"
+}
+resource "alicloud_datahub_project" "basic" {
+  project_name = "${var.project_name}"
+  comment = "project for basic."
+}
+resource "alicloud_datahub_topic" "basic" {
+  project_name = "${alicloud_datahub_project.basic.project_name}"
+  topic_name = "tf_test_datahub_topic_tuple"
+  record_type = "TUPLE"
+  record_schema = {
+    bigint_field = "BIGINT"
+    timestamp_field = "TIMESTAMP"
+    string_field = "STRING"
+    double_field = "DOUBLE"
+    boolean_field = "BOOLEAN"
+  }
+  shard_count = 3
+  life_cycle = 7
+  comment = "a tuple topic."
 }
 `

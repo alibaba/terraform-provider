@@ -69,14 +69,12 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 				ValidateFunc: validateAllowedStringValue([]string{string(types.TUPLE), string(types.BLOB)}),
 			},
 			"record_schema": &schema.Schema{
-				Type:     schema.TypeString,
+				Type:     schema.TypeMap,
+				Elem:     schema.TypeString,
 				Optional: true,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return !d.IsNewResource()
-					// equal, _ := CompareJsonTemplateAreEquivalent(old, new)
-					// return equal
+					return d.Get("record_type") != string(types.TUPLE)
 				},
-				ValidateFunc: validateJsonString,
 			},
 			"create_time": {
 				Type:     schema.TypeString, //converted from UTC(uint64) value
@@ -99,7 +97,7 @@ func resourceAliyunDatahubTopicCreate(d *schema.ResourceData, meta interface{}) 
 	lifeCycle := d.Get("life_cycle").(int)
 	topicComment := d.Get("comment").(string)
 	recordType := d.Get("record_type").(string)
-	recordSchema := d.Get("record_schema").(string)
+	recordSchema := d.Get("record_schema").(map[string]interface{})
 
 	t := &models.Topic{
 		ProjectName: projectName,
@@ -108,13 +106,10 @@ func resourceAliyunDatahubTopicCreate(d *schema.ResourceData, meta interface{}) 
 		Lifecycle:   lifeCycle,
 		Comment:     topicComment,
 	}
+
 	if recordType == "TUPLE" {
 		t.RecordType = types.TUPLE
-		schema, err := models.NewRecordSchemaFromJson(recordSchema)
-		if err != nil {
-			return fmt.Errorf("failed to create topic'%s/%s' with invalid record schema: %s", projectName, topicName, recordSchema)
-		}
-		t.RecordSchema = schema
+		t.RecordSchema = getRecordSchema(recordSchema)
 	} else if recordType == "BLOB" {
 		t.RecordType = types.BLOB
 	} else {
