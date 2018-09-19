@@ -1,4 +1,9 @@
 ## 1.17.0 (Unreleased)
+
+IMPROVEMENTS:
+
+- Improve example/kubernetes to support multi-az  ([#689](https://github.com/alibaba/terraform-provider/pull/689))
+
 ## 1.16.0 (September 17, 2018)
 
 FEATURES:
