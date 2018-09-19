@@ -28,14 +28,16 @@ func dataSourceAlicloudDisks() *schema.Resource {
 				ForceNew:     true,
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateDiskType,
 			},
 			"category": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateDiskCategory,
 			},
 			"encrypted": {
 				Type:     schema.TypeString,
