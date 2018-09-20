@@ -44,6 +44,11 @@ func dataSourceAlicloudDisks() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"tags": tagsSchema(),
 			"output_file": {
 				Type:     schema.TypeString,
@@ -152,6 +157,9 @@ func dataSourceAlicloudDisksRead(d *schema.ResourceData, meta interface{}) error
 		} else if v == "off" {
 			args.Encrypted = requests.NewBoolean(false)
 		}
+	}
+	if v, ok := d.GetOk("instance_id"); ok && v.(string) != "" {
+		args.InstanceId = v.(string)
 	}
 	if v, ok := d.GetOk("tags"); ok {
 		var tags []ecs.DescribeDisksTag

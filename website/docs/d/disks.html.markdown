@@ -31,6 +31,7 @@ The following arguments are supported:
 * `type` - (Optional) Disk type. Possible values: `system` and `data`.
 * `category` - (Optional) Disk category. Possible values: `cloud` (basic cloud disk), `cloud_efficiency` (ultra cloud disk), `cloud_ssd` (SSD cloud disk), `ephemeral_ssd` (ephemeral SSD) and `ephemeral` (ephemeral disk).
 * `encrypted` - (Optional) Indicate whether the disk is encrypted or not. Possible values: `on` and `off`.
+* `instance_id` - (Optional) Filter the results by the specified ECS instance ID.
 * `tags` - (Optional) A map of tags assigned to the disks. It must be in the format:
   ```
   data "alicloud_disks" "disks_ds" {
