@@ -1,11 +1,18 @@
 ## 1.17.0 (Unreleased)
 
-IMPROVEMENTS:
+FEATURES:
 
-IMPROVEMENTS:
-
+- **New Data Source:** `alicloud_fc_triggers` ([#695](https://github.com/alibaba/terraform-provider/pull/695))
+- **New Data Source:** `alicloud_oss_bucket_objects` ([#692](https://github.com/alibaba/terraform-provider/pull/692))
+- **New Data Source:** `alicloud_fc_functions` ([#694](https://github.com/alibaba/terraform-provider/pull/694))
+- **New Data Source:** `alicloud_fc_services` ([#693](https://github.com/alibaba/terraform-provider/pull/693))
+- **New Data Source:** `alicloud_oss_buckets` ([#690](https://github.com/alibaba/terraform-provider/pull/690))
 - **New Data Source:** `alicloud_disks` ([#686](https://github.com/alibaba/terraform-provider/pull/686))
 - **New Resource:** `alicloud_cen_bandwidth_package` ([#691](https://github.com/alibaba/terraform-provider/pull/691))
+
+IMPROVEMENTS:
+
+- Update OSS Resources' link to English ([#696](https://github.com/alibaba/terraform-provider/pull/696))
 - Improve example/kubernetes to support multi-az  ([#689](https://github.com/alibaba/terraform-provider/pull/689))
 
 ## 1.16.0 (September 17, 2018)
