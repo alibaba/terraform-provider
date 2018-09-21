@@ -34,7 +34,7 @@ func dataSourceAlicloudOssBucketObjects() *schema.Resource {
 			},
 
 			// Computed values
-			"bucket_objects": {
+			"objects": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -204,7 +204,7 @@ func bucketObjectsDescriptionAttributes(d *schema.ResourceData, bucket *oss.Buck
 	}
 
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("bucket_objects", s); err != nil {
+	if err := d.Set("objects", s); err != nil {
 		return err
 	}
 	// create a json file in current directory and write data source to it.

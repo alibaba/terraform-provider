@@ -36,7 +36,7 @@ The following arguments are supported:
 
 The following attributes are exported in addition to the arguments listed above:
 
-* `bucket_objects` - A list of bucket objects. Each element contains the following attributes:
+* `objects` - A list of bucket objects. Each element contains the following attributes:
   * `key` - Object key.
   * `acl` - Object access control list. Possible values: `default`, `private`, `public-read` and `public-read-write`.
   * `content_type` - Standard MIME type describing the format of the object data, e.g. "application/octet-stream".
