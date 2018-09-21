@@ -19,11 +19,6 @@ func dataSourceAlicloudOssBuckets() *schema.Resource {
 				ValidateFunc: validateNameRegex,
 				ForceNew:     true,
 			},
-			"acl": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validateOssBucketAcl,
-			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -63,10 +58,6 @@ func dataSourceAlicloudOssBuckets() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"logging_enabled": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"creation_date": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -78,20 +69,24 @@ func dataSourceAlicloudOssBuckets() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allowed_headers": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeList,
 										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"allowed_methods": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeList,
 										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"allowed_origins": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeList,
 										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"expose_headers": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeList,
 										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"max_age_seconds": {
 										Type:     schema.TypeInt,
@@ -102,18 +97,59 @@ func dataSourceAlicloudOssBuckets() *schema.Resource {
 						},
 
 						"website": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeList,
 							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"index_document": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+
+									"error_document": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+							MaxItems: 1,
 						},
 
 						"logging": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeList,
 							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"target_bucket": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"target_prefix": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+							MaxItems: 1,
 						},
 
 						"referer_config": {
-							Type:     schema.TypeMap,
+							Type:     schema.TypeList,
 							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"allow_empty": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"referers": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+							MaxItems: 1,
 						},
 
 						"lifecycle_rule": {
@@ -134,8 +170,21 @@ func dataSourceAlicloudOssBuckets() *schema.Resource {
 										Computed: true,
 									},
 									"expiration": {
-										Type:     schema.TypeMap,
+										Type:     schema.TypeList,
 										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"date": {
+													Type:     schema.TypeString,
+													Optional: true,
+												},
+												"days": {
+													Type:     schema.TypeInt,
+													Optional: true,
+												},
+											},
+										},
+										MaxItems: 1,
 									},
 								},
 							},
@@ -150,17 +199,10 @@ func dataSourceAlicloudOssBuckets() *schema.Resource {
 func dataSourceAlicloudOssBucketsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*AliyunClient)
 
-	var initialOptions []oss.Option
-	if v, ok := d.GetOk("acl"); ok && v.(string) != "" {
-		acl := oss.ACLType(v.(string))
-		initialOptions = append(initialOptions, oss.ACL(acl))
-	}
-
 	var allBuckets []oss.BucketProperties
 	nextMarker := ""
 	for {
 		var options []oss.Option
-		options = append(options, initialOptions...)
 		if nextMarker != "" {
 			options = append(options, oss.Marker(nextMarker))
 		}
@@ -218,12 +260,12 @@ func bucketsDescriptionAttributes(d *schema.ResourceData, buckets []oss.BucketPr
 			"name":          bucket.Name,
 			"location":      bucket.Location,
 			"storage_class": bucket.StorageClass,
-			"creation_date": bucket.CreationDate.Format("2016-01-01"),
+			"creation_date": bucket.CreationDate.Format("2006-01-02"),
 		}
 
 		// Add additional information
 		resp, err := client.ossconn.GetBucketInfo(bucket.Name)
-		if err != nil {
+		if err == nil {
 			mapping["acl"] = resp.BucketInfo.ACL
 			mapping["extranet_endpoint"] = resp.BucketInfo.ExtranetEndpoint
 			mapping["intranet_endpoint"] = resp.BucketInfo.IntranetEndpoint
@@ -233,11 +275,11 @@ func bucketsDescriptionAttributes(d *schema.ResourceData, buckets []oss.BucketPr
 		}
 
 		// Add CORS rule information
+		var ruleMappings []map[string]interface{}
 		cors, err := client.ossconn.GetBucketCORS(bucket.Name)
 		if err != nil && !IsExceptedErrors(err, []string{NoSuchCORSConfiguration}) {
 			log.Printf("[WARN] Unable to get CORS information for the bucket %s: %v", bucket.Name, err)
 		} else if err == nil && cors.CORSRules != nil {
-			rules := make([]map[string]interface{}, 0, len(cors.CORSRules))
 			for _, rule := range cors.CORSRules {
 				ruleMapping := make(map[string]interface{})
 				ruleMapping["allowed_headers"] = rule.AllowedHeader
@@ -245,12 +287,13 @@ func bucketsDescriptionAttributes(d *schema.ResourceData, buckets []oss.BucketPr
 				ruleMapping["allowed_origins"] = rule.AllowedOrigin
 				ruleMapping["expose_headers"] = rule.ExposeHeader
 				ruleMapping["max_age_seconds"] = rule.MaxAgeSeconds
-				rules = append(rules, ruleMapping)
+				ruleMappings = append(ruleMappings, ruleMapping)
 			}
-			mapping["cors_rules"] = rules
 		}
+		mapping["cors_rules"] = ruleMappings
 
 		// Add website configuration
+		var websiteMappings []map[string]interface{}
 		ws, err := client.ossconn.GetBucketWebsite(bucket.Name)
 		if err != nil && !IsExceptedErrors(err, []string{NoSuchWebsiteConfiguration}) {
 			log.Printf("[WARN] Unable to get website information for the bucket %s: %v", bucket.Name, err)
@@ -262,41 +305,44 @@ func bucketsDescriptionAttributes(d *schema.ResourceData, buckets []oss.BucketPr
 			if v := &ws.ErrorDocument; v != nil {
 				websiteMapping["error_document"] = v.Key
 			}
-			mapping["website"] = websiteMapping
+			websiteMappings = append(websiteMappings, websiteMapping)
 		}
+		mapping["website"] = websiteMappings
 
 		// Add logging information
-		logEnabled := false
+		var loggingMappings []map[string]interface{}
 		logging, err := client.ossconn.GetBucketLogging(bucket.Name)
 		if err != nil {
 			log.Printf("[WARN] Unable to get logging information for the bucket %s: %v", bucket.Name, err)
 		} else if logging.LoggingEnabled.TargetBucket != "" || logging.LoggingEnabled.TargetPrefix != "" {
-			logEnabled = true
-			mapping["logging"] = map[string]interface{}{
+			loggingMapping := map[string]interface{}{
 				"target_bucket": logging.LoggingEnabled.TargetBucket,
 				"target_prefix": logging.LoggingEnabled.TargetPrefix,
 			}
+			loggingMappings = append(loggingMappings, loggingMapping)
 		}
-		mapping["logging_enabled"] = logEnabled
+		mapping["logging"] = loggingMappings
 
 		// Add referer information
+		var refererMappings []map[string]interface{}
 		referer, err := client.ossconn.GetBucketReferer(bucket.Name)
 		if err != nil {
 			log.Printf("[WARN] Unable to get referer information for the bucket %s: %v", bucket.Name, err)
 		} else {
-			mapping["referer_config"] = map[string]interface{}{
+			refererMapping := map[string]interface{}{
 				"allow_empty": referer.AllowEmptyReferer,
 				"referers":    referer.RefererList,
 			}
+			refererMappings = append(refererMappings, refererMapping)
 		}
+		mapping["referer_config"] = refererMappings
 
 		// Add lifecycle information
+		var lifecycleRuleMappings []map[string]interface{}
 		lifecycle, err := client.ossconn.GetBucketLifecycle(bucket.Name)
 		if err != nil {
 			log.Printf("[WARN] Unable to get lifecycle information for the bucket %s: %v", bucket.Name, err)
 		} else if len(lifecycle.Rules) > 0 {
-			ruleMappings := make([]map[string]interface{}, 0, len(lifecycle.Rules))
-
 			for _, lifecycleRule := range lifecycle.Rules {
 				ruleMapping := make(map[string]interface{})
 				ruleMapping["id"] = lifecycleRule.ID
@@ -315,11 +361,11 @@ func bucketsDescriptionAttributes(d *schema.ResourceData, buckets []oss.BucketPr
 				if &lifecycleRule.Expiration.Days != nil {
 					expirationMapping["days"] = int(lifecycleRule.Expiration.Days)
 				}
-				ruleMapping["expiration"] = expirationMapping
-				ruleMappings = append(ruleMappings, ruleMapping)
+				ruleMapping["expiration"] = []map[string]interface{}{expirationMapping}
+				lifecycleRuleMappings = append(lifecycleRuleMappings, ruleMapping)
 			}
-			mapping["lifecycle_rule"] = ruleMappings
 		}
+		mapping["lifecycle_rule"] = lifecycleRuleMappings
 
 		log.Printf("[DEBUG] alicloud_oss_buckets - adding bucket mapping: %v", mapping)
 		ids = append(ids, bucket.Name)
@@ -327,7 +373,7 @@ func bucketsDescriptionAttributes(d *schema.ResourceData, buckets []oss.BucketPr
 	}
 
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("instances", s); err != nil {
+	if err := d.Set("buckets", s); err != nil {
 		return err
 	}
 
