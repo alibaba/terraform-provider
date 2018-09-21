@@ -1,10 +1,11 @@
 package alicloud
 
 import (
-	"github.com/hashicorp/terraform/helper/resource"
-	"testing"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
 )
 
 func TestAccAlicloudOssBucketsDataSource_basic(t *testing.T) {

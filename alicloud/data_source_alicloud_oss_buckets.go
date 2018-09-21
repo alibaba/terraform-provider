@@ -1,11 +1,12 @@
 package alicloud
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"regexp"
 	"fmt"
 	"log"
+	"regexp"
+
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func dataSourceAlicloudOssBuckets() *schema.Resource {
