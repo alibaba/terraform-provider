@@ -51,7 +51,7 @@ func dataSourceAlicloudFcTriggers() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"trigger_type": {
+						"type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -59,7 +59,7 @@ func dataSourceAlicloudFcTriggers() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"raw_trigger_config": {
+						"config": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -112,9 +112,9 @@ func dataSourceAlicloudFcTriggersRead(d *schema.ResourceData, meta interface{}) 
 				"id":                     *trigger.TriggerID,
 				"name":                   *trigger.TriggerName,
 				"source_arn":             *trigger.SourceARN,
-				"trigger_type":           *trigger.TriggerType,
+				"type":                   *trigger.TriggerType,
 				"invocation_role":        *trigger.InvocationRole,
-				"raw_trigger_config":     string(trigger.RawTriggerConfig),
+				"config":                 string(trigger.RawTriggerConfig),
 				"creation_time":          *trigger.CreatedTime,
 				"last_modification_time": *trigger.LastModifiedTime,
 			}
