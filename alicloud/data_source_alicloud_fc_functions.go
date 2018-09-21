@@ -19,7 +19,7 @@ func dataSourceAlicloudFcFunctions() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"function_name_regex": {
+			"name_regex": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateNameRegex,
@@ -145,7 +145,7 @@ func dataSourceAlicloudFcFunctionsRead(d *schema.ResourceData, meta interface{})
 	}
 
 	var filteredFunctionMappings []map[string]interface{}
-	nameRegex, ok := d.GetOk("function_name_regex")
+	nameRegex, ok := d.GetOk("name_regex")
 	if ok && nameRegex.(string) != "" {
 		var r *regexp.Regexp
 		if nameRegex != "" {

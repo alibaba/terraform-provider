@@ -75,7 +75,7 @@ resource "alicloud_fc_function" "sample_function" {
 
 data "alicloud_fc_functions" "functions" {
 	service_name = "${alicloud_fc_service.sample_service.name}"
-    function_name_regex = "${alicloud_fc_function.sample_function.name}"
+    name_regex = "${alicloud_fc_function.sample_function.name}"
 }
 `, randInt)
 }
