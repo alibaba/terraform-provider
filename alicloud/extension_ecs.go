@@ -69,11 +69,6 @@ var SupportedDiskCategory = map[DiskCategory]DiskCategory{
 	DiskCloud:           DiskCloud,
 }
 
-var SupportedDiskType = map[DiskType]DiskType{
-	DiskTypeSystem: DiskTypeSystem,
-	DiskTypeData:   DiskTypeData,
-}
-
 const AllPortRange = "-1/-1"
 
 const (
