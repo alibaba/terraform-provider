@@ -1,12 +1,13 @@
 package alicloud
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"regexp"
 	"fmt"
 	"log"
+	"regexp"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func dataSourceAlicloudDisks() *schema.Resource {
@@ -31,18 +32,19 @@ func dataSourceAlicloudDisks() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateDiskType,
+				ValidateFunc: validateAllowedStringValue([]string{string(DiskTypeSystem), string(DiskTypeData)}),
 			},
 			"category": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validateDiskCategory,
+				ValidateFunc: validateAllowedStringValue([]string{string(DiskCloud), string(DiskEphemeralSSD), string(DiskCloudEfficiency), string(DiskCloudSSD)}),
 			},
 			"encrypted": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validateAllowedStringValue([]string{string(OnFlag), string(OffFlag)}),
 			},
 			"instance_id": {
 				Type:     schema.TypeString,
@@ -152,9 +154,9 @@ func dataSourceAlicloudDisksRead(d *schema.ResourceData, meta interface{}) error
 		args.Category = v.(string)
 	}
 	if v, ok := d.GetOk("encrypted"); ok && v.(string) != "" {
-		if v == "on" {
+		if v == string(OnFlag) {
 			args.Encrypted = requests.NewBoolean(true)
-		} else if v == "off" {
+		} else {
 			args.Encrypted = requests.NewBoolean(false)
 		}
 	}
@@ -240,7 +242,7 @@ func disksDescriptionAttributes(d *schema.ResourceData, disks []ecs.Disk) error 
 			"status":            disk.Status,
 			"type":              disk.Type,
 			"category":          disk.Category,
-			"encrypted":         "on",
+			"encrypted":         string(OnFlag),
 			"size":              disk.Size,
 			"image_id":          disk.ImageId,
 			"snapshot_id":       disk.SourceSnapshotId,
@@ -252,7 +254,7 @@ func disksDescriptionAttributes(d *schema.ResourceData, disks []ecs.Disk) error 
 			"tags":              tagsToMap(disk.Tags.Tag),
 		}
 		if !disk.Encrypted {
-			mapping["encrypted"] = "off"
+			mapping["encrypted"] = string(OffFlag)
 		}
 
 		log.Printf("[DEBUG] alicloud_disks - adding disk mapping: %v", mapping)
