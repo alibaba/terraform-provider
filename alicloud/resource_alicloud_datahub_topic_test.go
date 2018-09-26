@@ -5,9 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	// // DEBUG only
-	// "github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
-
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -33,7 +30,7 @@ func TestAccAlicloudDatahubTopic_Basic(t *testing.T) {
 						"alicloud_datahub_topic.basic"),
 					resource.TestCheckResourceAttr(
 						"alicloud_datahub_topic.basic",
-						"topic_name", "tf_test_datahub_topic_basic"),
+						"name", "tf_testacc_datahub_topic_basic"),
 				),
 			},
 		},
@@ -61,7 +58,7 @@ func TestAccAlicloudDatahubTopic_Tuple(t *testing.T) {
 						"alicloud_datahub_topic.basic"),
 					resource.TestCheckResourceAttr(
 						"alicloud_datahub_topic.basic",
-						"topic_name", "tf_test_datahub_topic_tuple"),
+						"name", "tf_testacc_datahub_topic_tuple"),
 				),
 			},
 		},
@@ -125,15 +122,6 @@ func testAccCheckDatahubTopicExist(n string) resource.TestCheckFunc {
 		topicName := split[1]
 		_, err := dh.GetTopic(projectName, topicName)
 
-		// // XXX DEBUG only
-		// topic, err := dh.GetTopic(projectName, topicName)
-		// fmt.Printf("\nXXX:project_name:%s\n", topic.ProjectName)
-		// fmt.Printf("XXX:topic_name:%s\n", topic.TopicName)
-		// fmt.Printf("XXX:life_cycle:%d\n", topic.Lifecycle)
-		// fmt.Printf("XXX:comment:%s\n", topic.Comment)
-		// fmt.Printf("XXX:create_time:%s\n", utils.Uint64ToTimeString(topic.CreateTime))
-		// fmt.Printf("XXX:last_modify_time:%s\n", utils.Uint64ToTimeString(topic.LastModifyTime))
-
 		if err != nil {
 			return err
 		}
@@ -154,36 +142,33 @@ func testAccCheckDatahubTopicDestroy(s *terraform.State) error {
 		topicName := split[1]
 		_, err := dh.GetTopic(projectName, topicName)
 
-		if err != nil {
+		if err != nil && NotFoundError(err) {
 			continue
 		}
 
-		return fmt.Errorf("Datahub topic %s still exists", rs.Primary.ID)
+		return fmt.Errorf("Datahub topic %s may still exist", rs.Primary.ID)
 	}
 
 	return nil
 }
 
 const testAccDatahubTopic = `
-provider "alicloud" {
-    region = "cn-beijing"
-}
 variable "project_name" {
-  default = "tf_test_datahub_project"
+  default = "tf_testacc_datahub_project"
 }
 variable "topic_name" {
-  default = "tf_test_datahub_topic_basic"
+  default = "tf_testacc_datahub_topic_basic"
 }
 variable "record_type" {
   default = "BLOB"
 }
 resource "alicloud_datahub_project" "basic" {
-  project_name = "${var.project_name}"
+  name = "${var.project_name}"
   comment = "project for basic."
 }
 resource "alicloud_datahub_topic" "basic" {
-  project_name = "${alicloud_datahub_project.basic.project_name}"
-  topic_name = "${var.topic_name}"
+  name = "${var.topic_name}"
+  project_name = "${alicloud_datahub_project.basic.name}"
   record_type = "${var.record_type}"
   shard_count = 3
   life_cycle = 7
@@ -192,25 +177,22 @@ resource "alicloud_datahub_topic" "basic" {
 `
 
 const testAccDatahubTopicUpdate = `
-provider "alicloud" {
-    region = "cn-beijing"
-}
 variable "project_name" {
-  default = "tf_test_datahub_project"
+  default = "tf_testacc_datahub_project"
 }
 variable "topic_name" {
-  default = "tf_test_datahub_topic_basic"
+  default = "tf_testacc_datahub_topic_basic"
 }
 variable "record_type" {
   default = "BLOB"
 }
 resource "alicloud_datahub_project" "basic" {
-  project_name = "${var.project_name}"
+  name = "${var.project_name}"
   comment = "project for basic."
 }
 resource "alicloud_datahub_topic" "basic" {
-  project_name = "${alicloud_datahub_project.basic.project_name}"
-  topic_name = "${var.topic_name}"
+  name = "${var.topic_name}"
+  project_name = "${alicloud_datahub_project.basic.name}"
   record_type = "${var.record_type}"
   shard_count = 3
   life_cycle = 1
@@ -219,19 +201,16 @@ resource "alicloud_datahub_topic" "basic" {
 `
 
 const testAccDatahubTopicTuple = `
-provider "alicloud" {
-    region = "cn-beijing"
-}
 variable "project_name" {
-  default = "tf_test_datahub_project"
+  default = "tf_testacc_datahub_project"
 }
 resource "alicloud_datahub_project" "basic" {
-  project_name = "${var.project_name}"
+  name = "${var.project_name}"
   comment = "project for basic."
 }
 resource "alicloud_datahub_topic" "basic" {
-  project_name = "${alicloud_datahub_project.basic.project_name}"
-  topic_name = "tf_test_datahub_topic_tuple"
+  name = "tf_testacc_datahub_topic_tuple"
+  project_name = "${alicloud_datahub_project.basic.name}"
   record_type = "TUPLE"
   record_schema = {
     bigint_field = "BIGINT"

@@ -5,9 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/models"
-	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/types"
-	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -33,7 +31,7 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 					return strings.ToLower(new) == strings.ToLower(old)
 				},
 			},
-			"topic_name": &schema.Schema{
+			"name": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
@@ -66,14 +64,14 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validateAllowedStringValue([]string{string(types.TUPLE), string(types.BLOB)}),
+				ValidateFunc: validateAllowedStringValue([]string{string(datahub.TUPLE), string(datahub.BLOB)}),
 			},
 			"record_schema": &schema.Schema{
 				Type:     schema.TypeMap,
 				Elem:     schema.TypeString,
 				Optional: true,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return d.Get("record_type") != string(types.TUPLE)
+					return d.Get("record_type") != string(datahub.TUPLE)
 				},
 			},
 			"create_time": {
@@ -91,15 +89,15 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 func resourceAliyunDatahubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	dh := meta.(*AliyunClient).dhconn
 
+	topicName := d.Get("name").(string)
 	projectName := d.Get("project_name").(string)
-	topicName := d.Get("topic_name").(string)
 	shardCount := d.Get("shard_count").(int)
 	lifeCycle := d.Get("life_cycle").(int)
 	topicComment := d.Get("comment").(string)
 	recordType := d.Get("record_type").(string)
 	recordSchema := d.Get("record_schema").(map[string]interface{})
 
-	t := &models.Topic{
+	t := &datahub.Topic{
 		ProjectName: projectName,
 		TopicName:   topicName,
 		ShardCount:  shardCount,
@@ -108,28 +106,27 @@ func resourceAliyunDatahubTopicCreate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if recordType == "TUPLE" {
-		t.RecordType = types.TUPLE
+		t.RecordType = datahub.TUPLE
 		t.RecordSchema = getRecordSchema(recordSchema)
 	} else if recordType == "BLOB" {
-		t.RecordType = types.BLOB
+		t.RecordType = datahub.BLOB
 	} else {
 		return fmt.Errorf("failed to create topic'%s/%s' with invalid record type: %s", projectName, topicName, recordType)
 	}
 
 	err := dh.CreateTopic(t)
 	if err != nil {
-		d.SetId("")
 		return fmt.Errorf("failed to create topic'%s/%s' with error: %s", projectName, topicName, err)
 	}
 
 	d.SetId(fmt.Sprintf("%s%s%s", projectName, COLON_SEPARATED, topicName))
-	return resourceAliyunDatahubTopicUpdate(d, meta)
+	return resourceAliyunDatahubTopicRead(d, meta)
 }
 
 func parseId2(d *schema.ResourceData, meta interface{}) (projectName, topicName string, err error) {
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 	if len(split) != 2 {
-		err = fmt.Errorf("you should use resource alicloud_datahub_topic's new field 'project_name' and 'topic_name' to re-import this resource.")
+		err = fmt.Errorf("you should use resource alicloud_datahub_topic's new field 'project_name' and 'name' to re-import this resource.")
 		return
 	} else {
 		projectName = split[0]
@@ -148,19 +145,21 @@ func resourceAliyunDatahubTopicRead(d *schema.ResourceData, meta interface{}) er
 
 	topic, err := dh.GetTopic(projectName, topicName)
 	if err != nil {
-		d.SetId("")
+		if NotFoundError(err) {
+			d.SetId("")
+		}
 		return fmt.Errorf("failed to access topic '%s/%s' with error: %s", projectName, topicName, err)
 	}
 
+	d.Set("name", topic.TopicName)
 	d.Set("project_name", topic.ProjectName)
-	d.Set("topic_name", topic.TopicName)
 	d.Set("shard_count", topic.ShardCount)
 	d.Set("life_cycle", topic.Lifecycle)
 	d.Set("comment", topic.Comment)
 	d.Set("record_type", topic.RecordType.String())
 	d.Set("record_schema", topic.RecordSchema.String())
-	d.Set("create_time", utils.Uint64ToTimeString(topic.CreateTime))
-	d.Set("last_modify_time", utils.Uint64ToTimeString(topic.LastModifyTime))
+	d.Set("create_time", datahub.Uint64ToTimeString(topic.CreateTime))
+	d.Set("last_modify_time", datahub.Uint64ToTimeString(topic.LastModifyTime))
 	return nil
 }
 
@@ -197,8 +196,10 @@ func resourceAliyunDatahubTopicDelete(d *schema.ResourceData, meta interface{}) 
 		_, err := dh.GetTopic(projectName, topicName)
 
 		if err != nil {
-			d.SetId("")
-			return resource.RetryableError(fmt.Errorf("while deleting '%s/%s', failed to access it with error: %s", projectName, topicName, err))
+			if isRetryableDatahubError(err) {
+				return resource.RetryableError(fmt.Errorf("while deleting '%s/%s', failed to access it with error: %s", projectName, topicName, err))
+			}
+			return resource.NonRetryableError(fmt.Errorf("while deleting '%s/%s', failed to access it with error: %s", projectName, topicName, err))
 		}
 
 		err = dh.DeleteTopic(projectName, topicName)
@@ -206,10 +207,10 @@ func resourceAliyunDatahubTopicDelete(d *schema.ResourceData, meta interface{}) 
 			return nil
 		}
 
-		if IsExceptedErrors(err, []string{"AuthFailed", "InvalidStatus", "ValidationFailed"}) {
+		if isRetryableDatahubError(err) {
 			return resource.RetryableError(fmt.Errorf("Deleting topic '%s/%s' timeout and got an error: %#v.", projectName, topicName, err))
 		}
 
-		return resource.RetryableError(fmt.Errorf("Deleting topic '%s/%s' timeout.", projectName, topicName))
+		return resource.NonRetryableError(fmt.Errorf("Deleting topic '%s/%s' timeout and got an error: %#v.", projectName, topicName, err))
 	})
 }

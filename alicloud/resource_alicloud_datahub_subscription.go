@@ -2,12 +2,10 @@ package alicloud
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/types"
-	"github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -64,16 +62,13 @@ func resourceAlicloudDatahubSubscription() *schema.Resource {
 				Computed: true,
 			},
 			"state": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"new_state": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validateIntegerInRange(0, 3),
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return new == strconv.Itoa(types.SUB_CLEANED.Value())
-				},
-			},
-			"is_owner": {
-				Type:     schema.TypeBool,
-				Computed: true,
 			},
 		},
 	}
@@ -88,12 +83,11 @@ func resourceAliyunDatahubSubscriptionCreate(d *schema.ResourceData, meta interf
 
 	subId, err := dh.CreateSubscription(projectName, topicName, subComment)
 	if err != nil {
-		d.SetId("")
-		return fmt.Errorf("failed to create subscription to '%s/%s' with error: %s", projectName, topicName, err)
+		return fmt.Errorf("failed to create subscription under '%s/%s' with error: %s", projectName, topicName, err)
 	}
 
 	d.SetId(fmt.Sprintf("%s%s%s%s%s", projectName, COLON_SEPARATED, topicName, COLON_SEPARATED, subId))
-	return resourceAliyunDatahubSubscriptionUpdate(d, meta)
+	return resourceAliyunDatahubSubscriptionRead(d, meta)
 }
 
 func parseId3(d *schema.ResourceData, meta interface{}) (projectName, topicName, subId string, err error) {
@@ -119,7 +113,9 @@ func resourceAliyunDatahubSubscriptionRead(d *schema.ResourceData, meta interfac
 
 	sub, err := dh.GetSubscription(projectName, topicName, subId)
 	if err != nil {
-		d.SetId("")
+		if NotFoundError(err) {
+			d.SetId("")
+		}
 		return fmt.Errorf("failed to get subscription %s with error: %s", subId, err)
 	}
 
@@ -127,9 +123,8 @@ func resourceAliyunDatahubSubscriptionRead(d *schema.ResourceData, meta interfac
 	d.Set("topic_name", sub.TopicName)
 	d.Set("sub_id", sub.SubId)
 	d.Set("comment", sub.Comment)
-	d.Set("create_time", utils.Uint64ToTimeString(sub.CreateTime))
-	d.Set("last_modify_time", utils.Uint64ToTimeString(sub.LastModifyTime))
-	d.Set("is_owner", sub.IsOwner)
+	d.Set("create_time", datahub.Uint64ToTimeString(sub.CreateTime))
+	d.Set("last_modify_time", datahub.Uint64ToTimeString(sub.LastModifyTime))
 	d.Set("state", sub.State.Value())
 	return nil
 }
@@ -142,16 +137,16 @@ func resourceAliyunDatahubSubscriptionUpdate(d *schema.ResourceData, meta interf
 
 	dh := meta.(*AliyunClient).dhconn
 
-	if d.HasChange("state") && !d.IsNewResource() {
-		subState := d.Get("state").(types.SubscriptionState)
+	if d.HasChange("new_state") {
+		subState := d.Get("new_state").(int)
 
-		err := dh.UpdateSubscriptionState(projectName, topicName, subId, subState)
+		err := dh.UpdateSubscriptionState(projectName, topicName, subId, datahub.SubscriptionState(subState))
 		if err != nil {
 			return fmt.Errorf("failed to update subscription %s's state  with error: %s", subId, err)
 		}
 	}
 
-	if d.HasChange("comment") && !d.IsNewResource() {
+	if d.HasChange("comment") {
 		subComment := d.Get("comment").(string)
 
 		err := dh.UpdateSubscription(projectName, topicName, subId, subComment)
@@ -174,18 +169,21 @@ func resourceAliyunDatahubSubscriptionDelete(d *schema.ResourceData, meta interf
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
 		_, err := dh.GetSubscription(projectName, topicName, subId)
 		if err != nil {
-			d.SetId("")
-			return resource.RetryableError(fmt.Errorf("while deleting subscription '%s', failed to get it with error: %s", subId, err))
+			if isRetryableDatahubError(err) {
+				return resource.RetryableError(fmt.Errorf("while deleting subscription '%s', failed to get it with error: %s", subId, err))
+			}
+			return resource.NonRetryableError(fmt.Errorf("while deleting subscription '%s', failed to get it with error: %s", subId, err))
 		}
 
 		err = dh.DeleteSubscription(projectName, topicName, subId)
 		if err == nil || NotFoundError(err) {
+			d.SetId("")
 			return nil
 		}
-		if IsExceptedErrors(err, []string{"AuthFailed", "InvalidStatus", "ValidationFailed"}) {
+
+		if isRetryableDatahubError(err) {
 			return resource.RetryableError(fmt.Errorf("Deleting subscription '%s' timeout and got an error: %#v.", subId, err))
 		}
-
-		return resource.RetryableError(fmt.Errorf("Deleting subscription '%s' timeout.", subId))
+		return resource.NonRetryableError(fmt.Errorf("Deleting subscription '%s' timeout.", subId))
 	})
 }

@@ -1,5 +1,5 @@
 output "ProjectName" {
-  value = "${alicloud_datahub_project.example.project_name}"
+  value = "${alicloud_datahub_project.example.name}"
 }
 
 output "ProjectCreateTime" {
@@ -7,7 +7,7 @@ output "ProjectCreateTime" {
 }
 
 output "TopicName" {
-  value = "${alicloud_datahub_topic.example.topic_name}"
+  value = "${alicloud_datahub_topic.example.name}"
 }
 
 output "TopicCreateTime" {
@@ -26,7 +26,7 @@ output "SubscriptionCreateTime" {
   value = "${alicloud_datahub_subscription.example.create_time}"
 }
 
-output "SubscriptionComment" {
-  value = "${alicloud_datahub_subscription.example.comment}"
+output "SubscriptionState" {
+  value = "${alicloud_datahub_subscription.example.state}"
 }
 

@@ -6,15 +6,15 @@ provider "alicloud" {
 resource "alicloud_datahub_project" "example" {
   provider = "alicloud.bj"
 
-  project_name = "${var.project_name}"
+  name = "${var.project_name}"
   comment = "Datahub project: a terraform example."
 }
 
 resource "alicloud_datahub_topic" "example" {
   provider = "alicloud.bj"
 
-  project_name = "${alicloud_datahub_project.example.project_name}"
-  topic_name = "${var.topic_name}"
+  name = "${var.topic_name}"
+  project_name = "${alicloud_datahub_project.example.name}"
   shard_count = 3
   life_cycle = 7
   record_type = "BLOB"
@@ -24,7 +24,7 @@ resource "alicloud_datahub_topic" "example" {
 resource "alicloud_datahub_subscription" "example" {
   provider = "alicloud.bj"
 
-  project_name = "${alicloud_datahub_project.example.project_name}"
-  topic_name = "${alicloud_datahub_topic.example.topic_name}"
+  project_name = "${alicloud_datahub_project.example.name}"
+  topic_name = "${alicloud_datahub_topic.example.name}"
   comment = "Datahub subscription: a terraform example."
 }

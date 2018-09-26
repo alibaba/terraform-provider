@@ -2,14 +2,86 @@ package alicloud
 
 import (
 	"fmt"
+	"log"
 	"testing"
-
-	// DEBUG only
-	// "github.com/aliyun/aliyun-datahub-sdk-go/datahub/utils"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
+
+func init() {
+	resource.AddTestSweepers("alicloud_datahub_project", &resource.Sweeper{
+		Name: "alicloud_datahub_project",
+		F:    testSweepDatahubProject,
+	})
+}
+
+func testSweepDatahubProject(region string) error {
+	client, err := sharedClientForRegion(region)
+	if err != nil {
+		return fmt.Errorf("error getting Alicloud client: %s", err)
+	}
+	dh := client.(*AliyunClient).dhconn
+
+	// List projects
+	projects, err := dh.ListProjects()
+	if err != nil {
+		return fmt.Errorf("error listing Datahub projects: %s", err)
+	}
+
+	for _, projectName := range projects.Names {
+		// a testing project?
+		if ! isTerraformTestingDatahubObject(projectName) {
+			log.Printf("[INFO] Skipping Datahub project: %s", projectName)
+			continue
+		}
+		log.Printf("[INFO] Deleting project: %s", projectName)
+
+		// List topics
+		topics, err := dh.ListTopics(projectName)
+		if err != nil {
+			return fmt.Errorf("error listing Datahub topics: %s", err)
+		}
+
+		for _, topicName := range topics.Names {
+			log.Printf("[INFO] Deleting topic: %s/%s", projectName, topicName)
+
+			// List subscriptions
+			subscriptions, err := dh.ListSubscriptions(projectName, topicName)
+
+			if err != nil {
+				return fmt.Errorf("error listing Datahub subscriptions: %s", err)
+			}
+
+			for _, subscription := range subscriptions.Subscriptions {
+				log.Printf("[INFO] Deleting subscription: %s/%s/%s", projectName, topicName, subscription.SubId)
+
+				// Delete subscription
+				err := dh.DeleteSubscription(projectName, topicName, subscription.SubId)
+				if err != nil {
+					log.Printf("[ERROR] Failed to delete Datahub subscriptions: %s/%s/%s", projectName, topicName, subscription.SubId)
+					return fmt.Errorf("error deleting  Datahub subscriptions: %s/%s/%s", projectName, topicName, subscription.SubId)
+				}
+			}
+
+			// Delete topic
+			err = dh.DeleteTopic(projectName, topicName)
+			if err != nil {
+				log.Printf("[ERROR] Failed to delete Datahub topic: %s/%s", projectName, topicName)
+				return fmt.Errorf("[ERROR] Failed to delete Datahub topic: %s/%s", projectName, topicName)
+			}
+		}
+
+		// Delete project
+		err = dh.DeleteProject(projectName)
+		if err != nil {
+			log.Printf("[ERROR] Failed to delete Datahub project: %s", projectName)
+			return fmt.Errorf("[ERROR] Failed to delete Datahub project: %s", projectName)
+		}
+	}
+
+	return nil
+}
 
 func TestAccAlicloudDatahubProject_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -30,7 +102,7 @@ func TestAccAlicloudDatahubProject_Basic(t *testing.T) {
 						"alicloud_datahub_project.basic"),
 					resource.TestCheckResourceAttr(
 						"alicloud_datahub_project.basic",
-						"project_name", "tf_test_datahub_project"),
+						"name", "tf_testacc_datahub_project"),
 				),
 			},
 		},
@@ -87,13 +159,6 @@ func testAccCheckDatahubProjectExist(n string) resource.TestCheckFunc {
 		dh := testAccProvider.Meta().(*AliyunClient).dhconn
 		_, err := dh.GetProject(rs.Primary.ID)
 
-		// XXX DEBUG only
-		// prj, err := dh.GetProject(rs.Primary.ID)
-		// fmt.Printf("\nXXX:name:%s\n", rs.Primary.ID)
-		// fmt.Printf("XXX:comment:%s\n", prj.Comment)
-		// fmt.Printf("XXX:create_time:%s\n", utils.Uint64ToTimeString(prj.CreateTime))
-		// fmt.Printf("XXX:last_modify_time:%s\n", utils.Uint64ToTimeString(prj.LastModifyTime))
-
 		if err != nil {
 			return err
 		}
@@ -110,38 +175,32 @@ func testAccCheckDatahubProjectDestroy(s *terraform.State) error {
 		dh := testAccProvider.Meta().(*AliyunClient).dhconn
 		_, err := dh.GetProject(rs.Primary.ID)
 
-		if err != nil {
+		if err != nil && NotFoundError(err) {
 			continue
 		}
 
-		return fmt.Errorf("Datahub project %s still exists", rs.Primary.ID)
+		return fmt.Errorf("Datahub project %s may still exist", rs.Primary.ID)
 	}
 
 	return nil
 }
 
 const testAccDatahubProject = `
-provider "alicloud" {
-    region = "cn-beijing"
-}
-variable "project_name" {
-  default = "tf_test_datahub_project"
+variable "name" {
+  default = "tf_testacc_datahub_project"
 }
 resource "alicloud_datahub_project" "basic" {
-  project_name = "${var.project_name}"
+  name = "${var.name}"
   comment = "project for basic."
 }
 `
 
 const testAccDatahubProjectUpdate = `
-provider "alicloud" {
-    region = "cn-beijing"
-}
-variable "project_name" {
-  default = "tf_test_datahub_project"
+variable "name" {
+  default = "tf_testacc_datahub_project"
 }
 resource "alicloud_datahub_project" "basic" {
-  project_name = "${var.project_name}"
+  name = "${var.name}"
   comment = "project for update."
 }
 `
