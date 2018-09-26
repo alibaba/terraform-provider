@@ -1,5 +1,9 @@
 ## 1.18.0 (Unreleased)
 
+IMPROVEMENTS:
+
+- `cs_kubernetes` supports data disk ([#697](https://github.com/alibaba/terraform-provider/pull/697))
+
 ## 1.17.0 (September 22, 2018)
 
 FEATURES:
