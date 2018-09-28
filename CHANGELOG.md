@@ -1,5 +1,11 @@
 ## 1.18.0 (Unreleased)
 
+FEATURES:
+
+- **New Resource:** `alicloud_cen_bandwidth_package_attachment` ([#698](https://github.com/alibaba/terraform-provider/pull/698))
+- **New Data Source:** `alicloud_cen_instances` ([#698](https://github.com/alibaba/terraform-provider/pull/698))
+- **New Resource:** `alicloud_route_table` ([#698](https://github.com/alibaba/terraform-provider/pull/698))
+
 IMPROVEMENTS:
 
 - `cs_kubernetes` supports data disk ([#697](https://github.com/alibaba/terraform-provider/pull/697))
