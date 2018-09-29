@@ -52,6 +52,15 @@ func TestClient_DescribeKubernetesClusters(t *testing.T) {
 		}
 		t.Logf("Cluster Describe: %++v", c)
 		t.Logf("Cluster KeyPair %v", c.Parameters.KeyPair)
+		t.Logf("Cluster RawWorkerDataDisk %v", c.Parameters.RawWorkerDataDisk)
+		t.Logf("Cluster WorkerDataDisk %v", c.Parameters.WorkerDataDisk)
+		if c.Parameters.WorkerDataDisk {
+			t.Logf("Cluster WorkerDataDiskSize %v", c.Parameters.WorkerDataDiskSize)
+			t.Logf("Cluster WorkerDataDiskCategory %v", c.Parameters.WorkerDataDiskCategory)
+		}
+		t.Logf("Cluster NodeCIDRMask %v", c.Parameters.NodeCIDRMask)
+		t.Logf("Cluster LoggingType %v", c.Parameters.LoggingType)
+		t.Logf("Cluster SLSProjectName %v", c.Parameters.SLSProjectName)
 
 		if c.MetaData.MultiAZ || c.MetaData.SubClass == "3az" {
 			t.Logf("%v is a MultiAZ kubernetes cluster", c.ClusterID)
@@ -152,6 +161,12 @@ func _TestCreateKubernetesCluster(t *testing.T) {
 		ContainerCIDR:            "172.16.0.0/16",
 		ServiceCIDR:              "172.19.0.0/20",
 		LoginPassword:            "test-password123",
+		WorkerDataDisk:           true,
+		WorkerDataDiskCategory:   "cloud_efficiency",
+		WorkerDataDiskSize:       100,
+		NodeCIDRMask:             "25",
+		LoggingType:              "SLS",
+		SLSProjectName:           "k8s-test-my-terraform-singleaz",
 	}
 	cluster, err := client.CreateKubernetesCluster(common.Hangzhou, &args)
 	if err != nil {
@@ -191,6 +206,12 @@ func _TestCreateKubernetesMultiAZCluster(t *testing.T) {
 		ContainerCIDR:            "172.17.0.0/16",
 		ServiceCIDR:              "172.20.0.0/20",
 		LoginPassword:            "test-password123",
+		WorkerDataDisk:           true,
+		WorkerDataDiskCategory:   "cloud_efficiency",
+		WorkerDataDiskSize:       100,
+		NodeCIDRMask:             "25",
+		LoggingType:              "SLS",
+		SLSProjectName:           "k8s-test-my-terraform",
 	}
 	cluster, err := client.CreateKubernetesMultiAZCluster(common.Hangzhou, &args)
 	if err != nil {
