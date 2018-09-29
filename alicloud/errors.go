@@ -11,7 +11,6 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/aliyun/fc-go-sdk"
 	"github.com/denverdino/aliyungo/common"
-
 )
 
 const (
@@ -211,9 +210,6 @@ const (
 	CenQuotaExceeded               = "QuotaExceeded.CenCountExceeded"
 	// kv-store
 	InvalidKVStoreInstanceIdNotFound = "InvalidInstanceId.NotFound"
-
-	// Datahub
-	DatahubMessageNotFound  = "does not exist"
 )
 
 var SlbIsBusy = []string{"SystemBusy", "OperationBusy", "ServiceIsStopping", "BackendServer.configuring", "ServiceIsConfiguring"}
@@ -262,12 +258,6 @@ func NotFoundError(err error) bool {
 	if e, ok := err.(*ProviderError); ok &&
 		(e.ErrorCode() == InstanceNotFound || e.ErrorCode() == RamInstanceNotFound || e.ErrorCode() == NotFound ||
 			strings.Contains(strings.ToLower(e.Message()), MessageInstanceNotFound)) {
-		return true
-	}
-
-	if e, ok := err.(datahub.DatahubError); ok &&
-		(e.Code == datahub.NoSuchProject || e.Code == datahub.NoSuchTopic || e.Code == datahub.NoSuchShard ||
-			strings.Contains(strings.ToLower(e.Message), DatahubMessageNotFound)) {
 		return true
 	}
 

@@ -142,7 +142,7 @@ func testAccCheckDatahubTopicDestroy(s *terraform.State) error {
 		topicName := split[1]
 		_, err := dh.GetTopic(projectName, topicName)
 
-		if err != nil && NotFoundError(err) {
+		if err != nil && isDatahubNotExistError(err) {
 			continue
 		}
 

@@ -449,8 +449,11 @@ func (c *Config) dhConn() (*datahub.DataHub, error) {
 	if endpoint == "" {
 		endpoint = fmt.Sprintf("https://dh-%s.aliyuncs.com", c.RegionId)
 	}
-	log.Printf("[DEBUG] endpoint:%s", endpoint)
-	return datahub.New(c.AccessKey, c.SecretKey, endpoint), nil
+	account := datahub.NewStsCredential(c.AccessKey, c.SecretKey, c.SecurityToken)
+	config := &datahub.Config{
+		UserAgent: getUserAgent(),
+	}
+	return datahub.NewClientWithConfig(endpoint, config, account), nil
 }
 
 func getSdkConfig() *sdk.Config {

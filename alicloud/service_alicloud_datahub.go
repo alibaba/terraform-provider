@@ -34,6 +34,16 @@ func isRetryableDatahubError(err error) bool {
 	return false
 }
 
+// SDK forgets this error
+const (
+	NoSuchSubscription = "NoSuchSubscription"
+	DoesNotExist       = "does not exist"
+)
+
+func isDatahubNotExistError(err error) bool {
+	return IsExceptedErrors(err, []string{datahub.NoSuchProject, datahub.NoSuchTopic, datahub.NoSuchShard, NoSuchSubscription, DoesNotExist})
+}
+
 func isTerraformTestingDatahubObject(name string) bool {
 	prefixes := []string{
 		"tf_testAcc",

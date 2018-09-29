@@ -63,7 +63,7 @@ func resourceAliyunDatahubProjectCreate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("failed to create project '%s' with error: %s", projectName, err)
 	}
 
-	d.SetId(projectName)
+	d.SetId(strings.ToLower(projectName))
 	return resourceAliyunDatahubProjectRead(d, meta)
 }
 
@@ -78,6 +78,8 @@ func resourceAliyunDatahubProjectRead(d *schema.ResourceData, meta interface{}) 
 		}
 		return fmt.Errorf("failed to create project '%s' with error: %s", projectName, err)
 	}
+
+	d.SetId(strings.ToLower(projectName))
 
 	d.Set("name", projectName)
 	d.Set("comment", project.Comment)
@@ -108,6 +110,9 @@ func resourceAliyunDatahubProjectDelete(d *schema.ResourceData, meta interface{}
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
 		_, err := dh.GetProject(projectName)
 		if err != nil {
+			if isDatahubNotExistError(err) {
+				return nil
+			}
 			if isRetryableDatahubError(err) {
 				return resource.RetryableError(fmt.Errorf("when deleting project '%s', failed to access it with error: %s", projectName, err))
 			}

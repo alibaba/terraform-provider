@@ -31,7 +31,7 @@ func testSweepDatahubProject(region string) error {
 
 	for _, projectName := range projects.Names {
 		// a testing project?
-		if ! isTerraformTestingDatahubObject(projectName) {
+		if !isTerraformTestingDatahubObject(projectName) {
 			log.Printf("[INFO] Skipping Datahub project: %s", projectName)
 			continue
 		}
@@ -175,7 +175,7 @@ func testAccCheckDatahubProjectDestroy(s *terraform.State) error {
 		dh := testAccProvider.Meta().(*AliyunClient).dhconn
 		_, err := dh.GetProject(rs.Primary.ID)
 
-		if err != nil && NotFoundError(err) {
+		if err != nil && isDatahubNotExistError(err) {
 			continue
 		}
 

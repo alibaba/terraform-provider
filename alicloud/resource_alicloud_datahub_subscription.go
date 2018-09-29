@@ -86,7 +86,7 @@ func resourceAliyunDatahubSubscriptionCreate(d *schema.ResourceData, meta interf
 		return fmt.Errorf("failed to create subscription under '%s/%s' with error: %s", projectName, topicName, err)
 	}
 
-	d.SetId(fmt.Sprintf("%s%s%s%s%s", projectName, COLON_SEPARATED, topicName, COLON_SEPARATED, subId))
+	d.SetId(fmt.Sprintf("%s%s%s%s%s", strings.ToLower(projectName), COLON_SEPARATED, strings.ToLower(topicName), COLON_SEPARATED, subId))
 	return resourceAliyunDatahubSubscriptionRead(d, meta)
 }
 
@@ -113,11 +113,13 @@ func resourceAliyunDatahubSubscriptionRead(d *schema.ResourceData, meta interfac
 
 	sub, err := dh.GetSubscription(projectName, topicName, subId)
 	if err != nil {
-		if NotFoundError(err) {
+		if isDatahubNotExistError(err) {
 			d.SetId("")
 		}
 		return fmt.Errorf("failed to get subscription %s with error: %s", subId, err)
 	}
+
+	d.SetId(fmt.Sprintf("%s%s%s%s%s", strings.ToLower(projectName), COLON_SEPARATED, strings.ToLower(sub.TopicName), COLON_SEPARATED, sub.SubId))
 
 	d.Set("project_name", projectName)
 	d.Set("topic_name", sub.TopicName)
@@ -137,6 +139,7 @@ func resourceAliyunDatahubSubscriptionUpdate(d *schema.ResourceData, meta interf
 
 	dh := meta.(*AliyunClient).dhconn
 
+	d.Partial(true)
 	if d.HasChange("new_state") {
 		subState := d.Get("new_state").(int)
 
@@ -154,6 +157,7 @@ func resourceAliyunDatahubSubscriptionUpdate(d *schema.ResourceData, meta interf
 			return fmt.Errorf("failed to update subscription %s's comment with error: %s", subId, err)
 		}
 	}
+	d.Partial(false)
 
 	return resourceAliyunDatahubSubscriptionRead(d, meta)
 }
@@ -169,6 +173,9 @@ func resourceAliyunDatahubSubscriptionDelete(d *schema.ResourceData, meta interf
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
 		_, err := dh.GetSubscription(projectName, topicName, subId)
 		if err != nil {
+			if isDatahubNotExistError(err) {
+				return nil
+			}
 			if isRetryableDatahubError(err) {
 				return resource.RetryableError(fmt.Errorf("while deleting subscription '%s', failed to get it with error: %s", subId, err))
 			}
@@ -176,7 +183,7 @@ func resourceAliyunDatahubSubscriptionDelete(d *schema.ResourceData, meta interf
 		}
 
 		err = dh.DeleteSubscription(projectName, topicName, subId)
-		if err == nil || NotFoundError(err) {
+		if err == nil || isDatahubNotExistError(err) {
 			d.SetId("")
 			return nil
 		}

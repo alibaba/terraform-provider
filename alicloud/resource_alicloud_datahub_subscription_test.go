@@ -122,7 +122,7 @@ func testAccCheckDatahubSubscriptionExist(n string) resource.TestCheckFunc {
 		subId := split[2]
 		_, err := dh.GetSubscription(projectName, topicName, subId)
 
-		if err == nil || NotFoundError(err) {
+		if err == nil || isDatahubNotExistError(err) {
 			return nil
 		}
 		return err
@@ -143,7 +143,7 @@ func testAccCheckDatahubSubscriptionDestroy(s *terraform.State) error {
 		subId := split[2]
 		_, err := dh.GetSubscription(projectName, topicName, subId)
 
-		if err != nil && NotFoundError(err) {
+		if err != nil && isDatahubNotExistError(err) {
 			continue
 		}
 

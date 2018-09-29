@@ -119,7 +119,7 @@ func resourceAliyunDatahubTopicCreate(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("failed to create topic'%s/%s' with error: %s", projectName, topicName, err)
 	}
 
-	d.SetId(fmt.Sprintf("%s%s%s", projectName, COLON_SEPARATED, topicName))
+	d.SetId(strings.ToLower(fmt.Sprintf("%s%s%s", projectName, COLON_SEPARATED, topicName)))
 	return resourceAliyunDatahubTopicRead(d, meta)
 }
 
@@ -151,6 +151,8 @@ func resourceAliyunDatahubTopicRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("failed to access topic '%s/%s' with error: %s", projectName, topicName, err)
 	}
 
+	d.SetId(strings.ToLower(fmt.Sprintf("%s%s%s", topic.ProjectName, COLON_SEPARATED, topic.TopicName)))
+
 	d.Set("name", topic.TopicName)
 	d.Set("project_name", topic.ProjectName)
 	d.Set("shard_count", topic.ShardCount)
@@ -171,7 +173,7 @@ func resourceAliyunDatahubTopicUpdate(d *schema.ResourceData, meta interface{}) 
 
 	dh := meta.(*AliyunClient).dhconn
 
-	if !d.IsNewResource() && (d.HasChange("life_cycle") || d.HasChange("comment")) {
+	if d.HasChange("life_cycle") || d.HasChange("comment") {
 		lifeCycle := d.Get("life_cycle").(int)
 		topicComment := d.Get("comment").(string)
 
@@ -196,6 +198,9 @@ func resourceAliyunDatahubTopicDelete(d *schema.ResourceData, meta interface{}) 
 		_, err := dh.GetTopic(projectName, topicName)
 
 		if err != nil {
+			if isDatahubNotExistError(err) {
+				return nil
+			}
 			if isRetryableDatahubError(err) {
 				return resource.RetryableError(fmt.Errorf("while deleting '%s/%s', failed to access it with error: %s", projectName, topicName, err))
 			}
