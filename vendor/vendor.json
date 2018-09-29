@@ -313,10 +313,10 @@
 			"revisionTime": "2018-04-26T04:54:50Z"
 		},
 		{
-			"checksumSHA1": "CAepqXw1B7Awe6fNHjjs1pjKANc=",
+			"checksumSHA1": "CR37EMhTvnYShCnEPSjvC+KiUgQ=",
 			"path": "github.com/denverdino/aliyungo/cs",
-			"revision": "cc006f6d7d6afc2487454f6730dcbdf31f873a56",
-			"revisionTime": "2018-08-31T06:26:06Z"
+			"revision": "8ca5b7f050837cf9d2090eae36d788606593326a",
+			"revisionTime": "2018-09-29T08:14:46Z"
 		},
 		{
 			"checksumSHA1": "dN7vxxBQ5axpNUnIO/ocSJeEjvU=",
@@ -503,6 +503,12 @@
 			"path": "github.com/golang/glog",
 			"revision": "23def4e6c14b4da8ac2ed8007337bc5eb5007998",
 			"revisionTime": "2016-01-25T20:49:56Z"
+		},
+		{
+			"checksumSHA1": "lBRyy5oCx4cd0VMmO5poYqZ+sTk=",
+			"path": "github.com/google/uuid",
+			"revision": "e704694aed0ea004bb7eb1fc2e911d048a54606a",
+			"revisionTime": "2018-08-28T18:15:55Z"
 		},
 		{
 			"checksumSHA1": "bnWJ5VK7fHAcqpLqY09k0nX8QNs=",

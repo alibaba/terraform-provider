@@ -205,9 +205,17 @@ const (
 	VpnInvalidSpec           = "InvalidSpec.NotFound"
 	VpnEnable                = "enable"
 	// CEN
-	OperationBlocking              = "Operation.Blocking"
-	ParameterCenInstanceIdNotExist = "ParameterCenInstanceId"
-	CenQuotaExceeded               = "QuotaExceeded.CenCountExceeded"
+	OperationBlocking                = "Operation.Blocking"
+	ParameterCenInstanceIdNotExist   = "ParameterCenInstanceId"
+	CenQuotaExceeded                 = "QuotaExceeded.CenCountExceeded"
+	InvalidCenInstanceStatus         = "InvalidOperation.CenInstanceStatus"
+	InvalidChildInstanceStatus       = "InvalidOperation.ChildInstanceStatus"
+	ParameterInstanceIdNotExist      = "ParameterInstanceId"
+	ForbiddenRelease                 = "Forbidden.Release"
+	InvalidCenBandwidthLimitsNotZero = "InvalidOperation.CenBandwidthLimitsNotZero"
+	ParameterBwpInstanceId           = "ParameterBwpInstanceId"
+	InvalidBwpInstanceStatus         = "InvalidOperation.BwpInstanceStatus"
+	InvalidBwpBusinessStatus         = "InvalidOperation.BwpBusinessStatus"
 	// kv-store
 	InvalidKVStoreInstanceIdNotFound = "InvalidInstanceId.NotFound"
 )
