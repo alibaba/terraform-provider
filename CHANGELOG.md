@@ -12,6 +12,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Improve datasource `images`'s docs ([#702](https://github.com/alibaba/terraform-provider/pull/702))
 - `cs_kubernetes` supports data disk ([#697](https://github.com/alibaba/terraform-provider/pull/697))
 
 ## 1.17.0 (September 22, 2018)
