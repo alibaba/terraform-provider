@@ -12,6 +12,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Add parameter 'force_delete' to support deleting 'PrePaid' instance ([#704](https://github.com/alibaba/terraform-provider/pull/704))
 - Correct Function Compute conn ([#703](https://github.com/alibaba/terraform-provider/pull/703))
 - Improve datasource `images`'s docs ([#702](https://github.com/alibaba/terraform-provider/pull/702))
 - `cs_kubernetes` supports data disk ([#697](https://github.com/alibaba/terraform-provider/pull/697))
