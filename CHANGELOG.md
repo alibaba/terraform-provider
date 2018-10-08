@@ -2,6 +2,7 @@
 
 FEATURES:
 
+- **New Resource:** `alicloud_havip` ([#709](https://github.com/alibaba/terraform-provider/pull/709))
 - **New Data Source:** `alicloud_cen_bandwidth_packages` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
 - **New Resource:** `alicloud_route_table_attachment` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
 - **New Resource:** `alicloud_cen_bandwidth_limit` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
