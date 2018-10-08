@@ -265,10 +265,10 @@
 			"revisionTime": "2018-08-23T03:14:16Z"
 		},
 		{
-			"checksumSHA1": "ipOW2vLWaB21iA6o9LmYsDT34kw=",
+			"checksumSHA1": "+6lEd5+mqYaIzYtGB03vuKN+PL4=",
 			"path": "github.com/aliyun/aliyun-datahub-sdk-go/datahub",
-			"revision": "a3a6e836b575b67c2440d61eee64ec202bcc9e2c",
-			"revisionTime": "2018-09-29T09:02:47Z"
+			"revision": "c1c85baca7c0f0dd9a0573de4ae7e8b38363e517",
+			"revisionTime": "2018-09-29T12:10:38Z"
 		},
 		{
 			"checksumSHA1": "WhSU5HOSMEwkWAxM7Xwr6H+jigw=",

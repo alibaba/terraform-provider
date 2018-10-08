@@ -34,14 +34,13 @@ func isRetryableDatahubError(err error) bool {
 	return false
 }
 
-// SDK forgets this error
+// It is proactive defense to the case that SDK extends new datahub objects.
 const (
-	NoSuchSubscription = "NoSuchSubscription"
 	DoesNotExist       = "does not exist"
 )
 
 func isDatahubNotExistError(err error) bool {
-	return IsExceptedErrors(err, []string{datahub.NoSuchProject, datahub.NoSuchTopic, datahub.NoSuchShard, NoSuchSubscription, DoesNotExist})
+	return IsExceptedErrors(err, []string{datahub.NoSuchProject, datahub.NoSuchTopic, datahub.NoSuchShard, datahub.NoSuchSubscription, DoesNotExist})
 }
 
 func isTerraformTestingDatahubObject(name string) bool {
