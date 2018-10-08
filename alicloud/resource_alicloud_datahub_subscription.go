@@ -61,15 +61,6 @@ func resourceAlicloudDatahubSubscription() *schema.Resource {
 				Type:     schema.TypeString, //uint64 value from sdk
 				Computed: true,
 			},
-			"state": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"new_state": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validateIntegerInRange(0, 3),
-			},
 		},
 	}
 }
@@ -127,7 +118,6 @@ func resourceAliyunDatahubSubscriptionRead(d *schema.ResourceData, meta interfac
 	d.Set("comment", sub.Comment)
 	d.Set("create_time", datahub.Uint64ToTimeString(sub.CreateTime))
 	d.Set("last_modify_time", datahub.Uint64ToTimeString(sub.LastModifyTime))
-	d.Set("state", sub.State.Value())
 	return nil
 }
 
@@ -139,16 +129,6 @@ func resourceAliyunDatahubSubscriptionUpdate(d *schema.ResourceData, meta interf
 
 	dh := meta.(*AliyunClient).dhconn
 
-	d.Partial(true)
-	if d.HasChange("new_state") {
-		subState := d.Get("new_state").(int)
-
-		err := dh.UpdateSubscriptionState(projectName, topicName, subId, datahub.SubscriptionState(subState))
-		if err != nil {
-			return fmt.Errorf("failed to update subscription %s's state  with error: %s", subId, err)
-		}
-	}
-
 	if d.HasChange("comment") {
 		subComment := d.Get("comment").(string)
 
@@ -157,7 +137,6 @@ func resourceAliyunDatahubSubscriptionUpdate(d *schema.ResourceData, meta interf
 			return fmt.Errorf("failed to update subscription %s's comment with error: %s", subId, err)
 		}
 	}
-	d.Partial(false)
 
 	return resourceAliyunDatahubSubscriptionRead(d, meta)
 }
@@ -184,7 +163,6 @@ func resourceAliyunDatahubSubscriptionDelete(d *schema.ResourceData, meta interf
 
 		err = dh.DeleteSubscription(projectName, topicName, subId)
 		if err == nil || isDatahubNotExistError(err) {
-			d.SetId("")
 			return nil
 		}
 

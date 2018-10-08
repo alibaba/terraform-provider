@@ -81,24 +81,6 @@ func TestAccAlicloudDatahubSubscription_Update(t *testing.T) {
 						"comment", "subscription for update."),
 				),
 			},
-
-			resource.TestStep{
-				Config: testAccDatahubSubscriptionUpdateState,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDatahubProjectExist(
-						"alicloud_datahub_project.basic"),
-					testAccCheckDatahubTopicExist(
-						"alicloud_datahub_topic.basic"),
-					testAccCheckDatahubSubscriptionExist(
-						"alicloud_datahub_subscription.basic"),
-					resource.TestCheckResourceAttr(
-						"alicloud_datahub_subscription.basic",
-						"comment", "subscription for update."),
-					resource.TestCheckResourceAttr(
-						"alicloud_datahub_subscription.basic",
-						"state", "1"),
-				),
-			},
 		},
 	})
 }
@@ -207,36 +189,6 @@ resource "alicloud_datahub_topic" "basic" {
 resource "alicloud_datahub_subscription" "basic" {
   project_name = "${alicloud_datahub_project.basic.name}"
   topic_name = "${alicloud_datahub_topic.basic.name}"
-  comment = "subscription for update."
-}
-`
-
-const testAccDatahubSubscriptionUpdateState = `
-variable "project_name" {
-  default = "tf_testacc_datahub_project"
-}
-variable "topic_name" {
-  default = "tf_testacc_datahub_topic"
-}
-variable "record_type" {
-  default = "BLOB"
-}
-resource "alicloud_datahub_project" "basic" {
-  name = "${var.project_name}"
-  comment = "project for basic."
-}
-resource "alicloud_datahub_topic" "basic" {
-  project_name = "${alicloud_datahub_project.basic.name}"
-  name = "${var.topic_name}"
-  record_type = "${var.record_type}"
-  shard_count = 3
-  life_cycle = 7
-  comment = "topic for basic."
-}
-resource "alicloud_datahub_subscription" "basic" {
-  project_name = "${alicloud_datahub_project.basic.name}"
-  topic_name = "${alicloud_datahub_topic.basic.name}"
-  new_state = 1
   comment = "subscription for update."
 }
 `

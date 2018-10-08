@@ -89,37 +89,28 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 func resourceAliyunDatahubTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	dh := meta.(*AliyunClient).dhconn
 
-	topicName := d.Get("name").(string)
-	projectName := d.Get("project_name").(string)
-	shardCount := d.Get("shard_count").(int)
-	lifeCycle := d.Get("life_cycle").(int)
-	topicComment := d.Get("comment").(string)
-	recordType := d.Get("record_type").(string)
-	recordSchema := d.Get("record_schema").(map[string]interface{})
-
 	t := &datahub.Topic{
-		ProjectName: projectName,
-		TopicName:   topicName,
-		ShardCount:  shardCount,
-		Lifecycle:   lifeCycle,
-		Comment:     topicComment,
+		ProjectName: d.Get("project_name").(string),
+		TopicName:   d.Get("name").(string),
+		ShardCount:  d.Get("shard_count").(int),
+		Lifecycle:   d.Get("life_cycle").(int),
+		Comment:     d.Get("comment").(string),
 	}
 
-	if recordType == "TUPLE" {
+	recordType := d.Get("record_type").(string)
+	if recordType == string(datahub.TUPLE) {
 		t.RecordType = datahub.TUPLE
-		t.RecordSchema = getRecordSchema(recordSchema)
-	} else if recordType == "BLOB" {
+		t.RecordSchema = getRecordSchema(d.Get("record_schema").(map[string]interface{}))
+	} else if recordType == string(datahub.BLOB) {
 		t.RecordType = datahub.BLOB
-	} else {
-		return fmt.Errorf("failed to create topic'%s/%s' with invalid record type: %s", projectName, topicName, recordType)
 	}
 
 	err := dh.CreateTopic(t)
 	if err != nil {
-		return fmt.Errorf("failed to create topic'%s/%s' with error: %s", projectName, topicName, err)
+		return fmt.Errorf("failed to create topic'%s/%s' with error: %s", t.ProjectName, t.TopicName, err)
 	}
 
-	d.SetId(strings.ToLower(fmt.Sprintf("%s%s%s", projectName, COLON_SEPARATED, topicName)))
+	d.SetId(strings.ToLower(fmt.Sprintf("%s%s%s", t.ProjectName, COLON_SEPARATED, t.TopicName)))
 	return resourceAliyunDatahubTopicRead(d, meta)
 }
 
@@ -145,7 +136,7 @@ func resourceAliyunDatahubTopicRead(d *schema.ResourceData, meta interface{}) er
 
 	topic, err := dh.GetTopic(projectName, topicName)
 	if err != nil {
-		if NotFoundError(err) {
+		if isDatahubNotExistError(err) {
 			d.SetId("")
 		}
 		return fmt.Errorf("failed to access topic '%s/%s' with error: %s", projectName, topicName, err)
@@ -208,7 +199,7 @@ func resourceAliyunDatahubTopicDelete(d *schema.ResourceData, meta interface{}) 
 		}
 
 		err = dh.DeleteTopic(projectName, topicName)
-		if err == nil || NotFoundError(err) {
+		if err == nil || isDatahubNotExistError(err) {
 			return nil
 		}
 

@@ -73,7 +73,7 @@ func resourceAliyunDatahubProjectRead(d *schema.ResourceData, meta interface{}) 
 	projectName := d.Id()
 	project, err := dh.GetProject(projectName)
 	if err != nil {
-		if NotFoundError(err) {
+		if isDatahubNotExistError(err) {
 			d.SetId("")
 		}
 		return fmt.Errorf("failed to create project '%s' with error: %s", projectName, err)
@@ -91,7 +91,7 @@ func resourceAliyunDatahubProjectRead(d *schema.ResourceData, meta interface{}) 
 func resourceAliyunDatahubProjectUpdate(d *schema.ResourceData, meta interface{}) error {
 	dh := meta.(*AliyunClient).dhconn
 
-	if !d.IsNewResource() && d.HasChange("comment") {
+	if d.HasChange("comment") {
 		projectName := d.Id()
 		projectComment := d.Get("comment").(string)
 		err := dh.UpdateProject(projectName, projectComment)
@@ -120,7 +120,7 @@ func resourceAliyunDatahubProjectDelete(d *schema.ResourceData, meta interface{}
 		}
 
 		err = dh.DeleteProject(projectName)
-		if err == nil || NotFoundError(err) {
+		if err == nil || isDatahubNotExistError(err) {
 			return nil
 		}
 

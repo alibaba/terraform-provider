@@ -36,7 +36,7 @@ func isRetryableDatahubError(err error) bool {
 
 // It is proactive defense to the case that SDK extends new datahub objects.
 const (
-	DoesNotExist       = "does not exist"
+	DoesNotExist = "does not exist"
 )
 
 func isDatahubNotExistError(err error) bool {

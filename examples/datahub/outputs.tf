@@ -25,8 +25,3 @@ output "SubscriptionId" {
 output "SubscriptionCreateTime" {
   value = "${alicloud_datahub_subscription.example.create_time}"
 }
-
-output "SubscriptionState" {
-  value = "${alicloud_datahub_subscription.example.state}"
-}
-
