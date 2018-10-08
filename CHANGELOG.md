@@ -27,6 +27,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix alicloud_ram_user_policy_attachment EntityNotExist.User error ([#712](https://github.com/alibaba/terraform-provider/pull/712))
 - Add wait time to fix random detaching disk error ([#703](https://github.com/alibaba/terraform-provider/pull/703))
 
 ## 1.17.0 (September 22, 2018)
