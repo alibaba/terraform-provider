@@ -343,6 +343,7 @@ const (
 	CENCode     = ServiceCode("CEN")
 	KVSTORECode = ServiceCode("KVSTORE")
 	DATAHUBCode = ServiceCode("DATAHUB")
+	MNSCode     = ServiceCode("MNS")
 )
 
 //xml

@@ -2,16 +2,30 @@
 
 FEATURES:
 
-- **New Data Source:** `alicloud_vpn_connections` ([#698](https://github.com/alibaba/terraform-provider/pull/700))
-- **New Data Source:** `alicloud_vpn_gateways` ([#698](https://github.com/alibaba/terraform-provider/pull/700))
-- **New Data Source:** `alicloud_vpn_customer_gateways` ([#698](https://github.com/alibaba/terraform-provider/pull/700))
-- **New Resource:** `alicloud_cen_bandwidth_package_attachment` ([#698](https://github.com/alibaba/terraform-provider/pull/699))
-- **New Data Source:** `alicloud_cen_instances` ([#698](https://github.com/alibaba/terraform-provider/pull/699))
-- **New Resource:** `alicloud_route_table` ([#698](https://github.com/alibaba/terraform-provider/pull/699))
+- **New Data Source:** `alicloud_cen_bandwidth_packages` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_route_table_attachment` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_cen_bandwidth_limit` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_mns_topic` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_mns_queue` ([#701](https://github.com/alibaba/terraform-provider/pull/701))
+- **New Data Source:** `alicloud_vpn_connections` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
+- **New Data Source:** `alicloud_vpn_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
+- **New Data Source:** `alicloud_vpn_customer_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
+- **New Resource:** `alicloud_cen_bandwidth_package_attachment` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+- **New Data Source:** `alicloud_cen_instances` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+- **New Resource:** `alicloud_route_table` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
 
 IMPROVEMENTS:
 
+- Add node_cidr_mas and log_config, fix worker_data_disk issue ([#708](https://github.com/alibaba/terraform-provider/pull/708))
+- Add parameter 'force_delete' to support deleting 'PrePaid' instance ([#704](https://github.com/alibaba/terraform-provider/pull/704))
+- Correct Function Compute conn ([#703](https://github.com/alibaba/terraform-provider/pull/703))
+- Improve datasource `images`'s docs ([#702](https://github.com/alibaba/terraform-provider/pull/702))
 - `cs_kubernetes` supports data disk ([#697](https://github.com/alibaba/terraform-provider/pull/697))
+
+
+BUG FIXES:
+
+- Add wait time to fix random detaching disk error ([#703](https://github.com/alibaba/terraform-provider/pull/703))
 
 ## 1.17.0 (September 22, 2018)
 
