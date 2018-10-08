@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of KMS keys in an Alibaba Cloud account according to the specified filters.
 
-## Example Usage
+## Example
 
 ```
 # Declare the data source
@@ -28,14 +28,14 @@ output "first_key_id" {
 
 The following arguments are supported:
 
-* `ids` - (Optional) A list of KMS key IDs.
-* `description_regex` - (Optional) A regex string to filter the results by the KMS key description.
+* `ids` - (Optional) Filter by KMS key ID.
+* `description_regex` - (Optional) Filter the results by KMS key description with a regex string.
 * `status` - (Optional) Filter the results by status of the KMS keys. Valid values: `Enabled`, `Disabled`, `PendingDeletion`.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `keys` - A list of KMS keys. Each element contains the following attributes:
   * `id` - ID of the key.

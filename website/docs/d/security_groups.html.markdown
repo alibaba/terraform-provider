@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of Security Groups in an Alibaba Cloud account according to the specified filters.
 
-## Example Usage
+## Example
 
 ```
 # Filter security groups and print the results into a file
@@ -39,11 +39,11 @@ The following arguments are supported:
 
 * `name_regex` - (Optional) A regex string to filter the resulting security groups by their names.
 * `vpc_id` - (Optional) Used to retrieve security groups that belong to the specified VPC ID.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `groups` - A list of groups. Each element contains the following attributes:
   * `id` - The ID of the security group.

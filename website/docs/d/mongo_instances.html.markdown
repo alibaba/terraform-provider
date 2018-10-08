@@ -3,15 +3,15 @@ layout: "alicloud"
 page_title: "Alicloud: alicloud_mongo_instances"
 sidebar_current: "docs-alicloud-datasource-mongo-instances"
 description: |-
-    Provides a collection of MongoDB instances according to the specified filters.
+    Provides a list of MongoDB instances according to the specified filters.
 ---
 
 # alicloud\_mongo\_instances
 
-The `alicloud_mongo_instances` data source provides a collection of MongoDB instances available in Alicloud account.
-Filters support regular expression for the instance name, engine or instance type.
+This data source provides a list of MongoDB instances available in an Alibaba Cloud account.
+Filters support searches by the instance name, engine or instance type.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_mongo_instances" "mongo" {
@@ -26,15 +26,15 @@ data "alicloud_mongo_instances" "mongo" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to apply to the instance name.
-* `instance_type` - (Optional) Type of the instance to be queried. If it is set to `sharding`, the sharded cluster instances are listed. If it is set to `replicate`, replica set instances are listed. Default value `replicate`.
-* `instance_class` - (Optional) Sizing of the instance to be queried.
-* `availability_zone` - (Optional) Instance availability zone.
-* `output_file` - (Optional) The name of file that can save the collection of instances after running `terraform plan`.
+* `name_regex` - (Optional) Apply a regex string to the instance name.
+* `instance_type` - (Optional) Filter by type of instance to be queried. If it is set to `sharding`, the sharded cluster instances are listed. If it is set to `replicate`, replica set instances are listed. Default value `replicate`.
+* `instance_class` - (Optional) Filter by sizing classification of the instance to be queried.
+* `availability_zone` - (Optional) Filter by instance availability zone.
+* `output_file` - (Optional) Set the name of file where the collection of instances will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `instances` - A list of MongoDB instances. Its every element contains the following attributes:
   * `id` - The ID of the MongoDB instance.

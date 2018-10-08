@@ -10,7 +10,7 @@ description: |-
 
 This data source provides the disks of the current Alibaba Cloud user.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_disks" "disks_ds" {
@@ -26,11 +26,11 @@ output "first_disk_id" {
 
 The following arguments are supported:
 
-* `ids` - (Optional) A list of disks IDs.
-* `name_regex` - (Optional) A regex string to filter results by disk name.
+* `ids` - (Optional) Filter by disk ID. 
+* `name_regex` - (Optional) Filter results by disk name with a regex string.
 * `type` - (Optional) Disk type. Possible values: `system` and `data`.
 * `category` - (Optional) Disk category. Possible values: `cloud` (basic cloud disk), `cloud_efficiency` (ultra cloud disk), `cloud_ssd` (SSD cloud disk), `ephemeral_ssd` (ephemeral SSD) and `ephemeral` (ephemeral disk).
-* `encrypted` - (Optional) Indicate whether the disk is encrypted or not. Possible values: `on` and `off`.
+* `encrypted` - (Optional) Filter by whether the disk is encrypted or not. Possible values: `on` and `off`.
 * `instance_id` - (Optional) Filter the results by the specified ECS instance ID.
 * `tags` - (Optional) A map of tags assigned to the disks. It must be in the format:
   ```
@@ -41,11 +41,11 @@ The following arguments are supported:
     }
   }
   ```
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `disks` - A list of disks. Each element contains the following attributes:
   * `id` - ID of the disk.
@@ -56,7 +56,7 @@ The following attributes are exported in addition to the arguments listed above:
   * `status` - Current status. Possible values: `In_use`, `Available`, `Attaching`, `Detaching`, `Creating` and `ReIniting`.
   * `type` - Disk type. Possible values: `system` and `data`.
   * `category` - Disk category. Possible values: `cloud` (basic cloud disk), `cloud_efficiency` (ultra cloud disk), `cloud_ssd` (SSD cloud disk), `ephemeral_ssd` (ephemeral SSD) and `ephemeral` (ephemeral disk).
-  * `encrypted` - Indicate whether the disk is encrypted or not. Possible values: `on` and `off`.
+  * `encrypted` - Filter by whether the disk is encrypted or not. Possible values: `on` and `off`.
   * `size` - Disk size in GiB.
   * `image_id` - ID of the image from which the disk is created. It is null unless the disk is created using an image.
   * `snapshot_id` - Snapshot used to create the disk. It is null if no snapshot is used to create the disk.

@@ -10,7 +10,7 @@ description: |-
 
 This data source provides information about the current account.
 
-## Example Usage
+## Example 
 
 ```
 data "alicloud_account" "current"{
@@ -23,6 +23,6 @@ output "current_account_id" {
 
 ## Attributes Reference
 
-The following attributes are exported:
+The following attributes are returned:
 
 * `id` - Account ID (e.g. "1239306421830812"). It can be used to construct an ARN.

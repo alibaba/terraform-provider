@@ -10,7 +10,7 @@ description: |-
 
 This data source provides the server load balancers of the current Alibaba Cloud user.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_slbs" "slbs_ds" {
@@ -26,7 +26,7 @@ output "first_slb_id" {
 
 The following arguments are supported:
 
-* `ids` - (Optional) A list of SLBs IDs.
+* `ids` - (Optional) Filter by SLB ID.
 * `name_regex` - (Optional) A regex string to filter results by SLB name.
 * `master_availability_zone` - (Optional) Master availability zone of the SLBs.
 * `slave_availability_zone` - (Optional) Slave availability zone of the SLBs.
@@ -34,11 +34,11 @@ The following arguments are supported:
 * `vpc_id` - (Optional) ID of the VPC linked to the SLBs.
 * `vswitch_id` - (Optional) ID of the VSwitch linked to the SLBs.
 * `address` - (Optional) Service address of the SLBs.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `slbs` - A list of SLBs. Each element contains the following attributes:
   * `id` - ID of the SLB.

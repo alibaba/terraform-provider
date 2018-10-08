@@ -8,9 +8,9 @@ description: |-
 
 # alicloud\_pvtz\_zones
 
-This data source lists a number of Private Zones resource information owned by an Alibaba Cloud account.
+This data source lists the Private Zones resource information owned by an Alibaba Cloud account.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_pvtz_zones" "pvtz_zones_ds" {
@@ -26,12 +26,12 @@ output "first_zone_id" {
 
 The following arguments are supported:
 
-* `keyword` - (Optional) keyword for zone name.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `keyword` - (Optional) Filter by keyword for zone name.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `zones` - A list of zones. Each element contains the following attributes:
   * `id` - ID of the Private Zone.

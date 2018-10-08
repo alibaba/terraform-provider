@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of DNS Domain Groups in an Alibaba Cloud account according to the specified filters.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_dns_groups" "groups_ds" {
@@ -27,13 +27,13 @@ output "first_group_name" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to filter results by group name. 
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `name_regex` - (Optional) Filter results by group name with a regex string. 
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `groups` - A list of groups. Each element contains the following attributes:
-  * `group_id` - Id of the group.
+  * `group_id` - ID of the group.
   * `group_name` - Name of the group.

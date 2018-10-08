@@ -10,7 +10,7 @@ description: |-
 
 This data source provides the server load balancer attachments of the current Alibaba Cloud user.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_slb_attachments" "sample_ds" {
@@ -28,11 +28,11 @@ The following arguments are supported:
 
 * `load_balancer_id` - ID of the SLB with attachments.
 * `instance_ids` - (Optional) List of attached ECS instance IDs.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `slb_attachments` - A list of SLB attachments. Each element contains the following attributes:
   * `instance_id` - ID of the attached ECS instance.

@@ -8,12 +8,12 @@ description: |-
 
 # alicloud\_zones
 
-This data source provides availability zones that can be accessed by an Alibaba Cloud account within the region configured in the provider.
+This data source provides availability zones that can be accessed by an Alibaba Cloud account within the region configured for the provider.
 
 
-~> **NOTE:** If one zone is sold out, it will not be exported.
+~> **NOTE:** If a zone is sold out, it will not be returned.
 
-## Example Usage
+## Example
 
 ```
 # Declare the data source
@@ -37,17 +37,17 @@ The following arguments are supported:
 * `available_instance_type` - (Optional) Filter the results by a specific instance type.
 * `available_resource_creation` - (Optional) Filter the results by a specific resource type. The following values are allowed: `Instance`, `Disk`, `VSwitch` and `Rds`.
 * `available_disk_category` - (Optional) Filter the results by a specific disk category. Can be either `cloud`, `cloud_efficiency` or `cloud_ssd`.
-* `multi` - (Optional, type: bool) Indicate whether the zones can be used in a multi AZ configuration. Default to `false`. Multi AZ is usually used to launch RDS instances.
+* `multi` - (Optional, type: bool) Filter by whether the zones can be used in a multi AZ configuration. Default to `false`. Multi AZ is usually used to launch RDS instances.
 * `instance_charge_type` - (Optional) Filter the results by a specific ECS instance charge type. Valid values: `PrePaid` and `PostPaid`. Default to `PostPaid`.
 * `network_type` - (Optional) Filter the results by a specific network type. Valid values: `Classic` and `Vpc`.
-* `spot_strategy` - - (Optional) Filter the results by a specific ECS spot type. Valid values: `NoSpot`, `SpotWithPriceLimit` and `SpotAsPriceGo`. Default to `NoSpot`.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `spot_strategy` - - (Optional) Filter the results by a specific ECS spot type. Valid values: `NoSpot`, `SpotWithPriceLimit`, and `SpotAsPriceGo`. The default is `NoSpot`.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
-~> **NOTE:** The disk category `cloud` has been outdated and can only be used by non-I/O Optimized ECS instances. Many availability zones don't support it. It is recommended to use `cloud_efficiency` or `cloud_ssd`.
+~> **NOTE:** The disk category `cloud` is outdated and can only be used by non-I/O Optimized ECS instances. Many availability zones no longer support it. It is recommended to use `cloud_efficiency` or `cloud_ssd`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `zones` - A list of availability zones. Each element contains the following attributes:
   * `id` - ID of the zone.

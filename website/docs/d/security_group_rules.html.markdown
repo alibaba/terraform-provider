@@ -8,20 +8,20 @@ description: |-
 
 # alicloud\_security\_group\_rules
 
-The `alicloud_security_group_rules` data source provides a collection of security permissions of a specific security group.
+This data source provides a list of security permissions of a specific security group.
 Each collection item represents a single `ingress` or `egress` permission rule.
-The ID of the security group can be provided via a variable or the result from the other data source `alicloud_security_groups`.
+The ID of the security group can be provided using a variable or the result from the other data source `alicloud_security_groups`.
 
-## Example Usage
+## Example
 
 The following example shows how to obtain details about a security group rule and how to pass its data to an instance at launch time.
 
 ```
-# Get the security group id from a variable
+# Get the security group ID from a variable
 variable "security_group_id" {}
 
 # Or get it from the alicloud_security_groups data source.
-# Please note that the data source arguments must be enough to filter results to one security group.
+# Note that the data source arguments must filter results to one security group.
 data "alicloud_security_groups" "groups_ds" {
   name_regex = "api"
 }
@@ -45,16 +45,16 @@ resource "alicloud_instance" "backend" {
 
 The following arguments are supported:
 
-* `group_id` - (Required) The ID of the security group that owns the rules.
-* `nic_type` - (Optional) Refers to the network type. Can be either `internet` or `intranet`. The default value is `internet`.
-* `direction` - (Optional) Authorization direction. Valid values are: `ingress` or `egress`.
-* `ip_protocol` - (Optional) The IP protocol. Valid values are: `tcp`, `udp`, `icmp`, `gre` and `all`.
-* `policy` - (Optional) Authorization policy. Can be either `accept` or `drop`. The default value is `accept`.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `group_id` - (Required) Enter the ID of the security group that owns the rules.
+* `nic_type` - (Optional) Filter by network type. Can be either `internet` or `intranet`. The default value is `internet`.
+* `direction` - (Optional) Filter by authorization direction. Valid values are: `ingress` or `egress`.
+* `ip_protocol` - (Optional) Filter by IP protocol. Valid values are `tcp`, `udp`, `icmp`, `gre`, and `all`.
+* `policy` - (Optional) Filter by authorization policy. Valid values are `accept` or `drop`. The default value is `accept`.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `rules` - A list of rules. Each element contains the following attributes:
   * `group_name` - The name of the security group that owns the rules.
@@ -66,7 +66,7 @@ The following attributes are exported in addition to the arguments listed above:
     * `source_security_group_id` - Source security group ID for ingress authorization.
     * `source_group_owner_account` - Alibaba Cloud account of the source security group.
     * `dest_cidr_ip` - Target IP address segment for egress authorization.
-    * `dest_security_group_id` - Target security group id for ingress authorization.
+    * `dest_security_group_id` - Target security group ID for ingress authorization.
     * `dest_group_owner_account` - Alibaba Cloud account of the target security group.
     * `policy` - Authorization policy. Can be either `accept` or `drop`.
     * `nic_type` - Network type, `internet` or `intranet`.

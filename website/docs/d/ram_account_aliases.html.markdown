@@ -10,7 +10,7 @@ description: |-
 
 This data source provides an alias for the Alibaba Cloud account.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_ram_account_aliases" "alias_ds" {
@@ -26,10 +26,10 @@ output "account_alias" {
 
 The following arguments are supported:
 
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `account_alias` - Alias of the account.

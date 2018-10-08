@@ -10,7 +10,7 @@ description: |-
 
 This data source provides the OSS buckets of the current Alibaba Cloud user.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_oss_buckets" "oss_buckets_ds" {
@@ -26,17 +26,17 @@ output "first_oss_bucket_name" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to filter results by bucket name.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `name_regex` - (Optional) Filter results by bucket name with a regex string.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `buckets` - A list of buckets. Each element contains the following attributes:
   * `name` - Bucket name.
   * `acl` - Bucket access control list. Possible values: `private`, `public-read` and `public-read-write`.
-  * `extranet_endpoint` - Internet domain name for accessing the bucket from outside.
+  * `extranet_endpoint` - Internet domain name for accessing the bucket externally.
   * `intranet_endpoint` - Intranet domain name for accessing the bucket from an ECS instance in the same region.
   * `location` - Region of the data center where the bucket is located.
   * `owner` - Bucket owner.
@@ -55,12 +55,12 @@ The following attributes are exported in addition to the arguments listed above:
     * `target_bucket` - Bucket for storing access logs.
     * `target_prefix` - Prefix of the saved access log file paths.
   * `referer_config` - A list of one element containing referer configuration. It contains the following attributes:
-    * `allow_empty` - Indicate whether the access request referer field can be empty.
+    * `allow_empty` - Indicates whether the access request referer field can be empty.
     * `referers` - Referer access whitelist.
   * `lifecycle_rule` - A list CORS of lifecycle configurations. When Lifecycle is enabled, OSS automatically deletes the objects or transitions the objects (to another storage class) corresponding the lifecycle rules on a regular basis. Each element contains the following attributes:
     * `id` - Unique ID of the rule.
     * `prefix` - Prefix applicable to a rule. Only those objects with a matching prefix can be affected by the rule.
-    * `enabled` - Indicate whether the rule is enabled or not.
-    * `expiration` - A list of one element containing expiration attributes of an object. It contains the following attributes:
-      * `date` - Date after which the rule to take effect. The format is like 2017-03-09.
-      * `days` - Indicate the number of days after the last object update until the rules take effect.
+    * `enabled` - Indicates whether the rule is enabled or not.
+    * `expiration` - A list from one element containing expiration attributes of an object. It contains the following attributes:
+      * `date` - Date after which the rule will take effect. The format is YYYY-MM-DD.
+      * `days` - Indicates the number of days after the last object update until the rules take effect.
