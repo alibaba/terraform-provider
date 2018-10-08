@@ -1,4 +1,69 @@
-## 1.16.0 (Unreleased)
+## 1.18.0 (Unreleased)
+
+FEATURES:
+
+- **New Data Source:** `alicloud_cen_bandwidth_packages` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_route_table_attachment` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_cen_bandwidth_limit` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_mns_topic` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_mns_queue` ([#701](https://github.com/alibaba/terraform-provider/pull/701))
+- **New Data Source:** `alicloud_vpn_connections` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
+- **New Data Source:** `alicloud_vpn_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
+- **New Data Source:** `alicloud_vpn_customer_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
+- **New Resource:** `alicloud_cen_bandwidth_package_attachment` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+- **New Data Source:** `alicloud_cen_instances` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+- **New Resource:** `alicloud_route_table` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+
+IMPROVEMENTS:
+
+- Add node_cidr_mas and log_config, fix worker_data_disk issue ([#708](https://github.com/alibaba/terraform-provider/pull/708))
+- Add parameter 'force_delete' to support deleting 'PrePaid' instance ([#704](https://github.com/alibaba/terraform-provider/pull/704))
+- Correct Function Compute conn ([#703](https://github.com/alibaba/terraform-provider/pull/703))
+- Improve datasource `images`'s docs ([#702](https://github.com/alibaba/terraform-provider/pull/702))
+- `cs_kubernetes` supports data disk ([#697](https://github.com/alibaba/terraform-provider/pull/697))
+
+
+BUG FIXES:
+
+- Add wait time to fix random detaching disk error ([#703](https://github.com/alibaba/terraform-provider/pull/703))
+
+## 1.17.0 (September 22, 2018)
+
+FEATURES:
+
+- **New Data Source:** `alicloud_fc_triggers` ([#695](https://github.com/alibaba/terraform-provider/pull/695))
+- **New Data Source:** `alicloud_oss_bucket_objects` ([#692](https://github.com/alibaba/terraform-provider/pull/692))
+- **New Data Source:** `alicloud_fc_functions` ([#694](https://github.com/alibaba/terraform-provider/pull/694))
+- **New Data Source:** `alicloud_fc_services` ([#693](https://github.com/alibaba/terraform-provider/pull/693))
+- **New Data Source:** `alicloud_oss_buckets` ([#690](https://github.com/alibaba/terraform-provider/pull/690))
+- **New Data Source:** `alicloud_disks` ([#686](https://github.com/alibaba/terraform-provider/pull/686))
+- **New Resource:** `alicloud_cen_bandwidth_package` ([#691](https://github.com/alibaba/terraform-provider/pull/691))
+
+IMPROVEMENTS:
+
+- Update OSS Resources' link to English ([#696](https://github.com/alibaba/terraform-provider/pull/696))
+- Improve example/kubernetes to support multi-az  ([#689](https://github.com/alibaba/terraform-provider/pull/689))
+
+## 1.16.0 (September 17, 2018)
+
+FEATURES:
+
+- **New Resource:** `alicloud_cen_instance_attachment` ([#681](https://github.com/alibaba/terraform-provider/pull/681))
+
+IMPROVEMENTS:
+
+- Allow setting the scaling group balancing policy ([#643](https://github.com/alibaba/terraform-provider/pull/643))
+- cs_kubernetes supports multi-az ([#682](https://github.com/alibaba/terraform-provider/pull/682))
+- Improve client token using timestemp ([#680](https://github.com/alibaba/terraform-provider/pull/680))
+
+BUG FIXES:
+
+- Fix alicloud db connection ([#676](https://github.com/alibaba/terraform-provider/pull/676))
+- Fix knstore productId ([#685](https://github.com/alibaba/terraform-provider/pull/685))
+- Fix retriving kvstore multi zones bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
+- Fix kvstore instance period bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
+- Fix kvstore docs bug ([#680](https://github.com/alibaba/terraform-provider/pull/680))
+
 ## 1.15.0 (September 08, 2018)
 
 FEATURES:

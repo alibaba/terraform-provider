@@ -37,6 +37,9 @@
                         <li<%= sidebar_current("docs-alicloud-datasource-instances") %>>
                             <a href="/docs/providers/alicloud/d/instances.html">alicloud_instances</a>
                         </li>
+                        <li<%= sidebar_current("docs-alicloud-datasource-disks") %>>
+                            <a href="/docs/providers/alicloud/d/disks.html">alicloud_disks</a>
+                        </li>
                         <li<%= sidebar_current("docs-alicloud-datasource-vpcs") %>>
                             <a href="/docs/providers/alicloud/d/vpcs.html">alicloud_vpcs</a>
                         </li>
@@ -49,6 +52,14 @@
                         <li<%= sidebar_current("docs-alicloud-datasource-eips") %>>
                             <a href="/docs/providers/alicloud/d/eips.html">alicloud_eips</a>
                         </li>
+                        <li<%= sidebar_current("docs-alicloud-datasource-vpn-gateways") %>>
+                            <a href="/docs/providers/alicloud/d/vpn_gateways.html">alicloud_vpn_gateways</a>
+                        <li<%= sidebar_current("docs-alicloud-datasource-vpn-customer-gateways") %>>
+                            <a href="/docs/providers/alicloud/d/vpn_customer_gateways.html">alicloud_vpn_customer_gateways</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-datasource-vpn-connections") %>>
+                            <a href="/docs/providers/alicloud/d/vpn_connections.html">alicloud_vpn_connections</a>
+                        </li>			
                         <li<%= sidebar_current("docs-alicloud-datasource-security-groups") %>>
                             <a href="/docs/providers/alicloud/d/security_groups.html">alicloud_security_groups</a>
                         </li>
@@ -69,6 +80,19 @@
                         </li>
                         <li<%= sidebar_current("docs-alicloud-datasource-slb-server-groups") %>>
                           <a href="/docs/providers/alicloud/d/slb_server_groups.html">alicloud_slb_server_groups</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-datasource-oss-bucket-objects") %>>
+                          <a href="/docs/providers/alicloud/d/oss_bucket_objects.html">alicloud_oss_bucket_objects</a>
+                        <li<%= sidebar_current("docs-alicloud-datasource-oss-buckets") %>>
+                          <a href="/docs/providers/alicloud/d/oss_buckets.html">alicloud_oss_buckets</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-datasource-fc-functions") %>>
+                          <a href="/docs/providers/alicloud/d/fc_functions.html">alicloud_fc_functions</a>
+                        <li<%= sidebar_current("docs-alicloud-datasource-fc-services") %>>
+                          <a href="/docs/providers/alicloud/d/fc_services.html">alicloud_fc_services</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-datasource-fc-triggers") %>>
+                          <a href="/docs/providers/alicloud/d/fc_triggers.html">alicloud_fc_triggers</a>
                         </li>
                         <li<%= sidebar_current("docs-alicloud-datasource-db-instances") %>>
                             <a href="/docs/providers/alicloud/d/db_instances.html">alicloud_db_instances</a>
@@ -117,6 +141,12 @@
                         </li>
                         <li<%= sidebar_current("docs-alicloud-datasource-pvtz-zone-records") %>>
                             <a href="/docs/providers/alicloud/d/pvtz_zone_records.html">alicloud_pvtz_zone_records</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-datasource-cen-bandwidth-packages") %>>
+                            <a href="/docs/providers/alicloud/d/cen_bandwidth_packages.html">alicloud_cen_bandwidth_packages</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-datasource-cen-instances") %>>
+                            <a href="/docs/providers/alicloud/d/cen_instances.html">alicloud_cen_instances</a>
                         </li>
                     </ul>
                 </li>
@@ -187,6 +217,12 @@
                         <li<%= sidebar_current("docs-alicloud-resource-route-entry") %>>
                             <a href="/docs/providers/alicloud/r/vroute_entry.html">alicloud_route_entry</a>
                         </li>
+                        <li<%= sidebar_current("docs-alicloud-resource-route-table") %>>
+                            <a href="/docs/providers/alicloud/r/route_table.html">alicloud_route_table</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-resource-route-table-attachment") %>>
+                            <a href="/docs/providers/alicloud/r/route_table_attachment.html">alicloud_route_table_attachment</a>
+                        </li>
                         <li<%= sidebar_current("docs-alicloud-resource-nat-gateway") %>>
                             <a href="/docs/providers/alicloud/r/nat_gateway.html">alicloud_nat_gateway</a>
                         </li>
@@ -231,6 +267,18 @@
                     <ul class="nav nav-visible">
                         <li<%= sidebar_current("docs-alicloud-resource-cen-instance") %>>
                             <a href="/docs/providers/alicloud/r/cen_instance.html">alicloud_cen_instance</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-resource-cen-instance-attachment") %>>
+                            <a href="/docs/providers/alicloud/r/cen_instance_attachment.html">alicloud_cen_instance_attachment</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-resource-cen-bandwidth-package") %>>
+                        <a href="/docs/providers/alicloud/r/cen_bandwidth_package.html">alicloud_cen_bandwidth_package</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-resource-cen-bandwidth-package-attachment") %>>
+                        <a href="/docs/providers/alicloud/r/cen_bandwidth_package_attachment.html">alicloud_cen_bandwidth_package_attachment</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-resource-cen-bandwidth-limi") %>>
+                        <a href="/docs/providers/alicloud/r/cen_bandwidth_limit.html">alicloud_cen_bandwidth_limit</a>
                         </li>
                     </ul>
                 </li>
@@ -477,10 +525,17 @@
                         </li>
                     </ul>
                 </li>
-
-
-
-
+                <li<%= sidebar_current("docs-alicloud-resource-mns") %>>
+                    <a href="#">MNS  Resources</a>
+                    <ul class="nav nav-visible">
+                        <li<%= sidebar_current("docs-alicloud-resource-mns-queue") %>>
+                            <a href="/docs/providers/alicloud/r/mns_queue.html">alicloud_mns_queue</a>
+                        </li>
+                        <li<%= sidebar_current("docs-alicloud-resource-mns-topic") %>>
+                            <a href="/docs/providers/alicloud/r/mns_topic.html">alicloud_mns_topic</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
     <% end %>

@@ -242,8 +242,13 @@ func routerInterfaceVBRTypeDiffSuppressFunc(k, old, new string, d *schema.Resour
 }
 
 func rkvPostPaidDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
-	if rds.DBPayType(d.Get("instance_charge_type").(string)) == rds.Prepaid {
+	if PayType(d.Get("instance_charge_type").(string)) == PrePaid {
 		return false
 	}
 	return true
+}
+
+func workerDataDiskSizeSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	_, ok := d.GetOk("worker_data_disk_category")
+	return !ok
 }

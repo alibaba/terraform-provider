@@ -44,6 +44,7 @@ import (
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/denverdino/aliyungo/location"
 	"github.com/denverdino/aliyungo/ram"
+	"github.com/dxh031/ali_mns"
 	"github.com/hashicorp/terraform/terraform"
 )
 
@@ -58,6 +59,7 @@ type Config struct {
 	LogEndpoint     string
 	AccountId       string
 	FcEndpoint      string
+	MNSEndpoint     string
 }
 
 // AliyunClient of aliyun
@@ -94,6 +96,7 @@ type AliyunClient struct {
 	stsconn         *sts.Client
 	rkvconn         *r_kvstore.Client
 	dhconn          *datahub.DataHub
+	mnsconn         *ali_mns.MNSClient
 }
 
 // Client for AliyunClient
@@ -439,7 +442,7 @@ func (c *Config) ddsConn() (*dds.Client, error) {
 func (c *Config) rkvConn() (*r_kvstore.Client, error) {
 	endpoint := LoadEndpoint(c.RegionId, KVSTORECode)
 	if endpoint != "" {
-		endpoints.AddEndpointMapping(c.RegionId, string(KVSTORECode), endpoint)
+		endpoints.AddEndpointMapping(c.RegionId, fmt.Sprintf("R-%s", string(KVSTORECode)), endpoint)
 	}
 	return r_kvstore.NewClientWithOptions(c.RegionId, getSdkConfig(), c.getAuthCredential(true))
 }
@@ -503,7 +506,7 @@ func (client *AliyunClient) Fcconn() (*fc.Client, error) {
 	defer client.fcconnMutex.Unlock()
 
 	if client.fcconn == nil {
-		endpoint := client.config.LogEndpoint
+		endpoint := client.config.FcEndpoint
 		if endpoint == "" {
 			endpoint = LoadEndpoint(client.config.RegionId, FCCode)
 			if endpoint == "" {
@@ -528,6 +531,28 @@ func (client *AliyunClient) Fcconn() (*fc.Client, error) {
 		}
 	}
 	return client.fcconn, nil
+}
+
+func (client *AliyunClient) Mnsconn() (*ali_mns.MNSClient, error) {
+	if client.mnsconn == nil {
+		endpoint := client.config.MNSEndpoint
+		if endpoint == "" {
+			endpoint = LoadEndpoint(client.config.RegionId, MNSCode)
+			if endpoint == "" {
+				endpoint = fmt.Sprintf("%s.aliyuncs.com", client.config.RegionId)
+			}
+		}
+		accountId, err := client.AccountId()
+		if err != nil {
+			return nil, err
+		}
+		url := fmt.Sprintf("http://%s.mns.%s", accountId, endpoint)
+
+		mnsClient := ali_mns.NewAliMNSClient(url, client.config.AccessKey, client.config.SecretKey)
+
+		client.mnsconn = &mnsClient
+	}
+	return client.mnsconn, nil
 }
 
 func getUserAgent() string {
