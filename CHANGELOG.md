@@ -4,17 +4,18 @@ FEATURES:
 
 - **New Resource:** `alicloud_mns_topic_subscription` ([#710](https://github.com/alibaba/terraform-provider/pull/710))
 - **New Resource:** `alicloud_havip` ([#709](https://github.com/alibaba/terraform-provider/pull/709))
-- **New Data Source:** `alicloud_cen_bandwidth_packages` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
 - **New Resource:** `alicloud_route_table_attachment` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
 - **New Resource:** `alicloud_cen_bandwidth_limit` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
 - **New Resource:** `alicloud_mns_topic` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
 - **New Resource:** `alicloud_mns_queue` ([#701](https://github.com/alibaba/terraform-provider/pull/701))
+- **New Resource:** `alicloud_cen_bandwidth_package_attachment` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+- **New Resource:** `alicloud_route_table` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+- **New Data Source:** `alicloud_mns_queues` ([#714](https://github.com/alibaba/terraform-provider/pull/714))
+- **New Data Source:** `alicloud_cen_bandwidth_packages` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
 - **New Data Source:** `alicloud_vpn_connections` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
 - **New Data Source:** `alicloud_vpn_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
 - **New Data Source:** `alicloud_vpn_customer_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
-- **New Resource:** `alicloud_cen_bandwidth_package_attachment` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
 - **New Data Source:** `alicloud_cen_instances` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
-- **New Resource:** `alicloud_route_table` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
 
 IMPROVEMENTS:
 
