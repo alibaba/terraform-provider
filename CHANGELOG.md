@@ -18,6 +18,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- RAM support useragent ([#713](https://github.com/alibaba/terraform-provider/pull/713))
 - Add node_cidr_mas and log_config, fix worker_data_disk issue ([#708](https://github.com/alibaba/terraform-provider/pull/708))
 - Add parameter 'force_delete' to support deleting 'PrePaid' instance ([#704](https://github.com/alibaba/terraform-provider/pull/704))
 - Correct Function Compute conn ([#703](https://github.com/alibaba/terraform-provider/pull/703))
