@@ -2,6 +2,7 @@
 
 FEATURES:
 
+- **New Resource:** `alicloud_havip_attachment` ([#711](https://github.com/alibaba/terraform-provider/pull/711))
 - **New Resource:** `alicloud_mns_topic_subscription` ([#710](https://github.com/alibaba/terraform-provider/pull/710))
 - **New Resource:** `alicloud_havip` ([#709](https://github.com/alibaba/terraform-provider/pull/709))
 - **New Resource:** `alicloud_route_table_attachment` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
