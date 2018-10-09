@@ -3,6 +3,12 @@
 	"ignore": "",
 	"package": [
 		{
+			"checksumSHA1": "DTBAvt3iADDHB1S4Ip9D9KtFbqA=",
+			"path": "github.com/Sirupsen/logrus",
+			"revision": "3791101e143bf0f32515ac23e831475684f61229",
+			"revisionTime": "2018-09-04T20:21:35Z"
+		},
+		{
 			"path": "github.com/alibaba-cloud-sdk-go/services/r-kvstore",
 			"revision": ""
 		},
@@ -257,6 +263,12 @@
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/vpc",
 			"revision": "dc6b98de2eeb9a46283e23052b6de98a56ef11a5",
 			"revisionTime": "2018-08-23T03:14:16Z"
+		},
+		{
+			"checksumSHA1": "+6lEd5+mqYaIzYtGB03vuKN+PL4=",
+			"path": "github.com/aliyun/aliyun-datahub-sdk-go/datahub",
+			"revision": "c1c85baca7c0f0dd9a0573de4ae7e8b38363e517",
+			"revisionTime": "2018-09-29T12:10:38Z"
 		},
 		{
 			"checksumSHA1": "WhSU5HOSMEwkWAxM7Xwr6H+jigw=",
