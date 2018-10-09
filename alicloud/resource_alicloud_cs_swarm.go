@@ -96,6 +96,12 @@ func resourceAlicloudCSSwarm() *schema.Resource {
 					return old != ""
 				},
 			},
+			"need_slb": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				ForceNew: true,
+			},
 			"is_outdated": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -181,6 +187,7 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 		VSwitchID:        d.Get("vswitch_id").(string),
 		SubnetCIDR:       d.Get("cidr_block").(string),
 		ReleaseEipFlag:   d.Get("release_eip").(bool),
+		NeedSLB:          d.Get("need_slb").(bool),
 	}
 
 	vsw, err := client.DescribeVswitch(args.VSwitchID)
