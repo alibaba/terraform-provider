@@ -58,3 +58,10 @@ func isTerraformTestingDatahubObject(name string) bool {
 
 	return false
 }
+
+func getDefaultRecordSchemainMap() map[string]interface{} {
+
+	return map[string]interface{}{
+		"string_field": "STRING",
+	}
+}

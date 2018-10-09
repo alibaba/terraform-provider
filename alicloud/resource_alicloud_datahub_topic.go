@@ -42,13 +42,14 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 			},
 			"shard_count": &schema.Schema{
 				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validateIntegerInRange(1, 256),
+				Optional:     true,
+				Default:      1,
+				ValidateFunc: validateIntegerInRange(1, 10),
 			},
 			"life_cycle": &schema.Schema{
 				Type:         schema.TypeInt,
-				Required:     true,
+				Optional:     true,
+				Default:      3,
 				ValidateFunc: validateIntegerInRange(1, 7),
 			},
 			"comment": &schema.Schema{
@@ -62,8 +63,8 @@ func resourceAlicloudDatahubTopic() *schema.Resource {
 			},
 			"record_type": &schema.Schema{
 				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
+				Optional:     true,
+				Default:      "TUPLE",
 				ValidateFunc: validateAllowedStringValue([]string{string(datahub.TUPLE), string(datahub.BLOB)}),
 			},
 			"record_schema": &schema.Schema{
@@ -100,7 +101,12 @@ func resourceAliyunDatahubTopicCreate(d *schema.ResourceData, meta interface{}) 
 	recordType := d.Get("record_type").(string)
 	if recordType == string(datahub.TUPLE) {
 		t.RecordType = datahub.TUPLE
-		t.RecordSchema = getRecordSchema(d.Get("record_schema").(map[string]interface{}))
+
+		recordSchema := d.Get("record_schema").(map[string]interface{})
+		if len(recordSchema) == 0 {
+			recordSchema = getDefaultRecordSchemainMap()
+		}
+		t.RecordSchema = getRecordSchema(recordSchema)
 	} else if recordType == string(datahub.BLOB) {
 		t.RecordType = datahub.BLOB
 	}
