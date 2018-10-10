@@ -1,4 +1,9 @@
 ## 1.19.0 (Unreleased)
+
+IMPROVEMENTS:
+
+- Change key pair file mode to 400 ([#723](https://github.com/alibaba/terraform-provider/pull/723))
+
 ## 1.18.0 (October 09, 2018)
 
 FEATURES:
