@@ -10,6 +10,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Close havip sweeper test case ([#729](https://github.com/alibaba/terraform-provider/pull/729))
 - Skip havip test case ([#728](https://github.com/alibaba/terraform-provider/pull/728))
 - modify the sweeptest nameprefix ([#728](https://github.com/alibaba/terraform-provider/pull/728))
 
