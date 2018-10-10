@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Format examples ([#727](https://github.com/alibaba/terraform-provider/pull/727))
 - Add new example mns-queue and mns-topic ([#726](https://github.com/alibaba/terraform-provider/pull/726))
 - Remove useless datasource cache file ([#726](https://github.com/alibaba/terraform-provider/pull/726))
 - Improve example/ecs-key-pair ([#725](https://github.com/alibaba/terraform-provider/pull/725))
