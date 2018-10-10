@@ -2,7 +2,8 @@
 
 IMPROVEMENTS:
 
-- Change key pair file mode to 400 ([#723](https://github.com/alibaba/terraform-provider/pull/723))
+- Improve example/ecs-key-pair ([#725](https://github.com/alibaba/terraform-provider/pull/725))
+- Change key pair file mode to 400 ([#724](https://github.com/alibaba/terraform-provider/pull/724))
 
 ## 1.18.0 (October 09, 2018)
 
