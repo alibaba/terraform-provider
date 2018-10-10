@@ -21,6 +21,9 @@ func init() {
 }
 
 func testSweepHaVipAttachment(region string) error {
+	// At present, only white list users can operate HaVip Resource. Return nil to avoid needless error
+	return nil
+
 	client, err := sharedClientForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
@@ -84,7 +87,9 @@ func testSweepHaVipAttachment(region string) error {
 	}
 	return nil
 }
-func TestAccAlicloudHaVipAttachment_basic(t *testing.T) {
+
+// At present, only white list users can operate HaVip Resource.
+func SkipTestAccAlicloudHaVipAttachment_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
