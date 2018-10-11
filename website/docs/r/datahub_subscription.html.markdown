@@ -34,15 +34,15 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `id` - The ID of the datahub subscritpion as terraform resource. It was composed of project name, topic name and practical subscription ID generated from server side.
+* `id` - The ID of the datahub subscritpion as terraform resource. It was composed of project name, topic name and practical subscription ID generated from server side. Format to <project_name>:<topic_name>:<sub_id>.
 * `sub_id` - The identidy of the subscritpion, generate from server side.
 * `create_time` - Create time of the datahub subscription. It is a human-readable string rather than 64-bits UTC.
 * `last_modify_time` - Last modify time of the datahub subscription. It is the same as *create_time* at the beginning. It is also a human-readable string rather than 64-bits UTC.
 
 ## Import
 
-Datahub subscription can be imported using the *name* or ID, e.g.
+Datahub subscription can be imported using the ID, e.g.
 
 ```
-$ terraform import alicloud_datahub_subscription.example tf_datahub_subscription
+$ terraform import alicloud_datahub_subscription.example tf_datahub_project:tf_datahub_topic:1539073399567UgCzY
 ```

@@ -1,5 +1,11 @@
 ## 1.19.0 (Unreleased)
 
+FEATURES:
+
+- **New Resource:** `alicloud_datahub_project` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
+- **New Resource:** `alicloud_datahub_topic` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
+- **New Resource:** `alicloud_datahub_subscription` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
+
 IMPROVEMENTS:
 
 - Format examples ([#727](https://github.com/alibaba/terraform-provider/pull/727))
@@ -34,9 +40,6 @@ FEATURES:
 - **New Data Source:** `alicloud_vpn_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
 - **New Data Source:** `alicloud_vpn_customer_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
 - **New Data Source:** `alicloud_cen_instances` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
-- **New Resource:** `alicloud_datahub_project` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
-- **New Resource:** `alicloud_datahub_topic` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
-- **New Resource:** `alicloud_datahub_subscription` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
 
 IMPROVEMENTS:
 
