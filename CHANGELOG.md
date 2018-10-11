@@ -16,6 +16,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- modify the mns err info ([#730](https://github.com/alibaba/terraform-provider/pull/730))
 - Close havip sweeper test case ([#729](https://github.com/alibaba/terraform-provider/pull/729))
 - Skip havip test case ([#728](https://github.com/alibaba/terraform-provider/pull/728))
 - modify the sweeptest nameprefix ([#728](https://github.com/alibaba/terraform-provider/pull/728))
