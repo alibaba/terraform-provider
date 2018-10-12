@@ -6,6 +6,7 @@ FEATURES:
 - **New Resource:** `alicloud_datahub_project` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
 - **New Resource:** `alicloud_datahub_topic` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
 - **New Resource:** `alicloud_datahub_subscription` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
+- **New Data Source:** `alicloud_api_gateway_groups` ([#735](https://github.com/alibaba/terraform-provider/pull/735))
 - **New Data Source:** `alicloud_cen_bandwidth_limits` ([#733](https://github.com/alibaba/terraform-provider/pull/733))
 
 IMPROVEMENTS:
