@@ -1,4 +1,4 @@
-{
+	{
 	"comment": "",
 	"ignore": "",
 	"package": [
@@ -315,10 +315,10 @@
 			"revisionTime": "2018-04-26T04:54:50Z"
 		},
 		{
-			"checksumSHA1": "S3riP16oWY7HSy2he9BPOKksRXg=",
+			"checksumSHA1": "1mOVE9nv8nSWMEQIQvnaovD9jqc=",
 			"path": "github.com/denverdino/aliyungo/cs",
-			"revision": "a0026e2d173daac7748efb20d29288c7514d5419",
-			"revisionTime": "2018-10-11T13:04:41Z"
+			"revision": "d3366b2f208de3d4ab7e2f092efff115603bd9a1",
+			"revisionTime": "2018-10-08T11:37:16Z"
 		},
 		{
 			"checksumSHA1": "dN7vxxBQ5axpNUnIO/ocSJeEjvU=",
