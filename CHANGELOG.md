@@ -10,6 +10,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Add new examples/fc ([#735](https://github.com/alibaba/terraform-provider/pull/735))
 - Format examples ([#727](https://github.com/alibaba/terraform-provider/pull/727))
 - Add new example mns-queue and mns-topic ([#726](https://github.com/alibaba/terraform-provider/pull/726))
 - Remove useless datasource cache file ([#726](https://github.com/alibaba/terraform-provider/pull/726))
