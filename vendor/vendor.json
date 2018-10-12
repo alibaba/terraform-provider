@@ -117,8 +117,10 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "g4tVpnp+k764hU+v7iDxdP+q8+g=",
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/cloudapi",
-			"revision": ""
+			"revision": "c196da684fa08b51b33419b695c76da2a00f891c",
+			"revisionTime": "2018-10-11T05:21:20Z"
 		},
 		{
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/cloudphoto",
