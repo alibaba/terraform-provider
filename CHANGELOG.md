@@ -16,7 +16,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-- modify the mns err info ([#730](https://github.com/alibaba/terraform-provider/pull/730))
+- fix kubernetes's new_nat_gateway issue ([#732](https://github.com/alibaba/terraform-provider/pull/732))
+- modify the mns err info ([#731](https://github.com/alibaba/terraform-provider/pull/731))
 - Close havip sweeper test case ([#729](https://github.com/alibaba/terraform-provider/pull/729))
 - Skip havip test case ([#728](https://github.com/alibaba/terraform-provider/pull/728))
 - modify the sweeptest nameprefix ([#728](https://github.com/alibaba/terraform-provider/pull/728))
