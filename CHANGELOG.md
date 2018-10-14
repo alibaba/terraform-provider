@@ -1,4 +1,5 @@
-## 1.19.0 (Unreleased)
+## 1.20.0 (Unreleased)
+## 1.19.0 (October 14, 2018)
 
 FEATURES:
 
@@ -11,6 +12,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- added need_slb attribute to cs swarm ([#737](https://github.com/alibaba/terraform-provider/pull/737))
 - Add new examples/fc ([#735](https://github.com/alibaba/terraform-provider/pull/735))
 - Format examples ([#727](https://github.com/alibaba/terraform-provider/pull/727))
 - Add new example mns-queue and mns-topic ([#726](https://github.com/alibaba/terraform-provider/pull/726))

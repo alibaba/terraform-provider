@@ -261,7 +261,7 @@ resource "alicloud_cs_swarm" "cs_vpc" {
 
 const testAccCSSwarm_basic_noslb = `
 variable "name" {
-	default = "testAccCSSwarm-basic"
+	default = "tf-testAccCSSwarm-basic"
 }
 data "alicloud_images" main {
 	most_recent = true
