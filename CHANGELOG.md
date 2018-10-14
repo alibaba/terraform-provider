@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+- Improve examples/ots-table ([#741](https://github.com/alibaba/terraform-provider/pull/741))
 - Improve examples ecs-vpc, ecs-new-vpc and api-gateway ([#740](https://github.com/alibaba/terraform-provider/pull/740))
 
 ## 1.19.0 (October 14, 2018)
