@@ -626,7 +626,6 @@ func (client *AliyunClient) AccountId() (string, error) {
 		if identity.AccountId == "" {
 			return "", fmt.Errorf("caller identity doesn't contain any AccountId")
 		}
-		log.Printf("[DEBUG] account_id retrieved with success.")
 		client.accountId = identity.AccountId
 	}
 	return client.accountId, nil
