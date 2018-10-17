@@ -1,5 +1,9 @@
 ## 1.20.0 (Unreleased)
 
+FEATURES:
+
+- **New Resource:** `alicloud_cen_route_entry` ([#745](https://github.com/alibaba/terraform-provider/pull/745))
+
 IMPROVEMENTS:
 
 - Hide AliCloud HaVip Attachment resource docs because of it is not public totally ([#744](https://github.com/alibaba/terraform-provider/pull/744))
