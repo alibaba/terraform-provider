@@ -44,10 +44,10 @@ func (s *CsService) GetContainerClusterByName(name string) (cluster cs.ClusterTy
 	return cluster, GetNotFoundErrorFromString(GetNotFoundMessage("Container Cluster", name))
 }
 
-func (s *CsService) RunSafelyWithCsProjectClientByClusterName(name string, do func(*cs.ProjectClient) (interface{}, error)) (interface{}, error) {
+func (s *CsService) GetContainerClusterAndCertsByName(name string) (*cs.ClusterType, *cs.ClusterCerts, error) {
 	cluster, err := s.GetContainerClusterByName(name)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	var certs cs.ClusterCerts
 	invoker := NewInvoker()
@@ -63,15 +63,19 @@ func (s *CsService) RunSafelyWithCsProjectClientByClusterName(name string, do fu
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return s.client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, certs, do)
+	return &cluster, &certs, nil
 }
 
 func (s *CsService) DescribeContainerApplication(clusterName, appName string) (app cs.GetProjectResponse, err error) {
 	appName = Trim(appName)
-	raw, err := s.RunSafelyWithCsProjectClientByClusterName(appName, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+	cluster, certs, err := s.GetContainerClusterAndCertsByName(appName)
+	if err == nil {
+		return app, err
+	}
+	raw, err := s.client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 		return csProjectClient.GetProject(appName)
 	})
 	app, _ = raw.(cs.GetProjectResponse)
