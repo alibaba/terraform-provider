@@ -5,8 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -37,7 +36,7 @@ func resourceAliyunEipAssociation() *schema.Resource {
 }
 
 func resourceAliyunEipAssociationCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	args := vpc.CreateAssociateEipAddressRequest()
@@ -82,7 +81,7 @@ func resourceAliyunEipAssociationCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAliyunEipAssociationRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	allocationId, instanceId, err := getAllocationIdAndInstanceId(d, meta)
@@ -111,7 +110,7 @@ func resourceAliyunEipAssociationRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAliyunEipAssociationDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	allocationId, instanceId, err := getAllocationIdAndInstanceId(d, meta)

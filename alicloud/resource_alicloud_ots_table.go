@@ -5,8 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -72,7 +71,7 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 	instanceName := d.Get("instance_name").(string)
 	tableName := d.Get("table_name").(string)
 	tableMeta.TableName = tableName
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	otsService := OtsService{client}
 
 	for _, primaryKey := range d.Get("primary_key").([]interface{}) {
@@ -108,7 +107,7 @@ func resourceAliyunOtsTableRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	otsService := OtsService{client}
 	describe, err := otsService.DescribeOtsTable(instanceName, tableName)
 
@@ -144,7 +143,7 @@ func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return err
 	}
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	update := false
 
 	updateTableReq := new(tablestore.UpdateTableRequest)
@@ -182,7 +181,7 @@ func resourceAliyunOtsTableDelete(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	otsService := OtsService{client}
 	req := new(tablestore.DeleteTableRequest)
 	req.TableName = tableName
@@ -216,9 +215,9 @@ func parseId(d *schema.ResourceData, meta interface{}) (instanceName, tableName 
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 	if len(split) == 1 {
 		// For compatibility
-		if meta.(*aliyunclient.AliyunClient).OtsInstanceName != "" {
+		if meta.(*connectivity.AliyunClient).OtsInstanceName != "" {
 			tableName = split[0]
-			instanceName = meta.(*aliyunclient.AliyunClient).OtsInstanceName
+			instanceName = meta.(*connectivity.AliyunClient).OtsInstanceName
 			d.SetId(fmt.Sprintf("%s%s%s", instanceName, COLON_SEPARATED, tableName))
 		} else {
 			err = fmt.Errorf("From Provider version 1.10.0, the provider field 'ots_instance_name' has been deprecated and " +

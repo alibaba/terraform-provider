@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/fc-go-sdk"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -96,7 +95,7 @@ func resourceAlicloudFCTrigger() *schema.Resource {
 }
 
 func resourceAlicloudFCTriggerCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	serviceName := d.Get("service").(string)
 	fcName := d.Get("function").(string)
@@ -156,7 +155,7 @@ func resourceAlicloudFCTriggerCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudFCTriggerRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	fcService := FcService{client}
 
 	split := strings.Split(d.Id(), COLON_SEPARATED)
@@ -185,7 +184,7 @@ func resourceAlicloudFCTriggerRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudFCTriggerUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 	updateInput := &fc.UpdateTriggerInput{}
@@ -225,7 +224,7 @@ func resourceAlicloudFCTriggerUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudFCTriggerDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	fcService := FcService{client}
 
 	split := strings.Split(d.Id(), COLON_SEPARATED)

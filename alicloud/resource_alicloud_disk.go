@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -76,7 +75,7 @@ func resourceAliyunDisk() *schema.Resource {
 }
 
 func resourceAliyunDiskCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	availabilityZone, err := ecsService.DescribeZone(d.Get("availability_zone").(string))
@@ -152,7 +151,7 @@ func resourceAliyunDiskCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunDiskRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	disk, err := ecsService.DescribeDiskById("", d.Id())
 
@@ -185,7 +184,7 @@ func resourceAliyunDiskRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunDiskUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -228,7 +227,7 @@ func resourceAliyunDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunDiskDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	req := ecs.CreateDeleteDiskRequest()

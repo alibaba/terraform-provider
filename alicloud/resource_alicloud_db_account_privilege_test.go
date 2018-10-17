@@ -5,8 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -52,7 +51,7 @@ func testAccCheckDBAccountPrivilegeExists(n string, d *rds.DBInstanceAccount) re
 			return fmt.Errorf("No DB account ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		rsdService := RdsService{client}
 		parts := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 		account, err := rsdService.DescribeDatabaseAccount(parts[0], parts[1])
@@ -71,7 +70,7 @@ func testAccCheckDBAccountPrivilegeExists(n string, d *rds.DBInstanceAccount) re
 }
 
 func testAccCheckDBAccountPrivilegeDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	rsdService := RdsService{client}
 
 	for _, rs := range s.RootModule().Resources {

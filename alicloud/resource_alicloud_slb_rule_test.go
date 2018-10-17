@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -73,7 +73,7 @@ func testAccCheckSlbRuleExists(n string, rule *slb.DescribeRuleAttributeResponse
 			return fmt.Errorf("No SLB Rule ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		slbService := SlbService{client}
 		r, err := slbService.DescribeLoadBalancerRuleAttribute(rs.Primary.ID)
 		if err != nil {
@@ -87,7 +87,7 @@ func testAccCheckSlbRuleExists(n string, rule *slb.DescribeRuleAttributeResponse
 }
 
 func testAccCheckSlbRuleDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 
 	for _, rs := range s.RootModule().Resources {

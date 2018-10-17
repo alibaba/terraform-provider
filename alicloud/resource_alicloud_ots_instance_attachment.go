@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -43,7 +42,7 @@ func resourceAlicloudOtsInstanceAttachment() *schema.Resource {
 }
 
 func resourceAliyunOtsInstanceAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	req := ots.CreateBindInstance2VpcRequest()
@@ -69,7 +68,7 @@ func resourceAliyunOtsInstanceAttachmentCreate(d *schema.ResourceData, meta inte
 }
 
 func resourceAliyunOtsInstanceAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	otsService := OtsService{client}
 	inst, err := otsService.DescribeOtsInstanceVpc(d.Id())
 	if err != nil {
@@ -87,7 +86,7 @@ func resourceAliyunOtsInstanceAttachmentRead(d *schema.ResourceData, meta interf
 }
 
 func resourceAliyunOtsInstanceAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	otsService := OtsService{client}
 	inst, err := otsService.DescribeOtsInstanceVpc(d.Id())
 	if err != nil {

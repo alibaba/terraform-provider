@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -58,7 +57,7 @@ func resourceAlicloudLogMachineGroup() *schema.Resource {
 }
 
 func resourceAlicloudLogMachineGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return nil, slsClient.CreateMachineGroup(d.Get("project").(string), &sls.MachineGroup{
 			Name:          d.Get("name").(string),
@@ -79,7 +78,7 @@ func resourceAlicloudLogMachineGroupCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudLogMachineGroupRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	logService := LogService{client}
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
@@ -120,7 +119,7 @@ func resourceAlicloudLogMachineGroupUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	if update {
-		client := meta.(*aliyunclient.AliyunClient)
+		client := meta.(*connectivity.AliyunClient)
 		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return nil, slsClient.UpdateMachineGroup(split[0], &sls.MachineGroup{
 				Name:          split[1],
@@ -141,7 +140,7 @@ func resourceAlicloudLogMachineGroupUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudLogMachineGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	logService := LogService{client}
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 

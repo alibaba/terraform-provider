@@ -5,8 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -87,7 +86,7 @@ func testAccCheckEIPAssociationExists(n string, instance *ecs.Instance, eip *vpc
 			return fmt.Errorf("No EIP Association ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 		return resource.Retry(3*time.Minute, func() *resource.RetryError {
 			d, err := vpcService.DescribeEipAddress(rs.Primary.Attributes["allocation_id"])
@@ -118,7 +117,7 @@ func testAccCheckEIPAssociationSlbExists(n string, slb *slb.DescribeLoadBalancer
 			return fmt.Errorf("No EIP Association ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 		return resource.Retry(3*time.Minute, func() *resource.RetryError {
 			d, err := vpcService.DescribeEipAddress(rs.Primary.Attributes["allocation_id"])
@@ -140,7 +139,7 @@ func testAccCheckEIPAssociationSlbExists(n string, slb *slb.DescribeLoadBalancer
 }
 
 func testAccCheckEIPAssociationDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	for _, rs := range s.RootModule().Resources {

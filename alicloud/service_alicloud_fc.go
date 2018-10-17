@@ -3,13 +3,12 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/fc-go-sdk"
 )
 
 type FcService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *FcService) DescribeFcService(name string) (service *fc.GetServiceOutput, err error) {

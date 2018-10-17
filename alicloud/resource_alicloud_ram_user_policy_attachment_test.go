@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -54,7 +54,7 @@ func testAccCheckRamUserPolicyAttachmentExists(n string, policy *ram.Policy, use
 			return fmt.Errorf("No Attachment ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 		request := ram.UserQueryRequest{
 			UserName: split[0],
@@ -86,7 +86,7 @@ func testAccCheckRamUserPolicyAttachmentDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the attachment
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.UserQueryRequest{
 			UserName: rs.Primary.Attributes["user_name"],

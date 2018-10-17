@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -165,7 +165,7 @@ func dataSourceAlicloudMongoInstances() *schema.Resource {
 }
 
 func dataSourceAlicloudMongoInstancesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := dds.CreateDescribeDBInstancesRequest()
 

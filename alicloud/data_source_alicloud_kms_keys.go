@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -84,7 +83,7 @@ func dataSourceAlicloudKmsKeys() *schema.Resource {
 }
 
 func dataSourceAlicloudKmsKeysRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := &kms.ListKeysArgs{}
 

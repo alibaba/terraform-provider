@@ -5,8 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -60,7 +59,7 @@ func resourceAliyunEssScalingRuleCreate(d *schema.ResourceData, meta interface{}
 		return err
 	}
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.CreateScalingRule(args)
@@ -76,7 +75,7 @@ func resourceAliyunEssScalingRuleCreate(d *schema.ResourceData, meta interface{}
 
 func resourceAliyunEssScalingRuleRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	ids := strings.Split(d.Id(), COLON_SEPARATED)
 
@@ -100,7 +99,7 @@ func resourceAliyunEssScalingRuleRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAliyunEssScalingRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	ids := strings.Split(d.Id(), COLON_SEPARATED)
 
@@ -128,7 +127,7 @@ func resourceAliyunEssScalingRuleDelete(d *schema.ResourceData, meta interface{}
 
 func resourceAliyunEssScalingRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ids := strings.Split(d.Id(), COLON_SEPARATED)
 
 	args := ess.CreateModifyScalingRuleRequest()

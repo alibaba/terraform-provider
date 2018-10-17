@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -29,7 +28,7 @@ func resourceAlicloudDnsGroup() *schema.Resource {
 }
 
 func resourceAlicloudDnsGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	args := &dns.AddDomainGroupArgs{
 		GroupName: d.Get("name").(string),
 	}
@@ -47,7 +46,7 @@ func resourceAlicloudDnsGroupCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudDnsGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 	args := &dns.UpdateDomainGroupArgs{
@@ -70,7 +69,7 @@ func resourceAlicloudDnsGroupUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudDnsGroupRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := &dns.DescribeDomainGroupsArgs{
 		KeyWord: d.Get("name").(string),
@@ -98,7 +97,7 @@ func resourceAlicloudDnsGroupRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlicloudDnsGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := &dns.DeleteDomainGroupArgs{
 		GroupId: d.Id(),

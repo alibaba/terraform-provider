@@ -6,8 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -209,7 +208,7 @@ func resourceAlicloudOssBucket() *schema.Resource {
 }
 
 func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	bucket := d.Get("bucket").(string)
 	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
@@ -257,7 +256,7 @@ func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.GetBucketInfo(d.Id())
@@ -424,7 +423,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudOssBucketUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -476,7 +475,7 @@ func resourceAlicloudOssBucketUpdate(d *schema.ResourceData, meta interface{}) e
 	d.Partial(false)
 	return resourceAlicloudOssBucketRead(d, meta)
 }
-func resourceAlicloudOssBucketCorsUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func resourceAlicloudOssBucketCorsUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	cors := d.Get("cors_rule").([]interface{})
 	if cors == nil || len(cors) == 0 {
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
@@ -532,7 +531,7 @@ func resourceAlicloudOssBucketCorsUpdate(client *aliyunclient.AliyunClient, d *s
 
 	return nil
 }
-func resourceAlicloudOssBucketWebsiteUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func resourceAlicloudOssBucketWebsiteUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	ws := d.Get("website").([]interface{})
 	if ws == nil || len(ws) == 0 {
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
@@ -569,7 +568,7 @@ func resourceAlicloudOssBucketWebsiteUpdate(client *aliyunclient.AliyunClient, d
 	return nil
 }
 
-func resourceAlicloudOssBucketLoggingUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func resourceAlicloudOssBucketLoggingUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	logging := d.Get("logging").([]interface{})
 	if logging == nil || len(logging) == 0 {
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
@@ -605,7 +604,7 @@ func resourceAlicloudOssBucketLoggingUpdate(client *aliyunclient.AliyunClient, d
 	return nil
 }
 
-func resourceAlicloudOssBucketRefererUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func resourceAlicloudOssBucketRefererUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	config := d.Get("referer_config").([]interface{})
 	if config == nil || len(config) < 1 {
 		log.Printf("[DEBUG] OSS set bucket referer as nil")
@@ -639,7 +638,7 @@ func resourceAlicloudOssBucketRefererUpdate(client *aliyunclient.AliyunClient, d
 
 	return nil
 }
-func resourceAlicloudOssBucketLifecycleRuleUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func resourceAlicloudOssBucketLifecycleRuleUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	bucket := d.Id()
 	lifecycleRules := d.Get("lifecycle_rule").([]interface{})
 
@@ -723,7 +722,7 @@ func resourceAlicloudOssBucketLifecycleRuleUpdate(client *aliyunclient.AliyunCli
 	return nil
 }
 func resourceAlicloudOssBucketDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {

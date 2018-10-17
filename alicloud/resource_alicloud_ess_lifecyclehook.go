@@ -3,10 +3,9 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -67,7 +66,7 @@ func resourceAlicloudEssLifecycleHook() *schema.Resource {
 func resourceAliyunEssLifeCycleHookCreate(d *schema.ResourceData, meta interface{}) error {
 
 	args := buildAlicloudEssLifeCycleHookArgs(d)
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -91,7 +90,7 @@ func resourceAliyunEssLifeCycleHookCreate(d *schema.ResourceData, meta interface
 
 func resourceAliyunEssLifeCycleHookRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	hook, err := essService.DescribeLifecycleHookById(d.Id())
@@ -116,7 +115,7 @@ func resourceAliyunEssLifeCycleHookRead(d *schema.ResourceData, meta interface{}
 
 func resourceAliyunEssLifeCycleHookUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	args := ess.CreateModifyLifecycleHookRequest()
 	args.LifecycleHookId = d.Id()
 
@@ -152,7 +151,7 @@ func resourceAliyunEssLifeCycleHookUpdate(d *schema.ResourceData, meta interface
 
 func resourceAliyunEssLifeCycleHookDelete(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	id := d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {

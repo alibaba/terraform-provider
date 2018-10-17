@@ -5,8 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -48,7 +47,7 @@ func dataSourceAlicloudDnsGroups() *schema.Resource {
 }
 
 func dataSourceAlicloudDnsGroupsRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := &dns.DescribeDomainGroupsArgs{}
 

@@ -5,11 +5,10 @@ import (
 	"log"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -29,7 +28,7 @@ func testSweepOSSBuckets(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testacc",
@@ -295,7 +294,7 @@ func testAccCheckOssBucketExistsWithProviders(n string, b *oss.BucketInfo, provi
 				continue
 			}
 
-			client := provider.Meta().(*aliyunclient.AliyunClient)
+			client := provider.Meta().(*connectivity.AliyunClient)
 			ossService := OssService{client}
 			bucket, err := ossService.QueryOssBucketById(rs.Primary.ID)
 			log.Printf("[WARN]get oss bucket %#v", bucket)
@@ -352,7 +351,7 @@ func testAccCheckOssBucketDestroy(s *terraform.State) error {
 }
 
 func testAccCheckOssBucketDestroyWithProvider(s *terraform.State, provider *schema.Provider) error {
-	client := provider.Meta().(*aliyunclient.AliyunClient)
+	client := provider.Meta().(*connectivity.AliyunClient)
 	ossService := OssService{client}
 
 	for _, rs := range s.RootModule().Resources {

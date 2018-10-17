@@ -6,8 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -157,7 +156,7 @@ func dataSourceAlicloudInstanceTypes() *schema.Resource {
 }
 
 func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	zoneId, validZones, err := ecsService.DescribeAvailableResources(d, meta, InstanceTypeResource)

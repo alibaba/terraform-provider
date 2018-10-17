@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strconv"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -118,7 +117,7 @@ func dataSourceAlicloudSecurityGroupRules() *schema.Resource {
 }
 
 func dataSourceAlicloudSecurityGroupRulesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	req := ecs.CreateDescribeSecurityGroupAttributeRequest()
 	req.SecurityGroupId = d.Get("group_id").(string)

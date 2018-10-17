@@ -5,8 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -96,7 +95,7 @@ func dataSourceAlicloudRamPolicies() *schema.Resource {
 }
 
 func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 	allPolicies := []interface{}{}
 
@@ -199,7 +198,7 @@ func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{})
 }
 
 func ramPoliciesDescriptionAttributes(d *schema.ResourceData, policies []interface{}, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	var ids []string
 	var s []map[string]interface{}
 	for _, v := range policies {

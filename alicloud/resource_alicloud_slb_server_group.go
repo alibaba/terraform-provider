@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -68,7 +68,7 @@ func resourceAliyunSlbServerGroup() *schema.Resource {
 }
 
 func resourceAliyunSlbServerGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	var groupId string
 	req := slb.CreateCreateVServerGroupRequest()
 	req.LoadBalancerId = d.Get("load_balancer_id").(string)
@@ -89,7 +89,7 @@ func resourceAliyunSlbServerGroupCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAliyunSlbServerGroupRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	group, err := slbService.DescribeSlbVServerGroupAttribute(d.Id())
 
@@ -141,7 +141,7 @@ func resourceAliyunSlbServerGroupRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAliyunSlbServerGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -208,7 +208,7 @@ func resourceAliyunSlbServerGroupUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAliyunSlbServerGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	req := slb.CreateDeleteVServerGroupRequest()
 	req.VServerGroupId = d.Id()

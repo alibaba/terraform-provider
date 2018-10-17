@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -93,7 +93,7 @@ func testAccCheckCenInstanceAttachmentExists(n string, instance *cbn.ChildInstan
 			return fmt.Errorf("No Cen Child Instance ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		cenService := CenService{client}
 
 		cenId, instanceId, err := getCenIdAndAnotherId(rs.Primary.ID)
@@ -116,7 +116,7 @@ func testAccCheckCenInstanceAttachmentExists(n string, instance *cbn.ChildInstan
 }
 
 func testAccCheckCenInstanceAttachmentDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	cenService := CenService{client}
 
 	for _, rs := range s.RootModule().Resources {

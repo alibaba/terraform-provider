@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -80,7 +80,7 @@ func resourceAliyunEip() *schema.Resource {
 }
 
 func resourceAliyunEipCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	request := vpc.CreateAllocateEipAddressRequest()
@@ -121,7 +121,7 @@ func resourceAliyunEipCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunEipRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	eip, err := vpcService.DescribeEipAddress(d.Id())
@@ -153,7 +153,7 @@ func resourceAliyunEipRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunEipUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	d.Partial(true)
 
 	update := false
@@ -190,7 +190,7 @@ func resourceAliyunEipUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunEipDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	request := vpc.CreateReleaseEipAddressRequest()

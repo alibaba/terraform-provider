@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -34,7 +34,7 @@ func testSweepVpcs(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -199,7 +199,7 @@ func testAccCheckVpcExists(n string, vpc *vpc.DescribeVpcAttributeResponse) reso
 			return fmt.Errorf("No VPC ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 		instance, err := vpcService.DescribeVpc(rs.Primary.ID)
 
@@ -213,7 +213,7 @@ func testAccCheckVpcExists(n string, vpc *vpc.DescribeVpcAttributeResponse) reso
 }
 
 func testAccCheckVpcDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	for _, rs := range s.RootModule().Resources {

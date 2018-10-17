@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -107,7 +107,7 @@ func resourceAlicloudRouterInterface() *schema.Resource {
 }
 
 func resourceAlicloudRouterInterfaceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	args, err := buildAlicloudRouterInterfaceCreateArgs(d, meta)
 	if err != nil {
@@ -131,7 +131,7 @@ func resourceAlicloudRouterInterfaceCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -168,7 +168,7 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudRouterInterfaceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	ri, err := vpcService.DescribeRouterInterface(client.RegionId, d.Id())
@@ -199,7 +199,7 @@ func resourceAlicloudRouterInterfaceRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	if ri, err := vpcService.DescribeRouterInterface(client.RegionId, d.Id()); err != nil {
@@ -242,7 +242,7 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 }
 
 func buildAlicloudRouterInterfaceCreateArgs(d *schema.ResourceData, meta interface{}) (*vpc.CreateRouterInterfaceRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	oppositeRegion := d.Get("opposite_region").(string)

@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -218,7 +218,7 @@ func testAccCheckVpnConnectionExists(n string, vpn *vpc.DescribeVpnConnectionRes
 			return fmt.Errorf("No VPN ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpnGatewayService := VpnGatewayService{client}
 		instance, err := vpnGatewayService.DescribeVpnConnection(rs.Primary.ID)
 
@@ -232,7 +232,7 @@ func testAccCheckVpnConnectionExists(n string, vpn *vpc.DescribeVpnConnectionRes
 }
 
 func testAccCheckVpnConnectionDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 
 	for _, rs := range s.RootModule().Resources {

@@ -1,4 +1,4 @@
-package aliyunclient
+package connectivity
 
 import (
 	"encoding/xml"

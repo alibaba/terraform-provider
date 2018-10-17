@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/pvtz"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -38,7 +37,7 @@ func resourceAlicloudPvtzZoneAttachment() *schema.Resource {
 }
 
 func resourceAlicloudPvtzZoneAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	pvtzService := PvtzService{client}
 
 	zone, err := pvtzService.DescribePvtzZoneInfo(d.Get("zone_id").(string))
@@ -54,7 +53,7 @@ func resourceAlicloudPvtzZoneAttachmentCreate(d *schema.ResourceData, meta inter
 func resourceAlicloudPvtzZoneAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if d.HasChange("vpc_ids") {
-		client := meta.(*aliyunclient.AliyunClient)
+		client := meta.(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 
 		args := pvtz.CreateBindZoneVpcRequest()
@@ -90,7 +89,7 @@ func resourceAlicloudPvtzZoneAttachmentUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceAlicloudPvtzZoneAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	request := pvtz.CreateDescribeZoneInfoRequest()
 	request.ZoneId = d.Id()
@@ -121,7 +120,7 @@ func resourceAlicloudPvtzZoneAttachmentRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceAlicloudPvtzZoneAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	pvtzService := PvtzService{client}
 
 	request := pvtz.CreateBindZoneVpcRequest()

@@ -5,15 +5,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
 type RdsService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 //

@@ -3,7 +3,7 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -36,7 +36,7 @@ func resourceAlicloudRamGroupMembership() *schema.Resource {
 }
 
 func resourceAlicloudRamGroupMembershipCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	group := d.Get("group_name").(string)
 	users := expandStringList(d.Get("user_names").(*schema.Set).List())
@@ -52,7 +52,7 @@ func resourceAlicloudRamGroupMembershipCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceAlicloudRamGroupMembershipUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -86,7 +86,7 @@ func resourceAlicloudRamGroupMembershipUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceAlicloudRamGroupMembershipRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.GroupQueryRequest{
 		GroupName: d.Id(),
@@ -118,7 +118,7 @@ func resourceAlicloudRamGroupMembershipRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceAlicloudRamGroupMembershipDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	users := expandStringList(d.Get("user_names").(*schema.Set).List())
 	group := d.Id()
@@ -130,7 +130,7 @@ func resourceAlicloudRamGroupMembershipDelete(d *schema.ResourceData, meta inter
 	return nil
 }
 
-func addUsersToGroup(client *aliyunclient.AliyunClient, users []string, group string) error {
+func addUsersToGroup(client *connectivity.AliyunClient, users []string, group string) error {
 	for _, u := range users {
 		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.AddUserToGroup(ram.UserRelateGroupRequest{
@@ -146,7 +146,7 @@ func addUsersToGroup(client *aliyunclient.AliyunClient, users []string, group st
 	return nil
 }
 
-func removeUsersFromGroup(client *aliyunclient.AliyunClient, users []string, group string) error {
+func removeUsersFromGroup(client *connectivity.AliyunClient, users []string, group string) error {
 	for _, u := range users {
 		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.RemoveUserFromGroup(ram.UserRelateGroupRequest{

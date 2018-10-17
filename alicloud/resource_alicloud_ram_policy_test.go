@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -26,7 +26,7 @@ func testSweepRamPolicies(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -122,7 +122,7 @@ func testAccCheckRamPolicyExists(n string, policy *ram.Policy) resource.TestChec
 			return fmt.Errorf("No Policy ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.PolicyRequest{
 			PolicyName: rs.Primary.ID,
@@ -151,7 +151,7 @@ func testAccCheckRamPolicyDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the policy
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.PolicyRequest{
 			PolicyName: rs.Primary.ID,

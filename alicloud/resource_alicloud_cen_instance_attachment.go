@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -40,7 +40,7 @@ func resourceAlicloudCenInstanceAttachment() *schema.Resource {
 }
 
 func resourceAlicloudCenInstanceAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	cenService := CenService{client}
 	cenId := d.Get("instance_id").(string)
 	instanceId := d.Get("child_instance_id").(string)
@@ -86,7 +86,7 @@ func resourceAlicloudCenInstanceAttachmentCreate(d *schema.ResourceData, meta in
 }
 
 func resourceAlicloudCenInstanceAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	cenService := CenService{client}
 	cenId, instanceId, err := getCenIdAndAnotherId(d.Id())
 	if err != nil {
@@ -110,7 +110,7 @@ func resourceAlicloudCenInstanceAttachmentRead(d *schema.ResourceData, meta inte
 }
 
 func resourceAlicloudCenInstanceAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	cenService := CenService{client}
 	instanceRegionId := d.Get("child_instance_region_id").(string)
 	cenId, instanceId, err := getCenIdAndAnotherId(d.Id())

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -63,7 +63,7 @@ func resourceAlicloudKeyPair() *schema.Resource {
 }
 
 func resourceAlicloudKeyPairCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	var keyName string
 	if v, ok := d.GetOk("key_name"); ok {
@@ -106,7 +106,7 @@ func resourceAlicloudKeyPairCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudKeyPairRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	keypair, err := ecsService.DescribeKeyPair(d.Id())
@@ -123,7 +123,7 @@ func resourceAlicloudKeyPairRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAlicloudKeyPairDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	deldArgs := ecs.CreateDeleteKeyPairsRequest()

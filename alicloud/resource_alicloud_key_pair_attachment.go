@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -44,7 +44,7 @@ func resourceAlicloudKeyPairAttachment() *schema.Resource {
 }
 
 func resourceAlicloudKeyPairAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	keyname := d.Get("key_name").(string)
 	instanceIds := d.Get("instance_ids").(*schema.Set).List()
@@ -97,7 +97,7 @@ func resourceAlicloudKeyPairAttachmentCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceAlicloudKeyPairAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	keyname := strings.Split(d.Id(), ":")[0]
 	keypair, err := ecsService.DescribeKeyPair(keyname)
@@ -124,7 +124,7 @@ func resourceAlicloudKeyPairAttachmentRead(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudKeyPairAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	keyname := strings.Split(d.Id(), ":")[0]
 	instanceIds := strings.Split(d.Id(), ":")[1]

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -26,7 +26,7 @@ func testSweepAccountAliases(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -113,7 +113,7 @@ func testAccCheckRamAccountAliasExists(n string, alias *string) resource.TestChe
 			return fmt.Errorf("No Alias ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetAccountAlias()
@@ -136,7 +136,7 @@ func testAccCheckRamAccountAliasDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the alias
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetAccountAlias()

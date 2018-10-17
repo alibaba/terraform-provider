@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/hashicorp/terraform/helper/resource"
 )
 
 type LogService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *LogService) DescribeLogProject(name string) (project *sls.LogProject, err error) {

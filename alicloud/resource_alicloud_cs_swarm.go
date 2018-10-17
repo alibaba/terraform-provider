@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	newsdk "github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/denverdino/aliyungo/ecs"
@@ -151,7 +151,7 @@ func resourceAlicloudCSSwarm() *schema.Resource {
 }
 
 func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	vpcService := VpcService{client}
 
@@ -227,7 +227,7 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudCSSwarmUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	d.Partial(true)
 	if d.HasChange("node_number") && !d.IsNewResource() {
 		o, n := d.GetChange("node_number")
@@ -284,7 +284,7 @@ func resourceAlicloudCSSwarmUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	csService := CsService{client}
 	ecsService := EcsService{client}
 
@@ -355,7 +355,7 @@ func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAlicloudCSSwarmDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
 		_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -47,7 +47,7 @@ func testAccCheckAlicloudKmsKeyExists(name string, key *kms.KeyMetadata) resourc
 			return fmt.Errorf("No KMS Key ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 			return kmsClient.DescribeKey(rs.Primary.ID)
@@ -64,7 +64,7 @@ func testAccCheckAlicloudKmsKeyExists(name string, key *kms.KeyMetadata) resourc
 }
 
 func testAccCheckAlicloudKmsKeyDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_kms_key" {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -50,7 +50,7 @@ func testAccCheckRamLoginProfileExists(n string, profile *ram.LoginProfile) reso
 			return fmt.Errorf("No LoginProfile ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.UserQueryRequest{
 			UserName: rs.Primary.Attributes["user_name"],
@@ -77,7 +77,7 @@ func testAccCheckRamLoginProfileDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the login profile
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.UserQueryRequest{
 			UserName: rs.Primary.Attributes["user_name"],

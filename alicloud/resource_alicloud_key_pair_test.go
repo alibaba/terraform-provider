@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -26,7 +26,7 @@ func testSweepKeyPairs(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -182,7 +182,7 @@ func testAccCheckKeyPairExists(n string, keypair *ecs.KeyPair) resource.TestChec
 			return fmt.Errorf("No Key Pair ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		ecsService := EcsService{client}
 
 		response, err := ecsService.DescribeKeyPair(rs.Primary.ID)
@@ -208,7 +208,7 @@ func testAccCheckKeyPairHasPrefix(n string, keypair *ecs.KeyPair, prefix string)
 			return fmt.Errorf("No Key Pair ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		ecsService := EcsService{client}
 
 		response, err := ecsService.DescribeKeyPair(rs.Primary.ID)
@@ -234,7 +234,7 @@ func testAccCheckKeyPairDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the Disk
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		ecsService := EcsService{client}
 
 		response, err := ecsService.DescribeKeyPair(rs.Primary.ID)

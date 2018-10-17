@@ -8,7 +8,7 @@ import (
 
 	"strconv"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -97,7 +97,7 @@ func resourceAliyunNatGateway() *schema.Resource {
 }
 
 func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := vpc.CreateCreateNatGatewayRequest()
 	args.RegionId = string(client.Region)
@@ -150,7 +150,7 @@ func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAliyunNatGatewayRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	natGateway, err := vpcService.DescribeNatGateway(d.Id())
@@ -182,7 +182,7 @@ func resourceAliyunNatGatewayRead(d *schema.ResourceData, meta interface{}) erro
 
 func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	natGateway, err := vpcService.DescribeNatGateway(d.Id())
@@ -254,7 +254,7 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	packRequest := vpc.CreateDescribeBandwidthPackagesRequest()
@@ -361,7 +361,7 @@ func getPackages(packageId string, meta interface{}, d *schema.ResourceData) (pa
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		client := meta.(*aliyunclient.AliyunClient)
+		client := meta.(*connectivity.AliyunClient)
 		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeBandwidthPackages(req)
 		})

@@ -6,8 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -25,7 +24,7 @@ func testSweepLogProjects(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -96,7 +95,7 @@ func testAccCheckAlicloudLogProjectExists(name string, project *sls.LogProject) 
 			return fmt.Errorf("No Log project ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		logService := LogService{client}
 
 		p, err := logService.DescribeLogProject(rs.Primary.ID)
@@ -113,7 +112,7 @@ func testAccCheckAlicloudLogProjectExists(name string, project *sls.LogProject) 
 }
 
 func testAccCheckAlicloudLogProjectDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_log_project" {

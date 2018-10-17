@@ -5,8 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
@@ -29,7 +28,7 @@ func tagsSchema() *schema.Schema {
 
 // setTags is a helper to set the tags for a resource. It expects the
 // tags field to be named "tags"
-func setTags(client *aliyunclient.AliyunClient, resourceType TagResourceType, d *schema.ResourceData) error {
+func setTags(client *connectivity.AliyunClient, resourceType TagResourceType, d *schema.ResourceData) error {
 
 	if d.HasChange("tags") {
 		oraw, nraw := d.GetChange("tags")

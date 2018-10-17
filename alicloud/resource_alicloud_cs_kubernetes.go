@@ -9,8 +9,7 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/denverdino/aliyungo/common"
@@ -324,7 +323,7 @@ func resourceAlicloudCSKubernetes() *schema.Resource {
 }
 
 func resourceAlicloudCSKubernetesCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	invoker := NewInvoker()
 
 	if isMultiAZ, err := isMultiAZClusterAndCheck(d); err != nil {
@@ -380,7 +379,7 @@ func resourceAlicloudCSKubernetesCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAlicloudCSKubernetesUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	d.Partial(true)
 	invoker := NewInvoker()
 	if d.HasChange("worker_numbers") && !d.IsNewResource() {
@@ -452,7 +451,7 @@ func resourceAlicloudCSKubernetesUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	var cluster cs.KubernetesCluster
 	invoker := NewInvoker()
@@ -671,7 +670,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudCSKubernetesDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	invoker := NewInvoker()
 	var cluster cs.ClusterType
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -739,7 +738,7 @@ func isMultiAZClusterAndCheck(d *schema.ResourceData) (bool, error) {
 }
 
 func buildKubernetesArgs(d *schema.ResourceData, meta interface{}) (*cs.KubernetesCreationArgs, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	vpcService := VpcService{client}
 
@@ -825,7 +824,7 @@ func buildKubernetesArgs(d *schema.ResourceData, meta interface{}) (*cs.Kubernet
 }
 
 func buildKubernetesMultiAZArgs(d *schema.ResourceData, meta interface{}) (*cs.KubernetesMultiAZCreationArgs, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	vpcService := VpcService{client}
 

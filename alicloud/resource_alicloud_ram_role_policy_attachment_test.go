@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -52,7 +52,7 @@ func testAccCheckRamRolePolicyAttachmentExists(n string, policy *ram.Policy, rol
 			return fmt.Errorf("No Attachment ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.RoleQueryRequest{
 			RoleName: role.RoleName,
@@ -84,7 +84,7 @@ func testAccCheckRamRolePolicyAttachmentDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the attachment
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.RoleQueryRequest{
 			RoleName: rs.Primary.Attributes["role_name"],

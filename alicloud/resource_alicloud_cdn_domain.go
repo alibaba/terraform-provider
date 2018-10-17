@@ -6,8 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/cdn"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -261,7 +260,7 @@ func resourceAlicloudCdnDomain() *schema.Resource {
 }
 
 func resourceAlicloudCdnDomainCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := cdn.AddDomainRequest{
 		DomainName: d.Get("domain_name").(string),
@@ -299,7 +298,7 @@ func resourceAlicloudCdnDomainCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudCdnDomainUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -393,7 +392,7 @@ func resourceAlicloudCdnDomainUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudCdnDomainRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := cdn.DescribeDomainRequest{
 		DomainName: d.Id(),
@@ -513,7 +512,7 @@ func resourceAlicloudCdnDomainRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudCdnDomainDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := cdn.DescribeDomainRequest{
 		DomainName: d.Id(),
@@ -532,7 +531,7 @@ func resourceAlicloudCdnDomainDelete(d *schema.ResourceData, meta interface{}) e
 	})
 }
 
-func enableConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func enableConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	type configFunc func(req cdn.ConfigRequest) (cdn.CdnCommonResponse, error)
 
 	raw, _ := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
@@ -560,7 +559,7 @@ func enableConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceDat
 	return nil
 }
 
-func queryStringConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func queryStringConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	valSet := d.Get("parameter_filter_config").(*schema.Set)
 	args := cdn.QueryStringConfigRequest{DomainName: d.Id()}
 
@@ -591,7 +590,7 @@ func queryStringConfigUpdate(client *aliyunclient.AliyunClient, d *schema.Resour
 	return nil
 }
 
-func page404ConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func page404ConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	valSet := d.Get("page_404_config").(*schema.Set)
 	args := cdn.ErrorPageConfigRequest{DomainName: d.Id()}
 
@@ -633,7 +632,7 @@ func page404ConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceDa
 	return nil
 }
 
-func referConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func referConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	valSet := d.Get("refer_config").(*schema.Set)
 	args := cdn.ReferConfigRequest{DomainName: d.Id()}
 
@@ -666,7 +665,7 @@ func referConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData
 	return nil
 }
 
-func authConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func authConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	ov, nv := d.GetChange("auth_config")
 	oldConfig, newConfig := ov.(*schema.Set), nv.(*schema.Set)
 	args := cdn.ReqAuthConfigRequest{DomainName: d.Id()}
@@ -722,7 +721,7 @@ func authConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData)
 	return nil
 }
 
-func httpHeaderConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func httpHeaderConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	ov, nv := d.GetChange("http_header_config")
 	oldConfigs := ov.(*schema.Set).List()
 	newConfigs := nv.(*schema.Set).List()
@@ -762,7 +761,7 @@ func httpHeaderConfigUpdate(client *aliyunclient.AliyunClient, d *schema.Resourc
 	return nil
 }
 
-func cacheConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData) error {
+func cacheConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	ov, nv := d.GetChange("cache_config")
 	oldConfigs := ov.(*schema.Set).List()
 	newConfigs := nv.(*schema.Set).List()
@@ -803,7 +802,7 @@ func cacheConfigUpdate(client *aliyunclient.AliyunClient, d *schema.ResourceData
 	return nil
 }
 
-func setCacheExpiredConfig(req cdn.CacheConfigRequest, cacheType string, client *aliyunclient.AliyunClient) (err error) {
+func setCacheExpiredConfig(req cdn.CacheConfigRequest, cacheType string, client *connectivity.AliyunClient) (err error) {
 	if cacheType == "suffix" {
 		_, err = client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.SetFileCacheExpiredConfig(req)

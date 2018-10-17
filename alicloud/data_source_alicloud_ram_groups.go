@@ -5,8 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -66,7 +65,7 @@ func dataSourceAlicloudRamGroups() *schema.Resource {
 }
 
 func dataSourceAlicloudRamGroupsRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 	allGroups := []interface{}{}
 

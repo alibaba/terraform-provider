@@ -5,13 +5,13 @@ import (
 
 	"strconv"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 )
 
 type CmsService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *CmsService) BuildCmsCommonRequest(region string) *requests.CommonRequest {

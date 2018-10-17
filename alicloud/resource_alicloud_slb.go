@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -221,7 +221,7 @@ func resourceAliyunSlb() *schema.Resource {
 }
 
 func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	args := slb.CreateCreateLoadBalancerRequest()
 	args.LoadBalancerName = d.Get("name").(string)
@@ -270,7 +270,7 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunSlbRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	loadBalancer, err := slbService.DescribeLoadBalancerAttribute(d.Id())
 	if err != nil {
@@ -303,7 +303,7 @@ func resourceAliyunSlbRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -364,7 +364,7 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 
 	req := slb.CreateDeleteLoadBalancerRequest()

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -57,7 +57,7 @@ func testAccCheckRamRoleAttachmentExists(n string, instanceA *ecs.Instance, inst
 			return fmt.Errorf("No Attachment ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		args := ecs.CreateDescribeInstanceRamRoleRequest()
 		args.InstanceIds = convertListToJsonString([]interface{}{instanceA.InstanceId, instanceB.InstanceId})
@@ -93,7 +93,7 @@ func testAccCheckRamRoleAttachmentDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the attachment
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		args := ecs.CreateDescribeInstanceRamRoleRequest()
 		args.InstanceIds = strings.Split(rs.Primary.ID, ":")[1]

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -40,7 +40,7 @@ func resourceAlicloudRamGroupPolicyAtatchment() *schema.Resource {
 }
 
 func resourceAlicloudRamGroupPolicyAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.AttachPolicyToGroupRequest{
 		PolicyRequest: ram.PolicyRequest{
@@ -62,7 +62,7 @@ func resourceAlicloudRamGroupPolicyAttachmentCreate(d *schema.ResourceData, meta
 }
 
 func resourceAlicloudRamGroupPolicyAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.GroupQueryRequest{
 		GroupName: d.Get("group_name").(string),
@@ -94,7 +94,7 @@ func resourceAlicloudRamGroupPolicyAttachmentRead(d *schema.ResourceData, meta i
 }
 
 func resourceAlicloudRamGroupPolicyAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.AttachPolicyToGroupRequest{
 		PolicyRequest: ram.PolicyRequest{

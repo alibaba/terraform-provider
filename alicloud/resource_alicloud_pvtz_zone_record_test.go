@@ -5,8 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/pvtz"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -124,7 +123,7 @@ func testAccAlicloudPvtzZoneRecordExists(n string, record *pvtz.Record) resource
 		if convErr != nil {
 			return convErr
 		}
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		pvtzService := PvtzService{client}
 
 		instance, err := pvtzService.DescribeZoneRecord(recordId, zoneId)
@@ -139,7 +138,7 @@ func testAccAlicloudPvtzZoneRecordExists(n string, record *pvtz.Record) resource
 }
 
 func testAccAlicloudPvtzZoneRecordDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	pvtzService := PvtzService{client}
 
 	for _, rs := range s.RootModule().Resources {

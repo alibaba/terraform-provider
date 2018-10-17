@@ -5,8 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -75,7 +74,7 @@ func dataSourceAlicloudSecurityGroups() *schema.Resource {
 }
 
 func dataSourceAlicloudSecurityGroupsRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	args := ecs.CreateDescribeSecurityGroupsRequest()

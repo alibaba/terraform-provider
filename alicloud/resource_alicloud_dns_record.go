@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -71,7 +70,7 @@ func resourceAlicloudDnsRecord() *schema.Resource {
 }
 
 func resourceAlicloudDnsRecordCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := &dns.AddDomainRecordArgs{
 		DomainName: d.Get("name").(string),
@@ -101,7 +100,7 @@ func resourceAlicloudDnsRecordCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudDnsRecordUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 	attributeUpdate := false
@@ -154,7 +153,7 @@ func resourceAlicloudDnsRecordUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := &dns.DescribeDomainRecordInfoNewArgs{
 		RecordId: d.Id(),
@@ -185,7 +184,7 @@ func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudDnsRecordDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	args := &dns.DeleteDomainRecordArgs{
 		RecordId: d.Id(),
 	}

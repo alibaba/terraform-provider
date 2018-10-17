@@ -6,8 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -77,7 +76,7 @@ func resourceAlicloudDBBackupPolicyCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceAlicloudDBBackupPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	resp, err := rdsService.DescribeBackupPolicy(d.Id())
 	if err != nil {
@@ -101,7 +100,7 @@ func resourceAlicloudDBBackupPolicyRead(d *schema.ResourceData, meta interface{}
 func resourceAlicloudDBBackupPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	d.Partial(true)
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	update := false
 
@@ -167,7 +166,7 @@ func resourceAlicloudDBBackupPolicyUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceAlicloudDBBackupPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	backupTime := "02:00Z-03:00Z"
 	backupPeriod := "Tuesday,Thursday,Saturday"

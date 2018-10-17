@@ -5,8 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -123,7 +122,7 @@ func resourceAliyunEssAlarmCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateAlarm(args)
@@ -145,7 +144,7 @@ func resourceAliyunEssAlarmCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunEssAlarmRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	alarm, err := essService.DescribeEssAlarmById(d.Id())
@@ -177,7 +176,7 @@ func resourceAliyunEssAlarmRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceAliyunEssAlarmUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	args := ess.CreateModifyAlarmRequest()
 	args.AlarmTaskId = d.Id()
 
@@ -209,7 +208,7 @@ func resourceAliyunEssAlarmUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunEssAlarmDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	id := d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {

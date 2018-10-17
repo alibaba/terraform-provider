@@ -5,8 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -57,7 +56,7 @@ func resourceAlicloudDBAccount() *schema.Resource {
 }
 
 func resourceAlicloudDBAccountCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	request := rds.CreateCreateAccountRequest()
 	request.DBInstanceId = d.Get("instance_id").(string)
@@ -104,7 +103,7 @@ func resourceAlicloudDBAccountCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudDBAccountRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 	account, err := rdsService.DescribeDatabaseAccount(parts[0], parts[1])
@@ -125,7 +124,7 @@ func resourceAlicloudDBAccountRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudDBAccountUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	d.Partial(true)
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 	instanceId := parts[0]
@@ -168,7 +167,7 @@ func resourceAlicloudDBAccountUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudDBAccountDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 

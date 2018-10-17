@@ -5,11 +5,10 @@ import (
 	"log"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -28,7 +27,7 @@ func testSweepKVStoreInstances(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -230,7 +229,7 @@ func testAccCheckKVStoreInstanceExists(n string, d *r_kvstore.DBInstanceAttribut
 			return fmt.Errorf("No KVStore Instance ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		kvstoreService := KvstoreService{client}
 		attr, err := kvstoreService.DescribeRKVInstanceById(rs.Primary.ID)
 		log.Printf("[DEBUG] check instance %s attribute %#v", rs.Primary.ID, attr)
@@ -245,7 +244,7 @@ func testAccCheckKVStoreInstanceExists(n string, d *r_kvstore.DBInstanceAttribut
 }
 
 func testAccCheckKVStoreInstanceDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	kvstoreService := KvstoreService{client}
 
 	for _, rs := range s.RootModule().Resources {

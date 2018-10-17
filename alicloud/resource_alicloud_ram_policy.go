@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -107,7 +107,7 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 }
 
 func resourceAlicloudRamPolicyCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args, err := buildAlicloudRamPolicyCreateArgs(d, meta)
 	if err != nil {
@@ -126,7 +126,7 @@ func resourceAlicloudRamPolicyCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudRamPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	d.Partial(true)
 
 	args, attributeUpdate, err := buildAlicloudRamPolicyUpdateArgs(d, meta)
@@ -149,7 +149,7 @@ func resourceAlicloudRamPolicyUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 
 	args := ram.PolicyRequest{
@@ -194,7 +194,7 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.PolicyRequest{
 		PolicyName: d.Id(),
@@ -294,7 +294,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func buildAlicloudRamPolicyCreateArgs(d *schema.ResourceData, meta interface{}) (ram.PolicyRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 	var document string
 
@@ -328,7 +328,7 @@ func buildAlicloudRamPolicyCreateArgs(d *schema.ResourceData, meta interface{}) 
 }
 
 func buildAlicloudRamPolicyUpdateArgs(d *schema.ResourceData, meta interface{}) (ram.PolicyRequest, bool, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 	args := ram.PolicyRequest{
 		PolicyName:   d.Id(),

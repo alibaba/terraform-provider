@@ -3,7 +3,7 @@ package alicloud
 import (
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -145,7 +145,7 @@ func dataSourceAlicloudKVStoreInstances() *schema.Resource {
 }
 
 func dataSourceAlicloudKVStoreInstancesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := r_kvstore.CreateDescribeInstancesRequest()
 	args.RegionId = client.RegionId

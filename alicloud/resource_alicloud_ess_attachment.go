@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"reflect"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -55,7 +54,7 @@ func resourceAliyunEssAttachmentCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAliyunEssAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	d.Partial(true)
 
@@ -176,7 +175,7 @@ func resourceAliyunEssAttachmentUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAliyunEssAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	instances, err := essService.DescribeScalingInstances(d.Id(), "", make([]string, 0), string(Attached))
 
@@ -205,7 +204,7 @@ func resourceAliyunEssAttachmentRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAliyunEssAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	group, err := essService.DescribeScalingGroupById(d.Id())

@@ -8,7 +8,7 @@ import (
 
 	"strconv"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -16,7 +16,7 @@ import (
 )
 
 type EcsService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *EcsService) JudgeRegionValidation(key, region string) error {
@@ -228,7 +228,7 @@ func (s *EcsService) DescribeSecurityGroupRule(groupId, direction, ipProtocol, p
 }
 
 func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta interface{}, destination DestinationResource) (zoneId string, validZones []ecs.AvailableZone, err error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	// Before creating resources, check input parameters validity according available zone.
 	// If availability zone is nil, it will return all of supported resources in the current.
 	args := ecs.CreateDescribeAvailableResourceRequest()

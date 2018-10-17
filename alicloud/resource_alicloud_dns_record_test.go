@@ -5,8 +5,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -54,7 +53,7 @@ func testAccCheckDnsRecordExists(n string, record *dns.RecordTypeNew) resource.T
 			return fmt.Errorf("No Domain Record ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := &dns.DescribeDomainRecordInfoNewArgs{
 			RecordId: rs.Primary.ID,
@@ -112,7 +111,7 @@ func testAccCheckDnsRecordDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the domain record
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := &dns.DescribeDomainRecordInfoNewArgs{
 			RecordId: rs.Primary.ID,

@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -56,7 +55,7 @@ func testAccCheckOtsTableExist(n string, table *tablestore.DescribeTableResponse
 			return fmt.Errorf("no OTS table ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		otsService := OtsService{client}
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 
@@ -77,7 +76,7 @@ func testAccCheckOtsTableDestroy(s *terraform.State) error {
 			continue
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		otsService := OtsService{client}
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 

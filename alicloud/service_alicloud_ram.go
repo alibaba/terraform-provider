@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 )
 
@@ -45,7 +44,7 @@ type Policy struct {
 }
 
 type RamService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *RamService) ParseRolePolicyDocument(policyDocument string) (RolePolicy, error) {

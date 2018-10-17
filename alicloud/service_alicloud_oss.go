@@ -1,12 +1,12 @@
 package alicloud
 
 import (
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
 type OssService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *OssService) QueryOssBucketById(id string) (info *oss.BucketInfo, err error) {

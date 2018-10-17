@@ -6,8 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-log-go-sdk"
@@ -29,7 +28,7 @@ func testSweepFCServices(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -157,7 +156,7 @@ func testAccCheckAlicloudFCServiceExists(name string, service *fc.GetServiceOutp
 			return fmt.Errorf("No Log store ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		fcService := FcService{client}
 
 		ser, err := fcService.DescribeFcService(rs.Primary.ID)
@@ -172,7 +171,7 @@ func testAccCheckAlicloudFCServiceExists(name string, service *fc.GetServiceOutp
 }
 
 func testAccCheckAlicloudFCServiceDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	fcService := FcService{client}
 
 	for _, rs := range s.RootModule().Resources {

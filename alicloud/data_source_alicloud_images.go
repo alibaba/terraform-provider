@@ -7,8 +7,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -164,7 +163,7 @@ func dataSourceAlicloudImages() *schema.Resource {
 
 // dataSourceAlicloudImagesDescriptionRead performs the Alicloud Image lookup.
 func dataSourceAlicloudImagesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	nameRegex, nameRegexOk := d.GetOk("name_regex")
 	owners, ownersOk := d.GetOk("owners")
@@ -335,7 +334,7 @@ func imageDiskDeviceMappings(m []ecs.DiskDeviceMapping) []map[string]interface{}
 
 //Returns a mapping of image tags
 func imageTagsMappings(d *schema.ResourceData, imageId string, meta interface{}) map[string]string {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	tags, err := ecsService.DescribeTags(imageId, TagResourceImage)

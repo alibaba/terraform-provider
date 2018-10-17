@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -54,7 +54,7 @@ func resourceAlicloudRamUser() *schema.Resource {
 }
 
 func resourceAlicloudRamUserCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.UserRequest{
 		User: ram.User{
@@ -74,7 +74,7 @@ func resourceAlicloudRamUserCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudRamUserUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -130,7 +130,7 @@ func resourceAlicloudRamUserUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudRamUserRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.UserQueryRequest{
 		UserName: d.Id(),
@@ -157,7 +157,7 @@ func resourceAlicloudRamUserRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	userName := d.Id()
 	args := ram.UserQueryRequest{

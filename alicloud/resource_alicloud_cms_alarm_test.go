@@ -5,10 +5,9 @@ import (
 	"log"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -27,7 +26,7 @@ func testSweepCMSAlarms(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -193,7 +192,7 @@ func testAccCheckCmsAlarmExists(n string, d *cms.AlarmInListAlarm) resource.Test
 			return fmt.Errorf("No Cloud monitor alarm ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		cmsService := CmsService{client}
 		attr, err := cmsService.DescribeAlarm(alarm.Primary.ID)
 		log.Printf("[DEBUG] check alarm %s attribute %#v", alarm.Primary.ID, attr)
@@ -212,7 +211,7 @@ func testAccCheckCmsAlarmExists(n string, d *cms.AlarmInListAlarm) resource.Test
 }
 
 func testAccCheckCmsAlarmDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	cmsService := CmsService{client}
 
 	for _, rs := range s.RootModule().Resources {

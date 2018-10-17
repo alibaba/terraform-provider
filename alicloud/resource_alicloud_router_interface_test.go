@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -25,7 +25,7 @@ func testSweepRouterInterfaces(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -134,7 +134,7 @@ func testAccCheckRouterInterfaceExists(n string, ri *vpc.RouterInterfaceTypeInDe
 			return fmt.Errorf("No interface ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 
 		response, err := vpcService.DescribeRouterInterface(client.RegionId, rs.Primary.ID)
@@ -154,7 +154,7 @@ func testAccCheckRouterInterfaceDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the interface
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 
 		ri, err := vpcService.DescribeRouterInterface(client.RegionId, rs.Primary.ID)

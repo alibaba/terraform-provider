@@ -5,8 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -65,7 +64,7 @@ func dataSourceAlicloudKeyPairs() *schema.Resource {
 }
 
 func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	var regex *regexp.Regexp
 	if name, ok := d.GetOk("name_regex"); ok {

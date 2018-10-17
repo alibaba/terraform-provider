@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -61,7 +60,7 @@ func resourceAlicloudCenInstance() *schema.Resource {
 }
 
 func resourceAlicloudCenInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	cenService := CenService{client}
 
 	var cen *cbn.CreateCenResponse
@@ -97,7 +96,7 @@ func resourceAlicloudCenInstanceCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAlicloudCenInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	cenService := CenService{meta.(*aliyunclient.AliyunClient)}
+	cenService := CenService{meta.(*connectivity.AliyunClient)}
 	resp, err := cenService.DescribeCenInstance(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
@@ -129,7 +128,7 @@ func resourceAlicloudCenInstanceUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	if attributeUpdate {
-		client := meta.(*aliyunclient.AliyunClient)
+		client := meta.(*connectivity.AliyunClient)
 		_, err := client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.ModifyCenAttribute(request)
 		})
@@ -142,7 +141,7 @@ func resourceAlicloudCenInstanceUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAlicloudCenInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	cenService := CenService{client}
 	request := cbn.CreateDeleteCenRequest()
 	request.CenId = d.Id()

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -251,7 +251,7 @@ func resourceAliyunSlbListener() *schema.Resource {
 
 func resourceAliyunSlbListenerCreate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 
 	protocol := d.Get("protocol").(string)
@@ -311,7 +311,7 @@ func resourceAliyunSlbListenerCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAliyunSlbListenerRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 
 	lb_id, protocol, port, err := parseListenerId(d, meta)
@@ -334,7 +334,7 @@ func resourceAliyunSlbListenerRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceAliyunSlbListenerUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	protocol := Protocol(d.Get("protocol").(string))
 
 	d.Partial(true)
@@ -518,7 +518,7 @@ func resourceAliyunSlbListenerUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAliyunSlbListenerDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 
 	lb_id, protocol, port, err := parseListenerId(d, meta)
@@ -551,7 +551,7 @@ func resourceAliyunSlbListenerDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func buildListenerCommonArgs(d *schema.ResourceData, meta interface{}) *requests.CommonRequest {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 
 	req := slbService.BuildSlbCommonRequest()
@@ -612,7 +612,7 @@ func buildHttpListenerArgs(d *schema.ResourceData, req *requests.CommonRequest) 
 }
 
 func parseListenerId(d *schema.ResourceData, meta interface{}) (string, string, int, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 
 	parts := strings.Split(d.Id(), ":")

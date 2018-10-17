@@ -5,8 +5,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -53,7 +52,7 @@ func testAccCheckDnsGroupExists(n string, group *dns.DomainGroupType) resource.T
 			return fmt.Errorf("No Domain group ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := &dns.DescribeDomainGroupsArgs{
 			KeyWord: rs.Primary.Attributes["name"],
@@ -83,7 +82,7 @@ func testAccCheckDnsGroupDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the domain group
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := &dns.DescribeDomainGroupsArgs{
 			KeyWord: rs.Primary.Attributes["name"],

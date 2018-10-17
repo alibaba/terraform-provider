@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -54,7 +54,7 @@ func testAccCheckRamGroupMembershipExists(n string, user *ram.User, user1 *ram.U
 			return fmt.Errorf("No membership ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.GroupQueryRequest{
 			GroupName: rs.Primary.ID,
@@ -83,7 +83,7 @@ func testAccCheckRamGroupMembershipDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the membership
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.GroupQueryRequest{
 			GroupName: rs.Primary.ID,

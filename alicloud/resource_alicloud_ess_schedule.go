@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -78,7 +77,7 @@ func resourceAliyunEssScheduleCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.CreateScheduledTask(args)
@@ -94,7 +93,7 @@ func resourceAliyunEssScheduleCreate(d *schema.ResourceData, meta interface{}) e
 
 func resourceAliyunEssScheduleRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	rule, err := essService.DescribeScheduleById(d.Id())
@@ -121,7 +120,7 @@ func resourceAliyunEssScheduleRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceAliyunEssScheduleUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ess.CreateModifyScheduledTaskRequest()
 	args.ScheduledTaskId = d.Id()
@@ -173,7 +172,7 @@ func resourceAliyunEssScheduleUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAliyunEssScheduleDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	return resource.Retry(2*time.Minute, func() *resource.RetryError {

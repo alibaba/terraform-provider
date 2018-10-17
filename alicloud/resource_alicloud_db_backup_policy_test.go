@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -49,7 +48,7 @@ func testAccCheckDBBackupPolicyExists(n string, d *rds.DescribeBackupPolicyRespo
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No DB account ID is set")
 		}
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		rdsService := RdsService{client}
 		resp, err := rdsService.DescribeBackupPolicy(rs.Primary.ID)
 		if err != nil {
@@ -67,7 +66,7 @@ func testAccCheckDBBackupPolicyExists(n string, d *rds.DescribeBackupPolicyRespo
 }
 
 func testAccCheckDBBackupPolicyDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_db_account" {

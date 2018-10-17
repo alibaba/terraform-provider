@@ -5,12 +5,11 @@ import (
 	"log"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"time"
 
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -29,7 +28,7 @@ func testSweepEssSchedules(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -135,7 +134,7 @@ func testAccCheckEssScheduleExists(n string, d *ess.ScheduledTask) resource.Test
 			return fmt.Errorf("No ESS Schedule ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		essService := EssService{client}
 		attr, err := essService.DescribeScheduleById(rs.Primary.ID)
 		log.Printf("[DEBUG] check schedule %s attribute %#v", rs.Primary.ID, attr)
@@ -150,7 +149,7 @@ func testAccCheckEssScheduleExists(n string, d *ess.ScheduledTask) resource.Test
 }
 
 func testAccCheckEssScheduleDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	for _, rs := range s.RootModule().Resources {

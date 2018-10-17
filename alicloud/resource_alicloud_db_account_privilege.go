@@ -5,8 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -53,7 +52,7 @@ func resourceAlicloudDBAccountPrivilege() *schema.Resource {
 }
 
 func resourceAlicloudDBAccountPrivilegeCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rsdService := RdsService{client}
 	instanceId := d.Get("instance_id").(string)
 	account := d.Get("account_name").(string)
@@ -85,7 +84,7 @@ func resourceAlicloudDBAccountPrivilegeCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceAlicloudDBAccountPrivilegeRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rsdService := RdsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 	account, err := rsdService.DescribeDatabaseAccount(parts[0], parts[1])
@@ -112,7 +111,7 @@ func resourceAlicloudDBAccountPrivilegeRead(d *schema.ResourceData, meta interfa
 }
 
 func resourceAlicloudDBAccountPrivilegeUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rsdService := RdsService{client}
 	d.Partial(true)
 
@@ -156,7 +155,7 @@ func resourceAlicloudDBAccountPrivilegeUpdate(d *schema.ResourceData, meta inter
 }
 
 func resourceAlicloudDBAccountPrivilegeDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rsdService := RdsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 

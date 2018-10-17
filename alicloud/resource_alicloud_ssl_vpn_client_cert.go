@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -38,7 +38,7 @@ func resourceAliyunSslVpnClientCert() *schema.Resource {
 }
 
 func resourceAliyunSslVpnClientCertCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 	var sslVpnClientCert *vpc.CreateSslVpnClientCertResponse
 
@@ -74,7 +74,7 @@ func resourceAliyunSslVpnClientCertCreate(d *schema.ResourceData, meta interface
 
 func resourceAliyunSslVpnClientCertRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 
 	resp, err := vpnGatewayService.DescribeSslVpnClientCert(d.Id())
@@ -95,7 +95,7 @@ func resourceAliyunSslVpnClientCertRead(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAliyunSslVpnClientCertUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	request := vpc.CreateModifySslVpnClientCertRequest()
 	request.SslVpnClientCertId = d.Id()
 
@@ -113,7 +113,7 @@ func resourceAliyunSslVpnClientCertUpdate(d *schema.ResourceData, meta interface
 }
 
 func resourceAliyunSslVpnClientCertDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 	request := vpc.CreateDeleteSslVpnClientCertRequest()
 	request.SslVpnClientCertId = d.Id()
@@ -143,7 +143,7 @@ func resourceAliyunSslVpnClientCertDelete(d *schema.ResourceData, meta interface
 }
 
 func buildAliyunSslVpnClientCertArgs(d *schema.ResourceData, meta interface{}) *vpc.CreateSslVpnClientCertRequest {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	request := vpc.CreateCreateSslVpnClientCertRequest()
 	request.RegionId = string(client.Region)
 	request.SslVpnServerId = d.Get("ssl_vpn_server_id").(string)

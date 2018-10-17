@@ -8,7 +8,7 @@ import (
 
 	"encoding/base64"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -243,7 +243,7 @@ func resourceAliyunInstance() *schema.Resource {
 }
 
 func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	// Ensure instance_type is valid
@@ -315,7 +315,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	instance, err := ecsService.DescribeInstanceById(d.Id())
@@ -440,7 +440,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	d.Partial(true)
@@ -581,7 +581,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	if d.Get("instance_charge_type").(string) == string(PrePaid) {
@@ -632,7 +632,7 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func buildAliyunInstanceArgs(d *schema.ResourceData, meta interface{}) (*ecs.CreateInstanceRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	args := ecs.CreateCreateInstanceRequest()
@@ -752,7 +752,7 @@ func modifyInstanceChargeType(d *schema.ResourceData, meta interface{}) error {
 		return nil
 	}
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	if d.HasChange("instance_charge_type") {
 		chargeType := d.Get("instance_charge_type").(string)
@@ -794,7 +794,7 @@ func modifyInstanceImage(d *schema.ResourceData, meta interface{}, run bool) (bo
 	if d.IsNewResource() {
 		return false, nil
 	}
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	update := false
 	if d.HasChange("image_id") {
@@ -895,7 +895,7 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 	}
 
 	if update {
-		client := meta.(*aliyunclient.AliyunClient)
+		client := meta.(*connectivity.AliyunClient)
 		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ModifyInstanceAttribute(args)
 		})
@@ -944,7 +944,7 @@ func modifyVpcAttribute(d *schema.ResourceData, meta interface{}, run bool) (boo
 	}
 
 	if update {
-		client := meta.(*aliyunclient.AliyunClient)
+		client := meta.(*connectivity.AliyunClient)
 		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ModifyInstanceVpcAttribute(vpcArgs)
 		})
@@ -959,7 +959,7 @@ func modifyInstanceType(d *schema.ResourceData, meta interface{}, run bool) (boo
 	if d.IsNewResource() {
 		return false, nil
 	}
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	update := false
 	if d.HasChange("instance_type") {
@@ -1039,7 +1039,7 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	//An instance that was successfully modified once cannot be modified again within 5 minutes.
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	if update {
 		if err := resource.Retry(6*time.Minute, func() *resource.RetryError {
 			_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

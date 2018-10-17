@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -67,7 +67,7 @@ func resourceAliyunVpc() *schema.Resource {
 }
 
 func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	var vpcResponse *vpc.CreateVpcResponse
@@ -105,7 +105,7 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunVpcRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	resp, err := vpcService.DescribeVpc(d.Id())
@@ -151,7 +151,7 @@ func resourceAliyunVpcRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunVpcUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	d.Partial(true)
 
 	attributeUpdate := false
@@ -187,7 +187,7 @@ func resourceAliyunVpcUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	request := vpc.CreateDeleteVpcRequest()
 	request.VpcId = d.Id()
@@ -215,7 +215,7 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func buildAliyunVpcArgs(d *schema.ResourceData, meta interface{}) *vpc.CreateVpcRequest {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	request := vpc.CreateCreateVpcRequest()
 	request.RegionId = string(client.Region)
 	request.CidrBlock = d.Get("cidr_block").(string)

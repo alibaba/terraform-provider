@@ -5,8 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -42,7 +41,7 @@ func resourceAliyunDiskAttachment() *schema.Resource {
 }
 
 func resourceAliyunDiskAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	diskID := d.Get("disk_id").(string)
@@ -79,7 +78,7 @@ func resourceAliyunDiskAttachmentCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAliyunDiskAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	diskId, instanceId, err := getDiskIDAndInstanceID(d, meta)
 	if err != nil {
@@ -104,7 +103,7 @@ func resourceAliyunDiskAttachmentRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAliyunDiskAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	diskID, instanceID, err := getDiskIDAndInstanceID(d, meta)
 	if err != nil {

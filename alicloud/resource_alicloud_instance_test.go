@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -28,7 +28,7 @@ func testSweepInstances(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -769,7 +769,7 @@ func testAccCheckInstanceExistsWithProviders(n string, i *ecs.Instance, provider
 				continue
 			}
 
-			client := provider.Meta().(*aliyunclient.AliyunClient)
+			client := provider.Meta().(*connectivity.AliyunClient)
 			ecsService := EcsService{client}
 			instance, err := ecsService.DescribeInstanceById(rs.Primary.ID)
 			log.Printf("[WARN]get ecs instance %#v", instance)
@@ -809,7 +809,7 @@ func testAccCheckInstanceDestroyWithProviders(providers *[]*schema.Provider) res
 }
 
 func testAccCheckInstanceDestroyWithProvider(s *terraform.State, provider *schema.Provider) error {
-	client := provider.Meta().(*aliyunclient.AliyunClient)
+	client := provider.Meta().(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	for _, rs := range s.RootModule().Resources {
@@ -849,7 +849,7 @@ func testAccCheckSystemDiskSize(n string, size int) resource.TestCheckFunc {
 			if provider.Meta() == nil {
 				continue
 			}
-			client := provider.Meta().(*aliyunclient.AliyunClient)
+			client := provider.Meta().(*connectivity.AliyunClient)
 			ecsService := EcsService{client}
 			systemDisk, err := ecsService.QueryInstanceSystemDisk(rs.Primary.ID)
 			if err != nil {

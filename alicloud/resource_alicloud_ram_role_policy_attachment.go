@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -41,7 +41,7 @@ func resourceAlicloudRamRolePolicyAttachment() *schema.Resource {
 }
 
 func resourceAlicloudRamRolePolicyAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	args := ram.AttachPolicyToRoleRequest{
 		PolicyRequest: ram.PolicyRequest{
 			PolicyName: d.Get("policy_name").(string),
@@ -62,7 +62,7 @@ func resourceAlicloudRamRolePolicyAttachmentCreate(d *schema.ResourceData, meta 
 }
 
 func resourceAlicloudRamRolePolicyAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.RoleQueryRequest{
 		RoleName: d.Get("role_name").(string),
@@ -91,7 +91,7 @@ func resourceAlicloudRamRolePolicyAttachmentRead(d *schema.ResourceData, meta in
 }
 
 func resourceAlicloudRamRolePolicyAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.AttachPolicyToRoleRequest{
 		PolicyRequest: ram.PolicyRequest{

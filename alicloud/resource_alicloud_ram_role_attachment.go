@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -37,7 +37,7 @@ func resourceAlicloudRamRoleAttachment() *schema.Resource {
 }
 
 func resourceAlicloudInstanceRoleAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 
 	instanceIds := convertListToJsonString(d.Get("instance_ids").(*schema.Set).List())
@@ -67,7 +67,7 @@ func resourceAlicloudInstanceRoleAttachmentCreate(d *schema.ResourceData, meta i
 }
 
 func resourceAlicloudInstanceRoleAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	roleName := strings.Split(d.Id(), ":")[0]
 	instanceIds := strings.Split(d.Id(), ":")[1]
 
@@ -111,7 +111,7 @@ func resourceAlicloudInstanceRoleAttachmentRead(d *schema.ResourceData, meta int
 }
 
 func resourceAlicloudInstanceRoleAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	roleName := strings.Split(d.Id(), ":")[0]
 	instanceIds := strings.Split(d.Id(), ":")[1]
 

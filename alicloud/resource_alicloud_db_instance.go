@@ -7,7 +7,7 @@ import (
 
 	"strconv"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/go-uuid"
@@ -225,7 +225,7 @@ func resourceAlicloudDBInstance() *schema.Resource {
 }
 
 func resourceAlicloudDBInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 
 	request, err := buildDBCreateRequest(d, meta)
@@ -252,7 +252,7 @@ func resourceAlicloudDBInstanceCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	d.Partial(true)
 
@@ -323,7 +323,7 @@ func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudDBInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 
 	instance, err := rdsService.DescribeDBInstanceById(d.Id())
@@ -358,7 +358,7 @@ func resourceAlicloudDBInstanceRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudDBInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 
 	instance, err := rdsService.DescribeDBInstanceById(d.Id())
@@ -403,7 +403,7 @@ func resourceAlicloudDBInstanceDelete(d *schema.ResourceData, meta interface{}) 
 }
 
 func buildDBCreateRequest(d *schema.ResourceData, meta interface{}) (*rds.CreateDBInstanceRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	request := rds.CreateCreateDBInstanceRequest()
 	request.RegionId = string(client.Region)

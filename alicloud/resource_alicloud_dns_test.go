@@ -5,8 +5,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -55,7 +54,7 @@ func testAccCheckDnsExists(n string, domain *dns.DomainType) resource.TestCheckF
 			return fmt.Errorf("No Domain ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := &dns.DescribeDomainInfoArgs{
 			DomainName: rs.Primary.Attributes["name"],
@@ -83,7 +82,7 @@ func testAccCheckDnsDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the domain
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := &dns.DescribeDomainInfoArgs{
 			DomainName: rs.Primary.Attributes["name"],

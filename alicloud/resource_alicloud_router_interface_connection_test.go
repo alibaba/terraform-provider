@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -51,7 +51,7 @@ func testAccCheckRouterInterfaceConnectionExists(n string) resource.TestCheckFun
 			return fmt.Errorf("No interface ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 
 		response, err := vpcService.DescribeRouterInterface(client.RegionId, rs.Primary.ID)
@@ -74,7 +74,7 @@ func testAccCheckRouterInterfaceConnectionDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the interface
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 
 		ri, err := vpcService.DescribeRouterInterface(client.RegionId, rs.Primary.ID)

@@ -5,10 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"regexp"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -61,7 +60,7 @@ func resourceAlicloudDBConnection() *schema.Resource {
 }
 
 func resourceAlicloudDBConnectionCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	instance_id := d.Get("instance_id").(string)
 	prefix, ok := d.GetOk("connection_prefix")
@@ -86,7 +85,7 @@ func resourceAlicloudDBConnectionRead(d *schema.ResourceData, meta interface{}) 
 
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	conn, err := rdsService.DescribeDBInstanceNetInfoByIpType(parts[0], Public)
 
@@ -108,7 +107,7 @@ func resourceAlicloudDBConnectionRead(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 	d.Partial(true)
 
@@ -164,7 +163,7 @@ func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAlicloudDBConnectionDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 
 	submatch := dbConnectionIdWithSuffixRegexp.FindStringSubmatch(d.Id())
@@ -206,7 +205,7 @@ func resourceAlicloudDBConnectionDelete(d *schema.ResourceData, meta interface{}
 }
 
 func getCurrentConnectionString(dbInstanceId string, meta interface{}) (string, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 
 	resp, err := rdsService.DescribeDBInstanceNetInfoByIpType(dbInstanceId, Public)

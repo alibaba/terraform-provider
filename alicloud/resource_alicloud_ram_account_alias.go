@@ -3,7 +3,7 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -26,7 +26,7 @@ func resourceAlicloudRamAccountAlias() *schema.Resource {
 }
 
 func resourceAlicloudRamAccountAliasCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.AccountAliasRequest{
 		AccountAlias: d.Get("account_alias").(string),
@@ -44,7 +44,7 @@ func resourceAlicloudRamAccountAliasCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetAccountAlias()
@@ -59,7 +59,7 @@ func resourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudRamAccountAliasDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ClearAccountAlias()

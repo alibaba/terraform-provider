@@ -7,8 +7,7 @@ import (
 
 	"strconv"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -110,7 +109,7 @@ func resourceAlicloudKVStoreInstance() *schema.Resource {
 }
 
 func resourceAlicloudKVStoreInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	kvstoreService := KvstoreService{client}
 
 	request, err := buildKVStoreCreateRequest(d, meta)
@@ -137,7 +136,7 @@ func resourceAlicloudKVStoreInstanceCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudKVStoreInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	kvstoreService := KvstoreService{client}
 	d.Partial(true)
 
@@ -229,7 +228,7 @@ func resourceAlicloudKVStoreInstanceUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudKVStoreInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	kvstoreService := KvstoreService{client}
 	instance, err := kvstoreService.DescribeRKVInstanceById(d.Id())
 	if err != nil {
@@ -254,7 +253,7 @@ func resourceAlicloudKVStoreInstanceRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudKVStoreInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	kvstoreService := KvstoreService{client}
 
 	instance, err := kvstoreService.DescribeRKVInstanceById(d.Id())
@@ -294,7 +293,7 @@ func resourceAlicloudKVStoreInstanceDelete(d *schema.ResourceData, meta interfac
 }
 
 func buildKVStoreCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvstore.CreateInstanceRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	request := r_kvstore.CreateCreateInstanceRequest()
 	request.InstanceName = Trim(d.Get("instance_name").(string))

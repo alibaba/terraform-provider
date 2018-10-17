@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -44,7 +44,7 @@ func TestAccAlicloudForward_basic(t *testing.T) {
 }
 
 func testAccCheckForwardEntryDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	for _, rs := range s.RootModule().Resources {
@@ -79,7 +79,7 @@ func testAccCheckForwardEntryExists(n string, snat *vpc.ForwardTableEntry) resou
 			return fmt.Errorf("No ForwardEntry ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 		instance, err := vpcService.DescribeForwardEntry(rs.Primary.Attributes["forward_table_id"], rs.Primary.ID)
 

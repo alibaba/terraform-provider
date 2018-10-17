@@ -5,8 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -127,7 +126,7 @@ func resourceAlicloudCSApplication() *schema.Resource {
 }
 
 func resourceAlicloudCSApplicationCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	csService := CsService{client}
 	clusterName := Trim(d.Get("cluster_name").(string))
 
@@ -170,7 +169,7 @@ func resourceAlicloudCSApplicationCreate(d *schema.ResourceData, meta interface{
 func resourceAlicloudCSApplicationRead(d *schema.ResourceData, meta interface{}) error {
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	csService := CsService{client}
 	application, err := csService.DescribeContainerApplication(parts[0], parts[1])
 
@@ -215,7 +214,7 @@ func resourceAlicloudCSApplicationRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	csService := CsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 	clusterName := parts[0]
@@ -341,7 +340,7 @@ func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudCSApplicationDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	csService := CsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 	clusterName := parts[0]

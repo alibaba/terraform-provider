@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -96,7 +96,7 @@ func resourceAliyunSecurityGroupRule() *schema.Resource {
 }
 
 func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	direction := d.Get("type").(string)
 	sgId := d.Get("security_group_id").(string)
@@ -147,7 +147,7 @@ func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	parts := strings.Split(d.Id(), ":")
 	policy := parseSecurityRuleId(d, meta, 6)
@@ -201,7 +201,7 @@ func resourceAliyunSecurityGroupRuleRead(d *schema.ResourceData, meta interface{
 }
 
 func deleteSecurityGroupRule(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ruleType := d.Get("type").(string)
 	request, err := buildAliyunSGRuleRequest(d, meta)
 	if err != nil {
@@ -224,7 +224,7 @@ func deleteSecurityGroupRule(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	parts := strings.Split(d.Id(), ":")
 	policy := parseSecurityRuleId(d, meta, 6)
@@ -266,9 +266,9 @@ func resourceAliyunSecurityGroupRuleDelete(d *schema.ResourceData, meta interfac
 }
 
 func buildAliyunSGRuleRequest(d *schema.ResourceData, meta interface{}) (*requests.CommonRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
-	request := client.NewCommonRequest(aliyunclient.ECSCode, aliyunclient.ApiVersion20140526)
+	request := client.NewCommonRequest(connectivity.ECSCode, connectivity.ApiVersion20140526)
 
 	direction := d.Get("type").(string)
 

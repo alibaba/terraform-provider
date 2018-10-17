@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -31,7 +31,7 @@ func testSweepRamRoles(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -158,7 +158,7 @@ func testAccCheckRamRoleExists(n string, role *ram.Role) resource.TestCheckFunc 
 			return fmt.Errorf("No Role ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.RoleQueryRequest{
 			RoleName: rs.Primary.Attributes["name"],
@@ -186,7 +186,7 @@ func testAccCheckRamRoleDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the role
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		request := ram.RoleQueryRequest{
 			RoleName: rs.Primary.Attributes["name"],

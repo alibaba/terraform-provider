@@ -5,8 +5,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -160,7 +159,7 @@ func testAccCheckEssAlarmExists(n string, d *ess.Alarm) resource.TestCheckFunc {
 			return fmt.Errorf("No ESS Alarm ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		essService := EssService{client}
 		attr, err := essService.DescribeEssAlarmById(rs.Primary.ID)
 		log.Printf("[DEBUG] check ess alarm %s attribute %#v", rs.Primary.ID, attr)
@@ -175,7 +174,7 @@ func testAccCheckEssAlarmExists(n string, d *ess.Alarm) resource.TestCheckFunc {
 }
 
 func testAccCheckEssAlarmDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	for _, rs := range s.RootModule().Resources {

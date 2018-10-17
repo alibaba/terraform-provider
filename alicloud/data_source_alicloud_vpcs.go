@@ -5,7 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -105,7 +105,7 @@ func dataSourceAlicloudVpcs() *schema.Resource {
 	}
 }
 func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := vpc.CreateDescribeVpcsRequest()
 	args.RegionId = string(client.Region)

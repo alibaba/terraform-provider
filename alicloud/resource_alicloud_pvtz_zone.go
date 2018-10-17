@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/pvtz"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -50,7 +49,7 @@ func resourceAlicloudPvtzZone() *schema.Resource {
 }
 
 func resourceAlicloudPvtzZoneCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := pvtz.CreateAddZoneRequest()
 
@@ -76,7 +75,7 @@ func resourceAlicloudPvtzZoneCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudPvtzZoneRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	request := pvtz.CreateDescribeZoneInfoRequest()
 	request.ZoneId = d.Id()
@@ -112,7 +111,7 @@ func resourceAlicloudPvtzZoneUpdate(d *schema.ResourceData, meta interface{}) er
 	if d.HasChange("remark") {
 		request.Remark = d.Get("remark").(string)
 
-		client := meta.(*aliyunclient.AliyunClient)
+		client := meta.(*connectivity.AliyunClient)
 		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.UpdateZoneRemark(request)
 		})
@@ -125,7 +124,7 @@ func resourceAlicloudPvtzZoneUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudPvtzZoneDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	pvtzService := PvtzService{client}
 
 	request := pvtz.CreateDeleteZoneRequest()

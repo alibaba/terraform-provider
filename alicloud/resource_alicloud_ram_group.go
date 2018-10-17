@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -41,7 +41,7 @@ func resourceAlicloudRamGroup() *schema.Resource {
 }
 
 func resourceAlicloudRamGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.GroupRequest{
 		Group: ram.Group{
@@ -61,7 +61,7 @@ func resourceAlicloudRamGroupCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudRamGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -98,7 +98,7 @@ func resourceAlicloudRamGroupUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudRamGroupRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.GroupQueryRequest{
 		GroupName: d.Id(),
@@ -121,7 +121,7 @@ func resourceAlicloudRamGroupRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.GroupQueryRequest{
 		GroupName: d.Id(),

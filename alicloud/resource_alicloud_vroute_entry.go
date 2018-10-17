@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -53,7 +53,7 @@ func resourceAliyunRouteEntry() *schema.Resource {
 }
 
 func resourceAliyunRouteEntryCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	rtId := d.Get("route_table_id").(string)
@@ -116,7 +116,7 @@ func resourceAliyunRouteEntryCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAliyunRouteEntryRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	parts := strings.Split(d.Id(), ":")
 	rtId := parts[0]
@@ -149,7 +149,7 @@ func resourceAliyunRouteEntryDelete(d *schema.ResourceData, meta interface{}) er
 	if err != nil {
 		return err
 	}
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	parts := strings.Split(d.Id(), ":")
 	rtId := parts[0]

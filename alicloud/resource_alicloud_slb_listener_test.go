@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -114,7 +114,7 @@ func testAccCheckSlbListenerExists(n string, port int) resource.TestCheckFunc {
 			return fmt.Errorf("No SLB listener ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		slbService := SlbService{client}
 		parts := strings.Split(rs.Primary.ID, ":")
 		loadBalancer, err := slbService.DescribeLoadBalancerAttribute(parts[0])
@@ -132,7 +132,7 @@ func testAccCheckSlbListenerExists(n string, port int) resource.TestCheckFunc {
 }
 
 func testAccCheckSlbListenerDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 
 	for _, rs := range s.RootModule().Resources {

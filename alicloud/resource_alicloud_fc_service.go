@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-log-go-sdk"
 
 	"github.com/aliyun/fc-go-sdk"
@@ -109,7 +109,7 @@ func resourceAlicloudFCService() *schema.Resource {
 }
 
 func resourceAlicloudFCServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	var name string
 	if v, ok := d.GetOk("name"); ok {
@@ -168,7 +168,7 @@ func resourceAlicloudFCServiceCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudFCServiceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	fcService := FcService{client}
 
 	service, err := fcService.DescribeFcService(d.Id())
@@ -211,7 +211,7 @@ func resourceAlicloudFCServiceRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudFCServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 	updateInput := &fc.UpdateServiceInput{}
@@ -262,7 +262,7 @@ func resourceAlicloudFCServiceUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAlicloudFCServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	fcService := FcService{client}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -290,7 +290,7 @@ func resourceAlicloudFCServiceDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func parseVpcConfig(d *schema.ResourceData, meta interface{}) (config *fc.VPCConfig, err error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	if v, ok := d.GetOk("vpc_config"); ok {
 
@@ -322,7 +322,7 @@ func parseVpcConfig(d *schema.ResourceData, meta interface{}) (config *fc.VPCCon
 }
 
 func parseLogConfig(d *schema.ResourceData, meta interface{}) (project, logstore string, err error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	if v, ok := d.GetOk("log_config"); ok {
 
 		configs := v.([]interface{})

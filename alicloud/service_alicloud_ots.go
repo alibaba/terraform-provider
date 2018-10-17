@@ -3,16 +3,15 @@ package alicloud
 import (
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 )
 
 type OtsService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *OtsService) getPrimaryKeyType(primaryKeyType string) tablestore.PrimaryKeyType {

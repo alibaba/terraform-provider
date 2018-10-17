@@ -6,8 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/dns"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -120,7 +119,7 @@ func dataSourceAlicloudDnsRecords() *schema.Resource {
 }
 
 func dataSourceAlicloudDnsRecordsRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := &dns.DescribeDomainRecordsNewArgs{
 		DomainName: d.Get("domain_name").(string),

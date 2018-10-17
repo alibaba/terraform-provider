@@ -3,18 +3,17 @@ package alicloud
 import (
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 
 	"encoding/json"
 	"fmt"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
 
 type VpnGatewayService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *VpnGatewayService) DescribeVpnGateway(vpnId string) (v vpc.DescribeVpnGatewayResponse, err error) {

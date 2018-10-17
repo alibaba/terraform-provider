@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -51,7 +51,7 @@ func testAccCheckKeyPairAttachmentExists(n string, instance *ecs.Instance, keypa
 			return fmt.Errorf("No Key Pair Attachment ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		ecsService := EcsService{client}
 
 		response, err := ecsService.DescribeInstanceById(instance.InstanceId)
@@ -76,7 +76,7 @@ func testAccCheckKeyPairAttachmentDestroy(s *terraform.State) error {
 			continue
 		}
 		// Try to find the Disk
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		ecsService := EcsService{client}
 
 		instance_ids := rs.Primary.Attributes["instance_ids"]

@@ -5,11 +5,10 @@ import (
 	"log"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -27,7 +26,7 @@ func testSweepCSSwarms(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -151,7 +150,7 @@ func testAccCheckContainerClusterExists(n string, d *cs.ClusterType) resource.Te
 			return fmt.Errorf("No Container cluster ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return csClient.DescribeCluster(cluster.Primary.ID)
 		})
@@ -171,7 +170,7 @@ func testAccCheckContainerClusterExists(n string, d *cs.ClusterType) resource.Te
 }
 
 func testAccCheckSwarmClusterDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_cs_swarm" {

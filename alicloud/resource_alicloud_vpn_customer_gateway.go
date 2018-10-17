@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -39,7 +39,7 @@ func resourceAliyunVpnCustomerGateway() *schema.Resource {
 }
 
 func resourceAliyunVpnCustomerGatewayCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 	var cgw *vpc.CreateCustomerGatewayResponse
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
@@ -70,7 +70,7 @@ func resourceAliyunVpnCustomerGatewayCreate(d *schema.ResourceData, meta interfa
 
 func resourceAliyunVpnCustomerGatewayRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 
 	resp, err := vpnGatewayService.DescribeCustomerGateway(d.Id())
@@ -90,7 +90,7 @@ func resourceAliyunVpnCustomerGatewayRead(d *schema.ResourceData, meta interface
 }
 
 func resourceAliyunVpnCustomerGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	attributeUpdate := false
 	request := vpc.CreateModifyCustomerGatewayAttributeRequest()
 	request.CustomerGatewayId = d.Id()
@@ -118,7 +118,7 @@ func resourceAliyunVpnCustomerGatewayUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceAliyunVpnCustomerGatewayDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 	request := vpc.CreateDeleteCustomerGatewayRequest()
 	request.CustomerGatewayId = d.Id()
@@ -151,7 +151,7 @@ func resourceAliyunVpnCustomerGatewayDelete(d *schema.ResourceData, meta interfa
 }
 
 func buildAliyunCustomerGatewayArgs(d *schema.ResourceData, meta interface{}) *vpc.CreateCustomerGatewayRequest {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	request := vpc.CreateCreateCustomerGatewayRequest()
 	request.RegionId = client.RegionId
 	request.IpAddress = d.Get("ip_address").(string)

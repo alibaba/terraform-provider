@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/hashicorp/terraform/helper/resource"
 )
@@ -26,7 +26,7 @@ func sharedClientForRegion(region string) (interface{}, error) {
 		return nil, fmt.Errorf("empty ALICLOUD_SECRET_KEY")
 	}
 
-	conf := aliyunclient.Config{
+	conf := connectivity.Config{
 		Region:    common.Region(region),
 		RegionId:  region,
 		AccessKey: accessKey,

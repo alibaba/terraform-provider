@@ -6,10 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -28,7 +27,7 @@ func testSweepDBInstances(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -296,7 +295,7 @@ func testAccCheckSecurityIpExists(n string, ips []map[string]interface{}) resour
 			return fmt.Errorf("No DB Instance ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		rdsService := RdsService{client}
 		resp, err := rdsService.DescribeDBSecurityIps(rs.Primary.ID)
 		log.Printf("[DEBUG] check instance %s security ip %#v", rs.Primary.ID, resp)
@@ -334,7 +333,7 @@ func testAccCheckDBInstanceExists(n string, d *rds.DBInstanceAttribute) resource
 			return fmt.Errorf("No DB Instance ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		rdsService := RdsService{client}
 		attr, err := rdsService.DescribeDBInstanceById(rs.Primary.ID)
 		log.Printf("[DEBUG] check instance %s attribute %#v", rs.Primary.ID, attr)
@@ -364,7 +363,7 @@ func testAccCheckKeyValueInMaps(ps []map[string]interface{}, propName, key, valu
 }
 
 func testAccCheckDBInstanceDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	rdsService := RdsService{client}
 
 	for _, rs := range s.RootModule().Resources {

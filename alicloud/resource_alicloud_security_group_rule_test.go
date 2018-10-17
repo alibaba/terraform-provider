@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -334,7 +334,7 @@ func testAccCheckSecurityGroupRuleExists(n string, m *ecs.Permission) resource.T
 			return fmt.Errorf("No SecurityGroup Rule ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		ecsService := EcsService{client}
 		log.Printf("[WARN]get sg rule %s", rs.Primary.ID)
 		parts := strings.Split(rs.Primary.ID, ":")
@@ -354,7 +354,7 @@ func testAccCheckSecurityGroupRuleExists(n string, m *ecs.Permission) resource.T
 }
 
 func testAccCheckSecurityGroupRuleDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	for _, rs := range s.RootModule().Resources {

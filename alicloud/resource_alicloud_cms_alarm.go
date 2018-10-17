@@ -6,8 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -121,7 +120,7 @@ func resourceAlicloudCmsAlarm() *schema.Resource {
 }
 
 func resourceAlicloudCmsAlarmCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	request := cms.CreateCreateAlarmRequest()
 
@@ -175,7 +174,7 @@ func resourceAlicloudCmsAlarmCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudCmsAlarmRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	cmsService := CmsService{client}
 
 	alarm, err := cmsService.DescribeAlarm(d.Id())
@@ -220,7 +219,7 @@ func resourceAlicloudCmsAlarmRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlicloudCmsAlarmUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	cmsService := CmsService{client}
 
 	d.Partial(true)
@@ -325,7 +324,7 @@ func resourceAlicloudCmsAlarmUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudCmsAlarmDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	cmsService := CmsService{client}
 	request := cms.CreateDeleteAlarmRequest()
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -68,7 +68,7 @@ func TestAccAlicloudRouteEntry_RouteInterface(t *testing.T) {
 }
 
 func testAccCheckRouteTableExists(rtId string, t *vpc.RouteTable) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	//query route table
 	rt, terr := vpcService.QueryRouteTableById(rtId)
@@ -86,7 +86,7 @@ func testAccCheckRouteTableExists(rtId string, t *vpc.RouteTable) error {
 }
 
 func testAccCheckRouteEntryExists(routeTableId, cidrBlock, nextHopType, nextHopId string, e *vpc.RouteEntry) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	//query route table entry
 	re, rerr := vpcService.QueryRouteEntry(routeTableId, cidrBlock, nextHopType, nextHopId)
@@ -125,7 +125,7 @@ func testAccCheckRouteTableEntryExists(n string, t *vpc.RouteTable, e *vpc.Route
 }
 
 func testAccCheckRouteEntryDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	for _, rs := range s.RootModule().Resources {

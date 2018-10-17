@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -63,7 +63,7 @@ func resourceAlicloudKmsKey() *schema.Resource {
 }
 
 func resourceAlicloudKmsKeyCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := kms.CreateKeyArgs{
 		KeyUsage: kms.KeyUsage(d.Get("key_usage").(string)),
@@ -85,7 +85,7 @@ func resourceAlicloudKmsKeyCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlicloudKmsKeyRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 		return kmsClient.DescribeKey(d.Id())
@@ -113,7 +113,7 @@ func resourceAlicloudKmsKeyRead(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceAlicloudKmsKeyUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -151,7 +151,7 @@ func resourceAlicloudKmsKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAlicloudKmsKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	_, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 		return kmsClient.ScheduleKeyDeletion(&kms.ScheduleKeyDeletionArgs{

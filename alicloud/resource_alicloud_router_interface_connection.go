@@ -5,7 +5,7 @@ import (
 
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -63,7 +63,7 @@ func resourceAlicloudRouterInterfaceConnection() *schema.Resource {
 }
 
 func resourceAlicloudRouterInterfaceConnectionCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	oppsiteId := d.Get("opposite_interface_id").(string)
@@ -183,7 +183,7 @@ func resourceAlicloudRouterInterfaceConnectionCreate(d *schema.ResourceData, met
 }
 
 func resourceAlicloudRouterInterfaceConnectionRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 	ri, err := vpcService.DescribeRouterInterface(client.RegionId, d.Id())
 
@@ -213,7 +213,7 @@ func resourceAlicloudRouterInterfaceConnectionRead(d *schema.ResourceData, meta 
 }
 
 func resourceAlicloudRouterInterfaceConnectionDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	ri, err := vpcService.DescribeRouterInterface(client.RegionId, d.Id())

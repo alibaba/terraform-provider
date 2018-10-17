@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/fc-go-sdk"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -103,7 +102,7 @@ func resourceAlicloudFCFunction() *schema.Resource {
 }
 
 func resourceAlicloudFCFunctionCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	serviceName := d.Get("service").(string)
 	var name string
@@ -161,7 +160,7 @@ func resourceAlicloudFCFunctionCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudFCFunctionRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	fcService := FcService{client}
 
 	split := strings.Split(d.Id(), COLON_SEPARATED)
@@ -191,7 +190,7 @@ func resourceAlicloudFCFunctionRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudFCFunctionUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 	updateInput := &fc.UpdateFunctionInput{}
@@ -247,7 +246,7 @@ func resourceAlicloudFCFunctionUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudFCFunctionDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	fcService := FcService{client}
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
@@ -276,7 +275,7 @@ func resourceAlicloudFCFunctionDelete(d *schema.ResourceData, meta interface{}) 
 
 }
 
-func getFunctionCode(d *schema.ResourceData, client *aliyunclient.AliyunClient) (*fc.Code, error) {
+func getFunctionCode(d *schema.ResourceData, client *connectivity.AliyunClient) (*fc.Code, error) {
 	code := fc.NewCode()
 	if filename, ok := d.GetOk("filename"); ok && filename.(string) != "" {
 		file, err := loadFileContent(filename.(string))

@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/pvtz"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -71,7 +70,7 @@ func dataSourceAlicloudPvtzZones() *schema.Resource {
 }
 
 func dataSourceAlicloudPvtzZonesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := pvtz.CreateDescribeZonesRequest()
 	if keyword, ok := d.GetOk("keyword"); ok {

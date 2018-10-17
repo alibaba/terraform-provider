@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/aliyun/fc-go-sdk"
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -68,7 +67,7 @@ func testAccCheckAlicloudFCFunctionExists(name string, service *fc.GetFunctionOu
 			return fmt.Errorf("No Log store ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		fcService := FcService{client}
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 		ser, err := fcService.DescribeFcFunction(split[0], split[1])
@@ -83,7 +82,7 @@ func testAccCheckAlicloudFCFunctionExists(name string, service *fc.GetFunctionOu
 }
 
 func testAccCheckAlicloudFCFunctionDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	fcService := FcService{client}
 
 	for _, rs := range s.RootModule().Resources {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -48,7 +48,7 @@ func resourceAliyunSecurityGroup() *schema.Resource {
 }
 
 func resourceAliyunSecurityGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.CreateSecurityGroup(buildAliyunSecurityGroupArgs(d, meta))
@@ -65,7 +65,7 @@ func resourceAliyunSecurityGroupCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAliyunSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	var sg *ecs.DescribeSecurityGroupAttributeResponse
@@ -101,7 +101,7 @@ func resourceAliyunSecurityGroupRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAliyunSecurityGroupUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 	attributeUpdate := false
@@ -153,7 +153,7 @@ func resourceAliyunSecurityGroupUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	req := ecs.CreateDeleteSecurityGroupRequest()
 	req.SecurityGroupId = d.Id()

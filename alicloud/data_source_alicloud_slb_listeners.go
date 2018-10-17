@@ -5,8 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -178,7 +177,7 @@ func dataSourceAlicloudSlbListeners() *schema.Resource {
 }
 
 func dataSourceAlicloudSlbListenersRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := slb.CreateDescribeLoadBalancerAttributeRequest()
 	args.LoadBalancerId = d.Get("load_balancer_id").(string)
@@ -228,7 +227,7 @@ func dataSourceAlicloudSlbListenersRead(d *schema.ResourceData, meta interface{}
 }
 
 func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.ListenerPortAndProtocol, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	var ids []string
 	var s []map[string]interface{}

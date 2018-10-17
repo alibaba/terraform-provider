@@ -6,10 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"reflect"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -180,7 +179,7 @@ func resourceAlicloudEssScalingConfiguration() *schema.Resource {
 func resourceAliyunEssScalingConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
 
 	// Ensure instance_type is generation three
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 	zoneId, validZones, err := ecsService.DescribeAvailableResources(d, meta, InstanceTypeResource)
 	if err != nil {
@@ -221,7 +220,7 @@ func resourceAliyunEssScalingConfigurationCreate(d *schema.ResourceData, meta in
 }
 
 func resourceAliyunEssScalingConfigurationUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	d.Partial(true)
 	if strings.Contains(d.Id(), COLON_SEPARATED) {
@@ -269,7 +268,7 @@ func resourceAliyunEssScalingConfigurationUpdate(d *schema.ResourceData, meta in
 }
 
 func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	if d.HasChange("enable") {
@@ -341,7 +340,7 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 
 func resourceAliyunEssScalingConfigurationRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	if strings.Contains(d.Id(), COLON_SEPARATED) {
 		d.SetId(strings.Split(d.Id(), COLON_SEPARATED)[1])
@@ -377,7 +376,7 @@ func resourceAliyunEssScalingConfigurationRead(d *schema.ResourceData, meta inte
 }
 
 func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	if strings.Contains(d.Id(), COLON_SEPARATED) {
@@ -526,7 +525,7 @@ func buildAlicloudEssScalingConfigurationArgs(d *schema.ResourceData, meta inter
 }
 
 func activeSubstituteScalingConfiguration(d *schema.ResourceData, meta interface{}) (configures []ess.ScalingConfiguration, err error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	substitute_id, ok := d.GetOk("substitute")
 

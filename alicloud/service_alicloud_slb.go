@@ -3,7 +3,7 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 
 	"encoding/json"
@@ -15,11 +15,11 @@ import (
 )
 
 type SlbService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *SlbService) BuildSlbCommonRequest() *requests.CommonRequest {
-	return s.client.NewCommonRequest(aliyunclient.SLBCode, aliyunclient.ApiVersion20140515)
+	return s.client.NewCommonRequest(connectivity.SLBCode, connectivity.ApiVersion20140515)
 }
 
 func (s *SlbService) DescribeLoadBalancerAttribute(slbId string) (loadBalancer *slb.DescribeLoadBalancerAttributeResponse, err error) {

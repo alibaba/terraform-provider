@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -144,7 +144,7 @@ func testAccCheckOssBucketObjectExistsWithProviders(n string, bucket string, obj
 			if provider.Meta() == nil {
 				continue
 			}
-			client := provider.Meta().(*aliyunclient.AliyunClient)
+			client := provider.Meta().(*connectivity.AliyunClient)
 			raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 				return ossClient.Bucket(bucket)
 			})
@@ -174,7 +174,7 @@ func testAccCheckAlicloudOssBucketObjectDestroy(s *terraform.State) error {
 }
 
 func testAccCheckOssBucketObjectDestroyWithProvider(s *terraform.State, provider *schema.Provider) error {
-	client := provider.Meta().(*aliyunclient.AliyunClient)
+	client := provider.Meta().(*connectivity.AliyunClient)
 	ossService := OssService{client}
 
 	for _, rs := range s.RootModule().Resources {

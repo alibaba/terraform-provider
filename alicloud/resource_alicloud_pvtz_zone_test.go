@@ -7,8 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/pvtz"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -27,7 +26,7 @@ func testSweepPvtzZones(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -219,7 +218,7 @@ func testAccAlicloudPvtzZoneExists(n string, zone *pvtz.DescribeZoneInfoResponse
 			return fmt.Errorf("No ZONE ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		pvtzService := PvtzService{client}
 
 		instance, err := pvtzService.DescribePvtzZoneInfo(rs.Primary.ID)
@@ -234,7 +233,7 @@ func testAccAlicloudPvtzZoneExists(n string, zone *pvtz.DescribeZoneInfoResponse
 }
 
 func testAccAlicloudPvtzZoneDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	pvtzService := PvtzService{client}
 
 	for _, rs := range s.RootModule().Resources {

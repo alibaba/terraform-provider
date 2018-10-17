@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-log-go-sdk"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -37,7 +37,7 @@ func resourceAlicloudLogProject() *schema.Resource {
 }
 
 func resourceAlicloudLogProjectCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return slsClient.CreateProject(d.Get("name").(string), d.Get("description").(string))
@@ -52,7 +52,7 @@ func resourceAlicloudLogProjectCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudLogProjectRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return slsClient.GetProject(d.Id())
@@ -89,7 +89,7 @@ func resourceAlicloudLogProjectRead(d *schema.ResourceData, meta interface{}) er
 //}
 
 func resourceAlicloudLogProjectDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
 		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {

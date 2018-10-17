@@ -7,7 +7,7 @@ import (
 
 	"strconv"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -64,7 +64,7 @@ func resourceAliyunSlbRule() *schema.Resource {
 
 func resourceAliyunSlbRuleCreate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	slb_id := d.Get("load_balancer_id").(string)
 	port := d.Get("frontend_port").(int)
@@ -131,7 +131,7 @@ func resourceAliyunSlbRuleCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAliyunSlbRuleRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	rule, err := slbService.DescribeLoadBalancerRuleAttribute(d.Id())
 
@@ -165,7 +165,7 @@ func resourceAliyunSlbRuleUpdate(d *schema.ResourceData, meta interface{}) error
 		req := slb.CreateSetRuleRequest()
 		req.RuleId = d.Id()
 		req.VServerGroupId = d.Get("server_group_id").(string)
-		client := meta.(*aliyunclient.AliyunClient)
+		client := meta.(*connectivity.AliyunClient)
 		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.SetRule(req)
 		})
@@ -181,7 +181,7 @@ func resourceAliyunSlbRuleUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAliyunSlbRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	req := slb.CreateDeleteRulesRequest()
 	req.RuleIds = fmt.Sprintf("['%s']", d.Id())
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -195,7 +195,7 @@ func resourceAliyunSlbRuleDelete(d *schema.ResourceData, meta interface{}) error
 			return resource.NonRetryableError(err)
 		}
 
-		client := meta.(*aliyunclient.AliyunClient)
+		client := meta.(*connectivity.AliyunClient)
 		slbService := SlbService{client}
 		if _, err := slbService.DescribeLoadBalancerRuleAttribute(d.Id()); err != nil {
 			if NotFoundError(err) {

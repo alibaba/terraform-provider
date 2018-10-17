@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -61,7 +60,7 @@ func resourceAlicloudOtsInstance() *schema.Resource {
 }
 
 func resourceAliyunOtsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	otsService := OtsService{client}
 
 	req := ots.CreateInsertInstanceRequest()
@@ -85,7 +84,7 @@ func resourceAliyunOtsInstanceCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAliyunOtsInstanceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	otsService := OtsService{client}
 	inst, err := otsService.DescribeOtsInstance(d.Id())
 	if err != nil {
@@ -105,7 +104,7 @@ func resourceAliyunOtsInstanceRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAliyunOtsInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	otsService := OtsService{client}
 
 	d.Partial(true)
@@ -176,7 +175,7 @@ func resourceAliyunOtsInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAliyunOtsInstanceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	otsService := OtsService{client}
 	req := ots.CreateDeleteInstanceRequest()
 	req.InstanceName = d.Id()

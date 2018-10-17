@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -96,7 +96,7 @@ func resourceAliyunVpnGateway() *schema.Resource {
 }
 
 func resourceAliyunVpnGatewayCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 	args := vpc.CreateCreateVpnGatewayRequest()
 	args.RegionId = client.RegionId
@@ -155,7 +155,7 @@ func resourceAliyunVpnGatewayCreate(d *schema.ResourceData, meta interface{}) er
 
 func resourceAliyunVpnGatewayRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 
 	resp, err := vpnGatewayService.DescribeVpnGateway(d.Id())
@@ -204,7 +204,7 @@ func resourceAliyunVpnGatewayRead(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceAliyunVpnGatewayUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	req := vpc.CreateModifyVpnGatewayAttributeRequest()
 	req.VpnGatewayId = d.Id()
 	update := false
@@ -248,7 +248,7 @@ func resourceAliyunVpnGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAliyunVpnGatewayDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 
 	req := vpc.CreateDeleteVpnGatewayRequest()

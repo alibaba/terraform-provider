@@ -8,8 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -107,7 +106,7 @@ func resourceAlicloudOssBucketObject() *schema.Resource {
 }
 
 func resourceAlicloudOssBucketObjectPut(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.Bucket(d.Get("bucket").(string))
 	})
@@ -155,7 +154,7 @@ func resourceAlicloudOssBucketObjectPut(d *schema.ResourceData, meta interface{}
 }
 
 func resourceAlicloudOssBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.Bucket(d.Get("bucket").(string))
 	})
@@ -193,7 +192,7 @@ func resourceAlicloudOssBucketObjectRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudOssBucketObjectDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.Bucket(d.Get("bucket").(string))
 	})

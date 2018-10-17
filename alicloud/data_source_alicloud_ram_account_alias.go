@@ -1,7 +1,7 @@
 package alicloud
 
 import (
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -24,7 +24,7 @@ func dataSourceAlicloudRamAccountAlias() *schema.Resource {
 }
 
 func dataSourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetAccountAlias()

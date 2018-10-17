@@ -6,11 +6,12 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 
 	//"github.com/denverdino/aliyungo/ecs"
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -113,7 +114,7 @@ func dataSourceAlicloudZones() *schema.Resource {
 }
 
 func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	resType, _ := d.Get("available_resource_creation").(string)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -84,7 +84,7 @@ func dataSourceAlicloudEips() *schema.Resource {
 	}
 }
 func dataSourceAlicloudEipsRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := vpc.CreateDescribeEipAddressesRequest()
 	args.RegionId = string(client.Region)

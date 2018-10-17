@@ -5,8 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -185,7 +184,7 @@ func dataSourceAlicloudInstances() *schema.Resource {
 	}
 }
 func dataSourceAlicloudInstancesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ecs.CreateDescribeInstancesRequest()
 	args.Status = d.Get("status").(string)
@@ -328,7 +327,7 @@ func instancessDescriptionAttributes(d *schema.ResourceData, instances []ecs.Ins
 
 //Returns a mapping of instance disks
 func instanceDisksMappings(d *schema.ResourceData, instanceId string, meta interface{}) []map[string]interface{} {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	req := ecs.CreateDescribeDisksRequest()
 	req.InstanceId = instanceId
 

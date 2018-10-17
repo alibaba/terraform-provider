@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -85,7 +85,7 @@ func resourceAlicloudRamRole() *schema.Resource {
 }
 
 func resourceAlicloudRamRoleCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args, err := buildAlicloudRamRoleCreateArgs(d, meta)
 	if err != nil {
@@ -104,7 +104,7 @@ func resourceAlicloudRamRoleCreate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudRamRoleUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -127,7 +127,7 @@ func resourceAlicloudRamRoleUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceAlicloudRamRoleRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 
 	args := ram.RoleQueryRequest{
@@ -164,7 +164,7 @@ func resourceAlicloudRamRoleRead(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.RoleQueryRequest{
 		RoleName: d.Id(),
@@ -211,7 +211,7 @@ func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) err
 }
 
 func buildAlicloudRamRoleCreateArgs(d *schema.ResourceData, meta interface{}) (ram.RoleRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 	args := ram.RoleRequest{
 		RoleName: d.Get("name").(string),
@@ -243,7 +243,7 @@ func buildAlicloudRamRoleCreateArgs(d *schema.ResourceData, meta interface{}) (r
 }
 
 func buildAlicloudRamRoleUpdateArgs(d *schema.ResourceData, meta interface{}) (ram.UpdateRoleRequest, bool, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 	args := ram.UpdateRoleRequest{
 		RoleName: d.Id(),

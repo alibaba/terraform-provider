@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"time"
 
 	"bytes"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -119,7 +118,7 @@ func resourceAlicloudLogStoreIndex() *schema.Resource {
 }
 
 func resourceAlicloudLogStoreIndexCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	logService := LogService{client}
 
 	_, fullOk := d.GetOk("full_text")
@@ -170,7 +169,7 @@ func resourceAlicloudLogStoreIndexCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudLogStoreIndexRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	logService := LogService{client}
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
@@ -220,7 +219,7 @@ func resourceAlicloudLogStoreIndexRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAlicloudLogStoreIndexUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 	d.Partial(true)
@@ -252,7 +251,7 @@ func resourceAlicloudLogStoreIndexUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudLogStoreIndexDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	logService := LogService{client}
 
 	split := strings.Split(d.Id(), COLON_SEPARATED)

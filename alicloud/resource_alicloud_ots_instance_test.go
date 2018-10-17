@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"log"
 	"strings"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -28,7 +27,7 @@ func testSweepOtsInstances(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -178,7 +177,7 @@ func testAccCheckOtsInstanceExist(n string, instance *ots.InstanceInfo) resource
 			return fmt.Errorf("no OTS table ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		otsService := OtsService{client}
 
 		response, err := otsService.DescribeOtsInstance(rs.Primary.ID)
@@ -197,7 +196,7 @@ func testAccCheckOtsInstanceDestroy(s *terraform.State) error {
 			continue
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		otsService := OtsService{client}
 
 		if _, err := otsService.DescribeOtsInstance(rs.Primary.ID); err != nil {

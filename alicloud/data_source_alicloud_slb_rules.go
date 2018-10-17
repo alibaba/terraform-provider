@@ -5,8 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -73,7 +72,7 @@ func dataSourceAlicloudSlbRules() *schema.Resource {
 }
 
 func dataSourceAlicloudSlbRulesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := slb.CreateDescribeRulesRequest()
 	args.LoadBalancerId = d.Get("load_balancer_id").(string)

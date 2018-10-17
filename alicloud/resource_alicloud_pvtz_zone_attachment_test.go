@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/pvtz"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -118,7 +117,7 @@ func testAccAlicloudPvtzZoneAttachmentExists(n string, zone *pvtz.DescribeZoneIn
 			return fmt.Errorf("No ZONE ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		pvtzService := PvtzService{client}
 		instance, err := pvtzService.DescribePvtzZoneInfo(rs.Primary.ID)
 
@@ -143,7 +142,7 @@ func testAccAlicloudPvtzZoneAttachmentExists(n string, zone *pvtz.DescribeZoneIn
 }
 
 func testAccAlicloudPvtzZoneAttachmentDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	pvtzService := PvtzService{client}
 
 	for _, rs := range s.RootModule().Resources {

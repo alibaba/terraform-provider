@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -72,7 +71,7 @@ func testAccCheckAlicloudLogMachineGroupExists(name string, group *sls.MachineGr
 
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		logService := LogService{client}
 		g, err := logService.DescribeLogMachineGroup(split[0], split[1])
 		if err != nil {
@@ -85,7 +84,7 @@ func testAccCheckAlicloudLogMachineGroupExists(name string, group *sls.MachineGr
 }
 
 func testAccCheckAlicloudLogMachineGroupDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	logService := LogService{client}
 
 	for _, rs := range s.RootModule().Resources {

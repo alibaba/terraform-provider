@@ -5,8 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -84,7 +83,7 @@ func dataSourceAlicloudRamRoles() *schema.Resource {
 }
 
 func dataSourceAlicloudRamRolesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ramService := RamService{client}
 	allRoles := []interface{}{}
 
@@ -151,7 +150,7 @@ func dataSourceAlicloudRamRolesRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func ramRolesDescriptionAttributes(d *schema.ResourceData, meta interface{}, roles []interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	var ids []string
 	var s []map[string]interface{}
 	for _, v := range roles {

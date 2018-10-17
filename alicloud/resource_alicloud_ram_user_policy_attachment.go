@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -42,7 +42,7 @@ func resourceAlicloudRamUserPolicyAtatchment() *schema.Resource {
 }
 
 func resourceAlicloudRamUserPolicyAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.AttachPolicyRequest{
 		PolicyRequest: ram.PolicyRequest{
@@ -64,7 +64,7 @@ func resourceAlicloudRamUserPolicyAttachmentCreate(d *schema.ResourceData, meta 
 }
 
 func resourceAlicloudRamUserPolicyAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 	args := ram.UserQueryRequest{
@@ -94,7 +94,7 @@ func resourceAlicloudRamUserPolicyAttachmentRead(d *schema.ResourceData, meta in
 }
 
 func resourceAlicloudRamUserPolicyAttachmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
 	args := ram.AttachPolicyRequest{

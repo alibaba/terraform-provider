@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -53,7 +53,7 @@ func TestAccAlicloudSnat_basic(t *testing.T) {
 }
 
 func testAccCheckSnatEntryDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	for _, rs := range s.RootModule().Resources {
@@ -91,7 +91,7 @@ func testAccCheckSnatEntryExists(n string, snat *vpc.SnatTableEntry) resource.Te
 			return fmt.Errorf("No SnatEntry ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		vpcService := VpcService{client}
 		instance, err := vpcService.DescribeSnatEntry(rs.Primary.Attributes["snat_table_id"], rs.Primary.ID)
 

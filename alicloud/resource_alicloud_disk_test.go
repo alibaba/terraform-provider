@@ -6,8 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -26,7 +25,7 @@ func testSweepDisks(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	client := rawClient.(*aliyunclient.AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testAcc",
@@ -209,7 +208,7 @@ func testAccCheckDiskExists(n string, disk *ecs.Disk) resource.TestCheckFunc {
 			return fmt.Errorf("No Disk ID is set")
 		}
 
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		ecsService := EcsService{client}
 
 		d, err := ecsService.DescribeDiskById("", rs.Primary.ID)
@@ -231,7 +230,7 @@ func testAccCheckDiskDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the Disk
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		ecsService := EcsService{client}
 
 		d, err := ecsService.DescribeDiskById("", rs.Primary.ID)

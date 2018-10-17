@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -70,7 +70,7 @@ func resourceAliyunSlbAttachment() *schema.Resource {
 }
 
 func resourceAliyunSlbAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	loadBalancer, err := slbService.DescribeLoadBalancerAttribute(d.Get("load_balancer_id").(string))
 	if err != nil {
@@ -83,7 +83,7 @@ func resourceAliyunSlbAttachmentCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAliyunSlbAttachmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	loadBalancer, err := slbService.DescribeLoadBalancerAttribute(d.Id())
 	if err != nil {
@@ -118,7 +118,7 @@ func resourceAliyunSlbAttachmentRead(d *schema.ResourceData, meta interface{}) e
 
 func resourceAliyunSlbAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	update := false
 	weight := d.Get("weight").(int)
 
@@ -194,7 +194,7 @@ func resourceAliyunSlbAttachmentDelete(d *schema.ResourceData, meta interface{})
 }
 
 func removeBackendServers(d *schema.ResourceData, meta interface{}, servers []interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	instanceSet := d.Get("instance_ids").(*schema.Set)
 	if len(servers) > 0 {

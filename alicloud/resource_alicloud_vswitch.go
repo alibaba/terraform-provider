@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -50,7 +50,7 @@ func resourceAliyunSubnet() *schema.Resource {
 }
 
 func resourceAliyunSwitchCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	var vswitchID string
@@ -88,7 +88,7 @@ func resourceAliyunSwitchCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceAliyunSwitchRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	vswitch, err := vpcService.DescribeVswitch(d.Id())
@@ -111,7 +111,7 @@ func resourceAliyunSwitchRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceAliyunSwitchUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -148,7 +148,7 @@ func resourceAliyunSwitchUpdate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceAliyunSwitchDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpcService := VpcService{client}
 
 	request := vpc.CreateDeleteVSwitchRequest()
@@ -180,7 +180,7 @@ func resourceAliyunSwitchDelete(d *schema.ResourceData, meta interface{}) error 
 }
 
 func buildAliyunSwitchArgs(d *schema.ResourceData, meta interface{}) (*vpc.CreateVSwitchRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	ecsService := EcsService{client}
 
 	zoneID := Trim(d.Get("availability_zone").(string))

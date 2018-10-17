@@ -5,8 +5,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -72,7 +71,7 @@ func dataSourceAlicloudSlbServerGroups() *schema.Resource {
 }
 
 func dataSourceAlicloudSlbServerGroupsRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := slb.CreateDescribeVServerGroupsRequest()
 	args.LoadBalancerId = d.Get("load_balancer_id").(string)
@@ -128,7 +127,7 @@ func dataSourceAlicloudSlbServerGroupsRead(d *schema.ResourceData, meta interfac
 }
 
 func slbServerGroupsDescriptionAttributes(d *schema.ResourceData, serverGroups []slb.VServerGroup, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	var ids []string
 	var s []map[string]interface{}

@@ -5,8 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -102,7 +101,7 @@ func testAccCheckContainerApplicationExists(n string, d *cs.GetProjectResponse) 
 			return fmt.Errorf("No Container cluster ID is set")
 		}
 		parts := strings.Split(cluster.Primary.ID, COLON_SEPARATED)
-		client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		csService := CsService{client}
 		app, err := csService.DescribeContainerApplication(parts[0], parts[1])
 
@@ -120,7 +119,7 @@ func testAccCheckContainerApplicationExists(n string, d *cs.GetProjectResponse) 
 }
 
 func testAccCheckContainerApplicationDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*aliyunclient.AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
 	csService := CsService{client}
 
 	for _, rs := range s.RootModule().Resources {

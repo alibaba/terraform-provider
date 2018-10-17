@@ -3,14 +3,13 @@ package alicloud
 import (
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/denverdino/aliyungo/common"
 )
 
 type KvstoreService struct {
-	client *aliyunclient.AliyunClient
+	client *connectivity.AliyunClient
 }
 
 func (s *KvstoreService) DescribeRKVInstanceById(id string) (instance *r_kvstore.DBInstanceAttribute, err error) {

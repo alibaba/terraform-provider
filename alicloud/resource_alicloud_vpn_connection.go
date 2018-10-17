@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -169,7 +169,7 @@ func resourceAliyunVpnConnection() *schema.Resource {
 
 func resourceAliyunVpnConnectionCreate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	var vpnConn *vpc.CreateVpnConnectionResponse
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
@@ -202,7 +202,7 @@ func resourceAliyunVpnConnectionCreate(d *schema.ResourceData, meta interface{})
 
 func resourceAliyunVpnConnectionRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 	resp, err := vpnGatewayService.DescribeVpnConnection(d.Id())
 	if err != nil {
@@ -245,7 +245,7 @@ func resourceAliyunVpnConnectionRead(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceAliyunVpnConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 	attributeUpdate := false
 	request := vpc.CreateModifyVpnConnectionAttributeRequest()
@@ -307,7 +307,7 @@ func resourceAliyunVpnConnectionUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceAliyunVpnConnectionDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 	request := vpc.CreateDeleteVpnConnectionRequest()
 	request.VpnConnectionId = d.Id()
@@ -340,7 +340,7 @@ func resourceAliyunVpnConnectionDelete(d *schema.ResourceData, meta interface{})
 }
 
 func buildAliyunVpnConnectionArgs(d *schema.ResourceData, meta interface{}) (*vpc.CreateVpnConnectionRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	vpnGatewayService := VpnGatewayService{client}
 
 	request := vpc.CreateCreateVpnConnectionRequest()

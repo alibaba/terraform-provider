@@ -3,12 +3,11 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
 	"time"
 
 	"reflect"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -97,7 +96,7 @@ func resourceAliyunEssScalingGroupCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -121,7 +120,7 @@ func resourceAliyunEssScalingGroupCreate(d *schema.ResourceData, meta interface{
 
 func resourceAliyunEssScalingGroupRead(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 
 	scaling, err := essService.DescribeScalingGroupById(d.Id())
@@ -173,7 +172,7 @@ func resourceAliyunEssScalingGroupRead(d *schema.ResourceData, meta interface{})
 
 func resourceAliyunEssScalingGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	args := ess.CreateModifyScalingGroupRequest()
 	args.ScalingGroupId = d.Id()
 
@@ -221,13 +220,13 @@ func resourceAliyunEssScalingGroupUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceAliyunEssScalingGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	essService := EssService{client}
 	return essService.DeleteScalingGroupById(d.Id())
 }
 
 func buildAlicloudEssScalingGroupArgs(d *schema.ResourceData, meta interface{}) (*ess.CreateScalingGroupRequest, error) {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	slbService := SlbService{client}
 	args := ess.CreateCreateScalingGroupRequest()
 

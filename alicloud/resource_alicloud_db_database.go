@@ -5,8 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
-
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -53,7 +52,7 @@ func resourceAlicloudDBDatabase() *schema.Resource {
 
 func resourceAlicloudDBDatabaseCreate(d *schema.ResourceData, meta interface{}) error {
 
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rsdService := RdsService{client}
 	request := rds.CreateCreateDatabaseRequest()
 	request.DBInstanceId = d.Get("instance_id").(string)
@@ -95,7 +94,7 @@ func resourceAlicloudDBDatabaseCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudDBDatabaseRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rsdService := RdsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 	db, err := rsdService.DescribeDatabaseByName(parts[0], parts[1])
@@ -116,7 +115,7 @@ func resourceAlicloudDBDatabaseRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceAlicloudDBDatabaseUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	d.Partial(true)
 
 	if d.HasChange("description") && !d.IsNewResource() {
@@ -140,7 +139,7 @@ func resourceAlicloudDBDatabaseUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceAlicloudDBDatabaseDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 	rsdService := RdsService{client}
 	parts := strings.Split(d.Id(), COLON_SEPARATED)
 	request := rds.CreateDeleteDatabaseRequest()

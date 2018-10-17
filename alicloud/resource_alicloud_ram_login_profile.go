@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/aliyunclient"
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -47,7 +47,7 @@ func resourceAlicloudRamLoginProfile() *schema.Resource {
 }
 
 func resourceAlicloudRamLoginProfileCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.ProfileRequest{
 		UserName:              d.Get("user_name").(string),
@@ -68,7 +68,7 @@ func resourceAlicloudRamLoginProfileCreate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudRamLoginProfileUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	d.Partial(true)
 
@@ -109,7 +109,7 @@ func resourceAlicloudRamLoginProfileUpdate(d *schema.ResourceData, meta interfac
 }
 
 func resourceAlicloudRamLoginProfileRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.UserQueryRequest{
 		UserName: d.Id(),
@@ -133,7 +133,7 @@ func resourceAlicloudRamLoginProfileRead(d *schema.ResourceData, meta interface{
 }
 
 func resourceAlicloudRamLoginProfileDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*aliyunclient.AliyunClient)
+	client := meta.(*connectivity.AliyunClient)
 
 	args := ram.UserQueryRequest{
 		UserName: d.Id(),
