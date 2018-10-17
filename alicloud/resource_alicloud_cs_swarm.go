@@ -204,7 +204,7 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 		args.ECSImageID = imageId.(string)
 	}
 
-	region := meta.(*aliyunclient.AliyunClient).Region
+	region := client.Region
 	raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
 		return csClient.CreateCluster(region, args)
 	})

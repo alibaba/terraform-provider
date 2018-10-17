@@ -108,7 +108,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 	client := meta.(*aliyunclient.AliyunClient)
 
 	args := vpc.CreateDescribeVpcsRequest()
-	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	args.RegionId = string(client.Region)
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)
 
@@ -168,7 +168,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 
 		request := vpc.CreateDescribeVRoutersRequest()
 		request.VRouterId = v.VRouterId
-		request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+		request.RegionId = string(client.Region)
 
 		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVRouters(request)

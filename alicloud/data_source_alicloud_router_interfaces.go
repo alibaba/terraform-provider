@@ -152,7 +152,7 @@ func dataSourceAlicloudRouterInterfacesRead(d *schema.ResourceData, meta interfa
 	client := meta.(*aliyunclient.AliyunClient)
 
 	args := vpc.CreateDescribeRouterInterfacesRequest()
-	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	args.RegionId = string(client.Region)
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)
 	var filters []vpc.DescribeRouterInterfacesFilter

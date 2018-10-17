@@ -143,8 +143,9 @@ func resourceAliyunSslVpnClientCertDelete(d *schema.ResourceData, meta interface
 }
 
 func buildAliyunSslVpnClientCertArgs(d *schema.ResourceData, meta interface{}) *vpc.CreateSslVpnClientCertRequest {
+	client := meta.(*aliyunclient.AliyunClient)
 	request := vpc.CreateCreateSslVpnClientCertRequest()
-	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	request.RegionId = string(client.Region)
 	request.SslVpnServerId = d.Get("ssl_vpn_server_id").(string)
 
 	if v := d.Get("name").(string); v != "" {

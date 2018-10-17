@@ -215,8 +215,9 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func buildAliyunVpcArgs(d *schema.ResourceData, meta interface{}) *vpc.CreateVpcRequest {
+	client := meta.(*aliyunclient.AliyunClient)
 	request := vpc.CreateCreateVpcRequest()
-	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	request.RegionId = string(client.Region)
 	request.CidrBlock = d.Get("cidr_block").(string)
 
 	if v := d.Get("name").(string); v != "" {

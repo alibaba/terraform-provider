@@ -84,7 +84,7 @@ func resourceAliyunEipCreate(d *schema.ResourceData, meta interface{}) error {
 	vpcService := VpcService{client}
 
 	request := vpc.CreateAllocateEipAddressRequest()
-	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	request.RegionId = string(client.Region)
 	request.Bandwidth = strconv.Itoa(d.Get("bandwidth").(int))
 	request.InternetChargeType = d.Get("internet_charge_type").(string)
 	request.InstanceChargeType = d.Get("instance_charge_type").(string)

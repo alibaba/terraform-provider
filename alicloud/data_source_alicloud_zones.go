@@ -134,7 +134,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 			return fmt.Errorf("[ERROR] There is no available region for RDS.")
 		}
 		for _, r := range regions.Regions.RDSRegion {
-			if multi && strings.Contains(r.ZoneId, MULTI_IZ_SYMBOL) && r.RegionId == string(meta.(*aliyunclient.AliyunClient).Region) {
+			if multi && strings.Contains(r.ZoneId, MULTI_IZ_SYMBOL) && r.RegionId == string(client.Region) {
 				zoneIds = append(zoneIds, r.ZoneId)
 				continue
 			}
@@ -155,7 +155,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		}
 		for _, r := range regions.RegionIds.KVStoreRegion {
 			for _, zoneID := range r.ZoneIdList.ZoneId {
-				if multi && strings.Contains(zoneID, MULTI_IZ_SYMBOL) && r.RegionId == string(meta.(*aliyunclient.AliyunClient).Region) {
+				if multi && strings.Contains(zoneID, MULTI_IZ_SYMBOL) && r.RegionId == string(client.Region) {
 					zoneIds = append(zoneIds, zoneID)
 					continue
 				}
@@ -167,7 +167,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		sort.Strings(zoneIds)
 		return multiZonesDescriptionAttributes(d, zoneIds)
 	} else if multi {
-		return fmt.Errorf("There is no multi zones in the current region %s. Please change region and try again.", meta.(*aliyunclient.AliyunClient).Region)
+		return fmt.Errorf("There is no multi zones in the current region %s. Please change region and try again.", client.Region)
 	}
 
 	_, validZones, err := ecsService.DescribeAvailableResources(d, meta, ZoneResource)
@@ -191,7 +191,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	}
 	resp, _ := raw.(*ecs.DescribeZonesResponse)
 	if resp == nil || len(resp.Zones.Zone) < 1 {
-		return fmt.Errorf("There are no availability zones in the region: %#v.", meta.(*aliyunclient.AliyunClient).Region)
+		return fmt.Errorf("There are no availability zones in the region: %#v.", client.Region)
 	}
 
 	mapZones := make(map[string]ecs.Zone)

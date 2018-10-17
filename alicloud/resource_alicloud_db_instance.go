@@ -406,7 +406,7 @@ func buildDBCreateRequest(d *schema.ResourceData, meta interface{}) (*rds.Create
 	client := meta.(*aliyunclient.AliyunClient)
 	vpcService := VpcService{client}
 	request := rds.CreateCreateDBInstanceRequest()
-	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	request.RegionId = string(client.Region)
 	request.EngineVersion = Trim(d.Get("engine_version").(string))
 	request.Engine = Trim(d.Get("engine").(string))
 	request.DBInstanceStorage = requests.NewInteger(d.Get("instance_storage").(int))

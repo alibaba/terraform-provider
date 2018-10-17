@@ -41,7 +41,7 @@ func resourceAliyunSnatEntryCreate(d *schema.ResourceData, meta interface{}) err
 	client := meta.(*aliyunclient.AliyunClient)
 
 	request := vpc.CreateCreateSnatEntryRequest()
-	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	request.RegionId = string(client.Region)
 	request.SnatTableId = d.Get("snat_table_id").(string)
 	request.SourceVSwitchId = d.Get("source_vswitch_id").(string)
 	request.SnatIp = d.Get("snat_ip").(string)
@@ -99,7 +99,7 @@ func resourceAliyunSnatEntryUpdate(d *schema.ResourceData, meta interface{}) err
 	d.Partial(true)
 	attributeUpdate := false
 	request := vpc.CreateModifySnatEntryRequest()
-	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	request.RegionId = string(client.Region)
 	request.SnatTableId = snatEntry.SnatTableId
 	request.SnatEntryId = snatEntry.SnatEntryId
 
@@ -133,7 +133,7 @@ func resourceAliyunSnatEntryUpdate(d *schema.ResourceData, meta interface{}) err
 func resourceAliyunSnatEntryDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*aliyunclient.AliyunClient)
 	request := vpc.CreateDeleteSnatEntryRequest()
-	request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	request.RegionId = string(client.Region)
 	request.SnatTableId = d.Get("snat_table_id").(string)
 	request.SnatEntryId = d.Id()
 

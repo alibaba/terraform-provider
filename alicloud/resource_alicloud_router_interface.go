@@ -152,7 +152,7 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 	if d.HasChange("specification") && !d.IsNewResource() {
 		d.SetPartial("specification")
 		request := vpc.CreateModifyRouterInterfaceSpecRequest()
-		request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+		request.RegionId = string(client.Region)
 		request.RouterInterfaceId = d.Id()
 		request.Spec = d.Get("specification").(string)
 		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -214,7 +214,7 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 	}
 
 	args := vpc.CreateDeleteRouterInterfaceRequest()
-	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	args.RegionId = string(client.Region)
 	args.RouterInterfaceId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {

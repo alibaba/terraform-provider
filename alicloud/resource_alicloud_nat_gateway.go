@@ -100,7 +100,7 @@ func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) er
 	client := meta.(*aliyunclient.AliyunClient)
 
 	args := vpc.CreateCreateNatGatewayRequest()
-	args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	args.RegionId = string(client.Region)
 	args.VpcId = string(d.Get("vpc_id").(string))
 	args.Spec = string(d.Get("specification").(string))
 	args.ClientToken = buildClientToken("TF-CreateNatGateway")
@@ -258,7 +258,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 	vpcService := VpcService{client}
 
 	packRequest := vpc.CreateDescribeBandwidthPackagesRequest()
-	packRequest.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+	packRequest.RegionId = string(client.Region)
 	packRequest.NatGatewayId = d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 
@@ -274,7 +274,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 		if resp != nil && len(resp.BandwidthPackages.BandwidthPackage) > 0 {
 			for _, pack := range resp.BandwidthPackages.BandwidthPackage {
 				request := vpc.CreateDeleteBandwidthPackageRequest()
-				request.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+				request.RegionId = string(client.Region)
 				request.BandwidthPackageId = pack.BandwidthPackageId
 				_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 					return vpcClient.DeleteBandwidthPackage(request)
@@ -294,7 +294,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 		}
 
 		args := vpc.CreateDeleteNatGatewayRequest()
-		args.RegionId = string(meta.(*aliyunclient.AliyunClient).Region)
+		args.RegionId = string(client.Region)
 		args.NatGatewayId = d.Id()
 
 		_, err = client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
