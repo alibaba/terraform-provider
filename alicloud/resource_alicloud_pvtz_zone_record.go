@@ -82,7 +82,7 @@ func resourceAlicloudPvtzZoneRecordCreate(d *schema.ResourceData, meta interface
 		args.Ttl = requests.NewInteger(d.Get("ttl").(int))
 	}
 
-	raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+	raw, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 		return pvtzClient.AddZoneRecord(args)
 	})
 
@@ -140,7 +140,7 @@ func resourceAlicloudPvtzZoneRecordUpdate(d *schema.ResourceData, meta interface
 
 	if attributeUpdate {
 		client := meta.(*connectivity.AliyunClient)
-		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		_, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.UpdateZoneRecord(args)
 		})
 		if err != nil {
@@ -198,7 +198,7 @@ func resourceAlicloudPvtzZoneRecordDelete(d *schema.ResourceData, meta interface
 	request.RecordId = requests.NewInteger(recordId)
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		_, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.DeleteZoneRecord(request)
 		})
 

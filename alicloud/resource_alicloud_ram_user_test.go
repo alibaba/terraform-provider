@@ -43,7 +43,7 @@ func testSweepRamUsers(region string) error {
 	var users []ram.User
 	args := ram.ListUserRequest{}
 	for {
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListUsers(args)
 		})
 		if err != nil {
@@ -81,7 +81,7 @@ func testSweepRamUsers(region string) error {
 		req := ram.UserQueryRequest{
 			UserName: name,
 		}
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeleteUser(req)
 		})
 		if err != nil {
@@ -149,7 +149,7 @@ func testAccCheckRamUserExists(n string, user *ram.User) resource.TestCheckFunc 
 			UserName: rs.Primary.Attributes["user_name"],
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetUser(request)
 		})
 		log.Printf("[WARN] User id %#v", rs.Primary.ID)
@@ -177,7 +177,7 @@ func testAccCheckRamUserDestroy(s *terraform.State) error {
 			UserName: rs.Primary.Attributes["user_name"],
 		}
 
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetUser(request)
 		})
 

@@ -60,7 +60,7 @@ func resourceAliyunSwitchCreate(d *schema.ResourceData, meta interface{}) error 
 	}
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		args := *request
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateVSwitch(&args)
 		})
 		if err != nil {
@@ -133,7 +133,7 @@ func resourceAliyunSwitchUpdate(d *schema.ResourceData, meta interface{}) error 
 		attributeUpdate = true
 	}
 	if attributeUpdate {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyVSwitchAttribute(request)
 		})
 		if err != nil {
@@ -154,7 +154,7 @@ func resourceAliyunSwitchDelete(d *schema.ResourceData, meta interface{}) error 
 	request := vpc.CreateDeleteVSwitchRequest()
 	request.VSwitchId = d.Id()
 	return resource.Retry(6*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteVSwitch(request)
 		})
 		if err != nil {

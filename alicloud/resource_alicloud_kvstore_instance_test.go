@@ -40,7 +40,7 @@ func testSweepKVStoreInstances(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.DescribeInstances(req)
 		})
 		if err != nil {
@@ -83,7 +83,7 @@ func testSweepKVStoreInstances(region string) error {
 		log.Printf("[INFO] Deleting KVStore Instance: %s (%s)", name, id)
 		req := r_kvstore.CreateDeleteInstanceRequest()
 		req.InstanceId = id
-		_, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		_, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.DeleteInstance(req)
 		})
 		if err != nil {

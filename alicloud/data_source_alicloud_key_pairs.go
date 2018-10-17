@@ -81,7 +81,7 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 	keyPairsAttach := make(map[string][]map[string]interface{})
 
 	for true {
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeKeyPairs(args)
 		})
 		if err != nil {
@@ -112,7 +112,7 @@ func dataSourceAlicloudKeyPairsRead(d *schema.ResourceData, meta interface{}) er
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 
 	for true {
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstances(req)
 		})
 		if err != nil {

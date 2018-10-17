@@ -49,7 +49,7 @@ func resourceAlicloudRamGroupCreate(d *schema.ResourceData, meta interface{}) er
 		},
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.CreateGroup(args)
 	})
 	if err != nil {
@@ -85,7 +85,7 @@ func resourceAlicloudRamGroupUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if attributeUpdate {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.UpdateGroup(args)
 		})
 		if err != nil {
@@ -104,7 +104,7 @@ func resourceAlicloudRamGroupRead(d *schema.ResourceData, meta interface{}) erro
 		GroupName: d.Id(),
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetGroup(args)
 	})
 	if err != nil {
@@ -129,7 +129,7 @@ func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) er
 
 	if d.Get("force").(bool) {
 		// list and delete users which in this group
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListUsersForGroup(args)
 		})
 		if err != nil {
@@ -139,7 +139,7 @@ func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) er
 		users := listUserResp.Users.User
 		if len(users) > 0 {
 			for _, v := range users {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.RemoveUserFromGroup(ram.UserRelateGroupRequest{
 						UserName:  v.UserName,
 						GroupName: args.GroupName,
@@ -152,7 +152,7 @@ func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) er
 		}
 
 		// list and detach policies which attach this group
-		raw, err = client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err = client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForGroup(args)
 		})
 		if err != nil {
@@ -162,7 +162,7 @@ func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) er
 		policies := listPolicyResp.Policies.Policy
 		if len(policies) > 0 {
 			for _, v := range policies {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.DetachPolicyFromGroup(ram.AttachPolicyToGroupRequest{
 						PolicyRequest: ram.PolicyRequest{
 							PolicyType: ram.Type(v.PolicyType),
@@ -179,7 +179,7 @@ func resourceAlicloudRamGroupDelete(d *schema.ResourceData, meta interface{}) er
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeleteGroup(args)
 		})
 		if err != nil {

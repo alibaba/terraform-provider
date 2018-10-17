@@ -20,7 +20,7 @@ func (s *VpnGatewayService) DescribeVpnGateway(vpnId string) (v vpc.DescribeVpnG
 	request := vpc.CreateDescribeVpnGatewayRequest()
 	request.VpnGatewayId = vpnId
 
-	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeVpnGateway(request)
 	})
 	if err != nil {
@@ -40,7 +40,7 @@ func (s *VpnGatewayService) DescribeCustomerGateway(cgwId string) (v vpc.Describ
 	request := vpc.CreateDescribeCustomerGatewayRequest()
 	request.CustomerGatewayId = cgwId
 
-	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeCustomerGateway(request)
 	})
 	if err != nil {
@@ -60,7 +60,7 @@ func (s *VpnGatewayService) DescribeVpnConnection(id string) (v vpc.DescribeVpnC
 	request := vpc.CreateDescribeVpnConnectionRequest()
 	request.VpnConnectionId = id
 
-	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeVpnConnection(request)
 	})
 	if err != nil {
@@ -80,7 +80,7 @@ func (s *VpnGatewayService) DescribeSslVpnServer(sslId string) (v vpc.SslVpnServ
 	request := vpc.CreateDescribeSslVpnServersRequest()
 	request.SslVpnServerId = sslId
 
-	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeSslVpnServers(request)
 	})
 	if err != nil {
@@ -105,7 +105,7 @@ func (s *VpnGatewayService) DescribeSslVpnClientCert(id string) (v vpc.DescribeS
 	request := vpc.CreateDescribeSslVpnClientCertRequest()
 	request.SslVpnClientCertId = id
 
-	raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeSslVpnClientCert(request)
 	})
 	if err != nil {

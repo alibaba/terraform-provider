@@ -41,7 +41,7 @@ func testSweepRouterInterfaces(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeRouterInterfaces(req)
 		})
 		if err != nil {
@@ -81,7 +81,7 @@ func testSweepRouterInterfaces(region string) error {
 		log.Printf("[INFO] Deleting Router Interface: %s (%s)", name, id)
 		req := vpc.CreateDeleteRouterInterfaceRequest()
 		req.RouterInterfaceId = id
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteRouterInterface(req)
 		})
 		if err != nil {

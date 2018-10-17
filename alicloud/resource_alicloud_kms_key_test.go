@@ -49,7 +49,7 @@ func testAccCheckAlicloudKmsKeyExists(name string, key *kms.KeyMetadata) resourc
 
 		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
-		raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 			return kmsClient.DescribeKey(rs.Primary.ID)
 		})
 		if err != nil {
@@ -71,7 +71,7 @@ func testAccCheckAlicloudKmsKeyDestroy(s *terraform.State) error {
 			continue
 		}
 
-		raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 			return kmsClient.DescribeKey(rs.Primary.ID)
 		})
 

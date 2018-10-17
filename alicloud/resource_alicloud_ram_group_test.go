@@ -43,7 +43,7 @@ func testSweepRamGroups(region string) error {
 	var groups []ram.Group
 	args := ram.GroupListRequest{}
 	for {
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListGroup(args)
 		})
 		if err != nil {
@@ -80,7 +80,7 @@ func testSweepRamGroups(region string) error {
 		req := ram.GroupQueryRequest{
 			GroupName: name,
 		}
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeleteGroup(req)
 		})
 		if err != nil {
@@ -140,7 +140,7 @@ func testAccCheckRamGroupExists(n string, group *ram.Group) resource.TestCheckFu
 
 		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetGroup(ram.GroupQueryRequest{
 				GroupName: rs.Primary.ID,
 			})
@@ -169,7 +169,7 @@ func testAccCheckRamGroupDestroy(s *terraform.State) error {
 			GroupName: rs.Primary.ID,
 		}
 
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetGroup(request)
 		})
 

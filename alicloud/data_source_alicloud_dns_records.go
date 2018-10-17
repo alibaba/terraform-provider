@@ -133,7 +133,7 @@ func dataSourceAlicloudDnsRecordsRead(d *schema.ResourceData, meta interface{}) 
 	pagination := getPagination(1, 50)
 	for {
 		args.Pagination = pagination
-		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainRecordsNew(args)
 		})
 		if err != nil {

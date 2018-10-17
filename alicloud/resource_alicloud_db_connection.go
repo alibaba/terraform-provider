@@ -135,7 +135,7 @@ func resourceAlicloudDBConnectionUpdate(d *schema.ResourceData, meta interface{}
 		}
 
 		if err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+			_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 				return rdsClient.ModifyDBInstanceConnectionString(request)
 			})
 			if err != nil {

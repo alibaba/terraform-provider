@@ -141,7 +141,7 @@ func (s *RamService) AssemblePolicyDocument(document []interface{}, version stri
 
 // Judge whether the role policy contains service "ecs.aliyuncs.com"
 func (s *RamService) JudgeRolePolicyPrincipal(roleName string) error {
-	raw, err := s.client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := s.client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetRole(ram.RoleQueryRequest{RoleName: roleName})
 	})
 	if err != nil {

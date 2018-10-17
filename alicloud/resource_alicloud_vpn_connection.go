@@ -178,7 +178,7 @@ func resourceAliyunVpnConnectionCreate(d *schema.ResourceData, meta interface{})
 			return resource.NonRetryableError(fmt.Errorf("Building buildAliyunVpnConnectionArgs got an error: %#v", err))
 		}
 
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateVpnConnection(args)
 		})
 		if err != nil {
@@ -295,7 +295,7 @@ func resourceAliyunVpnConnectionUpdate(d *schema.ResourceData, meta interface{})
 			request.EffectImmediately = requests.NewBoolean(v.(bool))
 		}
 
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyVpnConnectionAttribute(request)
 		})
 		if err != nil {
@@ -313,7 +313,7 @@ func resourceAliyunVpnConnectionDelete(d *schema.ResourceData, meta interface{})
 	request.VpnConnectionId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteVpnConnection(request)
 		})
 

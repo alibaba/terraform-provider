@@ -135,7 +135,7 @@ func resourceAliyunVpnGatewayCreate(d *schema.ResourceData, meta interface{}) er
 
 	args.AutoPay = requests.NewBoolean(true)
 
-	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.CreateVpnGateway(args)
 	})
 
@@ -220,7 +220,7 @@ func resourceAliyunVpnGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if update {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyVpnGatewayAttribute(req)
 		})
 		if err != nil {
@@ -254,7 +254,7 @@ func resourceAliyunVpnGatewayDelete(d *schema.ResourceData, meta interface{}) er
 	req := vpc.CreateDeleteVpnGatewayRequest()
 	req.VpnGatewayId = d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteVpnGateway(req)
 		})
 		if err != nil {

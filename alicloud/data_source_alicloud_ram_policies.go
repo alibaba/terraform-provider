@@ -115,7 +115,7 @@ func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{})
 	// policies filtered by name_regex and type
 	args := ram.PolicyQueryRequest{}
 	for {
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPolicies(args)
 		})
 		if err != nil {
@@ -142,7 +142,7 @@ func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{})
 
 	// policies for user
 	if userNameOk {
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForUser(ram.UserQueryRequest{UserName: userName.(string)})
 		})
 		if err != nil {
@@ -157,7 +157,7 @@ func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{})
 
 	// policies for group
 	if groupNameOk {
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForGroup(ram.GroupQueryRequest{GroupName: groupName.(string)})
 		})
 		if err != nil {
@@ -172,7 +172,7 @@ func dataSourceAlicloudRamPoliciesRead(d *schema.ResourceData, meta interface{})
 
 	// policies for role
 	if roleNameOk {
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForRole(ram.RoleQueryRequest{RoleName: roleName.(string)})
 		})
 		if err != nil {
@@ -203,7 +203,7 @@ func ramPoliciesDescriptionAttributes(d *schema.ResourceData, policies []interfa
 	var s []map[string]interface{}
 	for _, v := range policies {
 		policy := v.(ram.Policy)
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetPolicyVersionNew(ram.PolicyRequest{
 				PolicyName: policy.PolicyName,
 				PolicyType: ram.Type(policy.PolicyType),

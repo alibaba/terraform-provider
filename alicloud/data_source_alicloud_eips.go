@@ -109,7 +109,7 @@ func dataSourceAlicloudEipsRead(d *schema.ResourceData, meta interface{}) error 
 	var allEips []vpc.EipAddress
 
 	for {
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeEipAddresses(args)
 		})
 		if err != nil {

@@ -60,7 +60,7 @@ func testAccCheckDnsExists(n string, domain *dns.DomainType) resource.TestCheckF
 			DomainName: rs.Primary.Attributes["name"],
 		}
 
-		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainInfo(request)
 		})
 		log.Printf("[WARN] Domain id %#v", rs.Primary.ID)
@@ -88,7 +88,7 @@ func testAccCheckDnsDestroy(s *terraform.State) error {
 			DomainName: rs.Primary.Attributes["name"],
 		}
 
-		_, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		_, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainInfo(request)
 		})
 

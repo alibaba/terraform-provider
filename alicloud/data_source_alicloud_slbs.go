@@ -157,7 +157,7 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DescribeLoadBalancers(args)
 		})
 		if err != nil {

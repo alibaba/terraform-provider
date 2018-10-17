@@ -58,7 +58,7 @@ func testAccCheckRamRolePolicyAttachmentExists(n string, policy *ram.Policy, rol
 			RoleName: role.RoleName,
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForRole(request)
 		})
 		if err == nil {
@@ -90,7 +90,7 @@ func testAccCheckRamRolePolicyAttachmentDestroy(s *terraform.State) error {
 			RoleName: rs.Primary.Attributes["role_name"],
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForRole(request)
 		})
 

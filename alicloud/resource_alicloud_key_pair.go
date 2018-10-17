@@ -78,7 +78,7 @@ func resourceAlicloudKeyPairCreate(d *schema.ResourceData, meta interface{}) err
 		args := ecs.CreateImportKeyPairRequest()
 		args.KeyPairName = keyName
 		args.PublicKeyBody = publicKey.(string)
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ImportKeyPair(args)
 		})
 		if err != nil {
@@ -89,7 +89,7 @@ func resourceAlicloudKeyPairCreate(d *schema.ResourceData, meta interface{}) err
 	} else {
 		args := ecs.CreateCreateKeyPairRequest()
 		args.KeyPairName = keyName
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.CreateKeyPair(args)
 		})
 		if err != nil {
@@ -131,7 +131,7 @@ func resourceAlicloudKeyPairDelete(d *schema.ResourceData, meta interface{}) err
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteKeyPairs(deldArgs)
 		})
 		if err != nil {

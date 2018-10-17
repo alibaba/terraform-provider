@@ -92,7 +92,7 @@ func dataSourceAlicloudSecurityGroupsRead(d *schema.ResourceData, meta interface
 	}
 
 	for {
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeSecurityGroups(args)
 		})
 		if err != nil {

@@ -66,7 +66,7 @@ func resourceAlicloudCenInstanceCreate(d *schema.ResourceData, meta interface{})
 	var cen *cbn.CreateCenResponse
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		args := buildAliCloudCenArgs(d, meta)
-		raw, err := client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+		raw, err := client.WithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.CreateCen(args)
 		})
 		if err != nil {
@@ -129,7 +129,7 @@ func resourceAlicloudCenInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	if attributeUpdate {
 		client := meta.(*connectivity.AliyunClient)
-		_, err := client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+		_, err := client.WithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.ModifyCenAttribute(request)
 		})
 		if err != nil {
@@ -147,7 +147,7 @@ func resourceAlicloudCenInstanceDelete(d *schema.ResourceData, meta interface{})
 	request.CenId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+		_, err := client.WithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.DeleteCen(request)
 		})
 

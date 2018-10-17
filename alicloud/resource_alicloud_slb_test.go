@@ -42,7 +42,7 @@ func testSweepSLBs(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DescribeLoadBalancers(req)
 		})
 		if err != nil {
@@ -82,7 +82,7 @@ func testSweepSLBs(region string) error {
 		log.Printf("[INFO] Deleting SLB: %s (%s)", name, id)
 		req := slb.CreateDeleteLoadBalancerRequest()
 		req.LoadBalancerId = id
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DeleteLoadBalancer(req)
 		})
 		if err != nil {

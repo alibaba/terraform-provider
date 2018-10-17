@@ -33,7 +33,7 @@ func testSweepLogProjects(region string) error {
 		"tf-test-",
 	}
 
-	raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+	raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return slsClient.ListProject()
 	})
 	if err != nil {
@@ -55,7 +55,7 @@ func testSweepLogProjects(region string) error {
 			continue
 		}
 		log.Printf("[INFO] Deleting Log Project: %s", name)
-		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		_, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return nil, slsClient.DeleteProject(name)
 		})
 		if err != nil {
@@ -119,7 +119,7 @@ func testAccCheckAlicloudLogProjectDestroy(s *terraform.State) error {
 			continue
 		}
 
-		raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return slsClient.CheckProjectExist(rs.Primary.ID)
 		})
 

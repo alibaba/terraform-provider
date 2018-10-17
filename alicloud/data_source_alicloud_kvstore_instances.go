@@ -165,7 +165,7 @@ func dataSourceAlicloudKVStoreInstancesRead(d *schema.ResourceData, meta interfa
 	}
 
 	for {
-		raw, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.DescribeInstances(args)
 		})
 		if err != nil {

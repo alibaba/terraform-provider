@@ -47,7 +47,7 @@ func resourceAlicloudRamAccessKeyCreate(d *schema.ResourceData, meta interface{}
 		args.UserName = v.(string)
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.CreateAccessKey(args)
 	})
 	if err != nil {
@@ -79,7 +79,7 @@ func resourceAlicloudRamAccessKeyUpdate(d *schema.ResourceData, meta interface{}
 
 	if d.HasChange("status") {
 		d.SetPartial("status")
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.UpdateAccessKey(args)
 		})
 		if err != nil {
@@ -99,7 +99,7 @@ func resourceAlicloudRamAccessKeyRead(d *schema.ResourceData, meta interface{}) 
 		args.UserName = v.(string)
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ListAccessKeys(args)
 	})
 	if err != nil {
@@ -137,7 +137,7 @@ func resourceAlicloudRamAccessKeyDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeleteAccessKey(args)
 		})
 		if err != nil {
@@ -147,7 +147,7 @@ func resourceAlicloudRamAccessKeyDelete(d *schema.ResourceData, meta interface{}
 			return resource.NonRetryableError(fmt.Errorf("Error deleting access key: %#v", err))
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListAccessKeys(queryArgs)
 		})
 		if err != nil {

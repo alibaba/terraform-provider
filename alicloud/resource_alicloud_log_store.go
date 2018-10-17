@@ -81,7 +81,7 @@ func resourceAlicloudLogStore() *schema.Resource {
 
 func resourceAlicloudLogStoreCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
-	_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+	_, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return nil, slsClient.CreateLogStore(d.Get("project").(string), d.Get("name").(string),
 			d.Get("retention_period").(int), d.Get("shard_count").(int))
 	})
@@ -153,7 +153,7 @@ func resourceAlicloudLogStoreUpdate(d *schema.ResourceData, meta interface{}) er
 		if err != nil {
 			return err
 		}
-		_, err = client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		_, err = client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return nil, slsClient.UpdateLogStore(split[0], split[1], d.Get("retention_period").(int), store.ShardCount)
 		})
 		if err != nil {

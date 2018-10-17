@@ -83,7 +83,7 @@ func dataSourceAlicloudSlbServerGroupsRead(d *schema.ResourceData, meta interfac
 		}
 	}
 
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeVServerGroups(args)
 	})
 	if err != nil {
@@ -140,7 +140,7 @@ func slbServerGroupsDescriptionAttributes(d *schema.ResourceData, serverGroups [
 
 		args := slb.CreateDescribeVServerGroupAttributeRequest()
 		args.VServerGroupId = serverGroup.VServerGroupId
-		raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DescribeVServerGroupAttribute(args)
 		})
 		if err == nil {

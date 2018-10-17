@@ -123,7 +123,7 @@ func dataSourceAlicloudSecurityGroupRulesRead(d *schema.ResourceData, meta inter
 	req.SecurityGroupId = d.Get("group_id").(string)
 	req.NicType = d.Get("nic_type").(string)
 	req.Direction = d.Get("direction").(string)
-	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeSecurityGroupAttribute(req)
 	})
 	if err != nil {

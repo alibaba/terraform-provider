@@ -39,7 +39,7 @@ func testSweepOSSBuckets(region string) error {
 		"test-acc-alicloud-",
 	}
 
-	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.ListBuckets()
 	})
 	if err != nil {
@@ -62,7 +62,7 @@ func testSweepOSSBuckets(region string) error {
 			continue
 		}
 		sweeped = true
-		raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 			return ossClient.Bucket(name)
 		})
 		if err != nil {
@@ -82,7 +82,7 @@ func testSweepOSSBuckets(region string) error {
 
 		log.Printf("[INFO] Deleting OSS bucket: %s", name)
 
-		_, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		_, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 			return nil, ossClient.DeleteBucket(name)
 		})
 		if err != nil {

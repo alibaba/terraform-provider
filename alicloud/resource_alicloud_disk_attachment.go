@@ -52,7 +52,7 @@ func resourceAliyunDiskAttachmentCreate(d *schema.ResourceData, meta interface{}
 	args.DiskId = diskID
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.AttachDisk(args)
 		})
 
@@ -128,7 +128,7 @@ func resourceAliyunDiskAttachmentDelete(d *schema.ResourceData, meta interface{}
 			return nil
 		}
 
-		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DetachDisk(req)
 		})
 		if err != nil {

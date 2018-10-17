@@ -55,7 +55,7 @@ func resourceAlicloudKVStoreBackupPolicyCreate(d *schema.ResourceData, meta inte
 	request.PreferredBackupPeriod = backupPeriod
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		_, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.ModifyBackupPolicy(request)
 		})
 		if err != nil {
@@ -112,7 +112,7 @@ func resourceAlicloudKVStoreBackupPolicyUpdate(d *schema.ResourceData, meta inte
 	}
 
 	if update {
-		_, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		_, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.ModifyBackupPolicy(request)
 		})
 		if err != nil {
@@ -132,7 +132,7 @@ func resourceAlicloudKVStoreBackupPolicyDelete(d *schema.ResourceData, meta inte
 	request.PreferredBackupTime = "01:00Z-02:00Z"
 	request.PreferredBackupPeriod = "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"
 
-	_, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+	_, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 		return rkvClient.ModifyBackupPolicy(request)
 	})
 	if err != nil {

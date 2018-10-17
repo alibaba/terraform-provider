@@ -37,7 +37,7 @@ func testSweepRamPolicies(region string) error {
 	}
 
 	args := ram.PolicyQueryRequest{}
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ListPolicies(args)
 	})
 	if err != nil {
@@ -64,7 +64,7 @@ func testSweepRamPolicies(region string) error {
 		req := ram.PolicyRequest{
 			PolicyName: name,
 		}
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeletePolicy(req)
 		})
 		if err != nil {
@@ -129,7 +129,7 @@ func testAccCheckRamPolicyExists(n string, policy *ram.Policy) resource.TestChec
 			PolicyType: ram.Custom,
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetPolicy(request)
 		})
 		log.Printf("[WARN] Policy id %#v", rs.Primary.ID)
@@ -158,7 +158,7 @@ func testAccCheckRamPolicyDestroy(s *terraform.State) error {
 			PolicyType: ram.Custom,
 		}
 
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetPolicy(request)
 		})
 

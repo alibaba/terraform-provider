@@ -72,7 +72,7 @@ func resourceAlicloudKmsKeyCreate(d *schema.ResourceData, meta interface{}) erro
 	if v, ok := d.GetOk("description"); ok {
 		args.Description = v.(string)
 	}
-	raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+	raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 		return kmsClient.CreateKey(&args)
 	})
 	if err != nil {
@@ -87,7 +87,7 @@ func resourceAlicloudKmsKeyCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceAlicloudKmsKeyRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 
-	raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+	raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 		return kmsClient.DescribeKey(d.Id())
 	})
 	if err != nil {
@@ -118,7 +118,7 @@ func resourceAlicloudKmsKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 	d.Partial(true)
 
 	if d.HasChange("is_enabled") {
-		raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 			return kmsClient.DescribeKey(d.Id())
 		})
 		if err != nil {
@@ -126,7 +126,7 @@ func resourceAlicloudKmsKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 		key, _ := raw.(*kms.DescribeKeyResponse)
 		if d.Get("is_enabled").(bool) && KeyState(key.KeyMetadata.KeyState) == Disabled {
-			_, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+			_, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 				return kmsClient.EnableKey(d.Id())
 			})
 			if err != nil {
@@ -135,7 +135,7 @@ func resourceAlicloudKmsKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if !d.Get("is_enabled").(bool) && KeyState(key.KeyMetadata.KeyState) == Enabled {
-			_, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+			_, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 				return kmsClient.DisableKey(d.Id())
 			})
 			if err != nil {
@@ -153,7 +153,7 @@ func resourceAlicloudKmsKeyUpdate(d *schema.ResourceData, meta interface{}) erro
 func resourceAlicloudKmsKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 
-	_, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+	_, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 		return kmsClient.ScheduleKeyDeletion(&kms.ScheduleKeyDeletionArgs{
 			KeyId:               d.Id(),
 			PendingWindowInDays: d.Get("deletion_window_in_days").(int),
@@ -164,7 +164,7 @@ func resourceAlicloudKmsKeyDelete(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 			return kmsClient.DescribeKey(d.Id())
 		})
 		if err != nil {

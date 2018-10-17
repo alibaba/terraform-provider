@@ -99,7 +99,7 @@ func resourceAliyunEssScalingGroupCreate(d *schema.ResourceData, meta interface{
 	client := meta.(*connectivity.AliyunClient)
 
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateScalingGroup(args)
 		})
 		if err != nil {
@@ -207,7 +207,7 @@ func resourceAliyunEssScalingGroupUpdate(d *schema.ResourceData, meta interface{
 		d.SetPartial("removal_policies")
 	}
 
-	_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.ModifyScalingGroup(args)
 	})
 	if err != nil {

@@ -124,7 +124,7 @@ func resourceAliyunEssAlarmCreate(d *schema.ResourceData, meta interface{}) erro
 
 	client := meta.(*connectivity.AliyunClient)
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateAlarm(args)
 		})
 		if err != nil {
@@ -197,7 +197,7 @@ func resourceAliyunEssAlarmUpdate(d *schema.ResourceData, meta interface{}) erro
 		}
 	}
 
-	_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.ModifyAlarm(args)
 	})
 	if err != nil {
@@ -215,7 +215,7 @@ func resourceAliyunEssAlarmDelete(d *schema.ResourceData, meta interface{}) erro
 		req := ess.CreateDeleteAlarmRequest()
 		req.AlarmTaskId = id
 
-		_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DeleteAlarm(req)
 		})
 		if err != nil {

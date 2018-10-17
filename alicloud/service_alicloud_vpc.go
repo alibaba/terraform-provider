@@ -22,7 +22,7 @@ func (s *VpcService) DescribeEipAddress(allocationId string) (eip vpc.EipAddress
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeEipAddresses(args)
 		})
 		if err != nil {
@@ -46,7 +46,7 @@ func (s *VpcService) DescribeNatGateway(natGatewayId string) (nat vpc.NatGateway
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeNatGateways(args)
 		})
 		if err != nil {
@@ -72,7 +72,7 @@ func (s *VpcService) DescribeVpc(vpcId string) (v vpc.DescribeVpcAttributeRespon
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVpcAttribute(request)
 		})
 		if err != nil {
@@ -97,7 +97,7 @@ func (s *VpcService) DescribeVswitch(vswitchId string) (v vpc.DescribeVSwitchAtt
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVSwitchAttributes(request)
 		})
 		if err != nil {
@@ -127,7 +127,7 @@ func (s *VpcService) DescribeSnatEntry(snatTableId string, snatEntryId string) (
 		invoker := NewInvoker()
 		var snatEntries *vpc.DescribeSnatTableEntriesResponse
 		err = invoker.Run(func() error {
-			raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 				return vpcClient.DescribeSnatTableEntries(request)
 			})
 			snatEntries, _ = raw.(*vpc.DescribeSnatTableEntriesResponse)
@@ -174,7 +174,7 @@ func (s *VpcService) DescribeForwardEntry(forwardTableId string, forwardEntryId 
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeForwardTableEntries(args)
 		})
 		//this special deal cause the DescribeSnatEntry can't find the records would be throw "cant find the snatTable error"
@@ -208,7 +208,7 @@ func (s *VpcService) QueryRouteTableById(routeTableId string) (rt vpc.RouteTable
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeRouteTables(request)
 		})
 		if err != nil {
@@ -253,7 +253,7 @@ func (s *VpcService) DescribeRouterInterface(regionId, interfaceId string) (ri v
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeRouterInterfaces(request)
 		})
 		if err != nil {
@@ -393,7 +393,7 @@ func (s *VpcService) WaitForEip(allocationId string, status Status, timeout int)
 func (s *VpcService) DeactivateRouterInterface(interfaceId string) error {
 	req := vpc.CreateDeactivateRouterInterfaceRequest()
 	req.RouterInterfaceId = interfaceId
-	_, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeactivateRouterInterface(req)
 	})
 	if err != nil {
@@ -405,7 +405,7 @@ func (s *VpcService) DeactivateRouterInterface(interfaceId string) error {
 func (s *VpcService) ActivateRouterInterface(interfaceId string) error {
 	req := vpc.CreateActivateRouterInterfaceRequest()
 	req.RouterInterfaceId = interfaceId
-	_, err := s.client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.ActivateRouterInterface(req)
 	})
 	if err != nil {

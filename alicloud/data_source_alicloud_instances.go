@@ -218,7 +218,7 @@ func dataSourceAlicloudInstancesRead(d *schema.ResourceData, meta interface{}) e
 	args.PageNumber = requests.NewInteger(1)
 
 	for {
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstances(args)
 		})
 		if err != nil {
@@ -331,7 +331,7 @@ func instanceDisksMappings(d *schema.ResourceData, instanceId string, meta inter
 	req := ecs.CreateDescribeDisksRequest()
 	req.InstanceId = instanceId
 
-	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeDisks(req)
 	})
 

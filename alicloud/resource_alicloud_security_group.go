@@ -50,7 +50,7 @@ func resourceAliyunSecurityGroup() *schema.Resource {
 func resourceAliyunSecurityGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 
-	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.CreateSecurityGroup(buildAliyunSecurityGroupArgs(d, meta))
 	})
 	if err != nil {
@@ -122,7 +122,7 @@ func resourceAliyunSecurityGroupUpdate(d *schema.ResourceData, meta interface{})
 		attributeUpdate = true
 	}
 	if attributeUpdate {
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ModifySecurityGroupAttribute(args)
 		})
 		if err != nil {
@@ -139,7 +139,7 @@ func resourceAliyunSecurityGroupUpdate(d *schema.ResourceData, meta interface{})
 		args.SecurityGroupId = d.Id()
 		args.InnerAccessPolicy = string(policy)
 
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ModifySecurityGroupPolicy(args)
 		})
 		if err != nil {
@@ -159,7 +159,7 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 	req.SecurityGroupId = d.Id()
 
 	return resource.Retry(6*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteSecurityGroup(req)
 		})
 

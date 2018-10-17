@@ -50,7 +50,7 @@ func resourceAlicloudRamGroupPolicyAttachmentCreate(d *schema.ResourceData, meta
 		GroupName: d.Get("group_name").(string),
 	}
 
-	_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.AttachPolicyToGroup(args)
 	})
 	if err != nil {
@@ -68,7 +68,7 @@ func resourceAlicloudRamGroupPolicyAttachmentRead(d *schema.ResourceData, meta i
 		GroupName: d.Get("group_name").(string),
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ListPoliciesForGroup(args)
 	})
 	if err != nil {
@@ -105,7 +105,7 @@ func resourceAlicloudRamGroupPolicyAttachmentDelete(d *schema.ResourceData, meta
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DetachPolicyFromGroup(args)
 		})
 		if err != nil {
@@ -115,7 +115,7 @@ func resourceAlicloudRamGroupPolicyAttachmentDelete(d *schema.ResourceData, meta
 			return resource.NonRetryableError(fmt.Errorf("Error deleting group policy attachment: %#v", err))
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForGroup(ram.GroupQueryRequest{GroupName: args.GroupName})
 		})
 		if err != nil {

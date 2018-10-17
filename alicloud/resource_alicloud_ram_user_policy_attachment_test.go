@@ -60,7 +60,7 @@ func testAccCheckRamUserPolicyAttachmentExists(n string, policy *ram.Policy, use
 			UserName: split[0],
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForUser(request)
 		})
 		if err == nil {
@@ -92,7 +92,7 @@ func testAccCheckRamUserPolicyAttachmentDestroy(s *terraform.State) error {
 			UserName: rs.Primary.Attributes["user_name"],
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForUser(request)
 		})
 

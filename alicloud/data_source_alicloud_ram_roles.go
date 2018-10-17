@@ -101,7 +101,7 @@ func dataSourceAlicloudRamRolesRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	// all roles
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ListRoles()
 	})
 	if err != nil {
@@ -124,7 +124,7 @@ func dataSourceAlicloudRamRolesRead(d *schema.ResourceData, meta interface{}) er
 		if policyTypeOk {
 			pType = ram.Type(policyType.(string))
 		}
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: pType})
 		})
 		if err != nil {
@@ -155,7 +155,7 @@ func ramRolesDescriptionAttributes(d *schema.ResourceData, meta interface{}, rol
 	var s []map[string]interface{}
 	for _, v := range roles {
 		role := v.(ram.Role)
-		raw, _ := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, _ := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetRole(ram.RoleQueryRequest{RoleName: role.RoleName})
 		})
 		resp, _ := raw.(ram.RoleResponse)

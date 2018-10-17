@@ -57,7 +57,7 @@ func resourceAlicloudPvtzZoneCreate(d *schema.ResourceData, meta interface{}) er
 		args.ZoneName = v.(string)
 	}
 
-	raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+	raw, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 		return pvtzClient.AddZone(args)
 	})
 	if err != nil {
@@ -80,7 +80,7 @@ func resourceAlicloudPvtzZoneRead(d *schema.ResourceData, meta interface{}) erro
 	request := pvtz.CreateDescribeZoneInfoRequest()
 	request.ZoneId = d.Id()
 
-	raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+	raw, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 		return pvtzClient.DescribeZoneInfo(request)
 	})
 	if err != nil {
@@ -112,7 +112,7 @@ func resourceAlicloudPvtzZoneUpdate(d *schema.ResourceData, meta interface{}) er
 		request.Remark = d.Get("remark").(string)
 
 		client := meta.(*connectivity.AliyunClient)
-		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		_, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.UpdateZoneRemark(request)
 		})
 		if err != nil {
@@ -131,7 +131,7 @@ func resourceAlicloudPvtzZoneDelete(d *schema.ResourceData, meta interface{}) er
 	request.ZoneId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		_, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.DeleteZone(request)
 		})
 

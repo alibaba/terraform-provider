@@ -117,7 +117,7 @@ func resourceAlicloudKVStoreInstanceCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	raw, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+	raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 		return rkvClient.CreateInstance(request)
 	})
 
@@ -153,7 +153,7 @@ func resourceAlicloudKVStoreInstanceUpdate(d *schema.ResourceData, meta interfac
 		if err := kvstoreService.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
-		_, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		_, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.ModifySecurityIps(request)
 		})
 		if err != nil {
@@ -176,7 +176,7 @@ func resourceAlicloudKVStoreInstanceUpdate(d *schema.ResourceData, meta interfac
 		request.InstanceId = d.Id()
 		request.InstanceClass = d.Get("instance_class").(string)
 		request.EffectiveTime = "Immediately"
-		_, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		_, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.ModifyInstanceSpec(request)
 		})
 		if err != nil {
@@ -211,7 +211,7 @@ func resourceAlicloudKVStoreInstanceUpdate(d *schema.ResourceData, meta interfac
 		if err := kvstoreService.WaitForRKVInstance(d.Id(), Normal, DefaultLongTimeout); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
-		_, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		_, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.ModifyInstanceAttribute(request)
 		})
 		if err != nil {
@@ -270,7 +270,7 @@ func resourceAlicloudKVStoreInstanceDelete(d *schema.ResourceData, meta interfac
 	request.InstanceId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		_, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.DeleteInstance(request)
 		})
 

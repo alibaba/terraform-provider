@@ -56,7 +56,7 @@ func resourceAlicloudRamLoginProfileCreate(d *schema.ResourceData, meta interfac
 		MFABindRequired:       d.Get("mfa_bind_required").(bool),
 	}
 
-	_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.CreateLoginProfile(args)
 	})
 	if err != nil {
@@ -96,7 +96,7 @@ func resourceAlicloudRamLoginProfileUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	if attributeUpdate && !d.IsNewResource() {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.UpdateLoginProfile(args)
 		})
 		if err != nil {
@@ -115,7 +115,7 @@ func resourceAlicloudRamLoginProfileRead(d *schema.ResourceData, meta interface{
 		UserName: d.Id(),
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetLoginProfile(args)
 	})
 	if err != nil {
@@ -140,7 +140,7 @@ func resourceAlicloudRamLoginProfileDelete(d *schema.ResourceData, meta interfac
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeleteLoginProfile(args)
 		})
 		if err != nil {
@@ -150,7 +150,7 @@ func resourceAlicloudRamLoginProfileDelete(d *schema.ResourceData, meta interfac
 			return resource.NonRetryableError(fmt.Errorf("Error deleting login profile: %#v", err))
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetLoginProfile(args)
 		})
 		if err != nil {

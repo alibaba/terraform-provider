@@ -42,7 +42,7 @@ func testSweepCMSAlarms(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+		raw, err := client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 			return cmsClient.ListAlarm(req)
 		})
 		if err != nil {
@@ -83,7 +83,7 @@ func testSweepCMSAlarms(region string) error {
 		log.Printf("[INFO] Deleting CMS Alarm: %s (%s)", name, id)
 		req := cms.CreateDeleteAlarmRequest()
 		req.Id = id
-		_, err := client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+		_, err := client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 			return cmsClient.DeleteAlarm(req)
 		})
 		if err != nil {

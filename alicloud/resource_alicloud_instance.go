@@ -264,7 +264,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 		args.IoOptimized = "none"
 	}
 
-	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.CreateInstance(args)
 	})
 	if err != nil {
@@ -290,7 +290,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 	if out > 0 {
 		req := ecs.CreateAllocatePublicIpAddressRequest()
 		req.InstanceId = d.Id()
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.AllocatePublicIpAddress(req)
 		})
 		if err != nil {
@@ -300,7 +300,7 @@ func resourceAliyunInstanceCreate(d *schema.ResourceData, meta interface{}) erro
 
 	startArgs := ecs.CreateStartInstanceRequest()
 	startArgs.InstanceId = d.Id()
-	_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.StartInstance(startArgs)
 	})
 	if err != nil {
@@ -383,7 +383,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if d.Get("user_data").(string) != "" {
 		args := ecs.CreateDescribeUserDataRequest()
 		args.InstanceId = d.Id()
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeUserData(args)
 		})
 
@@ -399,7 +399,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if len(instance.VpcAttributes.VSwitchId) > 0 {
 		args := ecs.CreateDescribeInstanceRamRoleRequest()
 		args.InstanceIds = convertListToJsonString([]interface{}{d.Id()})
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstanceRamRole(args)
 		})
 		if err != nil {
@@ -414,7 +414,7 @@ func resourceAliyunInstanceRead(d *schema.ResourceData, meta interface{}) error 
 	if instance.InstanceChargeType == string(PrePaid) {
 		args := ecs.CreateDescribeInstanceAutoRenewAttributeRequest()
 		args.InstanceId = d.Id()
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstanceAutoRenewAttribute(args)
 		})
 		if err != nil {
@@ -485,7 +485,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 			args.Duration = requests.NewInteger(d.Get("auto_renew_period").(int))
 		}
 
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ModifyInstanceAutoRenewAttribute(args)
 		})
 		if err != nil {
@@ -527,7 +527,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 			stop := ecs.CreateStopInstanceRequest()
 			stop.InstanceId = d.Id()
 			stop.ForceStop = requests.NewBoolean(false)
-			_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.StopInstance(stop)
 			})
 			if err != nil {
@@ -555,7 +555,7 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 		start := ecs.CreateStartInstanceRequest()
 		start.InstanceId = d.Id()
 
-		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.StartInstance(start)
 		})
 		if err != nil {
@@ -604,7 +604,7 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 		}
 
 		if instance.Status != string(Stopped) {
-			_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.StopInstance(stop)
 			})
 			if err != nil {
@@ -616,7 +616,7 @@ func resourceAliyunInstanceDelete(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 
-		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteInstance(deld)
 		})
 		if err != nil {
@@ -768,7 +768,7 @@ func modifyInstanceChargeType(d *schema.ResourceData, meta interface{}) error {
 		}
 		args.InstanceChargeType = chargeType
 		if err := resource.Retry(6*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.ModifyInstanceChargeType(args)
 			})
 			if err != nil {
@@ -811,7 +811,7 @@ func modifyInstanceImage(d *schema.ResourceData, meta interface{}, run bool) (bo
 		args.ImageId = d.Get("image_id").(string)
 		args.SystemDiskSize = requests.NewInteger(d.Get("system_disk_size").(int))
 		args.ClientToken = buildClientToken("TF-ReplaceSystemDisk")
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ReplaceSystemDisk(args)
 		})
 		if err != nil {
@@ -896,7 +896,7 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 
 	if update {
 		client := meta.(*connectivity.AliyunClient)
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ModifyInstanceAttribute(args)
 		})
 		if err != nil {
@@ -945,7 +945,7 @@ func modifyVpcAttribute(d *schema.ResourceData, meta interface{}, run bool) (boo
 
 	if update {
 		client := meta.(*connectivity.AliyunClient)
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ModifyInstanceVpcAttribute(vpcArgs)
 		})
 		if err != nil {
@@ -988,7 +988,7 @@ func modifyInstanceType(d *schema.ResourceData, meta interface{}, run bool) (boo
 		args.ClientToken = buildClientToken("TF-ModifyInstanceSpec")
 
 		err = resource.Retry(6*time.Minute, func() *resource.RetryError {
-			_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.ModifyInstanceSpec(args)
 			})
 			if err != nil {
@@ -1042,7 +1042,7 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 	if update {
 		if err := resource.Retry(6*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.ModifyInstanceNetworkSpec(args)
 			})
 			if err != nil {
@@ -1062,7 +1062,7 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 		if allocate {
 			req := ecs.CreateAllocatePublicIpAddressRequest()
 			req.InstanceId = d.Id()
-			_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.AllocatePublicIpAddress(req)
 			})
 			if err != nil {

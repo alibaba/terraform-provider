@@ -32,7 +32,7 @@ func (s *OtsService) DescribeOtsTable(instanceName, tableName string) (table *ta
 	describeTableReq := new(tablestore.DescribeTableRequest)
 	describeTableReq.TableName = tableName
 
-	raw, err := s.client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+	raw, err := s.client.WithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
 		return tableStoreClient.DescribeTable(describeTableReq)
 	})
 	if err != nil {
@@ -52,7 +52,7 @@ func (s *OtsService) DeleteOtsTable(instanceName, tableName string) (bool, error
 
 	deleteReq := new(tablestore.DeleteTableRequest)
 	deleteReq.TableName = tableName
-	_, err := s.client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+	_, err := s.client.WithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
 		return tableStoreClient.DeleteTable(deleteReq)
 	})
 	if err != nil {
@@ -96,7 +96,7 @@ func (s *OtsService) DescribeOtsInstance(name string) (inst ots.InstanceInfo, er
 	req := ots.CreateGetInstanceRequest()
 	req.InstanceName = name
 	req.Method = "GET"
-	raw, err := s.client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+	raw, err := s.client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 		return otsClient.GetInstance(req)
 	})
 
@@ -115,7 +115,7 @@ func (s *OtsService) DescribeOtsInstanceVpc(name string) (inst ots.VpcInfo, err 
 	req := ots.CreateListVpcInfoByInstanceRequest()
 	req.Method = "GET"
 	req.InstanceName = name
-	raw, err := s.client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+	raw, err := s.client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 		return otsClient.ListVpcInfoByInstance(req)
 	})
 	if err != nil {

@@ -60,7 +60,7 @@ func testAccCheckRamAccessKeyExists(n string, ak *ram.AccessKey) resource.TestCh
 			UserName: rs.Primary.Attributes["user_name"],
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListAccessKeys(request)
 		})
 
@@ -94,7 +94,7 @@ func testAccCheckRamAccessKeyDestroy(s *terraform.State) error {
 			UserName: rs.Primary.Attributes["user_name"],
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListAccessKeys(request)
 		})
 

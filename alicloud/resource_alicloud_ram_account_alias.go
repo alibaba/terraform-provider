@@ -32,7 +32,7 @@ func resourceAlicloudRamAccountAliasCreate(d *schema.ResourceData, meta interfac
 		AccountAlias: d.Get("account_alias").(string),
 	}
 
-	_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.SetAccountAlias(args)
 	})
 	if err != nil {
@@ -46,7 +46,7 @@ func resourceAlicloudRamAccountAliasCreate(d *schema.ResourceData, meta interfac
 func resourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetAccountAlias()
 	})
 	if err != nil {
@@ -61,7 +61,7 @@ func resourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interface{
 func resourceAlicloudRamAccountAliasDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 
-	_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ClearAccountAlias()
 	})
 	if err != nil {

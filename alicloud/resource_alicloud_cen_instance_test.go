@@ -38,7 +38,7 @@ func testSweepCenInstances(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithCenClient(func(cenClient *cbn.Client) (interface{}, error) {
+		raw, err := client.WithCenClient(func(cenClient *cbn.Client) (interface{}, error) {
 			return cenClient.DescribeCens(req)
 		})
 		if err != nil {
@@ -80,7 +80,7 @@ func testSweepCenInstances(region string) error {
 		log.Printf("[INFO] Deleting CEN Instance: %s (%s)", name, id)
 		req := cbn.CreateDeleteCenRequest()
 		req.CenId = id
-		_, err := client.RunSafelyWithCenClient(func(cenClient *cbn.Client) (interface{}, error) {
+		_, err := client.WithCenClient(func(cenClient *cbn.Client) (interface{}, error) {
 			return cenClient.DeleteCen(req)
 		})
 		if err != nil {

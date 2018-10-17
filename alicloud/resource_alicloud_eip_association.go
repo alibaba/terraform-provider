@@ -53,7 +53,7 @@ func resourceAliyunEipAssociationCreate(d *schema.ResourceData, meta interface{}
 
 	if err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		ar := args
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.AssociateEipAddress(ar)
 		})
 		if err != nil {
@@ -130,7 +130,7 @@ func resourceAliyunEipAssociationDelete(d *schema.ResourceData, meta interface{}
 		request.InstanceType = Nat
 	}
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.UnassociateEipAddress(request)
 		})
 		if err != nil {

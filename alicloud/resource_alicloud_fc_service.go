@@ -142,7 +142,7 @@ func resourceAlicloudFCServiceCreate(d *schema.ResourceData, meta interface{}) e
 
 	var service *fc.CreateServiceOutput
 	if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+		raw, err := client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 			return fcClient.CreateService(input)
 		})
 		if err != nil {
@@ -249,7 +249,7 @@ func resourceAlicloudFCServiceUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if updateInput != nil {
 		updateInput.ServiceName = StringPointer(d.Id())
-		_, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+		_, err := client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 			return fcClient.UpdateService(updateInput)
 		})
 		if err != nil {
@@ -266,7 +266,7 @@ func resourceAlicloudFCServiceDelete(d *schema.ResourceData, meta interface{}) e
 	fcService := FcService{client}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+		_, err := client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 			return fcClient.DeleteService(&fc.DeleteServiceInput{
 				ServiceName: StringPointer(d.Id()),
 			})
@@ -339,7 +339,7 @@ func parseLogConfig(d *schema.ResourceData, meta interface{}) (project, logstore
 	}
 	if project != "" {
 		err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-			_, e := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+			_, e := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 				return slsClient.CheckProjectExist(project)
 			})
 			if e != nil {
@@ -358,7 +358,7 @@ func parseLogConfig(d *schema.ResourceData, meta interface{}) (project, logstore
 
 	if logstore != "" {
 		err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-			_, e := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+			_, e := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 				return slsClient.CheckLogstoreExist(project, logstore)
 			})
 			if e != nil {

@@ -39,7 +39,7 @@ func testSweepFCServices(region string) error {
 		"test-acc-alicloud",
 	}
 
-	raw, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+	raw, err := client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 		return fcClient.ListServices(fc.NewListServicesInput())
 	})
 	if err != nil {
@@ -61,7 +61,7 @@ func testSweepFCServices(region string) error {
 			continue
 		}
 		log.Printf("[INFO] Deleting FC services: %s (%s)", name, id)
-		_, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+		_, err := client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 			return fcClient.DeleteService(&fc.DeleteServiceInput{
 				ServiceName: StringPointer(name),
 			})

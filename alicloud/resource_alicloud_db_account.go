@@ -73,7 +73,7 @@ func resourceAlicloudDBAccountCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		args := request
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.CreateAccount(args)
 		})
 		if err != nil {
@@ -137,7 +137,7 @@ func resourceAlicloudDBAccountUpdate(d *schema.ResourceData, meta interface{}) e
 		request.AccountName = accountName
 		request.AccountDescription = d.Get("description").(string)
 
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.ModifyAccountDescription(request)
 		})
 		if err != nil {
@@ -153,7 +153,7 @@ func resourceAlicloudDBAccountUpdate(d *schema.ResourceData, meta interface{}) e
 		request.AccountName = accountName
 		request.AccountPassword = d.Get("password").(string)
 
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.ResetAccountPassword(request)
 		})
 		if err != nil {
@@ -176,7 +176,7 @@ func resourceAlicloudDBAccountDelete(d *schema.ResourceData, meta interface{}) e
 	request.AccountName = parts[1]
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DeleteAccount(request)
 		})
 		if err != nil {

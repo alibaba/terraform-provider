@@ -84,7 +84,7 @@ func dataSourceAlicloudPvtzZonesRead(d *schema.ResourceData, meta interface{}) e
 	pvtzZoneBindVpcs := make(map[string][]map[string]interface{})
 
 	for {
-		raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		raw, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.DescribeZones(args)
 		})
 		if err != nil {
@@ -101,7 +101,7 @@ func dataSourceAlicloudPvtzZonesRead(d *schema.ResourceData, meta interface{}) e
 			request := pvtz.CreateDescribeZoneInfoRequest()
 			request.ZoneId = key.ZoneId
 
-			raw, errZoneInfo := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+			raw, errZoneInfo := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 				return pvtzClient.DescribeZoneInfo(request)
 			})
 

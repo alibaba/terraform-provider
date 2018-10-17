@@ -44,7 +44,7 @@ func testSweepEssGroups(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DescribeScalingGroups(req)
 		})
 		if err != nil {
@@ -87,7 +87,7 @@ func testSweepEssGroups(region string) error {
 		req := ess.CreateDeleteScalingGroupRequest()
 		req.ScalingGroupId = id
 		req.ForceDelete = requests.NewBoolean(true)
-		_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DeleteScalingGroup(req)
 		})
 		if err != nil {

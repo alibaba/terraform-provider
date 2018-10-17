@@ -94,7 +94,7 @@ func resourceAliyunSlbRuleCreate(d *schema.ResourceData, meta interface{}) error
 	req.ListenerPort = requests.NewInteger(port)
 	req.RuleList = rule
 	if err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.CreateRules(req)
 		})
 		if err != nil {
@@ -166,7 +166,7 @@ func resourceAliyunSlbRuleUpdate(d *schema.ResourceData, meta interface{}) error
 		req.RuleId = d.Id()
 		req.VServerGroupId = d.Get("server_group_id").(string)
 		client := meta.(*connectivity.AliyunClient)
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.SetRule(req)
 		})
 		if err != nil {
@@ -185,7 +185,7 @@ func resourceAliyunSlbRuleDelete(d *schema.ResourceData, meta interface{}) error
 	req := slb.CreateDeleteRulesRequest()
 	req.RuleIds = fmt.Sprintf("['%s']", d.Id())
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DeleteRules(req)
 		})
 		if err != nil {

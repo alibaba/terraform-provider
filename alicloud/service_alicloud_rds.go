@@ -33,7 +33,7 @@ func (s *RdsService) DescribeDBInstanceById(id string) (instance *rds.DBInstance
 
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
 	request.DBInstanceId = id
-	raw, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeDBInstanceAttribute(request)
 	})
 	if err != nil {
@@ -55,7 +55,7 @@ func (s *RdsService) DescribeDatabaseAccount(instanceId, accountName string) (ds
 	request.DBInstanceId = instanceId
 	request.AccountName = accountName
 
-	raw, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeAccounts(request)
 	})
 
@@ -76,7 +76,7 @@ func (s *RdsService) DescribeDatabaseByName(instanceId, dbName string) (ds *rds.
 	request.DBName = dbName
 
 	err = resource.Retry(3*time.Minute, func() *resource.RetryError {
-		raw, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DescribeDatabases(request)
 		})
 		if err != nil {
@@ -106,7 +106,7 @@ func (s *RdsService) AllocateDBPublicConnection(instanceId, prefix, port string)
 	request.Port = port
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.AllocateInstancePublicConnection(request)
 		})
 		if err != nil {
@@ -148,7 +148,7 @@ func (s *RdsService) DescribeDBInstanceNetInfos(instanceId string) ([]rds.DBInst
 
 	request := rds.CreateDescribeDBInstanceNetInfoRequest()
 	request.DBInstanceId = instanceId
-	raw, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeDBInstanceNetInfo(request)
 	})
 
@@ -193,7 +193,7 @@ func (s *RdsService) GrantAccountPrivilege(instanceId, account, dbName, privileg
 
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		rq := request
-		_, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.GrantAccountPrivilege(rq)
 		})
 		if err != nil {
@@ -225,7 +225,7 @@ func (s *RdsService) RevokeAccountPrivilege(instanceId, account, dbName string) 
 
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		ag := request
-		_, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.RevokeAccountPrivilege(ag)
 		})
 		if err != nil {
@@ -254,7 +254,7 @@ func (s *RdsService) ReleaseDBPublicConnection(instanceId, connection string) er
 	request.DBInstanceId = instanceId
 	request.CurrentConnectionString = connection
 
-	_, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	_, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.ReleaseInstancePublicConnection(request)
 	})
 	if err != nil {
@@ -273,7 +273,7 @@ func (s *RdsService) ModifyDBBackupPolicy(instanceId, backupTime, backupPeriod, 
 	request.BackupLog = backupLog
 	request.LogBackupRetentionPeriod = LogBackupRetentionPeriod
 
-	_, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	_, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.ModifyBackupPolicy(request)
 	})
 	if err != nil {
@@ -292,7 +292,7 @@ func (s *RdsService) ModifyDBSecurityIps(instanceId, ips string) error {
 	request.DBInstanceId = instanceId
 	request.SecurityIps = ips
 
-	_, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	_, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.ModifySecurityIps(request)
 	})
 	if err != nil {
@@ -310,7 +310,7 @@ func (s *RdsService) DescribeDBSecurityIps(instanceId string) (ips []rds.DBInsta
 	request := rds.CreateDescribeDBInstanceIPArrayListRequest()
 	request.DBInstanceId = instanceId
 
-	raw, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeDBInstanceIPArrayList(request)
 	})
 	if err != nil {
@@ -349,7 +349,7 @@ func (s *RdsService) GetSecurityIps(instanceId string) ([]string, error) {
 
 // return multiIZ list of current region
 func (s *RdsService) DescribeMultiIZByRegion() (izs []string, err error) {
-	raw, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeRegions(rds.CreateDescribeRegionsRequest())
 	})
 	if err != nil {
@@ -373,7 +373,7 @@ func (s *RdsService) DescribeBackupPolicy(instanceId string) (policy *rds.Descri
 	request := rds.CreateDescribeBackupPolicyRequest()
 	request.DBInstanceId = instanceId
 
-	raw, err := s.client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeBackupPolicy(request)
 	})
 	return raw.(*rds.DescribeBackupPolicyResponse), err

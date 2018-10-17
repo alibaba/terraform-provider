@@ -71,7 +71,7 @@ func resourceAlicloudDBDatabaseCreate(d *schema.ResourceData, meta interface{}) 
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		ag := request
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.CreateDatabase(ag)
 		})
 		if err != nil {
@@ -125,7 +125,7 @@ func resourceAlicloudDBDatabaseUpdate(d *schema.ResourceData, meta interface{}) 
 		request.DBName = parts[1]
 		request.DBDescription = d.Get("description").(string)
 
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.ModifyDBDescription(request)
 		})
 		if err != nil {
@@ -150,7 +150,7 @@ func resourceAlicloudDBDatabaseDelete(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("While deleting database, WaitForInstance %s got error: %#v", Running, err)
 	}
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DeleteDatabase(request)
 		})
 		if err != nil {

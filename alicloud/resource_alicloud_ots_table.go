@@ -90,7 +90,7 @@ func resourceAliyunOtsTableCreate(d *schema.ResourceData, meta interface{}) erro
 	createTableRequest.TableOption = tableOption
 	createTableRequest.ReservedThroughput = reservedThroughput
 
-	_, err := client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+	_, err := client.WithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
 		return tableStoreClient.CreateTable(createTableRequest)
 	})
 	if err != nil {
@@ -164,7 +164,7 @@ func resourceAliyunOtsTableUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if update {
 		updateTableReq.TableOption = tableOption
-		_, err := client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+		_, err := client.WithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
 			return tableStoreClient.UpdateTable(updateTableReq)
 		})
 
@@ -192,7 +192,7 @@ func resourceAliyunOtsTableDelete(d *schema.ResourceData, meta interface{}) erro
 			}
 			return resource.NonRetryableError(fmt.Errorf("When deleting table %s, describing instance %s got an error: %#v.", tableName, instanceName, err))
 		}
-		_, err := client.RunSafelyWithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
+		_, err := client.WithTableStoreClient(instanceName, func(tableStoreClient *tablestore.TableStoreClient) (interface{}, error) {
 			return tableStoreClient.DeleteTable(req)
 		})
 		if err != nil {

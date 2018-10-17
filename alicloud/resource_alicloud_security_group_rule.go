@@ -122,12 +122,12 @@ func resourceAliyunSecurityGroupRuleCreate(d *schema.ResourceData, meta interfac
 
 	if direction == string(DirectionIngress) {
 		request.ApiName = "AuthorizeSecurityGroup"
-		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 	} else {
 		request.ApiName = "AuthorizeSecurityGroupEgress"
-		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 	}
@@ -210,12 +210,12 @@ func deleteSecurityGroupRule(d *schema.ResourceData, meta interface{}) error {
 
 	if ruleType == string(DirectionIngress) {
 		request.ApiName = "RevokeSecurityGroup"
-		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 	} else {
 		request.ApiName = "RevokeSecurityGroupEgress"
-		_, err = client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 	}

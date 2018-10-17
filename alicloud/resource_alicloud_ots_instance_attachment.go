@@ -56,7 +56,7 @@ func resourceAliyunOtsInstanceAttachmentCreate(d *schema.ResourceData, meta inte
 		req.VpcId = vsw.VpcId
 	}
 
-	_, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+	_, err := client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 		return otsClient.BindInstance2Vpc(req)
 	})
 	if err != nil {
@@ -100,7 +100,7 @@ func resourceAliyunOtsInstanceAttachmentDelete(d *schema.ResourceData, meta inte
 	req.InstanceVpcName = inst.InstanceVpcName
 
 	return resource.Retry(2*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+		_, err := client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 			return otsClient.UnbindInstance2Vpc(req)
 		})
 		if err != nil {

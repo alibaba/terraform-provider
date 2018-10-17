@@ -77,7 +77,7 @@ func resourceAlicloudPvtzZoneAttachmentUpdate(d *schema.ResourceData, meta inter
 
 		args.Vpcs = &vpcs
 
-		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		_, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.BindZoneVpc(args)
 		})
 		if nil != err {
@@ -94,7 +94,7 @@ func resourceAlicloudPvtzZoneAttachmentRead(d *schema.ResourceData, meta interfa
 	request := pvtz.CreateDescribeZoneInfoRequest()
 	request.ZoneId = d.Id()
 
-	raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+	raw, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 		return pvtzClient.DescribeZoneInfo(request)
 	})
 
@@ -129,7 +129,7 @@ func resourceAlicloudPvtzZoneAttachmentDelete(d *schema.ResourceData, meta inter
 	request.Vpcs = &vpcs
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		_, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.BindZoneVpc(request)
 		})
 

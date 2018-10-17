@@ -58,7 +58,7 @@ func testAccCheckRamGroupPolicyAttachmentExists(n string, policy *ram.Policy, gr
 			GroupName: group.GroupName,
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForGroup(request)
 		})
 		if err == nil {
@@ -90,7 +90,7 @@ func testAccCheckRamGroupPolicyAttachmentDestroy(s *terraform.State) error {
 			GroupName: rs.Primary.Attributes["group_name"],
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForGroup(request)
 		})
 

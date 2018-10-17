@@ -238,7 +238,7 @@ func resourceAlicloudLogStoreIndexUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	if update {
-		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		_, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return nil, slsClient.UpdateIndex(split[0], split[1], index)
 		})
 		if err != nil {
@@ -263,7 +263,7 @@ func resourceAlicloudLogStoreIndexDelete(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("While deleting index, GetIndex got an error: %#v.", err)
 	}
 
-	_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+	_, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return nil, slsClient.DeleteIndex(split[0], split[1])
 	})
 	if err != nil {

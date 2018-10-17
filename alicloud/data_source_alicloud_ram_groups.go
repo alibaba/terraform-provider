@@ -87,7 +87,7 @@ func dataSourceAlicloudRamGroupsRead(d *schema.ResourceData, meta interface{}) e
 	// groups filtered by name_regex
 	args := ram.GroupListRequest{}
 	for {
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListGroup(args)
 		})
 		if err != nil {
@@ -111,7 +111,7 @@ func dataSourceAlicloudRamGroupsRead(d *schema.ResourceData, meta interface{}) e
 
 	// groups for user
 	if userNameOk {
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListGroupsForUser(ram.UserQueryRequest{UserName: userName.(string)})
 		})
 		if err != nil {
@@ -130,7 +130,7 @@ func dataSourceAlicloudRamGroupsRead(d *schema.ResourceData, meta interface{}) e
 		if policyTypeOk {
 			pType = ram.Type(policyType.(string))
 		}
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListEntitiesForPolicy(ram.PolicyRequest{PolicyName: policyName.(string), PolicyType: pType})
 		})
 		if err != nil {

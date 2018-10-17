@@ -47,7 +47,7 @@ func testSweepSecurityGroups(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeSecurityGroups(req)
 		})
 		if err != nil {
@@ -87,7 +87,7 @@ func testSweepSecurityGroups(region string) error {
 		log.Printf("[INFO] Deleting Security Group: %s (%s)", name, id)
 		req := ecs.CreateDeleteSecurityGroupRequest()
 		req.SecurityGroupId = id
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteSecurityGroup(req)
 		})
 		if err != nil {

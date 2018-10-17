@@ -138,7 +138,7 @@ func resourceAliyunSlbAttachmentUpdate(d *schema.ResourceData, meta interface{})
 			req.LoadBalancerId = d.Id()
 			req.BackendServers = expandBackendServersToString(ns.Difference(os).List(), weight)
 			if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
-				_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+				_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 					return slbClient.AddBackendServers(req)
 				})
 				if err != nil {
@@ -169,7 +169,7 @@ func resourceAliyunSlbAttachmentUpdate(d *schema.ResourceData, meta interface{})
 		req.LoadBalancerId = d.Id()
 		req.BackendServers = expandBackendServersToString(d.Get("instance_ids").(*schema.Set).List(), weight)
 		if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 				return slbClient.SetBackendServers(req)
 			})
 			if err != nil {
@@ -202,7 +202,7 @@ func removeBackendServers(d *schema.ResourceData, meta interface{}, servers []in
 		req.LoadBalancerId = d.Id()
 		req.BackendServers = convertListToJsonString(servers)
 		return resource.Retry(3*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 				return slbClient.RemoveBackendServers(req)
 			})
 			if err != nil {

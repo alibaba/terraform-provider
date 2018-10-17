@@ -61,7 +61,7 @@ func resourceAliyunEssScalingRuleCreate(d *schema.ResourceData, meta interface{}
 
 	client := meta.(*connectivity.AliyunClient)
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.CreateScalingRule(args)
 	})
 	if err != nil {
@@ -149,7 +149,7 @@ func resourceAliyunEssScalingRuleUpdate(d *schema.ResourceData, meta interface{}
 		args.Cooldown = requests.NewInteger(d.Get("cooldown").(int))
 	}
 
-	_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.ModifyScalingRule(args)
 	})
 	if err != nil {

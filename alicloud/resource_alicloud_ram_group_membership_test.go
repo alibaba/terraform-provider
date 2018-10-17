@@ -60,7 +60,7 @@ func testAccCheckRamGroupMembershipExists(n string, user *ram.User, user1 *ram.U
 			GroupName: rs.Primary.ID,
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListUsersForGroup(request)
 		})
 
@@ -89,7 +89,7 @@ func testAccCheckRamGroupMembershipDestroy(s *terraform.State) error {
 			GroupName: rs.Primary.ID,
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListUsersForGroup(request)
 		})
 

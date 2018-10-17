@@ -44,7 +44,7 @@ func testSweepOtsInstances(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNum = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+		raw, err := client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 			return otsClient.ListInstance(req)
 		})
 		if err != nil {
@@ -85,7 +85,7 @@ func testSweepOtsInstances(region string) error {
 		log.Printf("[INFO] Deleting OTS Instance: %s", name)
 		req := ots.CreateDeleteInstanceRequest()
 		req.InstanceName = name
-		_, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+		_, err := client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 			return otsClient.DeleteInstance(req)
 		})
 		if err != nil {

@@ -334,7 +334,7 @@ func resourceAlicloudCSKubernetesCreate(d *schema.ResourceData, meta interface{}
 			return err
 		}
 		if err := invoker.Run(func() error {
-			raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 				return csClient.CreateKubernetesMultiAZCluster(client.Region, args)
 			})
 			if err != nil {
@@ -352,7 +352,7 @@ func resourceAlicloudCSKubernetesCreate(d *schema.ResourceData, meta interface{}
 			return err
 		}
 		if err := invoker.Run(func() error {
-			raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 				return csClient.CreateKubernetesCluster(client.Region, args)
 			})
 			if err != nil {
@@ -367,7 +367,7 @@ func resourceAlicloudCSKubernetesCreate(d *schema.ResourceData, meta interface{}
 	}
 
 	if err := invoker.Run(func() error {
-		_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		_, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return nil, csClient.WaitForClusterAsyn(d.Id(), cs.Running, 3600)
 		})
 		return err
@@ -405,7 +405,7 @@ func resourceAlicloudCSKubernetesUpdate(d *schema.ResourceData, meta interface{}
 			args.NumOfNodesC = int64(workerNumbers[2])
 		}
 		if err := invoker.Run(func() error {
-			_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			_, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 				return nil, csClient.ResizeKubernetesCluster(d.Id(), args)
 			})
 			return err
@@ -414,7 +414,7 @@ func resourceAlicloudCSKubernetesUpdate(d *schema.ResourceData, meta interface{}
 		}
 
 		if err := invoker.Run(func() error {
-			_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			_, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 				return nil, csClient.WaitForClusterAsyn(d.Id(), cs.Running, 3600)
 			})
 			return err
@@ -432,7 +432,7 @@ func resourceAlicloudCSKubernetesUpdate(d *schema.ResourceData, meta interface{}
 			clusterName = resource.PrefixedUniqueId(d.Get("name_prefix").(string))
 		}
 		if err := invoker.Run(func() error {
-			_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			_, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 				return nil, csClient.ModifyClusterName(d.Id(), clusterName)
 			})
 			if err != nil && !IsExceptedError(err, ErrorClusterNameAlreadyExist) {
@@ -456,7 +456,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 	var cluster cs.KubernetesCluster
 	invoker := NewInvoker()
 	if err := invoker.Run(func() error {
-		raw, e := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		raw, e := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return csClient.DescribeKubernetesCluster(d.Id())
 		})
 		if e != nil {
@@ -520,7 +520,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 		var pagination *cs.PaginationResult
 
 		if err := invoker.Run(func() error {
-			raw, e := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			raw, e := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 				nodes, paginationResult, err := csClient.GetKubernetesClusterNodes(d.Id(), common.Pagination{PageNumber: pageNumber, PageSize: PageSizeLarge})
 				return []interface{}{nodes, paginationResult}, err
 			})
@@ -537,7 +537,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 		if pageNumber == 1 && (len(result) == 0 || result[0].InstanceId == "") {
 			err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 				if err := invoker.Run(func() error {
-					raw, e := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+					raw, e := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 						nodes, _, err := csClient.GetKubernetesClusterNodes(d.Id(), common.Pagination{PageNumber: pageNumber, PageSize: PageSizeLarge})
 						return nodes, err
 					})
@@ -586,7 +586,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 	connection := make(map[string]string)
 	reqSLB := slb.CreateDescribeLoadBalancersRequest()
 	reqSLB.ServerId = masterNodes[0]["id"].(string)
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeLoadBalancers(reqSLB)
 	})
 	if err != nil {
@@ -608,7 +608,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("connections", connection)
 	req := vpc.CreateDescribeNatGatewaysRequest()
 	req.VpcId = cluster.VPCID
-	raw, err = client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err = client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeNatGateways(req)
 	})
 	if err != nil {
@@ -620,7 +620,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if err := invoker.Run(func() error {
-		raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return csClient.GetClusterCerts(d.Id())
 		})
 		if err != nil {
@@ -650,7 +650,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 	var config cs.ClusterConfig
 	if file, ok := d.GetOk("kube_config"); ok && file.(string) != "" {
 		if err := invoker.Run(func() error {
-			raw, e := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			raw, e := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 				return csClient.GetClusterConfig(d.Id())
 			})
 			if e != nil {
@@ -675,7 +675,7 @@ func resourceAlicloudCSKubernetesDelete(d *schema.ResourceData, meta interface{}
 	var cluster cs.ClusterType
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		if err := invoker.Run(func() error {
-			_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			_, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 				return nil, csClient.DeleteCluster(d.Id())
 			})
 			return err
@@ -687,7 +687,7 @@ func resourceAlicloudCSKubernetesDelete(d *schema.ResourceData, meta interface{}
 		}
 
 		if err := invoker.Run(func() error {
-			raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 				return csClient.DescribeCluster(d.Id())
 			})
 			if err != nil {

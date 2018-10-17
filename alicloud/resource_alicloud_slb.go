@@ -249,7 +249,7 @@ func resourceAliyunSlbCreate(d *schema.ResourceData, meta interface{}) error {
 		args.LoadBalancerSpec = v.(string)
 	}
 
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.CreateLoadBalancer(args)
 	})
 
@@ -311,7 +311,7 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 		req := slb.CreateSetLoadBalancerNameRequest()
 		req.LoadBalancerId = d.Id()
 		req.LoadBalancerName = d.Get("name").(string)
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.SetLoadBalancerName(req)
 		})
 		if err != nil {
@@ -325,7 +325,7 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 		args := slb.CreateModifyLoadBalancerInstanceSpecRequest()
 		args.LoadBalancerId = d.Id()
 		args.LoadBalancerSpec = d.Get("specification").(string)
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.ModifyLoadBalancerInstanceSpec(args)
 		})
 		if err != nil {
@@ -350,7 +350,7 @@ func resourceAliyunSlbUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	}
 	if update {
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.ModifyLoadBalancerInternetSpec(req)
 		})
 		if err != nil {
@@ -370,7 +370,7 @@ func resourceAliyunSlbDelete(d *schema.ResourceData, meta interface{}) error {
 	req := slb.CreateDeleteLoadBalancerRequest()
 	req.LoadBalancerId = d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DeleteLoadBalancer(req)
 		})
 		if err != nil {

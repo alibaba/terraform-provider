@@ -36,7 +36,7 @@ func testSweepAccountAliases(region string) error {
 		"tftest",
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetAccountAlias()
 	})
 	if err != nil {
@@ -59,7 +59,7 @@ func testSweepAccountAliases(region string) error {
 	sweeped = true
 	log.Printf("[INFO] Deleting Ram account alias: %s", name)
 
-	_, err = client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	_, err = client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ClearAccountAlias()
 	})
 	if err != nil {
@@ -115,7 +115,7 @@ func testAccCheckRamAccountAliasExists(n string, alias *string) resource.TestChe
 
 		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetAccountAlias()
 		})
 
@@ -138,7 +138,7 @@ func testAccCheckRamAccountAliasDestroy(s *terraform.State) error {
 		// Try to find the alias
 		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetAccountAlias()
 		})
 

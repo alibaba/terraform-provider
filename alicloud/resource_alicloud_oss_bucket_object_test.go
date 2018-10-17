@@ -145,7 +145,7 @@ func testAccCheckOssBucketObjectExistsWithProviders(n string, bucket string, obj
 				continue
 			}
 			client := provider.Meta().(*connectivity.AliyunClient)
-			raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+			raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 				return ossClient.Bucket(bucket)
 			})
 			buck, _ := raw.(*oss.Bucket)

@@ -55,7 +55,7 @@ func dataSourceAlicloudDnsGroupsRead(d *schema.ResourceData, meta interface{}) e
 	pagination := getPagination(1, 50)
 	for {
 		args.Pagination = pagination
-		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainGroups(args)
 		})
 		if err != nil {

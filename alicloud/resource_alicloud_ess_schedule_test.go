@@ -44,7 +44,7 @@ func testSweepEssSchedules(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DescribeScheduledTasks(req)
 		})
 		if err != nil {
@@ -84,7 +84,7 @@ func testSweepEssSchedules(region string) error {
 		log.Printf("[INFO] Deleting Scheduled Task: %s (%s)", name, id)
 		req := ess.CreateDeleteScheduledTaskRequest()
 		req.ScheduledTaskId = id
-		_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DeleteScheduledTask(req)
 		})
 		if err != nil {

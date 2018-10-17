@@ -148,7 +148,7 @@ func resourceAlicloudCSApplicationCreate(d *schema.ResourceData, meta interface{
 	if err := invoker.Run(func() error {
 		cluster, certs, err := csService.GetContainerClusterAndCertsByName(clusterName)
 		if err == nil {
-			_, err = client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+			_, err = client.WithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 				return nil, csProjectClient.CreateProject(args)
 			})
 		}
@@ -274,7 +274,7 @@ func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{
 	if !d.HasChange("version") && !blue_green {
 		cluster, certs, err := csService.GetContainerClusterAndCertsByName(clusterName)
 		if err == nil {
-			_, err = client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+			_, err = client.WithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 				return nil, csProjectClient.RollBackBlueGreenProject(parts[1], true)
 			})
 		}
@@ -286,7 +286,7 @@ func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{
 			if err := invoker.Run(func() error {
 				cluster, certs, err := csService.GetContainerClusterAndCertsByName(clusterName)
 				if err == nil {
-					_, err = client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+					_, err = client.WithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 						return nil, csProjectClient.UpdateProject(args)
 					})
 				}
@@ -296,7 +296,7 @@ func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{
 					if err := invoker.Run(func() error {
 						cluster, certs, err := csService.GetContainerClusterAndCertsByName(clusterName)
 						if err == nil {
-							_, err = client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+							_, err = client.WithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 								return nil, csProjectClient.RollBackBlueGreenProject(parts[1], true)
 							})
 						}
@@ -320,7 +320,7 @@ func resourceAlicloudCSApplicationUpdate(d *schema.ResourceData, meta interface{
 		if err := invoker.Run(func() error {
 			cluster, certs, err := csService.GetContainerClusterAndCertsByName(clusterName)
 			if err == nil {
-				_, err = client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+				_, err = client.WithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 					return nil, csProjectClient.ConfirmBlueGreenProject(parts[1], true)
 				})
 			}
@@ -352,7 +352,7 @@ func resourceAlicloudCSApplicationDelete(d *schema.ResourceData, meta interface{
 		err := invoker.Run(func() error {
 			cluster, certs, err := csService.GetContainerClusterAndCertsByName(clusterName)
 			if err == nil {
-				_, err = client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+				_, err = client.WithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 					return nil, csProjectClient.DeleteProject(appName, true, false)
 				})
 			}
@@ -373,7 +373,7 @@ func resourceAlicloudCSApplicationDelete(d *schema.ResourceData, meta interface{
 			if err != nil {
 				return err
 			}
-			raw, err := client.RunSafelyWithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+			raw, err := client.WithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 				return csProjectClient.GetProject(appName)
 			})
 			if err != nil {

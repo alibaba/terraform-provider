@@ -74,7 +74,7 @@ func resourceAliyunVpcCreate(d *schema.ResourceData, meta interface{}) error {
 	request := buildAliyunVpcArgs(d, meta)
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		args := *request
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateVpc(&args)
 		})
 		if err != nil {
@@ -126,7 +126,7 @@ func resourceAliyunVpcRead(d *schema.ResourceData, meta interface{}) error {
 	request.VRouterId = resp.VRouterId
 	var response vpc.DescribeVRoutersResponse
 	if err := resource.Retry(6*time.Minute, func() *resource.RetryError {
-		raw, e := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, e := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVRouters(request)
 		})
 		if e != nil && IsExceptedErrors(err, []string{Throttling}) {
@@ -173,7 +173,7 @@ func resourceAliyunVpcUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if attributeUpdate {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyVpcAttribute(request)
 		})
 		if err != nil {
@@ -192,7 +192,7 @@ func resourceAliyunVpcDelete(d *schema.ResourceData, meta interface{}) error {
 	request := vpc.CreateDeleteVpcRequest()
 	request.VpcId = d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteVpc(request)
 		})
 

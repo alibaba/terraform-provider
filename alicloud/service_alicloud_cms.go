@@ -32,7 +32,7 @@ func (s *CmsService) DescribeAlarm(id string) (alarm cms.AlarmInListAlarm, err e
 	request := cms.CreateListAlarmRequest()
 
 	request.Id = id
-	raw, err := s.client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+	raw, err := s.client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 		return cmsClient.ListAlarm(request)
 	})
 	if err != nil {

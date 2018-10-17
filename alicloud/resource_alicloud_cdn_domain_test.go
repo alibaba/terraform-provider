@@ -57,7 +57,7 @@ func testAccCheckCdnDomainExists(n string, domain *cdn.DomainDetail) resource.Te
 			DomainName: rs.Primary.Attributes["domain_name"],
 		}
 
-		raw, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		raw, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.DescribeCdnDomainDetail(request)
 		})
 		log.Printf("[WARN] Domain id %#v", rs.Primary.ID)
@@ -85,7 +85,7 @@ func testAccCheckCdnDomainDestroy(s *terraform.State) error {
 			DomainName: rs.Primary.Attributes["domain_name"],
 		}
 
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.DescribeCdnDomainDetail(request)
 		})
 

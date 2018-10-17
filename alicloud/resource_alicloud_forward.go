@@ -66,7 +66,7 @@ func resourceAliyunForwardEntryCreate(d *schema.ResourceData, meta interface{}) 
 
 	if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
 		ar := args
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateForwardEntry(ar)
 		})
 		if err != nil {
@@ -150,7 +150,7 @@ func resourceAliyunForwardEntryUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if attributeUpdate {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyForwardEntry(args)
 		})
 		if err != nil {
@@ -173,7 +173,7 @@ func resourceAliyunForwardEntryDelete(d *schema.ResourceData, meta interface{}) 
 	args.ForwardEntryId = d.Id()
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteForwardEntry(args)
 		})
 		if err != nil {

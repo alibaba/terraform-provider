@@ -286,7 +286,7 @@ func resourceAlicloudCdnDomainCreate(d *schema.ResourceData, meta interface{}) e
 			return fmt.Errorf("SourceType is required when 'cdn_type' is not 'liveStream'.")
 		}
 	}
-	_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+	_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 		return cdnClient.AddCdnDomain(args)
 	})
 	if err != nil {
@@ -325,7 +325,7 @@ func resourceAlicloudCdnDomainUpdate(d *schema.ResourceData, meta interface{}) e
 			attributeUpdate = true
 		}
 		if attributeUpdate {
-			_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+			_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 				return cdnClient.ModifyCdnDomain(args)
 			})
 			if err != nil {
@@ -343,7 +343,7 @@ func resourceAlicloudCdnDomainUpdate(d *schema.ResourceData, meta interface{}) e
 		d.SetPartial("block_ips")
 		blockIps := expandStringList(d.Get("block_ips").(*schema.Set).List())
 		args := cdn.IpBlackRequest{DomainName: d.Id(), BlockIps: strings.Join(blockIps, ",")}
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.SetIpBlackListConfig(args)
 		})
 		if err != nil {
@@ -397,7 +397,7 @@ func resourceAlicloudCdnDomainRead(d *schema.ResourceData, meta interface{}) err
 	args := cdn.DescribeDomainRequest{
 		DomainName: d.Id(),
 	}
-	raw, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+	raw, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 		return cdnClient.DescribeCdnDomainDetail(args)
 	})
 	if err != nil {
@@ -415,7 +415,7 @@ func resourceAlicloudCdnDomainRead(d *schema.ResourceData, meta interface{}) err
 	describeConfigArgs := cdn.DomainConfigRequest{
 		DomainName: d.Id(),
 	}
-	raw, err = client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+	raw, err = client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 		return cdnClient.DescribeDomainConfigs(describeConfigArgs)
 	})
 	if err != nil {
@@ -518,7 +518,7 @@ func resourceAlicloudCdnDomainDelete(d *schema.ResourceData, meta interface{}) e
 		DomainName: d.Id(),
 	}
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.DeleteCdnDomain(args)
 		})
 		if err != nil {
@@ -534,7 +534,7 @@ func resourceAlicloudCdnDomainDelete(d *schema.ResourceData, meta interface{}) e
 func enableConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData) error {
 	type configFunc func(req cdn.ConfigRequest) (cdn.CdnCommonResponse, error)
 
-	raw, _ := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+	raw, _ := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 		return map[string]configFunc{
 			"optimize_enable":      cdnClient.SetOptimizeConfig,
 			"range_enable":         cdnClient.SetRangeConfig,
@@ -565,7 +565,7 @@ func queryStringConfigUpdate(client *connectivity.AliyunClient, d *schema.Resour
 
 	if valSet == nil || valSet.Len() == 0 {
 		args.Enable = "off"
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.SetIgnoreQueryStringConfig(args)
 		})
 		if err != nil {
@@ -581,7 +581,7 @@ func queryStringConfigUpdate(client *connectivity.AliyunClient, d *schema.Resour
 		hashKeyArgs := expandStringList(v.([]interface{}))
 		args.HashKeyArgs = strings.Join(hashKeyArgs, ",")
 	}
-	_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+	_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 		return cdnClient.SetIgnoreQueryStringConfig(args)
 	})
 	if err != nil {
@@ -596,7 +596,7 @@ func page404ConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceDa
 
 	if valSet == nil || valSet.Len() == 0 {
 		args.PageType = "default"
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.SetErrorPageConfig(args)
 		})
 		if err != nil {
@@ -623,7 +623,7 @@ func page404ConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceDa
 		return fmt.Errorf("If 'page_type' value is 'other', you must set the value of 'custom_page_url'.")
 	}
 
-	_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+	_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 		return cdnClient.SetErrorPageConfig(args)
 	})
 	if err != nil {
@@ -639,7 +639,7 @@ func referConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData
 	if valSet == nil || valSet.Len() == 0 {
 		args.ReferType = "block"
 		args.AllowEmpty = "on"
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.SetRefererConfig(args)
 		})
 		if err != nil {
@@ -656,7 +656,7 @@ func referConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData
 		referList := expandStringList(v.([]interface{}))
 		args.ReferList = strings.Join(referList, ",")
 	}
-	_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+	_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 		return cdnClient.SetRefererConfig(args)
 	})
 	if err != nil {
@@ -672,7 +672,7 @@ func authConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData)
 
 	if newConfig == nil || newConfig.Len() == 0 {
 		args.AuthType = "no_auth"
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.SetReqAuthConfig(args)
 		})
 		if err != nil {
@@ -712,7 +712,7 @@ func authConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData)
 		}
 	}
 
-	_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+	_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 		return cdnClient.SetReqAuthConfig(args)
 	})
 	if err != nil {
@@ -732,7 +732,7 @@ func httpHeaderConfigUpdate(client *connectivity.AliyunClient, d *schema.Resourc
 			DomainName: d.Id(),
 			ConfigID:   configId,
 		}
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.DeleteHttpHeaderConfig(args)
 		})
 		if err != nil {
@@ -750,7 +750,7 @@ func httpHeaderConfigUpdate(client *connectivity.AliyunClient, d *schema.Resourc
 			HeaderKey:   v.(map[string]interface{})["header_key"].(string),
 			HeaderValue: v.(map[string]interface{})["header_value"].(string),
 		}
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.SetHttpHeaderConfig(args)
 		})
 		if err != nil {
@@ -774,7 +774,7 @@ func cacheConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData
 			ConfigID:   configId,
 			CacheType:  val["cache_type"].(string),
 		}
-		_, err := client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err := client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.DeleteCacheExpiredConfig(args)
 		})
 		if err != nil {
@@ -804,11 +804,11 @@ func cacheConfigUpdate(client *connectivity.AliyunClient, d *schema.ResourceData
 
 func setCacheExpiredConfig(req cdn.CacheConfigRequest, cacheType string, client *connectivity.AliyunClient) (err error) {
 	if cacheType == "suffix" {
-		_, err = client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err = client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.SetFileCacheExpiredConfig(req)
 		})
 	} else {
-		_, err = client.RunSafelyWithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
+		_, err = client.WithCdnClient(func(cdnClient *cdn.CdnClient) (interface{}, error) {
 			return cdnClient.SetPathCacheExpiredConfig(req)
 		})
 	}

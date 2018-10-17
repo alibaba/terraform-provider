@@ -39,7 +39,7 @@ func resourceAlicloudLogProject() *schema.Resource {
 func resourceAlicloudLogProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 
-	raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+	raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return slsClient.CreateProject(d.Get("name").(string), d.Get("description").(string))
 	})
 	if err != nil {
@@ -54,7 +54,7 @@ func resourceAlicloudLogProjectCreate(d *schema.ResourceData, meta interface{}) 
 func resourceAlicloudLogProjectRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 
-	raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+	raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return slsClient.GetProject(d.Id())
 	})
 	if err != nil {
@@ -92,7 +92,7 @@ func resourceAlicloudLogProjectDelete(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*connectivity.AliyunClient)
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		_, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return nil, slsClient.DeleteProject(d.Id())
 		})
 		if err != nil {
@@ -101,7 +101,7 @@ func resourceAlicloudLogProjectDelete(d *schema.ResourceData, meta interface{}) 
 			}
 		}
 
-		raw, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return slsClient.CheckProjectExist(d.Id())
 		})
 		if err != nil {

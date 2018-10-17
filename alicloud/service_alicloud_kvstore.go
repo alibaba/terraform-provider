@@ -15,7 +15,7 @@ type KvstoreService struct {
 func (s *KvstoreService) DescribeRKVInstanceById(id string) (instance *r_kvstore.DBInstanceAttribute, err error) {
 	request := r_kvstore.CreateDescribeInstanceAttributeRequest()
 	request.InstanceId = id
-	raw, err := s.client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+	raw, err := s.client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 		return rkvClient.DescribeInstanceAttribute(request)
 	})
 	if err != nil {
@@ -35,7 +35,7 @@ func (s *KvstoreService) DescribeRKVInstanceById(id string) (instance *r_kvstore
 func (s *KvstoreService) DescribeRKVInstancebackupPolicy(id string) (policy *r_kvstore.DescribeBackupPolicyResponse, err error) {
 	request := r_kvstore.CreateDescribeBackupPolicyRequest()
 	request.InstanceId = id
-	raw, err := s.client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+	raw, err := s.client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 		return rkvClient.DescribeBackupPolicy(request)
 	})
 	if err != nil {

@@ -26,7 +26,7 @@ func (s *SlbService) DescribeLoadBalancerAttribute(slbId string) (loadBalancer *
 
 	req := slb.CreateDescribeLoadBalancerAttributeRequest()
 	req.LoadBalancerId = slbId
-	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeLoadBalancerAttribute(req)
 	})
 	loadBalancer, _ = raw.(*slb.DescribeLoadBalancerAttributeResponse)
@@ -47,7 +47,7 @@ func (s *SlbService) DescribeLoadBalancerRuleId(slbId string, port int, domain, 
 	req := slb.CreateDescribeRulesRequest()
 	req.LoadBalancerId = slbId
 	req.ListenerPort = requests.NewInteger(port)
-	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeRules(req)
 	})
 	if err != nil {
@@ -66,7 +66,7 @@ func (s *SlbService) DescribeLoadBalancerRuleId(slbId string, port int, domain, 
 func (s *SlbService) DescribeLoadBalancerRuleAttribute(ruleId string) (*slb.DescribeRuleAttributeResponse, error) {
 	req := slb.CreateDescribeRuleAttributeRequest()
 	req.RuleId = ruleId
-	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeRuleAttribute(req)
 	})
 	if err != nil {
@@ -85,7 +85,7 @@ func (s *SlbService) DescribeLoadBalancerRuleAttribute(ruleId string) (*slb.Desc
 func (s *SlbService) DescribeSlbVServerGroupAttribute(groupId string) (*slb.DescribeVServerGroupAttributeResponse, error) {
 	req := slb.CreateDescribeVServerGroupAttributeRequest()
 	req.VServerGroupId = groupId
-	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeVServerGroupAttribute(req)
 	})
 	if err != nil {
@@ -106,7 +106,7 @@ func (s *SlbService) DescribeLoadBalancerListenerAttribute(loadBalancerId string
 	req.ApiName = fmt.Sprintf("DescribeLoadBalancer%sListenerAttribute", strings.ToUpper(string(protocol)))
 	req.QueryParams["LoadBalancerId"] = loadBalancerId
 	req.QueryParams["ListenerPort"] = string(requests.NewInteger(port))
-	raw, err := s.client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.ProcessCommonRequest(req)
 	})
 	if err != nil {

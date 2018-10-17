@@ -62,7 +62,7 @@ func resourceAlicloudRamUserCreate(d *schema.ResourceData, meta interface{}) err
 		},
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.CreateUser(args)
 	})
 	if err != nil {
@@ -117,7 +117,7 @@ func resourceAlicloudRamUserUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if attributeUpdate {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.UpdateUser(args)
 		})
 		if err != nil {
@@ -136,7 +136,7 @@ func resourceAlicloudRamUserRead(d *schema.ResourceData, meta interface{}) error
 		UserName: d.Id(),
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetUser(args)
 	})
 	if err != nil {
@@ -166,7 +166,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 
 	if d.Get("force").(bool) {
 		// list and delete access keys for this user
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListAccessKeys(args)
 		})
 		if err != nil {
@@ -175,7 +175,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		akResp, _ := raw.(ram.AccessKeyListResponse)
 		if len(akResp.AccessKeys.AccessKey) > 0 {
 			for _, v := range akResp.AccessKeys.AccessKey {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.DeleteAccessKey(ram.UpdateAccessKeyRequest{
 						UserAccessKeyId: v.AccessKeyId,
 						UserName:        userName,
@@ -188,7 +188,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		}
 
 		// list and delete policies for this user
-		raw, err = client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err = client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForUser(args)
 		})
 		if err != nil {
@@ -197,7 +197,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		policyResp, _ := raw.(ram.PolicyListResponse)
 		if len(policyResp.Policies.Policy) > 0 {
 			for _, v := range policyResp.Policies.Policy {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.DetachPolicyFromUser(ram.AttachPolicyRequest{
 						PolicyRequest: ram.PolicyRequest{
 							PolicyName: v.PolicyName,
@@ -213,7 +213,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		}
 
 		// list and delete groups for this user
-		raw, err = client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err = client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListGroupsForUser(args)
 		})
 		if err != nil {
@@ -222,7 +222,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		groupResp, _ := raw.(ram.GroupListResponse)
 		if len(groupResp.Groups.Group) > 0 {
 			for _, v := range groupResp.Groups.Group {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.RemoveUserFromGroup(ram.UserRelateGroupRequest{
 						UserName:  userName,
 						GroupName: v.GroupName,
@@ -235,7 +235,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		}
 
 		// delete login profile for this user
-		_, err = client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err = client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeleteLoginProfile(args)
 		})
 		if err != nil && !RamEntityNotExist(err) {
@@ -243,7 +243,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 		}
 
 		// unbind MFA device for this user
-		_, err = client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err = client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.UnbindMFADevice(args)
 		})
 		if err != nil && !RamEntityNotExist(err) {
@@ -253,7 +253,7 @@ func resourceAlicloudRamUserDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeleteUser(args)
 		})
 		if err != nil {

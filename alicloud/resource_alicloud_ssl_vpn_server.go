@@ -91,7 +91,7 @@ func resourceAliyunSslVpnServerCreate(d *schema.ResourceData, meta interface{}) 
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		args := buildAliyunSslVpnServerArgs(d, meta)
 
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateSslVpnServer(args)
 		})
 		if err != nil {
@@ -186,7 +186,7 @@ func resourceAliyunSslVpnServerUpdate(d *schema.ResourceData, meta interface{}) 
 	if attributeUpdate {
 
 		res := resource.Retry(5*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 				return vpcClient.ModifySslVpnServer(request)
 			})
 
@@ -214,7 +214,7 @@ func resourceAliyunSslVpnServerDelete(d *schema.ResourceData, meta interface{}) 
 	request.SslVpnServerId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteSslVpnServer(request)
 		})
 

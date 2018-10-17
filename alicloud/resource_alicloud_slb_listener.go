@@ -276,7 +276,7 @@ func resourceAliyunSlbListenerCreate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.ProcessCommonRequest(req)
 	})
 	if err != nil {
@@ -296,7 +296,7 @@ func resourceAliyunSlbListenerCreate(d *schema.ResourceData, meta interface{}) e
 	reqStart := slb.CreateStartLoadBalancerListenerRequest()
 	reqStart.LoadBalancerId = lb_id
 	reqStart.ListenerPort = requests.NewInteger(frontend)
-	_, err = client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	_, err = client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.StartLoadBalancerListener(reqStart)
 	})
 	if err != nil {
@@ -504,7 +504,7 @@ func resourceAliyunSlbListenerUpdate(d *schema.ResourceData, meta interface{}) e
 		default:
 			request = httpArgs
 		}
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
@@ -534,7 +534,7 @@ func resourceAliyunSlbListenerDelete(d *schema.ResourceData, meta interface{}) e
 	req.LoadBalancerId = lb_id
 	req.ListenerPort = requests.NewInteger(port)
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DeleteLoadBalancerListener(req)
 		})
 

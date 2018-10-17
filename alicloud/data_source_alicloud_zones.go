@@ -124,7 +124,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	rkvZones := make(map[string]string)
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeRds)) {
 		request := rds.CreateDescribeRegionsRequest()
-		raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DescribeRegions(request)
 		})
 		if err != nil {
@@ -144,7 +144,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 	}
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeRkv)) {
 		request := r_kvstore.CreateDescribeRegionsRequest()
-		raw, err := client.RunSafelyWithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+		raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.DescribeRegions(request)
 		})
 		if err != nil {
@@ -184,7 +184,7 @@ func dataSourceAlicloudZonesRead(d *schema.ResourceData, meta interface{}) error
 		req.SpotStrategy = v.(string)
 	}
 
-	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeZones(req)
 	})
 	if err != nil {

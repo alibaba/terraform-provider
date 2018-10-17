@@ -20,7 +20,7 @@ type EcsService struct {
 }
 
 func (s *EcsService) JudgeRegionValidation(key, region string) error {
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeRegions(ecs.CreateDescribeRegionsRequest())
 	})
 	if err != nil {
@@ -43,7 +43,7 @@ func (s *EcsService) JudgeRegionValidation(key, region string) error {
 
 // DescribeZone validate zoneId is valid in region
 func (s *EcsService) DescribeZone(zoneID string) (zone ecs.Zone, err error) {
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeZones(ecs.CreateDescribeZonesRequest())
 	})
 	if err != nil {
@@ -68,7 +68,7 @@ func (s *EcsService) DescribeInstanceById(id string) (instance ecs.Instance, err
 	req := ecs.CreateDescribeInstancesRequest()
 	req.InstanceIds = convertListToJsonString([]interface{}{id})
 
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeInstances(req)
 	})
 	if err != nil {
@@ -86,7 +86,7 @@ func (s *EcsService) DescribeInstanceAttribute(id string) (instance ecs.Describe
 	req := ecs.CreateDescribeInstanceAttributeRequest()
 	req.InstanceId = id
 
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeInstanceAttribute(req)
 	})
 	if err != nil {
@@ -105,7 +105,7 @@ func (s *EcsService) QueryInstanceSystemDisk(id string) (disk ecs.Disk, err erro
 	args.InstanceId = id
 	args.DiskType = string(DiskTypeSystem)
 
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeDisks(args)
 	})
 	if err != nil {
@@ -143,7 +143,7 @@ func (s *EcsService) JoinSecurityGroups(instanceId string, securityGroupIds []st
 	req.InstanceId = instanceId
 	for _, sid := range securityGroupIds {
 		req.SecurityGroupId = sid
-		_, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.JoinSecurityGroup(req)
 		})
 		if err != nil && IsExceptedErrors(err, []string{InvalidInstanceIdAlreadyExists}) {
@@ -159,7 +159,7 @@ func (s *EcsService) LeaveSecurityGroups(instanceId string, securityGroupIds []s
 	req.InstanceId = instanceId
 	for _, sid := range securityGroupIds {
 		req.SecurityGroupId = sid
-		_, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.LeaveSecurityGroup(req)
 		})
 		if err != nil && IsExceptedErrors(err, []string{InvalidSecurityGroupIdNotFound}) {
@@ -174,7 +174,7 @@ func (s *EcsService) DescribeSecurityGroupAttribute(securityGroupId string) (gro
 	args := ecs.CreateDescribeSecurityGroupAttributeRequest()
 	args.SecurityGroupId = securityGroupId
 
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeSecurityGroupAttribute(args)
 	})
 	if err != nil {
@@ -194,7 +194,7 @@ func (s *EcsService) DescribeSecurityGroupRule(groupId, direction, ipProtocol, p
 	args.Direction = direction
 	args.NicType = nicType
 
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeSecurityGroupAttribute(args)
 	})
 	if err != nil {
@@ -260,7 +260,7 @@ func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta int
 		args.IoOptimized = string(NoneOptimized)
 	}
 
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeAvailableResource(args)
 	})
 	if err != nil {
@@ -352,7 +352,7 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keypair string) (
 	args.InstanceIds = instanceIdsStr
 	args.KeyPairName = keypair
 	for true {
-		raw, e := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, e := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstances(args)
 		})
 		if e != nil {
@@ -383,7 +383,7 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keypair string) (
 func (s *EcsService) DescribeKeyPair(keyName string) (keypair ecs.KeyPair, err error) {
 	req := ecs.CreateDescribeKeyPairsRequest()
 	req.KeyPairName = keyName
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeKeyPairs(req)
 	})
 
@@ -405,7 +405,7 @@ func (s *EcsService) DescribeDiskById(instanceId, diskId string) (disk ecs.Disk,
 	}
 	req.DiskIds = convertListToJsonString([]interface{}{diskId})
 
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeDisks(req)
 	})
 	if err != nil {
@@ -426,7 +426,7 @@ func (s *EcsService) DescribeDisksByType(instanceId string, diskType DiskType) (
 	}
 	req.DiskType = string(diskType)
 
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeDisks(req)
 	})
 	if err != nil {
@@ -443,7 +443,7 @@ func (s *EcsService) DescribeTags(resourceId string, resourceType TagResourceTyp
 	req := ecs.CreateDescribeTagsRequest()
 	req.ResourceType = string(resourceType)
 	req.ResourceId = resourceId
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeTags(req)
 	})
 
@@ -462,7 +462,7 @@ func (s *EcsService) DescribeTags(resourceId string, resourceType TagResourceTyp
 func (s *EcsService) DescribeImageById(id string) (image ecs.Image, err error) {
 	req := ecs.CreateDescribeImagesRequest()
 	req.ImageId = id
-	raw, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeImages(req)
 	})
 	if err != nil {
@@ -530,7 +530,7 @@ func (s *EcsService) AttachKeyPair(keyname string, instanceIds []interface{}) er
 	args.KeyPairName = keyname
 	args.InstanceIds = convertListToJsonString(instanceIds)
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := s.client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.AttachKeyPair(args)
 		})
 

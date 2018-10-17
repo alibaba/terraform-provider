@@ -114,7 +114,7 @@ func resourceAlicloudRamPolicyCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.CreatePolicy(args)
 	})
 	if err != nil {
@@ -135,7 +135,7 @@ func resourceAlicloudRamPolicyUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if !d.IsNewResource() && attributeUpdate {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.CreatePolicyVersion(args)
 		})
 		if err != nil {
@@ -157,7 +157,7 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 		PolicyType: ram.Custom,
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetPolicy(args)
 	})
 	if err != nil {
@@ -170,7 +170,7 @@ func resourceAlicloudRamPolicyRead(d *schema.ResourceData, meta interface{}) err
 	policy := policyResp.Policy
 
 	args.VersionId = policy.DefaultVersion
-	raw, err = client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err = client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetPolicyVersionNew(args)
 	})
 	if err != nil {
@@ -204,7 +204,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 		args.PolicyType = ram.Custom
 
 		// list and detach entities for this policy
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListEntitiesForPolicy(args)
 		})
 		if err != nil {
@@ -213,7 +213,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 		response, _ := raw.(ram.PolicyListEntitiesResponse)
 		if len(response.Users.User) > 0 {
 			for _, v := range response.Users.User {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.DetachPolicyFromUser(ram.AttachPolicyRequest{
 						PolicyRequest: args,
 						UserName:      v.UserName,
@@ -227,7 +227,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 
 		if len(response.Groups.Group) > 0 {
 			for _, v := range response.Groups.Group {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.DetachPolicyFromGroup(ram.AttachPolicyToGroupRequest{
 						PolicyRequest: args,
 						GroupName:     v.GroupName,
@@ -241,7 +241,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 
 		if len(response.Roles.Role) > 0 {
 			for _, v := range response.Roles.Role {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.DetachPolicyFromRole(ram.AttachPolicyToRoleRequest{
 						PolicyRequest: args,
 						RoleName:      v.RoleName,
@@ -254,7 +254,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 		}
 
 		// list and delete policy version which are not default
-		raw, err = client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err = client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPolicyVersionsNew(args)
 		})
 		if err != nil {
@@ -265,7 +265,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 			for _, v := range pvResp.PolicyVersions.PolicyVersion {
 				if !v.IsDefaultVersion {
 					args.VersionId = v.VersionId
-					_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+					_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 						return ramClient.DeletePolicyVersion(args)
 					})
 					if err != nil && !RamEntityNotExist(err) {
@@ -277,7 +277,7 @@ func resourceAlicloudRamPolicyDelete(d *schema.ResourceData, meta interface{}) e
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeletePolicy(args)
 		})
 		if err != nil {

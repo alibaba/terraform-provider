@@ -48,7 +48,7 @@ func resourceAliyunSnatEntryCreate(d *schema.ResourceData, meta interface{}) err
 
 	if err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		ar := request
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateSnatEntry(ar)
 		})
 		if err != nil {
@@ -117,7 +117,7 @@ func resourceAliyunSnatEntryUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if attributeUpdate {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifySnatEntry(request)
 		})
 		if err != nil {
@@ -137,7 +137,7 @@ func resourceAliyunSnatEntryDelete(d *schema.ResourceData, meta interface{}) err
 	request.SnatTableId = d.Get("snat_table_id").(string)
 	request.SnatEntryId = d.Id()
 
-	_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeleteSnatEntry(request)
 	})
 	if err != nil {

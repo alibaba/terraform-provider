@@ -41,7 +41,7 @@ func testSweepRamRoles(region string) error {
 		"tftest",
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ListRoles()
 	})
 	if err != nil {
@@ -71,7 +71,7 @@ func testSweepRamRoles(region string) error {
 		sweeped = true
 
 		log.Printf("[INFO] Detaching Ram Role: %s (%s) policies.", name, id)
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForRole(ram.RoleQueryRequest{
 				RoleName: name,
 			})
@@ -81,7 +81,7 @@ func testSweepRamRoles(region string) error {
 			log.Printf("[ERROR] Failed to list Ram Role (%s (%s)) policies: %s", name, id, err)
 		} else if len(resp.Policies.Policy) > 0 {
 			for _, v := range resp.Policies.Policy {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.DetachPolicyFromRole(ram.AttachPolicyToRoleRequest{
 						PolicyRequest: ram.PolicyRequest{
 							PolicyName: v.PolicyName,
@@ -100,7 +100,7 @@ func testSweepRamRoles(region string) error {
 		req := ram.RoleQueryRequest{
 			RoleName: name,
 		}
-		_, err = client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err = client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeleteRole(req)
 		})
 		if err != nil {
@@ -164,7 +164,7 @@ func testAccCheckRamRoleExists(n string, role *ram.Role) resource.TestCheckFunc 
 			RoleName: rs.Primary.Attributes["name"],
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetRole(request)
 		})
 		log.Printf("[WARN] Role id %#v", rs.Primary.ID)
@@ -192,7 +192,7 @@ func testAccCheckRamRoleDestroy(s *terraform.State) error {
 			RoleName: rs.Primary.Attributes["name"],
 		}
 
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetRole(request)
 		})
 

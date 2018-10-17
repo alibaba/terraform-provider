@@ -52,7 +52,7 @@ func resourceAlicloudInstanceRoleAttachmentCreate(d *schema.ResourceData, meta i
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.AttachInstanceRamRole(args)
 		})
 		if err != nil {
@@ -75,7 +75,7 @@ func resourceAlicloudInstanceRoleAttachmentRead(d *schema.ResourceData, meta int
 	args.InstanceIds = instanceIds
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstanceRamRole(args)
 		})
 		if err != nil {
@@ -120,7 +120,7 @@ func resourceAlicloudInstanceRoleAttachmentDelete(d *schema.ResourceData, meta i
 	req.InstanceIds = instanceIds
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DetachInstanceRamRole(req)
 		})
 

@@ -51,7 +51,7 @@ func setTags(client *connectivity.AliyunClient, resourceType TagResourceType, d 
 				})
 			}
 			args.Tag = &tags
-			_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.RemoveTags(args)
 			})
 			if err != nil {
@@ -73,7 +73,7 @@ func setTags(client *connectivity.AliyunClient, resourceType TagResourceType, d 
 				})
 			}
 			args.Tag = &tags
-			_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.AddTags(args)
 			})
 			if err != nil {

@@ -77,7 +77,7 @@ func resourceAlicloudKeyPairAttachmentCreate(d *schema.ResourceData, meta interf
 		req.ForceStop = requests.NewBoolean(true)
 		for _, id := range newIds {
 			req.InstanceId = id
-			_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.RebootInstance(req)
 			})
 			if err != nil {
@@ -134,7 +134,7 @@ func resourceAlicloudKeyPairAttachmentDelete(d *schema.ResourceData, meta interf
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		req.InstanceIds = instanceIds
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DetachKeyPair(req)
 		})
 		if err != nil {

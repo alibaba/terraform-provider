@@ -69,7 +69,7 @@ func resourceAliyunEssLifeCycleHookCreate(d *schema.ResourceData, meta interface
 	client := meta.(*connectivity.AliyunClient)
 
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateLifecycleHook(args)
 		})
 		if err != nil {
@@ -139,7 +139,7 @@ func resourceAliyunEssLifeCycleHookUpdate(d *schema.ResourceData, meta interface
 		args.NotificationMetadata = d.Get("notification_metadata").(string)
 	}
 
-	_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.ModifyLifecycleHook(args)
 	})
 	if err != nil {
@@ -158,7 +158,7 @@ func resourceAliyunEssLifeCycleHookDelete(d *schema.ResourceData, meta interface
 		req := ess.CreateDeleteLifecycleHookRequest()
 		req.LifecycleHookId = id
 
-		_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DeleteLifecycleHook(req)
 		})
 		if err != nil {

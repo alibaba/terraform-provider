@@ -190,7 +190,7 @@ func dataSourceAlicloudDBInstancesRead(d *schema.ResourceData, meta interface{})
 	}
 
 	for {
-		raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DescribeDBInstances(args)
 		})
 		if err != nil {

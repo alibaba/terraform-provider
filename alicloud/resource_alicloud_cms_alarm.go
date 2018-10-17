@@ -161,7 +161,7 @@ func resourceAlicloudCmsAlarmCreate(d *schema.ResourceData, meta interface{}) er
 			request.Dimensions = string(bytes[:])
 		}
 	}
-	raw, err := client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+	raw, err := client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 		return cmsClient.CreateAlarm(request)
 	})
 	if err != nil {
@@ -228,7 +228,7 @@ func resourceAlicloudCmsAlarmUpdate(d *schema.ResourceData, meta interface{}) er
 		request := cms.CreateEnableAlarmRequest()
 		request.Id = d.Id()
 
-		_, err := client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+		_, err := client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 			return cmsClient.EnableAlarm(request)
 		})
 		if err != nil {
@@ -238,7 +238,7 @@ func resourceAlicloudCmsAlarmUpdate(d *schema.ResourceData, meta interface{}) er
 		request := cms.CreateDisableAlarmRequest()
 		request.Id = d.Id()
 
-		_, err := client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+		_, err := client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 			return cmsClient.DisableAlarm(request)
 		})
 		if err != nil {
@@ -310,7 +310,7 @@ func resourceAlicloudCmsAlarmUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if !d.IsNewResource() && update {
-		_, err := client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+		_, err := client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 			return cmsClient.UpdateAlarm(request)
 		})
 		if err != nil {
@@ -331,7 +331,7 @@ func resourceAlicloudCmsAlarmDelete(d *schema.ResourceData, meta interface{}) er
 	request.Id = d.Id()
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
+		_, err := client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 			return cmsClient.DeleteAlarm(request)
 		})
 

@@ -52,7 +52,7 @@ func testSweepVSwitches(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVSwitches(req)
 		})
 		if err != nil {
@@ -92,7 +92,7 @@ func testSweepVSwitches(region string) error {
 		log.Printf("[INFO] Deleting VSwitch: %s (%s)", name, id)
 		req := vpc.CreateDeleteVSwitchRequest()
 		req.VSwitchId = id
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteVSwitch(req)
 		})
 		if err != nil {

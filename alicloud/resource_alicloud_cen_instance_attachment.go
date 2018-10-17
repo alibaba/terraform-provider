@@ -57,7 +57,7 @@ func resourceAlicloudCenInstanceAttachmentCreate(d *schema.ResourceData, meta in
 	request.ChildInstanceRegionId = instanceRegionId
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+		_, err := client.WithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.AttachCenChildInstance(request)
 		})
 		if err != nil {
@@ -130,7 +130,7 @@ func resourceAlicloudCenInstanceAttachmentDelete(d *schema.ResourceData, meta in
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 
-		_, err := client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+		_, err := client.WithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.DetachCenChildInstance(request)
 		})
 		if err != nil {

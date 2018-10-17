@@ -59,7 +59,7 @@ func testAccCheckDnsRecordExists(n string, record *dns.RecordTypeNew) resource.T
 			RecordId: rs.Primary.ID,
 		}
 
-		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainRecordInfoNew(request)
 		})
 		log.Printf("[WARN] Domain record id %#v", rs.Primary.ID)
@@ -117,7 +117,7 @@ func testAccCheckDnsRecordDestroy(s *terraform.State) error {
 			RecordId: rs.Primary.ID,
 		}
 
-		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainRecordInfoNew(request)
 		})
 		if err != nil {

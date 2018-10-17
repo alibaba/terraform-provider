@@ -130,7 +130,7 @@ func resourceAliyunDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		args.Encrypted = requests.NewBoolean(v.(bool))
 	}
 	args.ClientToken = buildClientToken("TF-CreateDisk")
-	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.CreateDisk(args)
 	})
 	if err != nil {
@@ -213,7 +213,7 @@ func resourceAliyunDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		attributeUpdate = true
 	}
 	if attributeUpdate {
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ModifyDiskAttribute(args)
 		})
 		if err != nil {
@@ -234,7 +234,7 @@ func resourceAliyunDiskDelete(d *schema.ResourceData, meta interface{}) error {
 	req.DiskId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteDisk(req)
 		})
 		if err != nil {

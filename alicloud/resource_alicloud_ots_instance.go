@@ -69,7 +69,7 @@ func resourceAliyunOtsInstanceCreate(d *schema.ResourceData, meta interface{}) e
 	req.Description = d.Get("description").(string)
 	req.Network = convertInstanceAccessedBy(InstanceAccessedByType(d.Get("accessed_by").(string)))
 
-	_, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+	_, err := client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 		return otsClient.InsertInstance(req)
 	})
 	if err != nil {
@@ -113,7 +113,7 @@ func resourceAliyunOtsInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 		req := ots.CreateUpdateInstanceRequest()
 		req.InstanceName = d.Id()
 		req.Network = convertInstanceAccessedBy(InstanceAccessedByType(d.Get("accessed_by").(string)))
-		_, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+		_, err := client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 			return otsClient.UpdateInstance(req)
 		})
 		if err != nil {
@@ -139,7 +139,7 @@ func resourceAliyunOtsInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 				})
 			}
 			args.TagInfo = &tags
-			_, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+			_, err := client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 				return otsClient.DeleteTags(args)
 			})
 			if err != nil {
@@ -158,7 +158,7 @@ func resourceAliyunOtsInstanceUpdate(d *schema.ResourceData, meta interface{}) e
 				})
 			}
 			args.TagInfo = &tags
-			_, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+			_, err := client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 				return otsClient.InsertTags(args)
 			})
 			if err != nil {
@@ -187,7 +187,7 @@ func resourceAliyunOtsInstanceDelete(d *schema.ResourceData, meta interface{}) e
 			return resource.NonRetryableError(fmt.Errorf("When deleting instance, failed to describe instance with error: %s", err))
 		}
 
-		_, err := client.RunSafelyWithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
+		_, err := client.WithOtsClient(func(otsClient *ots.Client) (interface{}, error) {
 			return otsClient.DeleteInstance(req)
 		})
 		if err != nil {

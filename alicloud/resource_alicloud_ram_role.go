@@ -92,7 +92,7 @@ func resourceAlicloudRamRoleCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.CreateRole(args)
 	})
 	if err != nil {
@@ -114,7 +114,7 @@ func resourceAlicloudRamRoleUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if !d.IsNewResource() && attributeUpdate {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.UpdateRole(args)
 		})
 		if err != nil {
@@ -134,7 +134,7 @@ func resourceAlicloudRamRoleRead(d *schema.ResourceData, meta interface{}) error
 		RoleName: d.Id(),
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetRole(args)
 	})
 	if err != nil {
@@ -171,7 +171,7 @@ func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if d.Get("force").(bool) {
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForRole(args)
 		})
 		if err != nil {
@@ -181,7 +181,7 @@ func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) err
 		// Loop and remove the Policies from the Role
 		if len(resp.Policies.Policy) > 0 {
 			for _, v := range resp.Policies.Policy {
-				_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+				_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 					return ramClient.DetachPolicyFromRole(ram.AttachPolicyToRoleRequest{
 						PolicyRequest: ram.PolicyRequest{
 							PolicyName: v.PolicyName,
@@ -197,7 +197,7 @@ func resourceAlicloudRamRoleDelete(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DeleteRole(args)
 		})
 		if err != nil {

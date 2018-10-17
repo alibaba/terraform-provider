@@ -42,7 +42,7 @@ func testSweepVPNCustomerGateways(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeCustomerGateways(req)
 		})
 		if err != nil {
@@ -84,7 +84,7 @@ func testSweepVPNCustomerGateways(region string) error {
 		log.Printf("[INFO] Deleting VPN Customer Gateway: %s (%s)", name, id)
 		req := vpc.CreateDeleteCustomerGatewayRequest()
 		req.CustomerGatewayId = id
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteCustomerGateway(req)
 		})
 		if err != nil {

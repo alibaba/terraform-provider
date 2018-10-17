@@ -74,7 +74,7 @@ func resourceAliyunSlbServerGroupCreate(d *schema.ResourceData, meta interface{}
 	req.LoadBalancerId = d.Get("load_balancer_id").(string)
 	req.VServerGroupName = d.Get("name").(string)
 	req.BackendServers = expandBackendServersWithPortToString(d.Get("servers").(*schema.Set).List())
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.CreateVServerGroup(req)
 	})
 	if err != nil {
@@ -164,7 +164,7 @@ func resourceAliyunSlbServerGroupUpdate(d *schema.ResourceData, meta interface{}
 			req := slb.CreateRemoveVServerGroupBackendServersRequest()
 			req.VServerGroupId = d.Id()
 			req.BackendServers = expandBackendServersWithPortToString(remove)
-			_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 				return slbClient.RemoveVServerGroupBackendServers(req)
 			})
 			if err != nil {
@@ -175,7 +175,7 @@ func resourceAliyunSlbServerGroupUpdate(d *schema.ResourceData, meta interface{}
 			req := slb.CreateAddVServerGroupBackendServersRequest()
 			req.VServerGroupId = d.Id()
 			req.BackendServers = expandBackendServersWithPortToString(add)
-			_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 				return slbClient.AddVServerGroupBackendServers(req)
 			})
 			if err != nil {
@@ -194,7 +194,7 @@ func resourceAliyunSlbServerGroupUpdate(d *schema.ResourceData, meta interface{}
 		req.VServerGroupId = d.Id()
 		req.VServerGroupName = name
 		req.BackendServers = expandBackendServersWithPortToString(d.Get("servers").(*schema.Set).List())
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.SetVServerGroupAttribute(req)
 		})
 		if err != nil {
@@ -213,7 +213,7 @@ func resourceAliyunSlbServerGroupDelete(d *schema.ResourceData, meta interface{}
 	req := slb.CreateDeleteVServerGroupRequest()
 	req.VServerGroupId = d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DeleteVServerGroup(req)
 		})
 		if err != nil {

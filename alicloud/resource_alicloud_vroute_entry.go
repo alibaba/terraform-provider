@@ -78,7 +78,7 @@ func resourceAliyunRouteEntryCreate(d *schema.ResourceData, meta interface{}) er
 			return resource.NonRetryableError(fmt.Errorf("WaitFor route entries got error: %#v", err))
 		}
 		args := *request
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateRouteEntry(&args)
 		})
 		if err != nil {
@@ -170,7 +170,7 @@ func resourceAliyunRouteEntryDelete(d *schema.ResourceData, meta interface{}) er
 			return resource.RetryableError(fmt.Errorf("Delete route entry timeout and got an error: %#v.", err))
 		}
 
-		_, err = client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err = client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteRouteEntry(args)
 		})
 		if err != nil {

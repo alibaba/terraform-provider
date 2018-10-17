@@ -58,7 +58,7 @@ func resourceAlicloudLogMachineGroup() *schema.Resource {
 
 func resourceAlicloudLogMachineGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
-	_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+	_, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 		return nil, slsClient.CreateMachineGroup(d.Get("project").(string), &sls.MachineGroup{
 			Name:          d.Get("name").(string),
 			MachineIDType: d.Get("identify_type").(string),
@@ -120,7 +120,7 @@ func resourceAlicloudLogMachineGroupUpdate(d *schema.ResourceData, meta interfac
 
 	if update {
 		client := meta.(*connectivity.AliyunClient)
-		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		_, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return nil, slsClient.UpdateMachineGroup(split[0], &sls.MachineGroup{
 				Name:          split[1],
 				MachineIDType: d.Get("identify_type").(string),
@@ -145,7 +145,7 @@ func resourceAlicloudLogMachineGroupDelete(d *schema.ResourceData, meta interfac
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+		_, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			return nil, slsClient.DeleteMachineGroup(split[0], split[1])
 		})
 		if err != nil {

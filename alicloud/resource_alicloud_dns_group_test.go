@@ -58,7 +58,7 @@ func testAccCheckDnsGroupExists(n string, group *dns.DomainGroupType) resource.T
 			KeyWord: rs.Primary.Attributes["name"],
 		}
 
-		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainGroups(request)
 		})
 		log.Printf("[WARN] Group id %#v", rs.Primary.ID)
@@ -88,7 +88,7 @@ func testAccCheckDnsGroupDestroy(s *terraform.State) error {
 			KeyWord: rs.Primary.Attributes["name"],
 		}
 
-		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainGroups(request)
 		})
 		response, _ := raw.([]dns.DomainGroupType)

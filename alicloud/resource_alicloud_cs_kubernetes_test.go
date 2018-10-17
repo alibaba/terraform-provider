@@ -115,7 +115,7 @@ func testAccCheckKubernetesClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return csClient.DescribeCluster(rs.Primary.ID)
 		})
 

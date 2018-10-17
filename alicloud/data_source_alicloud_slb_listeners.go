@@ -182,7 +182,7 @@ func dataSourceAlicloudSlbListenersRead(d *schema.ResourceData, meta interface{}
 	args := slb.CreateDescribeLoadBalancerAttributeRequest()
 	args.LoadBalancerId = d.Get("load_balancer_id").(string)
 
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeLoadBalancerAttribute(args)
 	})
 	if err != nil {
@@ -244,7 +244,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 			args := slb.CreateDescribeLoadBalancerHTTPListenerAttributeRequest()
 			args.LoadBalancerId = loadBalancerId
 			args.ListenerPort = requests.NewInteger(listener.ListenerPort)
-			raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 				return slbClient.DescribeLoadBalancerHTTPListenerAttribute(args)
 			})
 			if err == nil {
@@ -279,7 +279,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 			args := slb.CreateDescribeLoadBalancerHTTPSListenerAttributeRequest()
 			args.LoadBalancerId = loadBalancerId
 			args.ListenerPort = requests.NewInteger(listener.ListenerPort)
-			raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 				return slbClient.DescribeLoadBalancerHTTPSListenerAttribute(args)
 			})
 			if err == nil {
@@ -317,7 +317,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 			args := slb.CreateDescribeLoadBalancerTCPListenerAttributeRequest()
 			args.LoadBalancerId = loadBalancerId
 			args.ListenerPort = requests.NewInteger(listener.ListenerPort)
-			raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 				return slbClient.DescribeLoadBalancerTCPListenerAttribute(args)
 			})
 			if err == nil {
@@ -347,7 +347,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 			args := slb.CreateDescribeLoadBalancerUDPListenerAttributeRequest()
 			args.LoadBalancerId = loadBalancerId
 			args.ListenerPort = requests.NewInteger(listener.ListenerPort)
-			raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 				return slbClient.DescribeLoadBalancerUDPListenerAttribute(args)
 			})
 			if err == nil {

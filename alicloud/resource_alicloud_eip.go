@@ -100,7 +100,7 @@ func resourceAliyunEipCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	request.ClientToken = buildClientToken("TF-AllocateEip")
 
-	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.AllocateEipAddress(request)
 	})
 	if err != nil {
@@ -176,7 +176,7 @@ func resourceAliyunEipUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.SetPartial("description")
 	}
 	if update {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyEipAddressAttribute(request)
 		})
 		if err != nil {
@@ -197,7 +197,7 @@ func resourceAliyunEipDelete(d *schema.ResourceData, meta interface{}) error {
 	request.AllocationId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ReleaseEipAddress(request)
 		})
 		if err != nil {

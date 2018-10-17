@@ -50,7 +50,7 @@ func testSweepVpcs(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVpcs(req)
 		})
 		if err != nil {
@@ -90,7 +90,7 @@ func testSweepVpcs(region string) error {
 		log.Printf("[INFO] Deleting VPC: %s (%s)", name, id)
 		req := vpc.CreateDeleteVpcRequest()
 		req.VpcId = id
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteVpc(req)
 		})
 		if err != nil {

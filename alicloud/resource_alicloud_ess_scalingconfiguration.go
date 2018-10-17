@@ -200,7 +200,7 @@ func resourceAliyunEssScalingConfigurationCreate(d *schema.ResourceData, meta in
 	}
 
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateScalingConfiguration(args)
 		})
 		if err != nil {
@@ -305,7 +305,7 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 				req.ScalingGroupId = sgId
 				req.ActiveScalingConfigurationId = activeConfig
 
-				_, err = client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+				_, err = client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 					return essClient.EnableScalingGroup(req)
 				})
 				if err != nil {
@@ -321,7 +321,7 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 			if group.LifecycleState == string(Active) {
 				req := ess.CreateDisableScalingGroupRequest()
 				req.ScalingGroupId = sgId
-				_, err = client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+				_, err = client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 					return essClient.DisableScalingGroup(req)
 				})
 				if err != nil {
@@ -394,7 +394,7 @@ func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta in
 	req := ess.CreateDescribeScalingConfigurationsRequest()
 	req.ScalingGroupId = c.ScalingGroupId
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingConfigurations(req)
 	})
 	resp, _ := raw.(*ess.DescribeScalingConfigurationsResponse)
@@ -414,7 +414,7 @@ func resourceAliyunEssScalingConfigurationDelete(d *schema.ResourceData, meta in
 		req := ess.CreateDeleteScalingConfigurationRequest()
 		req.ScalingConfigurationId = d.Id()
 
-		_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DeleteScalingConfiguration(req)
 		})
 
@@ -537,7 +537,7 @@ func activeSubstituteScalingConfiguration(d *schema.ResourceData, meta interface
 	req := ess.CreateDescribeScalingConfigurationsRequest()
 	req.ScalingGroupId = c.ScalingGroupId
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingConfigurations(req)
 	})
 	if err != nil {

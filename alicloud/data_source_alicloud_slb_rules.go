@@ -85,7 +85,7 @@ func dataSourceAlicloudSlbRulesRead(d *schema.ResourceData, meta interface{}) er
 		}
 	}
 
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeRules(args)
 	})
 	if err != nil {

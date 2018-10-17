@@ -184,7 +184,7 @@ func dataSourceAlicloudImagesRead(d *schema.ResourceData, meta interface{}) erro
 	var allImages []ecs.Image
 
 	for {
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeImages(params)
 		})
 		if err != nil {

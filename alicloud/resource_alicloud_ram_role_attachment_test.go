@@ -63,7 +63,7 @@ func testAccCheckRamRoleAttachmentExists(n string, instanceA *ecs.Instance, inst
 		args.InstanceIds = convertListToJsonString([]interface{}{instanceA.InstanceId, instanceB.InstanceId})
 
 		for {
-			raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.DescribeInstanceRamRole(args)
 			})
 			if IsExceptedError(err, RoleAttachmentUnExpectedJson) {
@@ -99,7 +99,7 @@ func testAccCheckRamRoleAttachmentDestroy(s *terraform.State) error {
 		args.InstanceIds = strings.Split(rs.Primary.ID, ":")[1]
 
 		for {
-			raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.DescribeInstanceRamRole(args)
 			})
 			if IsExceptedError(err, RoleAttachmentUnExpectedJson) {

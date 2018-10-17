@@ -174,7 +174,7 @@ func dataSourceAlicloudRouterInterfacesRead(d *schema.ResourceData, meta interfa
 	for {
 		var response *vpc.DescribeRouterInterfacesResponse
 		if err := invoker.Run(func() error {
-			raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 				return vpcClient.DescribeRouterInterfaces(args)
 			})
 			if err != nil {

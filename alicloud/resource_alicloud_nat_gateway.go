@@ -129,7 +129,7 @@ func resourceAliyunNatGatewayCreate(d *schema.ResourceData, meta interface{}) er
 
 	if err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		ar := *args
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateNatGateway(&ar)
 		})
 		if err != nil {
@@ -224,7 +224,7 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if attributeUpdate {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyNatGatewayAttribute(args)
 		})
 		if err != nil {
@@ -239,7 +239,7 @@ func resourceAliyunNatGatewayUpdate(d *schema.ResourceData, meta interface{}) er
 		request.NatGatewayId = natGateway.NatGatewayId
 		request.Spec = d.Get("specification").(string)
 
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyNatGatewaySpec(request)
 		})
 		if err != nil {
@@ -262,7 +262,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 	packRequest.NatGatewayId = d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeBandwidthPackages(packRequest)
 		})
 		if err != nil {
@@ -276,7 +276,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 				request := vpc.CreateDeleteBandwidthPackageRequest()
 				request.RegionId = string(client.Region)
 				request.BandwidthPackageId = pack.BandwidthPackageId
-				_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+				_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 					return vpcClient.DeleteBandwidthPackage(request)
 				})
 				if err != nil {
@@ -297,7 +297,7 @@ func resourceAliyunNatGatewayDelete(d *schema.ResourceData, meta interface{}) er
 		args.RegionId = string(client.Region)
 		args.NatGatewayId = d.Id()
 
-		_, err = client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err = client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteNatGateway(args)
 		})
 		if err != nil {
@@ -362,7 +362,7 @@ func getPackages(packageId string, meta interface{}, d *schema.ResourceData) (pa
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
 		client := meta.(*connectivity.AliyunClient)
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeBandwidthPackages(req)
 		})
 		if err != nil {

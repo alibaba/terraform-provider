@@ -92,7 +92,7 @@ func resourceAlicloudRamGroupMembershipRead(d *schema.ResourceData, meta interfa
 		GroupName: d.Id(),
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ListUsersForGroup(args)
 	})
 	if err != nil {
@@ -132,7 +132,7 @@ func resourceAlicloudRamGroupMembershipDelete(d *schema.ResourceData, meta inter
 
 func addUsersToGroup(client *connectivity.AliyunClient, users []string, group string) error {
 	for _, u := range users {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.AddUserToGroup(ram.UserRelateGroupRequest{
 				UserName:  u,
 				GroupName: group,
@@ -148,7 +148,7 @@ func addUsersToGroup(client *connectivity.AliyunClient, users []string, group st
 
 func removeUsersFromGroup(client *connectivity.AliyunClient, users []string, group string) error {
 	for _, u := range users {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.RemoveUserFromGroup(ram.UserRelateGroupRequest{
 				UserName:  u,
 				GroupName: group,

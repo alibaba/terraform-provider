@@ -41,7 +41,7 @@ func testSweepNatGateways(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeNatGateways(req)
 		})
 		if err != nil {
@@ -82,7 +82,7 @@ func testSweepNatGateways(region string) error {
 		req := vpc.CreateDeleteNatGatewayRequest()
 		req.NatGatewayId = id
 		req.Force = requests.NewBoolean(true)
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteNatGateway(req)
 		})
 		if err != nil {

@@ -118,7 +118,7 @@ func dataSourceAlicloudVSwitchesRead(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 	for {
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVSwitches(args)
 		})
 		if err != nil {
@@ -182,7 +182,7 @@ func VSwitchesDecriptionAttributes(d *schema.ResourceData, vsws []vpc.VSwitch, m
 		instReq.VpcId = vsw.VpcId
 		instReq.VSwitchId = vsw.VSwitchId
 		instReq.ZoneId = vsw.ZoneId
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstances(instReq)
 		})
 		if err != nil {

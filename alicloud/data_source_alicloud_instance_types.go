@@ -191,7 +191,7 @@ func dataSourceAlicloudInstanceTypesRead(d *schema.ResourceData, meta interface{
 	req := ecs.CreateDescribeInstanceTypesRequest()
 	req.InstanceTypeFamily = family
 
-	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeInstanceTypes(req)
 	})
 	if err != nil {

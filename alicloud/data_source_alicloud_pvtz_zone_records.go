@@ -85,7 +85,7 @@ func dataSourceAlicloudPvtzZoneRecordsRead(d *schema.ResourceData, meta interfac
 	recordIds := []string{}
 
 	for true {
-		raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		raw, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.DescribeZoneRecords(args)
 		})
 

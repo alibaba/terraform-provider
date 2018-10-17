@@ -26,7 +26,7 @@ func dataSourceAlicloudRamAccountAlias() *schema.Resource {
 func dataSourceAlicloudRamAccountAliasRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.GetAccountAlias()
 	})
 	if err != nil {

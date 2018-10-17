@@ -205,7 +205,7 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	region := client.Region
-	raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+	raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 		return csClient.CreateCluster(region, args)
 	})
 
@@ -215,7 +215,7 @@ func resourceAlicloudCSSwarmCreate(d *schema.ResourceData, meta interface{}) err
 	cluster, _ := raw.(cs.ClusterCreationResponse)
 	d.SetId(cluster.ClusterID)
 
-	_, err = client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+	_, err = client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 		return nil, csClient.WaitForClusterAsyn(cluster.ClusterID, cs.Running, 500)
 	})
 
@@ -237,7 +237,7 @@ func resourceAlicloudCSSwarmUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("The node number must greater than the current. The cluster's current node number is %d.", oi)
 		}
 		d.SetPartial("node_number")
-		_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		_, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return nil, csClient.ResizeCluster(d.Id(), &cs.ClusterResizeArgs{
 				Size:             int64(ni),
 				InstanceType:     d.Get("instance_type").(string),
@@ -252,7 +252,7 @@ func resourceAlicloudCSSwarmUpdate(d *schema.ResourceData, meta interface{}) err
 			return fmt.Errorf("Resize Cluster got an error: %#v", err)
 		}
 
-		_, err = client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		_, err = client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return nil, csClient.WaitForClusterAsyn(d.Id(), cs.Running, 500)
 		})
 
@@ -268,7 +268,7 @@ func resourceAlicloudCSSwarmUpdate(d *schema.ResourceData, meta interface{}) err
 		} else {
 			clusterName = resource.PrefixedUniqueId(d.Get("name_prefix").(string))
 		}
-		_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		_, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return nil, csClient.ModifyClusterName(d.Id(), clusterName)
 		})
 		if err != nil && !IsExceptedError(err, ErrorClusterNameAlreadyExist) {
@@ -288,7 +288,7 @@ func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error
 	csService := CsService{client}
 	ecsService := EcsService{client}
 
-	raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+	raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 		return csClient.DescribeCluster(d.Id())
 	})
 
@@ -312,7 +312,7 @@ func resourceAlicloudCSSwarmRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return err
 	}
-	raw, err = client.RunSafelyWithCsProjectClient(pcluster.ClusterID, pcluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
+	raw, err = client.WithCsProjectClient(pcluster.ClusterID, pcluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {
 		return csProjectClient.GetSwarmClusterNodes()
 	})
 	if err != nil {
@@ -358,7 +358,7 @@ func resourceAlicloudCSSwarmDelete(d *schema.ResourceData, meta interface{}) err
 	client := meta.(*connectivity.AliyunClient)
 
 	return resource.Retry(3*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		_, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return nil, csClient.DeleteCluster(d.Id())
 		})
 		if err != nil {
@@ -368,7 +368,7 @@ func resourceAlicloudCSSwarmDelete(d *schema.ResourceData, meta interface{}) err
 			return resource.RetryableError(fmt.Errorf("Deleting container cluster got an error: %#v", err))
 		}
 
-		raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return csClient.DescribeCluster(d.Id())
 		})
 		if err != nil {

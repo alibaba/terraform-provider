@@ -43,7 +43,7 @@ func testSweepDBInstances(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DescribeDBInstances(req)
 		})
 		if err != nil {
@@ -86,7 +86,7 @@ func testSweepDBInstances(region string) error {
 		log.Printf("[INFO] Deleting RDS Instance: %s (%s)", name, id)
 		req := rds.CreateDeleteDBInstanceRequest()
 		req.DBInstanceId = id
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DeleteDBInstance(req)
 		})
 		if err != nil {

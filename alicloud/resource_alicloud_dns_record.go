@@ -88,7 +88,7 @@ func resourceAlicloudDnsRecordCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("The ForwordURLRecord only support default line.")
 	}
 
-	raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+	raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 		return dnsClient.AddDomainRecord(args)
 	})
 	if err != nil {
@@ -139,7 +139,7 @@ func resourceAlicloudDnsRecordUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if attributeUpdate {
-		_, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		_, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.UpdateDomainRecord(args)
 		})
 		if err != nil {
@@ -158,7 +158,7 @@ func resourceAlicloudDnsRecordRead(d *schema.ResourceData, meta interface{}) err
 	args := &dns.DescribeDomainRecordInfoNewArgs{
 		RecordId: d.Id(),
 	}
-	raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+	raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 		return dnsClient.DescribeDomainRecordInfoNew(args)
 	})
 	if err != nil {
@@ -189,7 +189,7 @@ func resourceAlicloudDnsRecordDelete(d *schema.ResourceData, meta interface{}) e
 		RecordId: d.Id(),
 	}
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		_, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DeleteDomainRecord(args)
 		})
 		if err != nil {
@@ -200,7 +200,7 @@ func resourceAlicloudDnsRecordDelete(d *schema.ResourceData, meta interface{}) e
 			return resource.NonRetryableError(fmt.Errorf("Error deleting domain record %s: %#v", d.Id(), err))
 		}
 
-		raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainRecordInfoNew(&dns.DescribeDomainRecordInfoNewArgs{
 				RecordId: d.Id(),
 			})

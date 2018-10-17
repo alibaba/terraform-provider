@@ -130,7 +130,7 @@ func resourceAlicloudRouterInterfaceConnectionCreate(d *schema.ResourceData, met
 
 	if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
 
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyRouterInterfaceAttribute(req)
 		})
 		if err != nil {
@@ -158,7 +158,7 @@ func resourceAlicloudRouterInterfaceConnectionCreate(d *schema.ResourceData, met
 
 		if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
 
-			_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 				return vpcClient.ConnectRouterInterface(connReq)
 			})
 			if err != nil {

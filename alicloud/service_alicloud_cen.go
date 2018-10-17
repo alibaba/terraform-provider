@@ -30,7 +30,7 @@ func (s *CenService) DescribeCenInstance(cenId string) (c cbn.Cen, err error) {
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		raw, err := s.client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+		raw, err := s.client.WithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.DescribeCens(request)
 		})
 		resp, _ := raw.(*cbn.DescribeCensResponse)
@@ -79,7 +79,7 @@ func (s *CenService) DescribeCenAttachedChildInstanceById(instanceId, cenId stri
 
 	for pageNum := 1; ; pageNum++ {
 		request.PageNumber = requests.NewInteger(pageNum)
-		raw, err := s.client.RunSafelyWithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+		raw, err := s.client.WithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
 			return cbnClient.DescribeCenAttachedChildInstances(request)
 		})
 		response, _ := raw.(*cbn.DescribeCenAttachedChildInstancesResponse)

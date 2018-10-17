@@ -43,7 +43,7 @@ func testSweepKeyPairs(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeKeyPairs(req)
 		})
 		if err != nil {
@@ -82,7 +82,7 @@ func testSweepKeyPairs(region string) error {
 		log.Printf("[INFO] Deleting Key Pair: %s", name)
 		req := ecs.CreateDeleteKeyPairsRequest()
 		req.KeyPairNames = convertListToJsonString(append(make([]interface{}, 0, 1), name))
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteKeyPairs(req)
 		})
 		if err != nil {

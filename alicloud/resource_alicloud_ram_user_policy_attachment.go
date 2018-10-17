@@ -52,7 +52,7 @@ func resourceAlicloudRamUserPolicyAttachmentCreate(d *schema.ResourceData, meta 
 		UserName: d.Get("user_name").(string),
 	}
 
-	_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.AttachPolicyToUser(args)
 	})
 	if err != nil {
@@ -71,7 +71,7 @@ func resourceAlicloudRamUserPolicyAttachmentRead(d *schema.ResourceData, meta in
 		UserName: split[0],
 	}
 
-	raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+	raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 		return ramClient.ListPoliciesForUser(args)
 	})
 	if err != nil {
@@ -106,7 +106,7 @@ func resourceAlicloudRamUserPolicyAttachmentDelete(d *schema.ResourceData, meta 
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.DetachPolicyFromUser(args)
 		})
 		if err != nil {
@@ -116,7 +116,7 @@ func resourceAlicloudRamUserPolicyAttachmentDelete(d *schema.ResourceData, meta 
 			return resource.NonRetryableError(fmt.Errorf("Error deleting user policy attachment: %#v", err))
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.ListPoliciesForUser(ram.UserQueryRequest{UserName: args.UserName})
 		})
 		if err != nil {

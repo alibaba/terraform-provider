@@ -49,7 +49,7 @@ func resourceAlicloudDnsCreate(d *schema.ResourceData, meta interface{}) error {
 		DomainName: d.Get("name").(string),
 	}
 
-	raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+	raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 		return dnsClient.AddDomain(args)
 	})
 	if err != nil {
@@ -73,7 +73,7 @@ func resourceAlicloudDnsUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.SetPartial("group_id")
 		args.GroupId = d.Get("group_id").(string)
 
-		_, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		_, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.ChangeDomainGroup(args)
 		})
 		if err != nil {
@@ -92,7 +92,7 @@ func resourceAlicloudDnsRead(d *schema.ResourceData, meta interface{}) error {
 		DomainName: d.Id(),
 	}
 
-	raw, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+	raw, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 		return dnsClient.DescribeDomainInfo(args)
 	})
 	if err != nil {
@@ -117,7 +117,7 @@ func resourceAlicloudDnsDelete(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
+		_, err := client.WithDnsClient(func(dnsClient *dns.Client) (interface{}, error) {
 			return dnsClient.DeleteDomain(args)
 		})
 		if err != nil {

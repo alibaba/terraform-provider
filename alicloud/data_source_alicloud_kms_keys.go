@@ -98,7 +98,7 @@ func dataSourceAlicloudKmsKeysRead(d *schema.ResourceData, meta interface{}) err
 	pagination := getPagination(1, 50)
 	for true {
 		args.Pagination = pagination
-		raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 			return kmsClient.ListKeys(args)
 		})
 		if err != nil {
@@ -134,7 +134,7 @@ func dataSourceAlicloudKmsKeysRead(d *schema.ResourceData, meta interface{}) err
 	status, statusOk := d.GetOk("status")
 
 	for _, k := range keyIds {
-		raw, err := client.RunSafelyWithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
+		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 			return kmsClient.DescribeKey(k)
 		})
 		if err != nil {

@@ -36,7 +36,7 @@ func testSweepCSSwarms(region string) error {
 		"testAcc",
 	}
 
-	raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+	raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 		return csClient.DescribeClusters("")
 	})
 	if err != nil {
@@ -61,7 +61,7 @@ func testSweepCSSwarms(region string) error {
 		}
 		sweeped = true
 		log.Printf("[INFO] Deleting CS Swarm Clusters: %s (%s)", name, id)
-		_, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		_, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return nil, csClient.DeleteCluster(id)
 		})
 		if err != nil {
@@ -151,7 +151,7 @@ func testAccCheckContainerClusterExists(n string, d *cs.ClusterType) resource.Te
 		}
 
 		client := testAccProvider.Meta().(*connectivity.AliyunClient)
-		raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return csClient.DescribeCluster(cluster.Primary.ID)
 		})
 		log.Printf("[DEBUG] check cluster %s attribute %#v", cluster.Primary.ID, raw)
@@ -177,7 +177,7 @@ func testAccCheckSwarmClusterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		raw, err := client.RunSafelyWithCsClient(func(csClient *cs.Client) (interface{}, error) {
+		raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
 			return csClient.DescribeCluster(rs.Primary.ID)
 		})
 

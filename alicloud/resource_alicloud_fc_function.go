@@ -134,7 +134,7 @@ func resourceAlicloudFCFunctionCreate(d *schema.ResourceData, meta interface{}) 
 
 	var function *fc.CreateFunctionOutput
 	if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+		raw, err := client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 			return fcClient.CreateFunction(input)
 		})
 		if err != nil {
@@ -233,7 +233,7 @@ func resourceAlicloudFCFunctionUpdate(d *schema.ResourceData, meta interface{}) 
 		}
 		updateInput.Code = code
 
-		_, err = client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+		_, err = client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 			return fcClient.UpdateFunction(updateInput)
 		})
 		if err != nil {
@@ -251,7 +251,7 @@ func resourceAlicloudFCFunctionDelete(d *schema.ResourceData, meta interface{}) 
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+		_, err := client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 			return fcClient.DeleteFunction(&fc.DeleteFunctionInput{
 				ServiceName:  StringPointer(split[0]),
 				FunctionName: StringPointer(split[1]),

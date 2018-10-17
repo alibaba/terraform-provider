@@ -211,7 +211,7 @@ func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) e
 	client := meta.(*connectivity.AliyunClient)
 
 	bucket := d.Get("bucket").(string)
-	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.IsBucketExist(bucket)
 	})
 	if err != nil {
@@ -222,7 +222,7 @@ func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("[ERROR] The specified bucket name: %#v is not available. The bucket namespace is shared by all users of the OSS system. Please select a different name and try again.", bucket)
 	}
 
-	_, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	_, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return nil, ossClient.CreateBucket(bucket)
 	})
 	if err != nil {
@@ -230,7 +230,7 @@ func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	retryErr := resource.Retry(3*time.Minute, func() *resource.RetryError {
-		raw, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 			return ossClient.IsBucketExist(bucket)
 		})
 
@@ -258,7 +258,7 @@ func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) e
 func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 
-	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.GetBucketInfo(d.Id())
 	})
 	if err != nil {
@@ -279,7 +279,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("storage_class", info.BucketInfo.StorageClass)
 
 	// Read the CORS
-	raw, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.GetBucketCORS(d.Id())
 	})
 	if err != nil && !IsExceptedErrors(err, []string{NoSuchCORSConfiguration}) {
@@ -304,7 +304,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Read the website configuration
-	raw, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.GetBucketWebsite(d.Id())
 	})
 	if err != nil && !IsExceptedErrors(err, []string{NoSuchWebsiteConfiguration}) {
@@ -329,7 +329,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Read the logging configuration
-	raw, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.GetBucketLogging(d.Id())
 	})
 	if err != nil {
@@ -359,7 +359,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("logging_isenable", logEnabled)
 
 	// Read the bucket referer
-	raw, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.GetBucketReferer(d.Id())
 	})
 	referers := make([]map[string]interface{}, 0)
@@ -376,7 +376,7 @@ func resourceAlicloudOssBucketRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	// Read the lifecycle rule configuration
-	raw, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.GetBucketLifecycle(d.Id())
 	})
 	if err != nil {
@@ -428,7 +428,7 @@ func resourceAlicloudOssBucketUpdate(d *schema.ResourceData, meta interface{}) e
 	d.Partial(true)
 
 	if d.HasChange("acl") {
-		_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 			return nil, ossClient.SetBucketACL(d.Id(), oss.ACLType(d.Get("acl").(string)))
 		})
 		if err != nil {
@@ -479,7 +479,7 @@ func resourceAlicloudOssBucketCorsUpdate(client *connectivity.AliyunClient, d *s
 	cors := d.Get("cors_rule").([]interface{})
 	if cors == nil || len(cors) == 0 {
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+			_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 				return nil, ossClient.DeleteBucketCORS(d.Id())
 			})
 			if err != nil {
@@ -522,7 +522,7 @@ func resourceAlicloudOssBucketCorsUpdate(client *connectivity.AliyunClient, d *s
 	}
 
 	log.Printf("[DEBUG] Oss bucket: %s, put CORS: %#v", d.Id(), cors)
-	_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return nil, ossClient.SetBucketCORS(d.Id(), rules)
 	})
 	if err != nil {
@@ -535,7 +535,7 @@ func resourceAlicloudOssBucketWebsiteUpdate(client *connectivity.AliyunClient, d
 	ws := d.Get("website").([]interface{})
 	if ws == nil || len(ws) == 0 {
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+			_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 				return nil, ossClient.DeleteBucketWebsite(d.Id())
 			})
 			if err != nil {
@@ -558,7 +558,7 @@ func resourceAlicloudOssBucketWebsiteUpdate(client *connectivity.AliyunClient, d
 	if v, ok := w["error_document"]; ok {
 		error_document = v.(string)
 	}
-	_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return nil, ossClient.SetBucketWebsite(d.Id(), index_document, error_document)
 	})
 	if err != nil {
@@ -572,7 +572,7 @@ func resourceAlicloudOssBucketLoggingUpdate(client *connectivity.AliyunClient, d
 	logging := d.Get("logging").([]interface{})
 	if logging == nil || len(logging) == 0 {
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+			_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 				return nil, ossClient.DeleteBucketLogging(d.Id())
 			})
 			if err != nil {
@@ -594,7 +594,7 @@ func resourceAlicloudOssBucketLoggingUpdate(client *connectivity.AliyunClient, d
 	if v, ok := c["target_prefix"]; ok {
 		target_prefix = v.(string)
 	}
-	_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return nil, ossClient.SetBucketLogging(d.Id(), target_bucket, target_prefix, d.Get("logging_isenable").(bool))
 	})
 	if err != nil {
@@ -608,7 +608,7 @@ func resourceAlicloudOssBucketRefererUpdate(client *connectivity.AliyunClient, d
 	config := d.Get("referer_config").([]interface{})
 	if config == nil || len(config) < 1 {
 		log.Printf("[DEBUG] OSS set bucket referer as nil")
-		_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 			return nil, ossClient.SetBucketReferer(d.Id(), nil, true)
 		})
 		if err != nil {
@@ -629,7 +629,7 @@ func resourceAlicloudOssBucketRefererUpdate(client *connectivity.AliyunClient, d
 			referers = append(referers, referer.(string))
 		}
 	}
-	_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return nil, ossClient.SetBucketReferer(d.Id(), referers, allow)
 	})
 	if err != nil {
@@ -644,7 +644,7 @@ func resourceAlicloudOssBucketLifecycleRuleUpdate(client *connectivity.AliyunCli
 
 	if lifecycleRules == nil || len(lifecycleRules) == 0 {
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-			_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+			_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 				return nil, ossClient.DeleteBucketLifecycle(bucket)
 			})
 			if err != nil {
@@ -707,7 +707,7 @@ func resourceAlicloudOssBucketLifecycleRuleUpdate(client *connectivity.AliyunCli
 	}
 
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		_, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 			return nil, ossClient.SetBucketLifecycle(bucket, rules)
 		})
 		if err != nil {
@@ -725,7 +725,7 @@ func resourceAlicloudOssBucketDelete(d *schema.ResourceData, meta interface{}) e
 	client := meta.(*connectivity.AliyunClient)
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 			return ossClient.IsBucketExist(d.Id())
 		})
 		if err != nil {
@@ -736,7 +736,7 @@ func resourceAlicloudOssBucketDelete(d *schema.ResourceData, meta interface{}) e
 			return nil
 		}
 
-		_, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		_, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 			return nil, ossClient.DeleteBucket(d.Id())
 		})
 		if err != nil {

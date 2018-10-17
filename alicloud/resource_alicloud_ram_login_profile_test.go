@@ -56,7 +56,7 @@ func testAccCheckRamLoginProfileExists(n string, profile *ram.LoginProfile) reso
 			UserName: rs.Primary.Attributes["user_name"],
 		}
 
-		raw, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		raw, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetLoginProfile(request)
 		})
 
@@ -83,7 +83,7 @@ func testAccCheckRamLoginProfileDestroy(s *terraform.State) error {
 			UserName: rs.Primary.Attributes["user_name"],
 		}
 
-		_, err := client.RunSafelyWithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
+		_, err := client.WithRamClient(func(ramClient ram.RamClientInterface) (interface{}, error) {
 			return ramClient.GetLoginProfile(request)
 		})
 

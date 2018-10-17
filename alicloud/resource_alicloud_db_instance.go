@@ -233,7 +233,7 @@ func resourceAlicloudDBInstanceCreate(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	raw, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.CreateDBInstance(request)
 	})
 
@@ -293,7 +293,7 @@ func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 		if err := rdsService.WaitForDBInstance(d.Id(), Running, 500); err != nil {
 			return fmt.Errorf("WaitForInstance %s got error: %#v", Running, err)
 		}
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.ModifyDBInstanceSpec(request)
 		})
 		if err != nil {
@@ -310,7 +310,7 @@ func resourceAlicloudDBInstanceUpdate(d *schema.ResourceData, meta interface{}) 
 		request.DBInstanceId = d.Id()
 		request.DBInstanceDescription = d.Get("instance_name").(string)
 
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.ModifyDBInstanceDescription(request)
 		})
 		if err != nil {
@@ -376,7 +376,7 @@ func resourceAlicloudDBInstanceDelete(d *schema.ResourceData, meta interface{}) 
 	request.DBInstanceId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DeleteDBInstance(request)
 		})
 

@@ -41,7 +41,7 @@ func testSweepDisks(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeDisks(req)
 		})
 		if err != nil {
@@ -81,7 +81,7 @@ func testSweepDisks(region string) error {
 		log.Printf("[INFO] Deleting Disk: %s (%s)", name, id)
 		req := ecs.CreateDeleteDiskRequest()
 		req.DiskId = id
-		_, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteDisk(req)
 		})
 		if err != nil {

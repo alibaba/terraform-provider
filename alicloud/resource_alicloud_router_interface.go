@@ -114,7 +114,7 @@ func resourceAlicloudRouterInterfaceCreate(d *schema.ResourceData, meta interfac
 		return err
 	}
 
-	raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+	raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.CreateRouterInterface(args)
 	})
 	if err != nil {
@@ -141,7 +141,7 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 	}
 
 	if attributeUpdate {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyRouterInterfaceAttribute(args)
 		})
 		if err != nil {
@@ -155,7 +155,7 @@ func resourceAlicloudRouterInterfaceUpdate(d *schema.ResourceData, meta interfac
 		request.RegionId = string(client.Region)
 		request.RouterInterfaceId = d.Id()
 		request.Spec = d.Get("specification").(string)
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyRouterInterfaceSpec(request)
 		})
 		if err != nil {
@@ -218,7 +218,7 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 	args.RouterInterfaceId = d.Id()
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteRouterInterface(args)
 		})
 		if err != nil {
@@ -275,7 +275,7 @@ func buildAlicloudRouterInterfaceCreateArgs(d *schema.ResourceData, meta interfa
 			Value: &values,
 		}}
 		req.Filter = &filters
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVirtualBorderRouters(req)
 		})
 		if err != nil {

@@ -115,7 +115,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 	var allVpcs []vpc.Vpc
 
 	for {
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVpcs(args)
 		})
 		if err != nil {
@@ -170,7 +170,7 @@ func dataSourceAlicloudVpcsRead(d *schema.ResourceData, meta interface{}) error 
 		request.VRouterId = v.VRouterId
 		request.RegionId = string(client.Region)
 
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeVRouters(request)
 		})
 		if err != nil {

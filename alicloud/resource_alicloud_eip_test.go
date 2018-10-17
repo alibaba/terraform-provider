@@ -42,7 +42,7 @@ func testSweepEips(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DescribeEipAddresses(req)
 		})
 		if err != nil {
@@ -82,7 +82,7 @@ func testSweepEips(region string) error {
 		log.Printf("[INFO] Deleting EIP: %s (%s)", name, id)
 		req := vpc.CreateReleaseEipAddressRequest()
 		req.AllocationId = id
-		_, err := client.RunSafelyWithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ReleaseEipAddress(req)
 		})
 		if err != nil {

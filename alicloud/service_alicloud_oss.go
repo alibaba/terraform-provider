@@ -10,7 +10,7 @@ type OssService struct {
 }
 
 func (s *OssService) QueryOssBucketById(id string) (info *oss.BucketInfo, err error) {
-	raw, err := s.client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err := s.client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.GetBucketInfo(id)
 	})
 	if err != nil {

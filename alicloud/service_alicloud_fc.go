@@ -12,7 +12,7 @@ type FcService struct {
 }
 
 func (s *FcService) DescribeFcService(name string) (service *fc.GetServiceOutput, err error) {
-	raw, err := s.client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+	raw, err := s.client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 		return fcClient.GetService(&fc.GetServiceInput{ServiceName: &name})
 	})
 	if err != nil {
@@ -31,7 +31,7 @@ func (s *FcService) DescribeFcService(name string) (service *fc.GetServiceOutput
 }
 
 func (s *FcService) DescribeFcFunction(service, name string) (function *fc.GetFunctionOutput, err error) {
-	raw, err := s.client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+	raw, err := s.client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 		return fcClient.GetFunction(&fc.GetFunctionInput{
 			ServiceName:  &service,
 			FunctionName: &name,
@@ -53,7 +53,7 @@ func (s *FcService) DescribeFcFunction(service, name string) (function *fc.GetFu
 }
 
 func (s *FcService) DescribeFcTrigger(service, function, name string) (trigger *fc.GetTriggerOutput, err error) {
-	raw, err := s.client.RunSafelyWithFcClient(func(fcClient *fc.Client) (interface{}, error) {
+	raw, err := s.client.WithFcClient(func(fcClient *fc.Client) (interface{}, error) {
 		return fcClient.GetTrigger(&fc.GetTriggerInput{
 			ServiceName:  &service,
 			FunctionName: &function,

@@ -107,7 +107,7 @@ func resourceAlicloudOssBucketObject() *schema.Resource {
 
 func resourceAlicloudOssBucketObjectPut(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
-	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.Bucket(d.Get("bucket").(string))
 	})
 	if err != nil {
@@ -155,7 +155,7 @@ func resourceAlicloudOssBucketObjectPut(d *schema.ResourceData, meta interface{}
 
 func resourceAlicloudOssBucketObjectRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
-	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.Bucket(d.Get("bucket").(string))
 	})
 	if err != nil {
@@ -193,7 +193,7 @@ func resourceAlicloudOssBucketObjectRead(d *schema.ResourceData, meta interface{
 
 func resourceAlicloudOssBucketObjectDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
-	raw, err := client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return ossClient.Bucket(d.Get("bucket").(string))
 	})
 	if err != nil {

@@ -19,7 +19,7 @@ func (s *EssService) DescribeEssAlarmById(alarmTaskId string) (alarm ess.Alarm, 
 	args := ess.CreateDescribeAlarmsRequest()
 	args.AlarmTaskId = alarmTaskId
 
-	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeAlarms(args)
 	})
 	if err != nil {
@@ -41,7 +41,7 @@ func (s *EssService) DescribeLifecycleHookById(hookId string) (hook ess.Lifecycl
 	hookIdsPtr = &hookIds
 	args.LifecycleHookId = hookIdsPtr
 
-	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeLifecycleHooks(args)
 	})
 	if err != nil {
@@ -60,7 +60,7 @@ func (s *EssService) DescribeScalingGroupById(sgId string) (group ess.ScalingGro
 	args := ess.CreateDescribeScalingGroupsRequest()
 	args.ScalingGroupId1 = sgId
 
-	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingGroups(args)
 	})
 	if err != nil {
@@ -79,7 +79,7 @@ func (s *EssService) DescribeScalingConfigurationById(configId string) (config e
 	args := ess.CreateDescribeScalingConfigurationsRequest()
 	args.ScalingConfigurationId1 = configId
 
-	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingConfigurations(args)
 	})
 	if err != nil {
@@ -99,7 +99,7 @@ func (s *EssService) ActiveScalingConfigurationById(sgId, configId string) error
 	args.ScalingGroupId = sgId
 	args.ActiveScalingConfigurationId = configId
 
-	_, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.ModifyScalingGroup(args)
 	})
 	return err
@@ -125,7 +125,7 @@ func (s *EssService) DescribeScalingRuleById(sgId, ruleId string) (rule ess.Scal
 	args.ScalingGroupId = sgId
 	args.ScalingRuleId1 = ruleId
 
-	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingRules(args)
 	})
 	if err != nil {
@@ -147,7 +147,7 @@ func (s *EssService) DeleteScalingRuleById(ruleId string) error {
 	args := ess.CreateDeleteScalingRuleRequest()
 	args.ScalingRuleId = ruleId
 
-	_, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteScalingRule(args)
 	})
 	return err
@@ -157,7 +157,7 @@ func (s *EssService) DescribeScheduleById(scheduleId string) (task ess.Scheduled
 	args := ess.CreateDescribeScheduledTasksRequest()
 	args.ScheduledTaskId1 = scheduleId
 
-	raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScheduledTasks(args)
 	})
 	if err != nil {
@@ -176,7 +176,7 @@ func (s *EssService) DeleteScheduleById(scheduleId string) error {
 	args := ess.CreateDeleteScheduledTaskRequest()
 	args.ScheduledTaskId = scheduleId
 
-	_, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteScheduledTask(args)
 	})
 	return err
@@ -188,7 +188,7 @@ func (s *EssService) DeleteScalingGroupById(sgId string) error {
 	req.ForceDelete = requests.NewBoolean(true)
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 
-		_, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		_, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DeleteScalingGroup(req)
 		})
 
@@ -223,7 +223,7 @@ func (srv *EssService) DescribeScalingInstances(groupId, configurationId string,
 		}
 	}
 
-	raw, err := srv.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := srv.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingInstances(req)
 	})
 	if err != nil {
@@ -244,7 +244,7 @@ func (s *EssService) DescribeScalingConfifurations(groupId string) (configs []es
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 
 	for {
-		raw, err := s.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DescribeScalingConfigurations(req)
 		})
 		if err != nil {
@@ -303,7 +303,7 @@ func (srv *EssService) EssRemoveInstances(groupId string, instanceIds []string) 
 		} else {
 			return nil
 		}
-		_, err := srv.client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		_, err := srv.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.RemoveInstances(req)
 		})
 		if err != nil {

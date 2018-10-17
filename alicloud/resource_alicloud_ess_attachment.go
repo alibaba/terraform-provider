@@ -87,7 +87,7 @@ func resourceAliyunEssAttachmentUpdate(d *schema.ResourceData, meta interface{})
 					s.FieldByName(fmt.Sprintf("InstanceId%d", i+1)).Set(reflect.ValueOf(id))
 				}
 
-				_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+				_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 					return essClient.AttachInstances(req)
 				})
 				if err != nil {

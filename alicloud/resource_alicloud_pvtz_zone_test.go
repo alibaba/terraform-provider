@@ -42,7 +42,7 @@ func testSweepPvtzZones(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		raw, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.DescribeZones(req)
 		})
 		if err != nil {
@@ -87,7 +87,7 @@ func testSweepPvtzZones(region string) error {
 		vpcs := make([]pvtz.BindZoneVpcVpcs, 0)
 		request.Vpcs = &vpcs
 
-		_, err := client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		_, err := client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.BindZoneVpc(request)
 		})
 		if err != nil {
@@ -97,7 +97,7 @@ func testSweepPvtzZones(region string) error {
 		log.Printf("[INFO] Deleting Private Zone: %s (%s)", name, id)
 		req := pvtz.CreateDeleteZoneRequest()
 		req.ZoneId = id
-		_, err = client.RunSafelyWithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
+		_, err = client.WithPvtzClient(func(pvtzClient *pvtz.Client) (interface{}, error) {
 			return pvtzClient.DeleteZone(req)
 		})
 		if err != nil {

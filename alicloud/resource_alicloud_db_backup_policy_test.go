@@ -73,7 +73,7 @@ func testAccCheckDBBackupPolicyDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := client.RunSafelyWithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DescribeBackupPolicy(&rds.DescribeBackupPolicyRequest{
 				DBInstanceId: rs.Primary.ID,
 			})

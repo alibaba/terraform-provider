@@ -60,7 +60,7 @@ func dataSourceAlicloudSlbAttachmentsRead(d *schema.ResourceData, meta interface
 		}
 	}
 
-	raw, err := client.RunSafelyWithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeLoadBalancerAttribute(args)
 	})
 	if err != nil {

@@ -194,7 +194,7 @@ func dataSourceAlicloudMongoInstancesRead(d *schema.ResourceData, meta interface
 	}
 
 	for {
-		raw, err := client.RunSafelyWithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
+		raw, err := client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
 			return ddsClient.DescribeDBInstances(args)
 		})
 		if err != nil {

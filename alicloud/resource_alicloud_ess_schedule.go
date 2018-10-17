@@ -79,7 +79,7 @@ func resourceAliyunEssScheduleCreate(d *schema.ResourceData, meta interface{}) e
 
 	client := meta.(*connectivity.AliyunClient)
 
-	raw, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.CreateScheduledTask(args)
 	})
 	if err != nil {
@@ -161,7 +161,7 @@ func resourceAliyunEssScheduleUpdate(d *schema.ResourceData, meta interface{}) e
 		args.TaskEnabled = requests.NewBoolean(d.Get("task_enabled").(bool))
 	}
 
-	_, err := client.RunSafelyWithEssClient(func(essClient *ess.Client) (interface{}, error) {
+	_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.ModifyScheduledTask(args)
 	})
 	if err != nil {
