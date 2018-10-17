@@ -223,11 +223,6 @@ func resourceAlicloudOssBucketCreate(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("[ERROR] The specified bucket name: %#v is not available. The bucket namespace is shared by all users of the OSS system. Please select a different name and try again.", bucket)
 	}
 
-	client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		log.Printf("[DEBUG] OSS bucket create: %#v, using endpoint: %#v", bucket, ossClient.Config.Endpoint)
-		return nil, nil
-	})
-
 	_, err = client.RunSafelyWithOssClient(func(ossClient *oss.Client) (interface{}, error) {
 		return nil, ossClient.CreateBucket(bucket)
 	})
