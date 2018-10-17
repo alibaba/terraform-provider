@@ -344,7 +344,7 @@ func buildAliyunVpnConnectionArgs(d *schema.ResourceData, meta interface{}) (*vp
 	vpnGatewayService := VpnGatewayService{client}
 
 	request := vpc.CreateCreateVpnConnectionRequest()
-	request.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
+	request.RegionId = client.RegionId
 	request.CustomerGatewayId = d.Get("customer_gateway_id").(string)
 	request.VpnGatewayId = d.Get("vpn_gateway_id").(string)
 	request.LocalSubnet = vpnGatewayService.AssembleNetworkSubnetToString(d.Get("local_subnet").(*schema.Set).List())

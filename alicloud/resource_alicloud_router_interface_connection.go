@@ -68,7 +68,7 @@ func resourceAlicloudRouterInterfaceConnectionCreate(d *schema.ResourceData, met
 
 	oppsiteId := d.Get("opposite_interface_id").(string)
 	interfaceId := d.Get("interface_id").(string)
-	ri, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, interfaceId)
+	ri, err := vpcService.DescribeRouterInterface(client.RegionId, interfaceId)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func resourceAlicloudRouterInterfaceConnectionCreate(d *schema.ResourceData, met
 			if err := vpcService.ActivateRouterInterface(interfaceId); err != nil {
 				return err
 			}
-			if err := vpcService.WaitForRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, interfaceId, Active, DefaultTimeout); err != nil {
+			if err := vpcService.WaitForRouterInterface(client.RegionId, interfaceId, Active, DefaultTimeout); err != nil {
 				return fmt.Errorf("When activing router interface %s got an error: %#v.", interfaceId, err)
 			}
 			d.SetId(interfaceId)
@@ -137,7 +137,7 @@ func resourceAlicloudRouterInterfaceConnectionCreate(d *schema.ResourceData, met
 			return resource.NonRetryableError(fmt.Errorf("Modifying RouterInterface %s Connection got an error: %#v.", interfaceId, err))
 		}
 
-		ri, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, interfaceId)
+		ri, err := vpcService.DescribeRouterInterface(client.RegionId, interfaceId)
 		if err != nil {
 			return resource.NonRetryableError(fmt.Errorf("When modifying RouterInterface %s Connection, describing it got an error: %#v.", interfaceId, err))
 
@@ -173,7 +173,7 @@ func resourceAlicloudRouterInterfaceConnectionCreate(d *schema.ResourceData, met
 			return err
 		}
 
-		if err := vpcService.WaitForRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, interfaceId, Active, DefaultTimeout); err != nil {
+		if err := vpcService.WaitForRouterInterface(client.RegionId, interfaceId, Active, DefaultTimeout); err != nil {
 			return fmt.Errorf("Connecting router interface %s got an error: %#v.", interfaceId, err)
 		}
 	}
@@ -185,7 +185,7 @@ func resourceAlicloudRouterInterfaceConnectionCreate(d *schema.ResourceData, met
 func resourceAlicloudRouterInterfaceConnectionRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*aliyunclient.AliyunClient)
 	vpcService := VpcService{client}
-	ri, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id())
+	ri, err := vpcService.DescribeRouterInterface(client.RegionId, d.Id())
 
 	if err != nil {
 		if NotFoundError(err) {
@@ -197,7 +197,7 @@ func resourceAlicloudRouterInterfaceConnectionRead(d *schema.ResourceData, meta 
 		if err := vpcService.ActivateRouterInterface(d.Id()); err != nil {
 			return err
 		}
-		if err := vpcService.WaitForRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id(), Active, DefaultTimeout); err != nil {
+		if err := vpcService.WaitForRouterInterface(client.RegionId, d.Id(), Active, DefaultTimeout); err != nil {
 			return fmt.Errorf("When activing router interface %s got an error: %#v.", d.Id(), err)
 		}
 	}
@@ -216,7 +216,7 @@ func resourceAlicloudRouterInterfaceConnectionDelete(d *schema.ResourceData, met
 	client := meta.(*aliyunclient.AliyunClient)
 	vpcService := VpcService{client}
 
-	ri, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id())
+	ri, err := vpcService.DescribeRouterInterface(client.RegionId, d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -237,7 +237,7 @@ func resourceAlicloudRouterInterfaceConnectionDelete(d *schema.ResourceData, met
 		}
 	}
 
-	if err := vpcService.WaitForRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id(), Inactive, DefaultTimeoutMedium); err != nil {
+	if err := vpcService.WaitForRouterInterface(client.RegionId, d.Id(), Inactive, DefaultTimeoutMedium); err != nil {
 		return fmt.Errorf("Deleting routerinterface %s connection got an error: %#v.", d.Id(), err)
 	}
 

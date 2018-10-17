@@ -298,7 +298,7 @@ func buildKVStoreCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvs
 	vpcService := VpcService{client}
 	request := r_kvstore.CreateCreateInstanceRequest()
 	request.InstanceName = Trim(d.Get("instance_name").(string))
-	request.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
+	request.RegionId = client.RegionId
 	request.EngineVersion = Trim(d.Get("engine_version").(string))
 	request.InstanceClass = Trim(d.Get("instance_class").(string))
 	request.ChargeType = Trim(d.Get("instance_charge_type").(string))

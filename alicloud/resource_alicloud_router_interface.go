@@ -123,7 +123,7 @@ func resourceAlicloudRouterInterfaceCreate(d *schema.ResourceData, meta interfac
 	response, _ := raw.(*vpc.CreateRouterInterfaceResponse)
 	d.SetId(response.RouterInterfaceId)
 
-	if err := vpcService.WaitForRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id(), Idle, 300); err != nil {
+	if err := vpcService.WaitForRouterInterface(client.RegionId, d.Id(), Idle, 300); err != nil {
 		return fmt.Errorf("WaitForRouterInterface %s got error: %#v", Idle, err)
 	}
 
@@ -171,7 +171,7 @@ func resourceAlicloudRouterInterfaceRead(d *schema.ResourceData, meta interface{
 	client := meta.(*aliyunclient.AliyunClient)
 	vpcService := VpcService{client}
 
-	ri, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id())
+	ri, err := vpcService.DescribeRouterInterface(client.RegionId, d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -202,7 +202,7 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 	client := meta.(*aliyunclient.AliyunClient)
 	vpcService := VpcService{client}
 
-	if ri, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id()); err != nil {
+	if ri, err := vpcService.DescribeRouterInterface(client.RegionId, d.Id()); err != nil {
 		if NotFoundError(err) {
 			return nil
 		}
@@ -231,7 +231,7 @@ func resourceAlicloudRouterInterfaceDelete(d *schema.ResourceData, meta interfac
 			}
 			return resource.NonRetryableError(fmt.Errorf("Error deleting interface %s: %#v", d.Id(), err))
 		}
-		if _, err := vpcService.DescribeRouterInterface(meta.(*aliyunclient.AliyunClient).RegionId, d.Id()); err != nil {
+		if _, err := vpcService.DescribeRouterInterface(client.RegionId, d.Id()); err != nil {
 			if NotFoundError(err) {
 				return nil
 			}

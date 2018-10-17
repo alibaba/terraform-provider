@@ -57,7 +57,7 @@ func dataSourceAlicloudRegions() *schema.Resource {
 
 func dataSourceAlicloudRegionsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*aliyunclient.AliyunClient)
-	currentRegion := meta.(*aliyunclient.AliyunClient).RegionId
+	currentRegion := client.RegionId
 
 	raw, err := client.RunSafelyWithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeRegions(ecs.CreateDescribeRegionsRequest())

@@ -228,6 +228,7 @@ func (s *EcsService) DescribeSecurityGroupRule(groupId, direction, ipProtocol, p
 }
 
 func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta interface{}, destination DestinationResource) (zoneId string, validZones []ecs.AvailableZone, err error) {
+	client := meta.(*aliyunclient.AliyunClient)
 	// Before creating resources, check input parameters validity according available zone.
 	// If availability zone is nil, it will return all of supported resources in the current.
 	args := ecs.CreateDescribeAvailableResourceRequest()
@@ -268,7 +269,7 @@ func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta int
 	resources, _ := raw.(*ecs.DescribeAvailableResourceResponse)
 
 	if resources == nil || len(resources.AvailableZones.AvailableZone) < 1 {
-		err = fmt.Errorf("There are no availability resources in the region: %s.", meta.(*aliyunclient.AliyunClient).RegionId)
+		err = fmt.Errorf("There are no availability resources in the region: %s.", client.RegionId)
 		return
 	}
 
@@ -293,18 +294,18 @@ func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta int
 	if zoneId != "" {
 		if !valid {
 			err = fmt.Errorf("Availability zone %s status is not available in the region %s. Expected availability zones: %s.",
-				zoneId, meta.(*aliyunclient.AliyunClient).RegionId, strings.Join(expectedZones, ", "))
+				zoneId, client.RegionId, strings.Join(expectedZones, ", "))
 			return
 		}
 		if soldout {
 			err = fmt.Errorf("Availability zone %s status is sold out in the region %s. Expected availability zones: %s.",
-				zoneId, meta.(*aliyunclient.AliyunClient).RegionId, strings.Join(expectedZones, ", "))
+				zoneId, client.RegionId, strings.Join(expectedZones, ", "))
 			return
 		}
 	}
 
 	if len(validZones) <= 0 {
-		err = fmt.Errorf("There is no availability resources in the region %s. Please choose another region.", meta.(*aliyunclient.AliyunClient).RegionId)
+		err = fmt.Errorf("There is no availability resources in the region %s. Please choose another region.", client.RegionId)
 		return
 	}
 

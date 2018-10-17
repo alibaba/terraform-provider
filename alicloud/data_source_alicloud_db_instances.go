@@ -170,7 +170,7 @@ func dataSourceAlicloudDBInstancesRead(d *schema.ResourceData, meta interface{})
 
 	args := rds.CreateDescribeDBInstancesRequest()
 
-	args.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
+	args.RegionId = client.RegionId
 	args.Engine = d.Get("engine").(string)
 	args.DBInstanceStatus = d.Get("status").(string)
 	args.DBInstanceType = d.Get("db_type").(string)

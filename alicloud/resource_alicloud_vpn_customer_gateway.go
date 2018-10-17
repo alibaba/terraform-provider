@@ -151,8 +151,9 @@ func resourceAliyunVpnCustomerGatewayDelete(d *schema.ResourceData, meta interfa
 }
 
 func buildAliyunCustomerGatewayArgs(d *schema.ResourceData, meta interface{}) *vpc.CreateCustomerGatewayRequest {
+	client := meta.(*aliyunclient.AliyunClient)
 	request := vpc.CreateCreateCustomerGatewayRequest()
-	request.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
+	request.RegionId = client.RegionId
 	request.IpAddress = d.Get("ip_address").(string)
 
 	if v := d.Get("name").(string); v != "" {

@@ -148,7 +148,7 @@ func dataSourceAlicloudKVStoreInstancesRead(d *schema.ResourceData, meta interfa
 	client := meta.(*aliyunclient.AliyunClient)
 
 	args := r_kvstore.CreateDescribeInstancesRequest()
-	args.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
+	args.RegionId = client.RegionId
 	args.VpcId = d.Get("vpc_id").(string)
 	args.VSwitchId = d.Get("vswitch_id").(string)
 	args.InstanceType = d.Get("instance_type").(string)

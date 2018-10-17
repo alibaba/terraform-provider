@@ -169,7 +169,7 @@ func dataSourceAlicloudMongoInstancesRead(d *schema.ResourceData, meta interface
 
 	args := dds.CreateDescribeDBInstancesRequest()
 
-	args.RegionId = meta.(*aliyunclient.AliyunClient).RegionId
+	args.RegionId = client.RegionId
 	args.DBInstanceType = d.Get("instance_type").(string)
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)
