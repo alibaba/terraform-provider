@@ -3,7 +3,7 @@
 	"ignore": "",
 	"package": [
 		{
-			"checksumSHA1": "DTBAvt3iADDHB1S4Ip9D9KtFbqA=",
+			"checksumSHA1": "E97OClObyIjtc069xOp/HdzDLJM=",
 			"path": "github.com/Sirupsen/logrus",
 			"revision": "3791101e143bf0f32515ac23e831475684f61229",
 			"revisionTime": "2018-09-04T20:21:35Z"
@@ -241,8 +241,10 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "QnhZPs2UPyhj9Viu2h/rzEnoNfA=",
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/slb",
-			"revision": ""
+			"revision": "aa91a73c945754f8d139600027dbaa4eb64ecb61",
+			"revisionTime": "2018-10-10T04:10:18Z"
 		},
 		{
 			"path": "github.com/aliyun/alibaba-cloud-sdk-go/services/sls",
