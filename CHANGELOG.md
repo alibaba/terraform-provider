@@ -8,6 +8,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Resource router_interface support PrePaid ([#752](https://github.com/alibaba/terraform-provider/pull/752))
 - resource alicloud_slb_listener support acl ([#751](https://github.com/alibaba/terraform-provider/pull/751))
 - change child instance type Vbr to VBR and replace some const variables ([#748](https://github.com/alibaba/terraform-provider/pull/748))
 - add slb_internet_enabled to Kubernetes Cluster ([#747](https://github.com/alibaba/terraform-provider/pull/747))
