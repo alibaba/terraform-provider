@@ -8,6 +8,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- resource alicloud_slb_listener support acl ([#751](https://github.com/alibaba/terraform-provider/pull/751))
 - change child instance type Vbr to VBR and replace some const variables ([#748](https://github.com/alibaba/terraform-provider/pull/748))
 - add slb_internet_enabled to Kubernetes Cluster ([#747](https://github.com/alibaba/terraform-provider/pull/747))
 - Hide AliCloud HaVip Attachment resource docs because of it is not public totally ([#744](https://github.com/alibaba/terraform-provider/pull/744))
