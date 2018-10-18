@@ -340,6 +340,12 @@ func resourceAlicloudCSKubernetes() *schema.Resource {
 				Computed:   true,
 				Deprecated: "Field 'slb_id' has been deprecated from provider version 1.9.2. New field 'slb_internet' replaces it.",
 			},
+			"slb_internet_enabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  true,
+			},
 			"slb_internet": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -508,6 +514,7 @@ func resourceAlicloudCSKubernetesRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("worker_disk_size", cluster.Parameters.WorkerSystemDiskSize)
 	d.Set("worker_disk_category", cluster.Parameters.WorkerSystemDiskCategory)
 	d.Set("availability_zone", cluster.ZoneId)
+	d.Set("slb_internet_enabled", cluster.Parameters.PublicSLB)
 
 	if cidrMask, err := strconv.Atoi(cluster.Parameters.NodeCIDRMask); err == nil {
 		d.Set("node_cidr_mask", cidrMask)
@@ -850,6 +857,7 @@ func buildKubernetesArgs(d *schema.ResourceData, meta interface{}) (*cs.Kubernet
 		ContainerCIDR:            d.Get("pod_cidr").(string),
 		ServiceCIDR:              d.Get("service_cidr").(string),
 		SSHFlags:                 d.Get("enable_ssh").(bool),
+		PublicSLB:                d.Get("slb_internet_enabled").(bool),
 		CloudMonitorFlags:        d.Get("install_cloud_monitor").(bool),
 		ZoneId:                   zoneId,
 	}
@@ -934,6 +942,7 @@ func buildKubernetesMultiAZArgs(d *schema.ResourceData, meta interface{}) (*cs.K
 		ContainerCIDR:            d.Get("pod_cidr").(string),
 		ServiceCIDR:              d.Get("service_cidr").(string),
 		SSHFlags:                 d.Get("enable_ssh").(bool),
+		PublicSLB:                d.Get("slb_internet_enabled").(bool),
 		CloudMonitorFlags:        d.Get("install_cloud_monitor").(bool),
 		KubernetesVersion:        d.Get("version").(string),
 	}
