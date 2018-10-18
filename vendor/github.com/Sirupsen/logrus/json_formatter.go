@@ -47,9 +47,6 @@ type JSONFormatter struct {
 	//    },
 	// }
 	FieldMap FieldMap
-
-	// PrettyPrint will indent all json logs
-	PrettyPrint bool
 }
 
 // Format renders a single log entry
@@ -91,14 +88,9 @@ func (f *JSONFormatter) Format(entry *Entry) ([]byte, error) {
 	} else {
 		b = &bytes.Buffer{}
 	}
-
-	encoder := json.NewEncoder(b)
-	if f.PrettyPrint {
-		encoder.SetIndent("", "  ")
-	}
-	if err := encoder.Encode(data); err != nil {
+	err := json.NewEncoder(b).Encode(data)
+	if err != nil {
 		return nil, fmt.Errorf("Failed to marshal fields to JSON, %v", err)
 	}
-
 	return b.Bytes(), nil
 }

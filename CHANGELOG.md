@@ -2,6 +2,7 @@
 
 FEATURES:
 
+- **New Resource:** `alicloud_slb_acl` ([#749](https://github.com/alibaba/terraform-provider/pull/749))
 - **New Resource:** `alicloud_cen_route_entry` ([#745](https://github.com/alibaba/terraform-provider/pull/745))
 
 IMPROVEMENTS:
