@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- add slb_internet_enabled to Kubernetes Cluster ([#746](https://github.com/alibaba/terraform-provider/pull/746))
 - Hide AliCloud HaVip Attachment resource docs because of it is not public totally ([#744](https://github.com/alibaba/terraform-provider/pull/744))
 - Improve examples/ots-table ([#741](https://github.com/alibaba/terraform-provider/pull/741))
 - Improve examples ecs-vpc, ecs-new-vpc and api-gateway ([#740](https://github.com/alibaba/terraform-provider/pull/740))
