@@ -42,6 +42,14 @@ const (
 	InvalidRuleIdNotFound       = "InvalidRuleId.NotFound"
 	RuleDomainExist             = "DomainExist"
 	BackendServerConfiguring    = "BackendServer.configuring"
+
+	// slb acl
+	SlbAclNumberOverLimit               = "AclNumberOverLimit"
+	SlbAclInvalidActionRegionNotSupport = "InvalidAction.RegionNotSupport"
+	SlbAclNotExists                     = "AclNotExist"
+	SlbAclEntryEmpty                    = "AclEntryEmpty"
+	SlbAclNameExist                     = "AclNameExist"
+
 	// security_group
 	InvalidInstanceIdAlreadyExists = "InvalidInstanceId.AlreadyExists"
 	InvalidSecurityGroupIdNotFound = "InvalidSecurityGroupId.NotFound"
@@ -58,6 +66,7 @@ const (
 	InvalidVpcIDNotFound = "InvalidVpcID.NotFound"
 	ForbiddenVpcNotFound = "Forbidden.VpcNotFound"
 	Throttling           = "Throttling"
+	IncorrectVpcStatus   = "IncorrectVpcStatus"
 
 	//apigatway
 	ApiGroupNotFound = "NotFoundApiGroup"
@@ -220,6 +229,9 @@ const (
 	ParameterBwpInstanceId           = "ParameterBwpInstanceId"
 	InvalidBwpInstanceStatus         = "InvalidOperation.BwpInstanceStatus"
 	InvalidBwpBusinessStatus         = "InvalidOperation.BwpBusinessStatus"
+	ParameterIllegal                 = "ParameterIllegal"
+	ParameterIllegalCenInstanceId    = "ParameterIllegal.CenInstanceId"
+	InstanceNotExist                 = "Instance.NotExist"
 	// kv-store
 	InvalidKVStoreInstanceIdNotFound = "InvalidInstanceId.NotFound"
 	// MNS

@@ -37,6 +37,10 @@ func TestAccAlicloudCSKubernetes_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "worker_disk_category", "cloud_efficiency"),
 					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "master_disk_size", "40"),
 					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "connections.%", "4"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.master_public_ip"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.api_server_internet"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.api_server_intranet"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.service_domain"),
 				),
 			},
 		},
@@ -68,6 +72,10 @@ func TestAccAlicloudCSKubernetes_autoVpc(t *testing.T) {
 					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "master_disk_category", "cloud_efficiency"),
 					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "worker_disk_size", "40"),
 					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "connections.%", "4"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.master_public_ip"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.api_server_internet"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.api_server_intranet"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.service_domain"),
 				),
 			},
 		},
@@ -100,7 +108,11 @@ func TestAccAlicloudCSMultiAZKubernetes_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "master_disk_size", "40"),
 					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "master_disk_category", "cloud_efficiency"),
 					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "worker_disk_size", "50"),
-					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "connections.%", "4"),
+					resource.TestCheckResourceAttr("alicloud_cs_kubernetes.k8s", "connections.%", "2"),
+					resource.TestCheckNoResourceAttr("alicloud_cs_kubernetes.k8s", "connections.master_public_ip"),
+					resource.TestCheckNoResourceAttr("alicloud_cs_kubernetes.k8s", "connections.api_server_internet"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.api_server_intranet"),
+					resource.TestCheckResourceAttrSet("alicloud_cs_kubernetes.k8s", "connections.service_domain"),
 				),
 			},
 		},
@@ -316,6 +328,7 @@ resource "alicloud_cs_kubernetes" "k8s" {
   pod_cidr = "192.168.1.0/24"
   service_cidr = "192.168.2.0/24"
   enable_ssh = true
+  slb_internet_enabled = false
   node_cidr_mask = 25
   log_config {
     type = "SLS"

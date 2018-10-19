@@ -1,7 +1,16 @@
 ## 1.20.0 (Unreleased)
 
+FEATURES:
+
+- **New Resource:** `alicloud_slb_acl` ([#749](https://github.com/alibaba/terraform-provider/pull/749))
+- **New Resource:** `alicloud_cen_route_entry` ([#745](https://github.com/alibaba/terraform-provider/pull/745))
+- **New Data Source:** `alicloud_cen_route_entries` ([#750](https://github.com/alibaba/terraform-provider/pull/750))
+
 IMPROVEMENTS:
 
+- resource alicloud_slb_listener support acl ([#751](https://github.com/alibaba/terraform-provider/pull/751))
+- change child instance type Vbr to VBR and replace some const variables ([#748](https://github.com/alibaba/terraform-provider/pull/748))
+- add slb_internet_enabled to Kubernetes Cluster ([#747](https://github.com/alibaba/terraform-provider/pull/747))
 - Hide AliCloud HaVip Attachment resource docs because of it is not public totally ([#744](https://github.com/alibaba/terraform-provider/pull/744))
 - Improve examples/ots-table ([#741](https://github.com/alibaba/terraform-provider/pull/741))
 - Improve examples ecs-vpc, ecs-new-vpc and api-gateway ([#740](https://github.com/alibaba/terraform-provider/pull/740))
