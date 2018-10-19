@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -126,8 +127,9 @@ func testAccCheckCenBandwidthLimitExists(n string, cenBwpLimit *cbn.CenInterRegi
 		localRegionId := params[1]
 		oppositeRegionId := params[2]
 
-		client := testAccProvider.Meta().(*AliyunClient)
-		instance, err := client.DescribeCenBandwidthLimit(cenId, localRegionId, oppositeRegionId)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		cenService := CenService{client}
+		instance, err := cenService.DescribeCenBandwidthLimit(cenId, localRegionId, oppositeRegionId)
 		if err != nil {
 			return err
 		}
@@ -138,7 +140,8 @@ func testAccCheckCenBandwidthLimitExists(n string, cenBwpLimit *cbn.CenInterRegi
 }
 
 func testAccCheckCenBandwidthLimitDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
+	cenService := CenService{client}
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_cen_bandwidth_limit" {
@@ -153,7 +156,7 @@ func testAccCheckCenBandwidthLimitDestroy(s *terraform.State) error {
 		localRegionId := params[1]
 		oppositeRegionId := params[2]
 
-		instance, err := client.DescribeCenBandwidthLimit(cenId, localRegionId, oppositeRegionId)
+		instance, err := cenService.DescribeCenBandwidthLimit(cenId, localRegionId, oppositeRegionId)
 		if err != nil {
 			if NotFoundError(err) {
 				continue

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -116,13 +117,14 @@ func testAccCheckHaVipAttachmentExists(n string) resource.TestCheckFunc {
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("No HaVip ID is set")
 		}
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		haVipService := HaVipService{client}
 		parts := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 
 		if len(parts) != 2 {
 			return fmt.Errorf("invalid resource id")
 		}
-		err := client.DescribeHaVipAttachment(parts[0], parts[1])
+		err := haVipService.DescribeHaVipAttachment(parts[0], parts[1])
 		if err != nil {
 			return fmt.Errorf("Describe HaVip attachment error %#v", err)
 		}
@@ -131,7 +133,8 @@ func testAccCheckHaVipAttachmentExists(n string) resource.TestCheckFunc {
 }
 
 func testAccCheckHaVipAttachmentDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
+	haVipService := HaVipService{client}
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_havip_attachment" {
 			continue
@@ -141,7 +144,7 @@ func testAccCheckHaVipAttachmentDestroy(s *terraform.State) error {
 		if len(parts) != 2 {
 			return fmt.Errorf("invalid resource id")
 		}
-		err := client.DescribeHaVipAttachment(parts[0], parts[1])
+		err := haVipService.DescribeHaVipAttachment(parts[0], parts[1])
 		if err != nil {
 			if NotFoundError(err) {
 				continue

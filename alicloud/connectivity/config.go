@@ -20,6 +20,7 @@ type Config struct {
 	LogEndpoint     string
 	AccountId       string
 	FcEndpoint      string
+	MNSEndpoint     string
 }
 
 func (c *Config) loadAndValidate() error {

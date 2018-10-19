@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cloudapi"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -20,11 +21,11 @@ func init() {
 }
 
 func testSweepApiGatewayGroup(region string) error {
-	client, err := sharedClientForRegion(region)
+	rawClient, err := sharedClientForRegion(region)
 	if err != nil {
 		return fmt.Errorf("error getting Alicloud client: %s", err)
 	}
-	conn := client.(*AliyunClient)
+	client := rawClient.(*connectivity.AliyunClient)
 
 	prefixes := []string{
 		"tf-testacc",
@@ -32,10 +33,13 @@ func testSweepApiGatewayGroup(region string) error {
 	}
 
 	req := cloudapi.CreateDescribeApiGroupsRequest()
-	apiGroups, err := conn.cloudapiconn.DescribeApiGroups(req)
+	raw, err := client.WithCloudApiClient(func(cloudApiClient *cloudapi.Client) (interface{}, error) {
+		return cloudApiClient.DescribeApiGroups(req)
+	})
 	if err != nil {
 		return fmt.Errorf("Error Describe Api Groups: %s", err)
 	}
+	apiGroups, _ := raw.(*cloudapi.DescribeApiGroupsResponse)
 
 	sweeped := false
 
@@ -59,7 +63,10 @@ func testSweepApiGatewayGroup(region string) error {
 
 		req := cloudapi.CreateDeleteApiGroupRequest()
 		req.GroupId = id
-		if _, err := conn.cloudapiconn.DeleteApiGroup(req); err != nil {
+		_, err := client.WithCloudApiClient(func(cloudApiClient *cloudapi.Client) (interface{}, error) {
+			return cloudApiClient.DeleteApiGroup(req)
+		})
+		if err != nil {
 			log.Printf("[ERROR] Failed to delete Api Group (%s): %s", name, err)
 		}
 	}
@@ -90,6 +97,8 @@ func TestAccAlicloudApigatewayGroup_basic(t *testing.T) {
 }
 
 func testAccCheckAlicloudApigatewayGroupExists(n string, d *cloudapi.DescribeApiGroupResponse) resource.TestCheckFunc {
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
+	cloudApiService := CloudApiService{client}
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -102,9 +111,8 @@ func testAccCheckAlicloudApigatewayGroupExists(n string, d *cloudapi.DescribeApi
 
 		fmt.Println(rs.Primary.ID)
 
-		resp, err := testAccProvider.Meta().(*AliyunClient).DescribeApiGroup(rs.Primary.ID)
+		resp, err := cloudApiService.DescribeApiGroup(rs.Primary.ID)
 		if err != nil {
-
 			return fmt.Errorf("Error Describe Apigroup: %#v", err)
 		}
 
@@ -114,14 +122,15 @@ func testAccCheckAlicloudApigatewayGroupExists(n string, d *cloudapi.DescribeApi
 }
 
 func testAccCheckAlicloudApigatewayGroupDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
+	cloudApiService := CloudApiService{client}
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_api_gateway_group" {
 			continue
 		}
 
-		_, err := client.DescribeApiGroup(rs.Primary.ID)
+		_, err := cloudApiService.DescribeApiGroup(rs.Primary.ID)
 		if err != nil {
 			if NotFoundError(err) {
 				continue

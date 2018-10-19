@@ -601,7 +601,10 @@ func resourceAliyunInstanceUpdate(d *schema.ResourceData, meta interface{}) erro
 			args.Duration = requests.NewInteger(d.Get("auto_renew_period").(int))
 		}
 
-		if _, err := client.ecsconn.ModifyInstanceAutoRenewAttribute(args); err != nil {
+		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ModifyInstanceAutoRenewAttribute(args)
+		})
+		if err != nil {
 			return fmt.Errorf("ModifyInstanceAutoRenewAttribute got an error: %#v", err)
 		}
 		d.SetPartial("renewal_status")
@@ -794,6 +797,7 @@ func modifyInstanceChargeType(d *schema.ResourceData, meta interface{}, forceDel
 	}
 
 	client := meta.(*connectivity.AliyunClient)
+	ecsService := EcsService{client}
 	chargeType := d.Get("instance_charge_type").(string)
 	if d.HasChange("instance_charge_type") || forceDelete {
 		if forceDelete {
@@ -827,7 +831,7 @@ func modifyInstanceChargeType(d *schema.ResourceData, meta interface{}, forceDel
 		}
 		// Wait for instance charge type has been changed
 		if err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-			if instance, err := client.DescribeInstanceById(d.Id()); err != nil {
+			if instance, err := ecsService.DescribeInstanceById(d.Id()); err != nil {
 				return resource.NonRetryableError(fmt.Errorf("Describing instance %s got an error: %#v.", d.Id(), err))
 			} else if instance.InstanceChargeType == chargeType {
 				return nil

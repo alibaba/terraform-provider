@@ -70,7 +70,7 @@ func resourceAlicloudRamPolicy() *schema.Resource {
 				ConflictsWith: []string{"statement", "version"},
 				ValidateFunc:  validateJsonString,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					equal, _ := CompareJsonTemplateAreEquivalent(old, new)
+					equal, _ := compareJsonTemplateAreEquivalent(old, new)
 					return equal
 				},
 			},

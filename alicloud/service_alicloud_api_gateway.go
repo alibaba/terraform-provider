@@ -1,20 +1,28 @@
 package alicloud
 
 import (
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cloudapi"
 )
 
-func (client *AliyunClient) DescribeApiGroup(groupId string) (apiGroup *cloudapi.DescribeApiGroupResponse, err error) {
+type CloudApiService struct {
+	client *connectivity.AliyunClient
+}
+
+func (s *CloudApiService) DescribeApiGroup(groupId string) (apiGroup *cloudapi.DescribeApiGroupResponse, err error) {
 	req := cloudapi.CreateDescribeApiGroupRequest()
 	req.GroupId = groupId
 
-	apiGroup, err = client.cloudapiconn.DescribeApiGroup(req)
+	raw, err := s.client.WithCloudApiClient(func(cloudApiClient *cloudapi.Client) (interface{}, error) {
+		return cloudApiClient.DescribeApiGroup(req)
+	})
 	if err != nil {
 		if IsExceptedError(err, ApiGroupNotFound) {
 			err = GetNotFoundErrorFromString(GetNotFoundMessage("ApiGroup", groupId))
 		}
 		return
 	}
+	apiGroup, _ = raw.(*cloudapi.DescribeApiGroupResponse)
 	if apiGroup == nil || apiGroup.GroupId == "" {
 		err = GetNotFoundErrorFromString(GetNotFoundMessage("ApiGroup", groupId))
 	}

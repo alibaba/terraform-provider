@@ -22,6 +22,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/resource"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/utils"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cloudapi"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -33,6 +34,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub"
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
@@ -44,6 +46,7 @@ import (
 	"github.com/denverdino/aliyungo/kms"
 	"github.com/denverdino/aliyungo/location"
 	"github.com/denverdino/aliyungo/ram"
+	"github.com/dxh031/ali_mns"
 	"github.com/hashicorp/terraform/terraform"
 )
 
@@ -79,6 +82,9 @@ type AliyunClient struct {
 	ddsconn                      *dds.Client
 	stsconn                      *sts.Client
 	rkvconn                      *r_kvstore.Client
+	dhconn                       *datahub.DataHub
+	mnsconn                      *ali_mns.MNSClient
+	cloudapiconn                 *cloudapi.Client
 	tablestoreconnByInstanceName map[string]*tablestore.TableStoreClient
 	csprojectconnByKey           map[string]*cs.ProjectClient
 }
@@ -279,6 +285,16 @@ func (client *AliyunClient) WithOssClient(do func(*oss.Client) (interface{}, err
 	}
 
 	return do(client.ossconn)
+}
+
+func (client *AliyunClient) WithOssBucketByName(bucketName string, do func(*oss.Bucket) (interface{}, error)) (interface{}, error) {
+	return client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		bucket, err := client.ossconn.Bucket(bucketName)
+		if err != nil {
+			return nil, fmt.Errorf("unable to get the bucket %s: %#v", bucketName, err)
+		}
+		return do(bucket)
+	})
 }
 
 func (client *AliyunClient) WithDnsClient(do func(*dns.Client) (interface{}, error)) (interface{}, error) {
@@ -542,6 +558,97 @@ func (client *AliyunClient) WithFcClient(do func(*fc.Client) (interface{}, error
 	}
 
 	return do(client.fcconn)
+}
+
+func (client *AliyunClient) WithCloudApiClient(do func(*cloudapi.Client) (interface{}, error)) (interface{}, error) {
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
+
+	// Initialize the Cloud API client if necessary
+	if client.cloudapiconn == nil {
+		endpoint := loadEndpoint(client.RegionId, CLOUDAPICode)
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.RegionId, fmt.Sprintf("R-%s", string(CLOUDAPICode)), endpoint)
+		}
+		cloudapiconn, err := cloudapi.NewClientWithOptions(client.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the CloudAPI client: %#v", err)
+		}
+
+		client.cloudapiconn = cloudapiconn
+	}
+
+	return do(client.cloudapiconn)
+}
+
+func (client *AliyunClient) WithDataHubClient(do func(*datahub.DataHub) (interface{}, error)) (interface{}, error) {
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
+
+	// Initialize the DataHub client if necessary
+	if client.dhconn == nil {
+		endpoint := loadEndpoint(client.RegionId, DATAHUBCode)
+		if endpoint == "" {
+			endpoint = fmt.Sprintf("https://dh-%s.aliyuncs.com", client.RegionId)
+		}
+		account := datahub.NewStsCredential(client.AccessKey, client.SecretKey, client.SecurityToken)
+		config := &datahub.Config{
+			UserAgent: client.getUserAgent(),
+		}
+
+		client.dhconn = datahub.NewClientWithConfig(endpoint, config, account)
+	}
+
+	return do(client.dhconn)
+}
+
+func (client *AliyunClient) WithMnsClient(do func(*ali_mns.MNSClient) (interface{}, error)) (interface{}, error) {
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
+
+	// Initialize the MNS client if necessary
+	if client.mnsconn == nil {
+		endpoint := client.config.MNSEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, MNSCode)
+			if endpoint == "" {
+				endpoint = fmt.Sprintf("%s.aliyuncs.com", client.config.RegionId)
+			}
+		}
+
+		accountId, err := client.AccountId()
+		if err != nil {
+			return nil, err
+		}
+		mnsUrl := fmt.Sprintf("http://%s.mns.%s", accountId, endpoint)
+
+		mnsClient := ali_mns.NewAliMNSClient(mnsUrl, client.config.AccessKey, client.config.SecretKey)
+
+		client.mnsconn = &mnsClient
+	}
+
+	return do(client.mnsconn)
+}
+
+func (client *AliyunClient) WithMnsQueueManager(do func(ali_mns.AliQueueManager) (interface{}, error)) (interface{}, error) {
+	return client.WithMnsClient(func(mnsClient *ali_mns.MNSClient) (interface{}, error) {
+		queueManager := ali_mns.NewMNSQueueManager(*mnsClient)
+		return do(queueManager)
+	})
+}
+
+func (client *AliyunClient) WithMnsTopicManager(do func(ali_mns.AliTopicManager) (interface{}, error)) (interface{}, error) {
+	return client.WithMnsClient(func(mnsClient *ali_mns.MNSClient) (interface{}, error) {
+		topicManager := ali_mns.NewMNSTopicManager(*mnsClient)
+		return do(topicManager)
+	})
+}
+
+func (client *AliyunClient) WithMnsSubscriptionManagerByTopicName(topicName string, do func(ali_mns.AliMNSTopic) (interface{}, error)) (interface{}, error) {
+	return client.WithMnsClient(func(mnsClient *ali_mns.MNSClient) (interface{}, error) {
+		subscriptionManager := ali_mns.NewMNSTopic(topicName, *mnsClient)
+		return do(subscriptionManager)
+	})
 }
 
 func (client *AliyunClient) WithTableStoreClient(instanceName string, do func(*tablestore.TableStoreClient) (interface{}, error)) (interface{}, error) {

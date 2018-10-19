@@ -6,8 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"os"
+
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/resource"

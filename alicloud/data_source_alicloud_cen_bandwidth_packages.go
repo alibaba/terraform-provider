@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -118,7 +119,7 @@ func dataSourceAlicloudCensBandwidthPackagesRead(d *schema.ResourceData, meta in
 }
 
 func doRequestCenBandwidthPackages(filters []cbn.DescribeCenBandwidthPackagesFilter, d *schema.ResourceData, meta interface{}) ([]cbn.CenBandwidthPackage, error) {
-	conn := meta.(*AliyunClient).cenconn
+	client := meta.(*connectivity.AliyunClient)
 
 	args := cbn.CreateDescribeCenBandwidthPackagesRequest()
 	args.PageSize = requests.NewInteger(PageSizeLarge)
@@ -146,10 +147,13 @@ func doRequestCenBandwidthPackages(filters []cbn.DescribeCenBandwidthPackagesFil
 	var allCenBwps []cbn.CenBandwidthPackage
 
 	for {
-		resp, err := conn.DescribeCenBandwidthPackages(args)
+		raw, err := client.WithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+			return cbnClient.DescribeCenBandwidthPackages(args)
+		})
 		if err != nil {
 			return allCenBwps, err
 		}
+		resp, _ := raw.(*cbn.DescribeCenBandwidthPackagesResponse)
 
 		if resp == nil || len(resp.CenBandwidthPackages.CenBandwidthPackage) < 1 {
 			break
