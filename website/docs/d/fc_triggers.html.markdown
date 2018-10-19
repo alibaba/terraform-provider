@@ -10,7 +10,7 @@ description: |-
 
 This data source provides the Function Compute triggers of the current Alibaba Cloud user.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_fc_triggers" "fc_triggers_ds" {
@@ -28,14 +28,14 @@ output "first_fc_trigger_name" {
 
 The following arguments are supported:
 
-* `service_name` - FC service name.
-* `function_name` - FC function name.
-* `name_regex` - (Optional) A regex string to filter results by FC trigger name.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `service_name` - (Required) Enter the FC service name.
+* `function_name` - (Required) Enter the FC function name.
+* `name_regex` - (Optional) Filter results by FC trigger name with a regex string.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `triggers` - A list of FC triggers. Each element contains the following attributes:
   * `id` - FC trigger ID.

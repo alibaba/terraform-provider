@@ -8,4 +8,4 @@ description: |-
 
 # alicloud\_dns\_domain\_records
 
-~> **NOTE:** This resource has been deprecated from [v1.3.2](https://github.com/alibaba/terraform-provider/releases/tag/V1.3.2). Please use the datasource `alicloud_dns_records` instead.
+~> **NOTE:** This resource is no longer supported from [v1.3.2](https://github.com/alibaba/terraform-provider/releases/tag/V1.3.2). Please use the datasource `alicloud_dns_records` instead.

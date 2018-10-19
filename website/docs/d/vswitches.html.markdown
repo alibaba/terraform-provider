@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of VSwitches owned by an Alibaba Cloud account.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_vswitches" "vswitches_ds" {
@@ -31,15 +31,15 @@ resource "alicloud_instance" "foo" {
 The following arguments are supported:
 
 * `cidr_block` - (Optional) Filter results by a specific CIDR block. For example: "172.16.0.0/12".
-* `zone_id` - (Optional) The availability zone of the VSwitch.
-* `name_regex` - (Optional) A regex string to filter results by name.
-* `is_default` - (Optional, type: bool) Indicate whether the VSwitch is created by the system.
-* `vpc_id` - (Optional) ID of the VPC that owns the VSwitch.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `zone_id` - (Optional) Filter by the availability zone of the VSwitch.
+* `name_regex` - (Optional) Filter results by name by using a regex string.
+* `is_default` - (Optional, type: bool) Filter by whether the VSwitch is created by the system.
+* `vpc_id` - (Optional) Filter by ID of the VPC that owns the VSwitch.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `vswitches` - A list of VSwitches. Each element contains the following attributes:
   * `id` - ID of the VSwitch.

@@ -12,9 +12,9 @@ This data source provides the ECS instance types of Alibaba Cloud.
 
 ~> **NOTE:** By default, only the upgraded instance types are returned. If you want to get outdated instance types, you must set `is_outdated` to true.
 
-~> **NOTE:** If one instance type is sold out, it will not be exported.
+~> **NOTE:** If an instance type is sold out, it will not be returned.
 
-## Example Usage
+## Example
 
 ```
 # Declare the data source
@@ -37,19 +37,19 @@ resource "alicloud_instance" "instance" {
 
 The following arguments are supported:
 
-* `availability_zone` - (Optional) The zone where instance types are supported.
-* `cpu_core_count` - (Optional) Filter the results to a specific number of cpu cores.
-* `memory_size` - (Optional) Filter the results to a specific memory size in GB.
-* `instance_type_family` - (Optional) Filter the results based on their family name. For example: 'ecs.n4'.
-* `instance_charge_type` - (Optional) Filter the results by charge type. Valid values: `PrePaid` and `PostPaid`. Default to `PostPaid`.
-* `network_type` - (Optional) Filter the results by network type. Valid values: `Classic` and `Vpc`.
-* `spot_strategy` - - (Optional) Filter the results by ECS spot type. Valid values: `NoSpot`, `SpotWithPriceLimit` and `SpotAsPriceGo`. Default to `NoSpot`.
-* `is_outdated` - (Optional, type: bool) If true, outdated instance types are included in the results. Default to false.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `availability_zone` - (Optional) Filter by zone where instance types are supported.
+* `cpu_core_count` - (Optional) Filter by specific number of CPU cores.
+* `memory_size` - (Optional) Filter by specific memory size in GB.
+* `instance_type_family` - (Optional) Filter by family name, for example, 'ecs.n4'.
+* `instance_charge_type` - (Optional) Filter by charge type. Valid values: `PrePaid` and `PostPaid`. Default to `PostPaid`.
+* `network_type` - (Optional) Filter by network type. Valid values: `Classic` and `Vpc`.
+* `spot_strategy` - - (Optional) Filter by ECS spot type. Valid values: `NoSpot`, `SpotWithPriceLimit` and `SpotAsPriceGo`. The default is `NoSpot`.
+* `is_outdated` - (Optional, type: bool) If true, outdated instance types are included in the results. By default it is false.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `instance_types` - A list of image types. Each element contains the following attributes:
   * `id` - ID of the instance type.

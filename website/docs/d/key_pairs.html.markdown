@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of key pairs in an Alibaba Cloud account according to the specified filters.
 
-## Example Usage
+## Example
 
 ```
 # Declare the data source
@@ -32,19 +32,19 @@ resource "alicloud_key_pair_attachment" "attachment" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to apply to the resulting key pairs.
-* `finger_print` - (Optional) A finger print used to retrieve specified key pair.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `name_regex` - (Optional) Apply a regex string to the resulting key pairs.
+* `finger_print` - (Optional) Set the finger print used to retrieve the specified key pair.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `key_pairs` - A list of key pairs. Each element contains the following attributes:
   * `id` - ID of the key pair.
   * `key_name` - Name of the key pair.
   * `finger_print` - Finger print of the key pair.
-  * `instances` - A list of ECS instances that has been bound this key pair.
+  * `instances` - A list of ECS instances that have been bound this key pair.
     * `availability_zone` - The ID of the availability zone where the ECS instance is located.
     * `instance_id` - The ID of the ECS instance.
     * `instance_name` - The name of the ECS instance.

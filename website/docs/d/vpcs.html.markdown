@@ -10,7 +10,7 @@ description: |-
 
 This data source provides VPCs available to the user.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_vpcs" "vpcs_ds"{
@@ -27,17 +27,18 @@ output "first_vpc_id" {
 ## Argument Reference
 
 The following arguments are supported:
+(Note: If no value is specified for filters, all values are returned.)
 
-* `cidr_block` - (Optional) Filter results by a specific CIDR block. For example: "172.16.0.0/12".
-* `status` - (Optional) Filter results by a specific status. Valid value are `Pending` and `Available`.
+* `cidr_block` - (Optional) Filter results by specific CIDR block. For example: "172.16.0.0/12".
+* `status` - (Optional) Filter results by specific status. Valid value are `Pending` and `Available`.
 * `name_regex` - (Optional) A regex string to filter VPCs by name.
-* `is_default` - (Optional, type: bool) Indicate whether the VPC is the default one in the specified region.
+* `is_default` - (Optional, type: bool) Indicates whether the VPC is the default one in the specified region.
 * `vswitch_id` - (Optional) Filter results by the specified VSwitch.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `vpcs` - A list of VPCs. Each element contains the following attributes:
   * `id` - ID of the VPC.

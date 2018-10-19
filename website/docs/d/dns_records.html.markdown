@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of DNS Domain Records in an Alibaba Cloud account according to the specified filters.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_dns_records" "records_ds" {
@@ -30,19 +30,19 @@ output "first_record_id" {
 
 The following arguments are supported:
 
-* `domain_name` - (Required) The domain name associated to the records.
-* `host_record_regex` - (Optional) Host record regex. 
-* `value_regex` - (Optional) Host record value regex. 
-* `type` - (Optional) Record type. Valid items are `A`, `NS`, `MX`, `TXT`, `CNAME`, `SRV`, `AAAA`, `REDIRECT_URL`, `FORWORD_URL` .
-* `line` - (Optional) ISP line. Valid items are `default`, `telecom`, `unicom`, `mobile`, `oversea`, `edu`.
-* `status` - (Optional) Record status. Valid items are `ENABLE` and `DISABLE`.
-* `is_locked` - (Optional, type: bool) Whether the record is locked or not.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `domain_name` - (Required) Enter the domain name associated with the records.
+* `host_record_regex` - (Optional) Filter by host record with a regex string. 
+* `value_regex` - (Optional) Filter by host record value with a regex string. 
+* `type` - (Optional) Filter by record type. Valid items are `A`, `NS`, `MX`, `TXT`, `CNAME`, `SRV`, `AAAA`, `REDIRECT_URL`, `FORWORD_URL` .
+* `line` - (Optional) Filter by ISP line. Valid items are `default`, `telecom`, `unicom`, `mobile`, `oversea`, `edu`.
+* `status` - (Optional) Filter by record status. Valid items are `ENABLE` and `DISABLE`.
+* `is_locked` - (Optional, type: bool) Filter by whether the record is locked or not.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `records` - A list of records. Each element contains the following attributes:
   * `record_id` - ID of the record.

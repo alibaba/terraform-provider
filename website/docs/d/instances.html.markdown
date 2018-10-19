@@ -8,9 +8,9 @@ description: |-
 
 # alicloud\_instances
 
-The Instances data source list ECS instance resources according to their ID, name regex, image id, status and other fields.
+This data source list provides ECS instance resources according to their ID, name regex, image ID, status and other fields.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_instances" "instances_ds" {
@@ -27,14 +27,14 @@ output "first_instance_id" {
 
 The following arguments are supported:
 
-* `ids` - (Optional) A list of ECS instance IDs.
-* `name_regex` - (Optional) A regex string to filter results by instance name.
-* `image_id` - (Optional) The image ID of some ECS instance used.
-* `status` - (Optional) Instance status. Valid values: "Creating", "Starting", "Running", "Stopping" and "Stopped". If undefined, all statuses are considered.
-* `vpc_id` - (Optional) ID of the VPC linked to the instances.
-* `vswitch_id` - (Optional) ID of the VSwitch linked to the instances.
-* `availability_zone` - (Optional) Availability zone where instances are located.
-* `tags` - (Optional) A map of tags assigned to the ECS instances. It must be in the format:
+* `ids` - (Optional) Filter by ECS instance ID.
+* `name_regex` - (Optional) Filter results by instance name with a regex string.
+* `image_id` - (Optional) Filter by image ID of ECS instances.
+* `status` - (Optional) Filter by instance status. Valid values: "Creating", "Starting", "Running", "Stopping" and "Stopped". 
+* `vpc_id` - (Optional) Filter by ID of the VPC linked to the instances.
+* `vswitch_id` - (Optional) Filter by ID of the VSwitch linked to the instances.
+* `availability_zone` - (Optional) Filter by the availability zone where instances are located.
+* `tags` - (Optional) Filter by the map of tags assigned to the ECS instances. It must be in the format:
   ```
   data "alicloud_instances" "taggedInstances" {
     tags = {
@@ -43,11 +43,11 @@ The following arguments are supported:
     }
   }
   ```
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `instances` - A list of instances. Each element contains the following attributes:
   * `id` - ID of the instance.

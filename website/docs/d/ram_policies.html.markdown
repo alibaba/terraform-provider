@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of RAM policies in an Alibaba Cloud account according to the specified filters.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_ram_policies" "policies_ds" {
@@ -29,16 +29,16 @@ output "first_policy_name" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to filter resulting policies by name.
-* `type` - (Optional) Filter results by a specific policy type. Valid values are `Custom` and `System`.
+* `name_regex` - (Optional) Filter resulting policies by name by using a regex string.
+* `type` - (Optional) Filter results by specific policy type by using a regex string. Valid values are `Custom` and `System`.
 * `user_name` - (Optional) Filter results by a specific user name. Returned policies are attached to the specified user.
 * `group_name` - (Optional) Filter results by a specific group name. Returned policies are attached to the specified group.
 * `role_name` - (Optional) Filter results by a specific role name. Returned policies are attached to the specified role.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `policies` - A list of policies. Each element contains the following attributes:
   * `name` - Name of the policy.

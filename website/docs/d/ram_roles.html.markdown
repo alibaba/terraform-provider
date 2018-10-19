@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of RAM Roles in an Alibaba Cloud account according to the specified filters.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_ram_roles" "roles_ds" {
@@ -29,17 +29,17 @@ output "first_role_id" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to filter results by the role name.
+* `name_regex` - (Optional) Filter results by the role name by using a regex string.
 * `policy_type` - (Optional) Filter results by a specific policy type. Valid values are `Custom` and `System`. If you set this parameter, you must set `policy_name` as well.
 * `policy_name` - (Optional) Filter results by a specific policy name. If you set this parameter without setting `policy_type`, the later will be automatically set to `System`. The resulting roles will be attached to the specified policy.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `roles` - A list of roles. Each element contains the following attributes:
-  * `id` - Id of the role.
+  * `id` - ID of the role.
   * `name` - Name of the role.
   * `arn` - Resource descriptor of the role.
   * `description` - Description of the role.

@@ -8,4 +8,4 @@ description: |-
 
 # alicloud\_ram\_account\_alias
 
-~> **NOTE:** This datasource has been deprecated from [v1.3.2](https://github.com/alibaba/terraform-provider/releases/tag/V1.3.2). Please use `alicloud_ram_account_aliases` instead.
+~> **NOTE:** This datasource is no longer supported from [v1.3.2](https://github.com/alibaba/terraform-provider/releases/tag/V1.3.2). Please use `alicloud_ram_account_aliases` instead.

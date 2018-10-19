@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of RAM users in an Alibaba Cloud account according to the specified filters.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_ram_users" "users_ds" {
@@ -30,18 +30,18 @@ output "first_user_id" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to filter resulting users by their names.
+* `name_regex` - (Optional) Filter the resulting users by their names by using a regex string.
 * `group_name` - (Optional) Filter results by a specific group name. Returned users are in the specified group. 
 * `policy_type` - (Optional) Filter results by a specific policy type. Valid values are `Custom` and `System`. If you set this parameter, you must set `policy_name` as well.
 * `policy_name` - (Optional) Filter results by a specific policy name. If you set this parameter without setting `policy_type`, the later will be automatically set to `System`. Returned users are attached to the specified policy.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `users` - A list of users. Each element contains the following attributes:
-  * `id` - Id of the user.
+  * `id` - ID of the user.
   * `name` - Name of the user.
   * `create_date` - Creation date of the user.
   * `last_login_date` - Last login date of the user.

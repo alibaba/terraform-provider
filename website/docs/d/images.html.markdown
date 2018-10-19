@@ -9,9 +9,9 @@ description: |-
 # alicloud\_images
 
 This data source provides available image resources. It contains user's private images, system images provided by Alibaba Cloud, 
-other public images and the ones available on the image market. 
+other public images, and the ones available on the image market. 
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_images" "images_ds" {
@@ -28,16 +28,16 @@ output "first_image_id" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to filter resulting images by name. 
-* `most_recent` - (Optional, type: bool) If more than one result are returned, select the most recent one.
-* `owners` - (Optional) Filter results by a specific image owner. Valid items are `system`, `self`, `others`, `marketplace`.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `name_regex` - (Optional) Filter resulting images by name with a regex string. 
+* `most_recent` - (Optional, type: bool) If more than one result is returned, select the most recent one.
+* `owners` - (Optional) Filter results by image owner. Valid items are `system`, `self`, `others`, `marketplace`.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 -> **NOTE:** At least one of the `name_regex`, `most_recent` and `owners` must be set.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `images` - A list of images. Each element contains the following attributes:
   * `id` - ID of the image.

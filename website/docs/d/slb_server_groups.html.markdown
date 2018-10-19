@@ -10,7 +10,7 @@ description: |-
 
 This data source provides the VServer groups related to a server load balancer.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_slb_server_groups" "sample_ds" {
@@ -26,14 +26,14 @@ output "first_slb_server_group_id" {
 
 The following arguments are supported:
 
-* `load_balancer_id` - ID of the SLB.
-* `ids` - (Optional) A list of VServer group IDs to filter results.
-* `name_regex` - (Optional) A regex string to filter results by VServer group name.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `load_balancer_id` - (Required) Specify the ID of the SLB.
+* `ids` - (Optional) Filter results by VServer group ID.
+* `name_regex` - (Optional) Filter results by VServer group name by using a regex string.
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `slb_server_groups` - A list of SLB VServer groups. Each element contains the following attributes:
   * `id` - VServer group ID.

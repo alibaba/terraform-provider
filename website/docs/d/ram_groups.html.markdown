@@ -10,7 +10,7 @@ description: |-
 
 This data source provides a list of RAM Groups in an Alibaba Cloud account according to the specified filters.
 
-## Example Usage
+## Example
 
 ```
 data "alicloud_ram_groups" "groups_ds" {
@@ -28,15 +28,15 @@ output "first_group_name" {
 
 The following arguments are supported:
 
-* `name_regex` - (Optional) A regex string to filter the returned groups by their names.
+* `name_regex` - (Optional) Filter the returned groups by their names by using a regex string.
 * `user_name` - (Optional) Filter the results by a specific the user name.
 * `policy_type` - (Optional) Filter the results by a specific policy type. Valid items are `Custom` and `System`. If you set this parameter, you must set `policy_name` as well.
 * `policy_name` - (Optional) Filter the results by a specific policy name. If you set this parameter without setting `policy_type`, it will be automatically set to `System`.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `output_file` - (Optional) Set the name of the file where data source results will be saved after running `terraform plan`.
 
 ## Attributes Reference
 
-The following attributes are exported in addition to the arguments listed above:
+The following attributes are returned in addition to the arguments listed above:
 
 * `groups` - A list of groups. Each element contains the following attributes:
   * `name` - Name of the group.
