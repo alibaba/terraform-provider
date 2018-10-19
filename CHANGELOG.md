@@ -19,6 +19,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix reources' id description bugs ([#756](https://github.com/alibaba/terraform-provider/pull/756))
 - Fix alicloud_ess_scaling_configuration setting data_disk failed ([#753](https://github.com/alibaba/terraform-provider/pull/753))
 
 ## 1.19.0 (October 14, 2018)
