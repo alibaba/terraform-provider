@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -46,9 +47,10 @@ func testAccCheckCenRouteEntryExists(n string, routeEntry *cbn.PublishedRouteEnt
 			return fmt.Errorf("No Cen Route Entry Publishment ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		cenService := CenService{client}
 
-		routeEntryItem, err := client.DescribePublishedRouteEntriesById(rs.Primary.ID)
+		routeEntryItem, err := cenService.DescribePublishedRouteEntriesById(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -63,14 +65,15 @@ func testAccCheckCenRouteEntryExists(n string, routeEntry *cbn.PublishedRouteEnt
 }
 
 func testAccCheckCenRouteEntryDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
+	cenService := CenService{client}
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_cen_route_entry" {
 			continue
 		}
 
-		routeEntryItem, err := client.DescribePublishedRouteEntriesById(rs.Primary.ID)
+		routeEntryItem, err := cenService.DescribePublishedRouteEntriesById(rs.Primary.ID)
 		if err != nil {
 			if NotFoundError(err) {
 				continue

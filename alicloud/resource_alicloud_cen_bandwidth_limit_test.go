@@ -119,16 +119,16 @@ func testAccCheckCenBandwidthLimitExists(n string, cenBwpLimit *cbn.CenInterRegi
 			return fmt.Errorf("No CEN bandwidth limit ID is set")
 		}
 
-		params, err := getCenAndRegionIds(rs.Primary.ID)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		cenService := CenService{client}
+
+		params, err := cenService.GetCenAndRegionIds(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
 		cenId := params[0]
 		localRegionId := params[1]
 		oppositeRegionId := params[2]
-
-		client := testAccProvider.Meta().(*connectivity.AliyunClient)
-		cenService := CenService{client}
 		instance, err := cenService.DescribeCenBandwidthLimit(cenId, localRegionId, oppositeRegionId)
 		if err != nil {
 			return err
@@ -148,7 +148,7 @@ func testAccCheckCenBandwidthLimitDestroy(s *terraform.State) error {
 			continue
 		}
 
-		params, err := getCenAndRegionIds(rs.Primary.ID)
+		params, err := cenService.GetCenAndRegionIds(rs.Primary.ID)
 		if err != nil {
 			return err
 		}

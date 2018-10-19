@@ -96,7 +96,7 @@ func testAccCheckCenInstanceAttachmentExists(n string, instance *cbn.ChildInstan
 		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 		cenService := CenService{client}
 
-		cenId, instanceId, err := getCenIdAndAnotherId(rs.Primary.ID)
+		cenId, instanceId, err := cenService.GetCenIdAndAnotherId(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -124,7 +124,7 @@ func testAccCheckCenInstanceAttachmentDestroy(s *terraform.State) error {
 			continue
 		}
 
-		cenId, instanceId, err := getCenIdAndAnotherId(rs.Primary.ID)
+		cenId, instanceId, err := cenService.GetCenIdAndAnotherId(rs.Primary.ID)
 		if err != nil {
 			return err
 		}

@@ -18,6 +18,8 @@ type SlbService struct {
 	client *connectivity.AliyunClient
 }
 
+const max_num_per_time = 50
+
 func (s *SlbService) BuildSlbCommonRequest() *requests.CommonRequest {
 	return s.client.NewCommonRequest(connectivity.SLBCode, connectivity.ApiVersion20140515)
 }
@@ -172,14 +174,15 @@ func (s *SlbService) WaitForListener(loadBalancerId string, port int, protocol P
 	return nil
 }
 
-const max_num_per_time = 50
-
-func slbRemoveAccessControlListEntryPerTime(client *slb.Client, list []interface{}, aclId string) error {
+func (s *SlbService) slbRemoveAccessControlListEntryPerTime(list []interface{}, aclId string) error {
 	req := slb.CreateRemoveAccessControlListEntryRequest()
 	req.AclId = aclId
 	b, _ := json.Marshal(list)
 	req.AclEntrys = string(b)
-	if _, err := client.RemoveAccessControlListEntry(req); err != nil {
+	_, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		return slbClient.RemoveAccessControlListEntry(req)
+	})
+	if err != nil {
 		if !IsExceptedError(err, SlbAclEntryEmpty) {
 			return fmt.Errorf("RemoveAccessControlListEntry got an error: %#v", err)
 		}
@@ -188,7 +191,7 @@ func slbRemoveAccessControlListEntryPerTime(client *slb.Client, list []interface
 	return nil
 }
 
-func slbRemoveAccessControlListEntry(client *slb.Client, list []interface{}, aclId string) error {
+func (s *SlbService) SlbRemoveAccessControlListEntry(list []interface{}, aclId string) error {
 	num := len(list)
 
 	if num <= 0 {
@@ -205,7 +208,7 @@ func slbRemoveAccessControlListEntry(client *slb.Client, list []interface{}, acl
 		}
 
 		slice := list[start:end]
-		if err := slbRemoveAccessControlListEntryPerTime(client, slice, aclId); err != nil {
+		if err := s.slbRemoveAccessControlListEntryPerTime(slice, aclId); err != nil {
 			return err
 		}
 	}
@@ -213,19 +216,22 @@ func slbRemoveAccessControlListEntry(client *slb.Client, list []interface{}, acl
 	return nil
 }
 
-func slbAddAccessControlListEntryPerTime(client *slb.Client, list []interface{}, aclId string) error {
+func (s *SlbService) slbAddAccessControlListEntryPerTime(list []interface{}, aclId string) error {
 	req := slb.CreateAddAccessControlListEntryRequest()
 	req.AclId = aclId
 	b, _ := json.Marshal(list)
 	req.AclEntrys = string(b)
-	if _, err := client.AddAccessControlListEntry(req); err != nil {
+	_, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		return slbClient.AddAccessControlListEntry(req)
+	})
+	if err != nil {
 		return fmt.Errorf("AddAccessControlListEntry got an error: %#v", err)
 	}
 
 	return nil
 }
 
-func slbAddAccessControlListEntry(client *slb.Client, list []interface{}, aclId string) error {
+func (s *SlbService) SlbAddAccessControlListEntry(list []interface{}, aclId string) error {
 	num := len(list)
 
 	if num <= 0 {
@@ -241,7 +247,7 @@ func slbAddAccessControlListEntry(client *slb.Client, list []interface{}, aclId 
 			end = num
 		}
 		slice := list[start:end]
-		if err := slbAddAccessControlListEntryPerTime(client, slice, aclId); err != nil {
+		if err := s.slbAddAccessControlListEntryPerTime(slice, aclId); err != nil {
 			return err
 		}
 	}
@@ -250,7 +256,7 @@ func slbAddAccessControlListEntry(client *slb.Client, list []interface{}, aclId 
 }
 
 // Flattens an array of slb.AclEntry into a []map[string]string
-func flattenSlbAclEntryMappings(list []slb.AclEntry) []map[string]interface{} {
+func (s *SlbService) FlattenSlbAclEntryMappings(list []slb.AclEntry) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(list))
 
 	for _, i := range list {
@@ -265,7 +271,7 @@ func flattenSlbAclEntryMappings(list []slb.AclEntry) []map[string]interface{} {
 }
 
 // Flattens an array of slb.AclEntry into a []map[string]string
-func flattenSlbRelatedListeneryMappings(list []slb.RelatedListener) []map[string]interface{} {
+func (s *SlbService) flattenSlbRelatedListeneryMappings(list []slb.RelatedListener) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(list))
 
 	for _, i := range list {

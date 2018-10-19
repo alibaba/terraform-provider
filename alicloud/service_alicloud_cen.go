@@ -361,9 +361,11 @@ func (s *CenService) WaitForCenInterRegionBandwidthLimitDestroy(cenId string, lo
 	return nil
 }
 
-func (s *CenService) createCenRouteEntryParas(vtbId string) (childInstanceId string, instanceType string, err error) {
+func (s *CenService) CreateCenRouteEntryParas(vtbId string) (childInstanceId string, instanceType string, err error) {
+	vpcService := VpcService{s.client}
+	routeTableService := RouteTableService{s.client}
 	//Query VRouterId and judge whether it is a vbr
-	vtb1, err := client.QueryRouteTableById(vtbId)
+	vtb1, err := vpcService.QueryRouteTableById(vtbId)
 	if err != nil {
 		return childInstanceId, instanceType, err
 	}
@@ -372,7 +374,7 @@ func (s *CenService) createCenRouteEntryParas(vtbId string) (childInstanceId str
 		return vtb1.VRouterId, ChildInstanceTypeVbr, nil
 	}
 	//if the VRouterId belonged to a VPC, get the VPC ID
-	vtb2, err := client.DescribeRouteTable(vtbId)
+	vtb2, err := routeTableService.DescribeRouteTable(vtbId)
 	if err != nil {
 		return childInstanceId, instanceType, err
 	}
@@ -388,7 +390,7 @@ func (s *CenService) DescribePublishedRouteEntriesById(id string) (c cbn.Publish
 	vtbId := parts[1]
 	cidr := parts[2]
 
-	childInstanceId, childInstanceType, err := client.createCenRouteEntryParas(vtbId)
+	childInstanceId, childInstanceType, err := s.CreateCenRouteEntryParas(vtbId)
 	if err != nil {
 		return c, err
 	}
@@ -397,19 +399,22 @@ func (s *CenService) DescribePublishedRouteEntriesById(id string) (c cbn.Publish
 	request.CenId = cenId
 	request.ChildInstanceId = childInstanceId
 	request.ChildInstanceType = childInstanceType
-	request.ChildInstanceRegionId = client.RegionId
+	request.ChildInstanceRegionId = s.client.RegionId
 	request.ChildInstanceRouteTableId = vtbId
 	request.DestinationCidrBlock = cidr
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
-		resp, err := client.cenconn.DescribePublishedRouteEntries(request)
+		raw, err := s.client.WithCenClient(func(cbnClient *cbn.Client) (interface{}, error) {
+			return cbnClient.DescribePublishedRouteEntries(request)
+		})
 		if err != nil {
 			if IsExceptedErrors(err, []string{ParameterIllegal, ParameterIllegalCenInstanceId, InstanceNotExist}) {
 				return GetNotFoundErrorFromString(GetNotFoundMessage("CEN RouteEntries", id))
 			}
 			return err
 		}
+		resp, _ := raw.(*cbn.DescribePublishedRouteEntriesResponse)
 		if resp == nil || len(resp.PublishedRouteEntries.PublishedRouteEntry) <= 0 {
 			return GetNotFoundErrorFromString(GetNotFoundMessage("CEN RouteEntries", id))
 		}
@@ -427,7 +432,7 @@ func (s *CenService) WaitForRouterEntryPublished(id string, status Status, timeo
 	}
 
 	for {
-		routeEntry, err := client.DescribePublishedRouteEntriesById(id)
+		routeEntry, err := s.DescribePublishedRouteEntriesById(id)
 		if err != nil {
 			return nil
 		}
@@ -446,7 +451,7 @@ func (s *CenService) WaitForRouterEntryPublished(id string, status Status, timeo
 	return nil
 }
 
-func getCenIdAndAnotherId(id string) (string, string, error) {
+func (s *CenService) GetCenIdAndAnotherId(id string) (string, string, error) {
 	parts := strings.Split(id, COLON_SEPARATED)
 
 	if len(parts) != 2 {
@@ -456,7 +461,7 @@ func getCenIdAndAnotherId(id string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
-func getCenAndRegionIds(id string) (retString []string, err error) {
+func (s *CenService) GetCenAndRegionIds(id string) (retString []string, err error) {
 	parts := strings.Split(id, COLON_SEPARATED)
 
 	if len(parts) != 3 {
@@ -466,7 +471,7 @@ func getCenAndRegionIds(id string) (retString []string, err error) {
 	return parts, nil
 }
 
-func getCenInstanceType(id string) (c string, e error) {
+func (s *CenService) GetCenInstanceType(id string) (c string, e error) {
 	if strings.HasPrefix(id, "vpc") {
 		return ChildInstanceTypeVpc, nil
 	} else if strings.HasPrefix(id, "vbr") {

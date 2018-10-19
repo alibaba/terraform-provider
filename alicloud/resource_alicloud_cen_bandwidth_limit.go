@@ -70,7 +70,7 @@ func resourceAlicloudCenBandwidthLimitCreate(d *schema.ResourceData, meta interf
 func resourceAlicloudCenBandwidthLimitRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 	cenService := CenService{client}
-	paras, err := getCenAndRegionIds(d.Id())
+	paras, err := cenService.GetCenAndRegionIds(d.Id())
 	if err != nil {
 		return err
 	}

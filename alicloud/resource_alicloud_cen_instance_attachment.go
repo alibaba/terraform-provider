@@ -45,7 +45,7 @@ func resourceAlicloudCenInstanceAttachmentCreate(d *schema.ResourceData, meta in
 	cenId := d.Get("instance_id").(string)
 	instanceId := d.Get("child_instance_id").(string)
 	instanceRegionId := d.Get("child_instance_region_id").(string)
-	instanceType, err := getCenInstanceType(instanceId)
+	instanceType, err := cenService.GetCenInstanceType(instanceId)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func resourceAlicloudCenInstanceAttachmentCreate(d *schema.ResourceData, meta in
 func resourceAlicloudCenInstanceAttachmentRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.AliyunClient)
 	cenService := CenService{client}
-	cenId, instanceId, err := getCenIdAndAnotherId(d.Id())
+	cenId, instanceId, err := cenService.GetCenIdAndAnotherId(d.Id())
 	if err != nil {
 		return err
 	}
@@ -113,11 +113,11 @@ func resourceAlicloudCenInstanceAttachmentDelete(d *schema.ResourceData, meta in
 	client := meta.(*connectivity.AliyunClient)
 	cenService := CenService{client}
 	instanceRegionId := d.Get("child_instance_region_id").(string)
-	cenId, instanceId, err := getCenIdAndAnotherId(d.Id())
+	cenId, instanceId, err := cenService.GetCenIdAndAnotherId(d.Id())
 	if err != nil {
 		return err
 	}
-	instanceType, err := getCenInstanceType(instanceId)
+	instanceType, err := cenService.GetCenInstanceType(instanceId)
 	if err != nil {
 		return err
 	}
