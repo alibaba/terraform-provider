@@ -84,7 +84,7 @@ func resourceAliyunSecurityGroupRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return resource.RetryableError(fmt.Errorf("Create security group timeout and got an error: %#v", e))
 	})
-	tags, err := client.DescribeTags(d.Id(), TagResourceSecurityGroup)
+	tags, err := ecsService.DescribeTags(d.Id(), TagResourceSecurityGroup)
 	if err != nil && !NotFoundError(err) {
 		return fmt.Errorf("[ERROR] DescribeTags for security group got error: %#v", err)
 	}
