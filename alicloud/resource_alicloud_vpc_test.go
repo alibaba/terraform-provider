@@ -25,6 +25,7 @@ func init() {
 			"alicloud_vpn_gateway",
 			"alicloud_ots_instance",
 			"alicloud_router_interface",
+			"alicloud_route_table",
 		},
 	})
 }

@@ -27,6 +27,8 @@ func init() {
 			"alicloud_cs_swarm",
 			"alicloud_cs_kubernetes",
 			"alicloud_kvstore_instance",
+			"alicloud_route_table_attachment",
+			"alicloud_havip",
 		},
 	})
 }

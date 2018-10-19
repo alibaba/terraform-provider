@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub"
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/aliyun/fc-go-sdk"
@@ -57,6 +58,10 @@ const (
 	InvalidVpcIDNotFound = "InvalidVpcID.NotFound"
 	ForbiddenVpcNotFound = "Forbidden.VpcNotFound"
 	Throttling           = "Throttling"
+
+	//apigatway
+	ApiGroupNotFound = "NotFoundApiGroup"
+	RepeatedCommit   = "RepeatedCommit"
 
 	// vswitch
 	VswitcInvalidRegionId    = "InvalidRegionId.NotFound"
@@ -204,14 +209,27 @@ const (
 	VpnInvalidSpec           = "InvalidSpec.NotFound"
 	VpnEnable                = "enable"
 	// CEN
-	OperationBlocking              = "Operation.Blocking"
-	ParameterCenInstanceIdNotExist = "ParameterCenInstanceId"
-	CenQuotaExceeded               = "QuotaExceeded.CenCountExceeded"
-	InvalidCenInstanceStatus       = "InvalidOperation.CenInstanceStatus"
-	InvalidChildInstanceStatus     = "InvalidOperation.ChildInstanceStatus"
-	ParameterInstanceIdNotExist    = "ParameterInstanceId"
+	OperationBlocking                = "Operation.Blocking"
+	ParameterCenInstanceIdNotExist   = "ParameterCenInstanceId"
+	CenQuotaExceeded                 = "QuotaExceeded.CenCountExceeded"
+	InvalidCenInstanceStatus         = "InvalidOperation.CenInstanceStatus"
+	InvalidChildInstanceStatus       = "InvalidOperation.ChildInstanceStatus"
+	ParameterInstanceIdNotExist      = "ParameterInstanceId"
+	ForbiddenRelease                 = "Forbidden.Release"
+	InvalidCenBandwidthLimitsNotZero = "InvalidOperation.CenBandwidthLimitsNotZero"
+	ParameterBwpInstanceId           = "ParameterBwpInstanceId"
+	InvalidBwpInstanceStatus         = "InvalidOperation.BwpInstanceStatus"
+	InvalidBwpBusinessStatus         = "InvalidOperation.BwpBusinessStatus"
 	// kv-store
 	InvalidKVStoreInstanceIdNotFound = "InvalidInstanceId.NotFound"
+	// MNS
+	QueueNotExist        = "QueueNotExist"
+	TopicNotExist        = "TopicNotExist"
+	SubscriptionNotExist = "SubscriptionNotExist"
+	//HaVip
+	InvalidHaVipIdNotFound = "InvalidHaVipId.NotFound"
+	InvalidVipStatus       = "InvalidVip.Status"
+	IncorrectHaVipStatus   = "IncorrectHaVipStatus"
 )
 
 var SlbIsBusy = []string{"SystemBusy", "OperationBusy", "ServiceIsStopping", "BackendServer.configuring", "ServiceIsConfiguring"}
@@ -243,7 +261,6 @@ func GetNotFoundErrorFromString(str string) error {
 		message:   str,
 	}
 }
-
 func NotFoundError(err error) bool {
 	if e, ok := err.(*common.Error); ok &&
 		(e.Code == InstanceNotFound || e.Code == RamInstanceNotFound || e.Code == NotFound ||
@@ -286,6 +303,10 @@ func IsExceptedError(err error, expectCode string) bool {
 	if e, ok := err.(oss.ServiceError); ok && (e.Code == expectCode || strings.Contains(e.Message, expectCode)) {
 		return true
 	}
+
+	if e, ok := err.(datahub.DatahubError); ok && (e.Code == expectCode || strings.Contains(e.Message, expectCode)) {
+		return true
+	}
 	return false
 }
 
@@ -309,6 +330,9 @@ func IsExceptedErrors(err error, expectCodes []string) bool {
 			return true
 		}
 		if e, ok := err.(*fc.ServiceError); ok && (e.ErrorCode == code || strings.Contains(e.ErrorMessage, code)) {
+			return true
+		}
+		if e, ok := err.(datahub.DatahubError); ok && (e.Code == code || strings.Contains(e.Message, code)) {
 			return true
 		}
 	}

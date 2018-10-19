@@ -297,6 +297,10 @@ resource "alicloud_eip_association" "eip_asso" {
   instance_id   = "${alicloud_nat_gateway.nat_gateway.id}"
 }
 
+resource "alicloud_log_project" "log_project" {
+  name       = "tf-test-acc-multiaz-kubernetes"
+}
+
 resource "alicloud_cs_kubernetes" "k8s" {
   name = "${var.name}"
   vswitch_ids = ["${alicloud_vswitch.vsw1.id}", "${alicloud_vswitch.vsw2.id}", "${alicloud_vswitch.vsw3.id}"]
@@ -306,10 +310,17 @@ resource "alicloud_cs_kubernetes" "k8s" {
   worker_numbers = [1, 2, 3]
   master_disk_category  = "cloud_ssd"
   worker_disk_size = 50
+  worker_data_disk_category  = "cloud_ssd"
+  worker_data_disk_size = 50
   password = "Test12345"
   pod_cidr = "192.168.1.0/24"
   service_cidr = "192.168.2.0/24"
   enable_ssh = true
+  node_cidr_mask = 25
+  log_config {
+    type = "SLS"
+    project = "${alicloud_log_project.log_project.name}"
+  }
   install_cloud_monitor = true
 }
 `

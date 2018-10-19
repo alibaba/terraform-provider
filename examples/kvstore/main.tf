@@ -1,7 +1,3 @@
-data "alicloud_kvstore_instances" "rkv_instance" {
-  output_file = "out.dat"
-}
-
 data "alicloud_zones" "default" {
   available_resource_creation = "KVStore"
 }

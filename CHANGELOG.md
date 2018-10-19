@@ -1,7 +1,93 @@
-## 1.17.0 (Unreleased)
+## 1.20.0 (Unreleased)
 
 IMPROVEMENTS:
 
+- Hide AliCloud HaVip Attachment resource docs because of it is not public totally ([#744](https://github.com/alibaba/terraform-provider/pull/744))
+- Improve examples/ots-table ([#741](https://github.com/alibaba/terraform-provider/pull/741))
+- Improve examples ecs-vpc, ecs-new-vpc and api-gateway ([#740](https://github.com/alibaba/terraform-provider/pull/740))
+
+## 1.19.0 (October 14, 2018)
+
+FEATURES:
+
+- **New Resource:** `alicloud_api_gateway_group` ([#734](https://github.com/alibaba/terraform-provider/pull/734))
+- **New Resource:** `alicloud_datahub_project` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
+- **New Resource:** `alicloud_datahub_topic` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
+- **New Resource:** `alicloud_datahub_subscription` ([#678](https://github.com/alibaba/terraform-provider/pull/678))
+- **New Data Source:** `alicloud_api_gateway_groups` ([#735](https://github.com/alibaba/terraform-provider/pull/735))
+- **New Data Source:** `alicloud_cen_bandwidth_limits` ([#733](https://github.com/alibaba/terraform-provider/pull/733))
+
+IMPROVEMENTS:
+
+- added need_slb attribute to cs swarm ([#737](https://github.com/alibaba/terraform-provider/pull/737))
+- Add new examples/fc ([#735](https://github.com/alibaba/terraform-provider/pull/735))
+- Format examples ([#727](https://github.com/alibaba/terraform-provider/pull/727))
+- Add new example mns-queue and mns-topic ([#726](https://github.com/alibaba/terraform-provider/pull/726))
+- Remove useless datasource cache file ([#726](https://github.com/alibaba/terraform-provider/pull/726))
+- Improve example/ecs-key-pair ([#725](https://github.com/alibaba/terraform-provider/pull/725))
+- Change key pair file mode to 400 ([#724](https://github.com/alibaba/terraform-provider/pull/724))
+
+BUG FIXES:
+
+- fix kubernetes's new_nat_gateway issue ([#732](https://github.com/alibaba/terraform-provider/pull/732))
+- modify the mns err info ([#731](https://github.com/alibaba/terraform-provider/pull/731))
+- Close havip sweeper test case ([#729](https://github.com/alibaba/terraform-provider/pull/729))
+- Skip havip test case ([#728](https://github.com/alibaba/terraform-provider/pull/728))
+- modify the sweeptest nameprefix ([#728](https://github.com/alibaba/terraform-provider/pull/728))
+
+## 1.18.0 (October 09, 2018)
+
+FEATURES:
+
+- **New Resource:** `alicloud_havip_attachment` ([#711](https://github.com/alibaba/terraform-provider/pull/711))
+- **New Resource:** `alicloud_mns_topic_subscription` ([#710](https://github.com/alibaba/terraform-provider/pull/710))
+- **New Resource:** `alicloud_havip` ([#709](https://github.com/alibaba/terraform-provider/pull/709))
+- **New Resource:** `alicloud_route_table_attachment` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_cen_bandwidth_limit` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_mns_topic` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Resource:** `alicloud_mns_queue` ([#701](https://github.com/alibaba/terraform-provider/pull/701))
+- **New Resource:** `alicloud_cen_bandwidth_package_attachment` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+- **New Resource:** `alicloud_route_table` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+- **New Data Source:** `alicloud_mns_queues` ([#714](https://github.com/alibaba/terraform-provider/pull/714))
+- **New Data Source:** `alicloud_mns_topics` ([#716](https://github.com/alibaba/terraform-provider/pull/716))
+- **New Data Source:** `alicloud_mns_topic_subscriptions` ([#717](https://github.com/alibaba/terraform-provider/pull/717))
+- **New Data Source:** `alicloud_cen_bandwidth_packages` ([#705](https://github.com/alibaba/terraform-provider/pull/705))
+- **New Data Source:** `alicloud_vpn_connections` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
+- **New Data Source:** `alicloud_vpn_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
+- **New Data Source:** `alicloud_vpn_customer_gateways` ([#700](https://github.com/alibaba/terraform-provider/pull/700))
+- **New Data Source:** `alicloud_cen_instances` ([#699](https://github.com/alibaba/terraform-provider/pull/699))
+
+IMPROVEMENTS:
+
+- Improve resource ram_policy's document validatefunc ([#715](https://github.com/alibaba/terraform-provider/pull/715))
+- RAM support useragent ([#713](https://github.com/alibaba/terraform-provider/pull/713))
+- Add node_cidr_mas and log_config, fix worker_data_disk issue ([#708](https://github.com/alibaba/terraform-provider/pull/708))
+- Add parameter 'force_delete' to support deleting 'PrePaid' instance ([#704](https://github.com/alibaba/terraform-provider/pull/704))
+- Correct Function Compute conn ([#703](https://github.com/alibaba/terraform-provider/pull/703))
+- Improve datasource `images`'s docs ([#702](https://github.com/alibaba/terraform-provider/pull/702))
+- `cs_kubernetes` supports data disk ([#697](https://github.com/alibaba/terraform-provider/pull/697))
+
+
+BUG FIXES:
+
+- Fix alicloud_ram_user_policy_attachment EntityNotExist.User error ([#712](https://github.com/alibaba/terraform-provider/pull/712))
+- Add wait time to fix random detaching disk error ([#703](https://github.com/alibaba/terraform-provider/pull/703))
+
+## 1.17.0 (September 22, 2018)
+
+FEATURES:
+
+- **New Data Source:** `alicloud_fc_triggers` ([#695](https://github.com/alibaba/terraform-provider/pull/695))
+- **New Data Source:** `alicloud_oss_bucket_objects` ([#692](https://github.com/alibaba/terraform-provider/pull/692))
+- **New Data Source:** `alicloud_fc_functions` ([#694](https://github.com/alibaba/terraform-provider/pull/694))
+- **New Data Source:** `alicloud_fc_services` ([#693](https://github.com/alibaba/terraform-provider/pull/693))
+- **New Data Source:** `alicloud_oss_buckets` ([#690](https://github.com/alibaba/terraform-provider/pull/690))
+- **New Data Source:** `alicloud_disks` ([#686](https://github.com/alibaba/terraform-provider/pull/686))
+- **New Resource:** `alicloud_cen_bandwidth_package` ([#691](https://github.com/alibaba/terraform-provider/pull/691))
+
+IMPROVEMENTS:
+
+- Update OSS Resources' link to English ([#696](https://github.com/alibaba/terraform-provider/pull/696))
 - Improve example/kubernetes to support multi-az  ([#689](https://github.com/alibaba/terraform-provider/pull/689))
 
 ## 1.16.0 (September 17, 2018)
