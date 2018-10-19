@@ -8,12 +8,19 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- resource alicloud_slb_listener support acl ([#751](https://github.com/alibaba/terraform-provider/pull/751))
+- add tags to security group ([#755](https://github.com/alibaba/terraform-provider/pull/755))
+- Resource router_interface support PrePaid ([#754](https://github.com/alibaba/terraform-provider/pull/754))
+- resource alicloud_slb_listener support acl ([#752](https://github.com/alibaba/terraform-provider/pull/752))
 - change child instance type Vbr to VBR and replace some const variables ([#748](https://github.com/alibaba/terraform-provider/pull/748))
 - add slb_internet_enabled to Kubernetes Cluster ([#747](https://github.com/alibaba/terraform-provider/pull/747))
 - Hide AliCloud HaVip Attachment resource docs because of it is not public totally ([#744](https://github.com/alibaba/terraform-provider/pull/744))
 - Improve examples/ots-table ([#741](https://github.com/alibaba/terraform-provider/pull/741))
 - Improve examples ecs-vpc, ecs-new-vpc and api-gateway ([#740](https://github.com/alibaba/terraform-provider/pull/740))
+
+BUG FIXES:
+
+- Fix reources' id description bugs ([#756](https://github.com/alibaba/terraform-provider/pull/756))
+- Fix alicloud_ess_scaling_configuration setting data_disk failed ([#753](https://github.com/alibaba/terraform-provider/pull/753))
 
 ## 1.19.0 (October 14, 2018)
 

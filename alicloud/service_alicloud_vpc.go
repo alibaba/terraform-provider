@@ -351,6 +351,7 @@ func (s *VpcService) WaitForRouterInterface(regionId, interfaceId string, status
 		timeout = DefaultTimeout
 	}
 	for {
+		time.Sleep(DefaultIntervalShort * time.Second)
 		result, err := s.DescribeRouterInterface(regionId, interfaceId)
 		if err != nil {
 			return err

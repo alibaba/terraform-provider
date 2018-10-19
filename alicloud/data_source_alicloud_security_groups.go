@@ -14,6 +14,7 @@ import (
 type SecurityGroup struct {
 	Attributes   ecs.DescribeSecurityGroupAttributeResponse
 	CreationTime string
+	Tags         ecs.TagsInDescribeSecurityGroups
 }
 
 func dataSourceAlicloudSecurityGroups() *schema.Resource {
@@ -35,6 +36,7 @@ func dataSourceAlicloudSecurityGroups() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"tags": tagsSchema(),
 
 			// Computed values
 			"groups": {
@@ -66,6 +68,7 @@ func dataSourceAlicloudSecurityGroups() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"tags": tagsSchema(),
 					},
 				},
 			},
@@ -90,7 +93,17 @@ func dataSourceAlicloudSecurityGroupsRead(d *schema.ResourceData, meta interface
 			nameRegex = r
 		}
 	}
+	if v, ok := d.GetOk("tags"); ok {
+		var tags []ecs.DescribeSecurityGroupsTag
 
+		for key, value := range v.(map[string]interface{}) {
+			tags = append(tags, ecs.DescribeSecurityGroupsTag{
+				Key:   key,
+				Value: value.(string),
+			})
+		}
+		args.Tag = &tags
+	}
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeSecurityGroups(args)
@@ -119,6 +132,7 @@ func dataSourceAlicloudSecurityGroupsRead(d *schema.ResourceData, meta interface
 				SecurityGroup{
 					Attributes:   attr,
 					CreationTime: item.CreationTime,
+					Tags:         item.Tags,
 				},
 			)
 		}
@@ -145,6 +159,7 @@ func securityGroupsDescription(d *schema.ResourceData, sg []SecurityGroup) error
 			"vpc_id":        item.Attributes.VpcId,
 			"inner_access":  item.Attributes.InnerAccessPolicy == string(GroupInnerAccept),
 			"creation_time": item.CreationTime,
+			"tags":          tagsToMap(item.Tags.Tag),
 		}
 
 		log.Printf("alicloud_security_groups - adding security group mapping: %v", mapping)
