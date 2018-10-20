@@ -84,17 +84,7 @@ func resourceAliyunSecurityGroupRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return resource.RetryableError(fmt.Errorf("Create security group timeout and got an error: %#v", e))
 	})
-	tags, err := ecsService.DescribeTags(d.Id(), TagResourceSecurityGroup)
-	if err != nil && !NotFoundError(err) {
-		return fmt.Errorf("[ERROR] DescribeTags for security group got error: %#v", err)
-	}
-	if len(tags) > 0 {
-		d.Set("tags", tagsToMap(tags))
-	}
 
-	if err != nil {
-		return err
-	}
 	if sg == nil {
 		d.SetId("")
 		return nil
@@ -104,6 +94,14 @@ func resourceAliyunSecurityGroupRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("description", sg.Description)
 	d.Set("vpc_id", sg.VpcId)
 	d.Set("inner_access", sg.InnerAccessPolicy == string(GroupInnerAccept))
+
+	tags, err := ecsService.DescribeTags(d.Id(), TagResourceSecurityGroup)
+	if err != nil && !NotFoundError(err) {
+		return fmt.Errorf("[ERROR] DescribeTags for security group got error: %#v", err)
+	}
+	if len(tags) > 0 {
+		d.Set("tags", tagsToMap(tags))
+	}
 
 	return nil
 }
@@ -186,7 +184,7 @@ func resourceAliyunSecurityGroupDelete(d *schema.ResourceData, meta interface{})
 		sg, err := ecsService.DescribeSecurityGroupAttribute(d.Id())
 
 		if err != nil {
-			if IsExceptedError(err, InvalidSecurityGroupIdNotFound) {
+			if NotFoundError(err) || IsExceptedError(err, InvalidSecurityGroupIdNotFound) {
 				return nil
 			}
 			return resource.NonRetryableError(err)
