@@ -8,6 +8,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Improve fc_service sweeper test ([#758](https://github.com/alibaba/terraform-provider/pull/758))
 - Support provider thread safety ([#688](https://github.com/alibaba/terraform-provider/pull/688))
 - add tags to security group ([#755](https://github.com/alibaba/terraform-provider/pull/755))
 - Resource router_interface support PrePaid ([#754](https://github.com/alibaba/terraform-provider/pull/754))
