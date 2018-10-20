@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -48,9 +49,10 @@ func testAccCheckDBDatabaseExists(n string, d *rds.Database) resource.TestCheckF
 			return fmt.Errorf("No DB ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		rdsService := RdsService{client}
 		parts := strings.Split(rs.Primary.ID, COLON_SEPARATED)
-		db, err := client.DescribeDatabaseByName(parts[0], parts[1])
+		db, err := rdsService.DescribeDatabaseByName(parts[0], parts[1])
 
 		if err != nil {
 			return err
@@ -62,7 +64,8 @@ func testAccCheckDBDatabaseExists(n string, d *rds.Database) resource.TestCheckF
 }
 
 func testAccCheckDBDatabaseDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
+	rdsService := RdsService{client}
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_db_database" {
@@ -71,7 +74,7 @@ func testAccCheckDBDatabaseDestroy(s *terraform.State) error {
 
 		parts := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 
-		if _, err := client.DescribeDatabaseByName(parts[0], parts[1]); err != nil {
+		if _, err := rdsService.DescribeDatabaseByName(parts[0], parts[1]); err != nil {
 			if NotFoundError(err) {
 				continue
 			}

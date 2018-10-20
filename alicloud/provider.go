@@ -3,6 +3,7 @@ package alicloud
 import (
 	"os"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/denverdino/aliyungo/common"
 	"github.com/hashicorp/terraform/helper/mutexkv"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -240,7 +241,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			region = DEFAULT_REGION
 		}
 	}
-	config := Config{
+	config := connectivity.Config{
 		AccessKey: d.Get("access_key").(string),
 		SecretKey: d.Get("secret_key").(string),
 		Region:    common.Region(region.(string)),

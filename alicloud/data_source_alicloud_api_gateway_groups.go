@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cloudapi"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -77,20 +78,23 @@ func dataSourceAlicloudApiGatewayGroups() *schema.Resource {
 	}
 }
 func dataSourceAlicloudApigatewayGroupsRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).cloudapiconn
+	client := meta.(*connectivity.AliyunClient)
 
 	args := cloudapi.CreateDescribeApiGroupsRequest()
-	args.RegionId = getRegionId(d, meta)
+	args.RegionId = client.RegionId
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)
 
 	var allGroups []cloudapi.ApiGroupAttribute
 
 	for {
-		resp, err := conn.DescribeApiGroups(args)
+		raw, err := client.WithCloudApiClient(func(cloudApiClient *cloudapi.Client) (interface{}, error) {
+			return cloudApiClient.DescribeApiGroups(args)
+		})
 		if err != nil {
 			return err
 		}
+		resp, _ := raw.(*cloudapi.DescribeApiGroupsResponse)
 
 		if resp == nil {
 			break

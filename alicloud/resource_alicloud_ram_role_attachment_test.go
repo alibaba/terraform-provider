@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/denverdino/aliyungo/ram"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -56,17 +57,19 @@ func testAccCheckRamRoleAttachmentExists(n string, instanceA *ecs.Instance, inst
 			return fmt.Errorf("No Attachment ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
-		conn := client.ecsconn
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		args := ecs.CreateDescribeInstanceRamRoleRequest()
 		args.InstanceIds = convertListToJsonString([]interface{}{instanceA.InstanceId, instanceB.InstanceId})
 
 		for {
-			response, err := conn.DescribeInstanceRamRole(args)
+			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+				return ecsClient.DescribeInstanceRamRole(args)
+			})
 			if IsExceptedError(err, RoleAttachmentUnExpectedJson) {
 				continue
 			}
+			response, _ := raw.(*ecs.DescribeInstanceRamRoleResponse)
 			if err == nil {
 				if len(response.InstanceRamRoleSets.InstanceRamRoleSet) > 0 {
 					for _, v := range response.InstanceRamRoleSets.InstanceRamRoleSet {
@@ -90,14 +93,15 @@ func testAccCheckRamRoleAttachmentDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the attachment
-		client := testAccProvider.Meta().(*AliyunClient)
-		conn := client.ecsconn
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		args := ecs.CreateDescribeInstanceRamRoleRequest()
 		args.InstanceIds = strings.Split(rs.Primary.ID, ":")[1]
 
 		for {
-			response, err := conn.DescribeInstanceRamRole(args)
+			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+				return ecsClient.DescribeInstanceRamRole(args)
+			})
 			if IsExceptedError(err, RoleAttachmentUnExpectedJson) {
 				continue
 			}
@@ -105,6 +109,7 @@ func testAccCheckRamRoleAttachmentDestroy(s *terraform.State) error {
 				break
 			}
 			if err == nil {
+				response, _ := raw.(*ecs.DescribeInstanceRamRoleResponse)
 				if len(response.InstanceRamRoleSets.InstanceRamRoleSet) > 0 {
 					for _, v := range response.InstanceRamRoleSets.InstanceRamRoleSet {
 						if v.RamRoleName != "" {

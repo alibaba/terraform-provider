@@ -6,6 +6,7 @@ import (
 
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
 	"github.com/aliyun/aliyun-tablestore-go-sdk/tablestore"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -54,10 +55,11 @@ func testAccCheckOtsTableExist(n string, table *tablestore.DescribeTableResponse
 			return fmt.Errorf("no OTS table ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		otsService := OtsService{client}
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 
-		response, err := client.DescribeOtsTable(split[0], split[1])
+		response, err := otsService.DescribeOtsTable(split[0], split[1])
 
 		if err != nil {
 			return fmt.Errorf("Error finding OTS table %s: %#v", rs.Primary.ID, err)
@@ -74,10 +76,11 @@ func testAccCheckOtsTableDestroy(s *terraform.State) error {
 			continue
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		otsService := OtsService{client}
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 
-		if _, err := client.DescribeOtsTable(split[0], split[1]); err != nil {
+		if _, err := otsService.DescribeOtsTable(split[0], split[1]); err != nil {
 			if NotFoundError(err) {
 				continue
 			}

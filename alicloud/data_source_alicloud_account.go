@@ -3,6 +3,7 @@ package alicloud
 import (
 	"log"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -21,7 +22,7 @@ func dataSourceAlicloudAccount() *schema.Resource {
 }
 
 func dataSourceAlicloudAccountRead(d *schema.ResourceData, meta interface{}) error {
-	accountId, err := meta.(*AliyunClient).AccountId()
+	accountId, err := meta.(*connectivity.AliyunClient).AccountId()
 
 	if err != nil {
 		return err

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cbn"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
@@ -43,9 +44,10 @@ func testAccCheckCenBandwidthPackageAttachmentExists(n string, cenBwp *cbn.CenBa
 			return fmt.Errorf("No CenBandwidthPackage ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		cenService := CenService{client}
 
-		instance, err := client.DescribeCenBandwidthPackageById(rs.Primary.ID)
+		instance, err := cenService.DescribeCenBandwidthPackageById(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
@@ -56,14 +58,15 @@ func testAccCheckCenBandwidthPackageAttachmentExists(n string, cenBwp *cbn.CenBa
 }
 
 func testAccCheckCenBandwidthPackageAttachmentDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
+	cenService := CenService{client}
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_cen_bandwidth_package_attachment" {
 			continue
 		}
 
-		instance, err := client.DescribeCenBandwidthPackageById(rs.Primary.ID)
+		instance, err := cenService.DescribeCenBandwidthPackageById(rs.Primary.ID)
 		if err != nil {
 			if NotFoundError(err) {
 				continue

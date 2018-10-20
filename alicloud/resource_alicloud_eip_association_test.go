@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -85,9 +86,10 @@ func testAccCheckEIPAssociationExists(n string, instance *ecs.Instance, eip *vpc
 			return fmt.Errorf("No EIP Association ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		vpcService := VpcService{client}
 		return resource.Retry(3*time.Minute, func() *resource.RetryError {
-			d, err := client.DescribeEipAddress(rs.Primary.Attributes["allocation_id"])
+			d, err := vpcService.DescribeEipAddress(rs.Primary.Attributes["allocation_id"])
 
 			if err != nil {
 				return resource.NonRetryableError(err)
@@ -115,9 +117,10 @@ func testAccCheckEIPAssociationSlbExists(n string, slb *slb.DescribeLoadBalancer
 			return fmt.Errorf("No EIP Association ID is set")
 		}
 
-		client := testAccProvider.Meta().(*AliyunClient)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		vpcService := VpcService{client}
 		return resource.Retry(3*time.Minute, func() *resource.RetryError {
-			d, err := client.DescribeEipAddress(rs.Primary.Attributes["allocation_id"])
+			d, err := vpcService.DescribeEipAddress(rs.Primary.Attributes["allocation_id"])
 
 			if err != nil {
 				return resource.NonRetryableError(err)
@@ -136,7 +139,8 @@ func testAccCheckEIPAssociationSlbExists(n string, slb *slb.DescribeLoadBalancer
 }
 
 func testAccCheckEIPAssociationDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*AliyunClient)
+	client := testAccProvider.Meta().(*connectivity.AliyunClient)
+	vpcService := VpcService{client}
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "alicloud_eip_association" {
@@ -148,7 +152,7 @@ func testAccCheckEIPAssociationDestroy(s *terraform.State) error {
 		}
 
 		// Try to find the EIP
-		eip, err := client.DescribeEipAddress(rs.Primary.Attributes["allocation_id"])
+		eip, err := vpcService.DescribeEipAddress(rs.Primary.Attributes["allocation_id"])
 
 		// Verify the error is what we want
 		if err != nil {

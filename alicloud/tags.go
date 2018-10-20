@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
@@ -27,7 +28,7 @@ func tagsSchema() *schema.Schema {
 
 // setTags is a helper to set the tags for a resource. It expects the
 // tags field to be named "tags"
-func setTags(client *AliyunClient, resourceType TagResourceType, d *schema.ResourceData) error {
+func setTags(client *connectivity.AliyunClient, resourceType TagResourceType, d *schema.ResourceData) error {
 
 	if d.HasChange("tags") {
 		oraw, nraw := d.GetChange("tags")
@@ -50,7 +51,10 @@ func setTags(client *AliyunClient, resourceType TagResourceType, d *schema.Resou
 				})
 			}
 			args.Tag = &tags
-			if _, err := client.ecsconn.RemoveTags(args); err != nil {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+				return ecsClient.RemoveTags(args)
+			})
+			if err != nil {
 				return fmt.Errorf("Remove tags got error: %s", err)
 			}
 		}
@@ -69,7 +73,10 @@ func setTags(client *AliyunClient, resourceType TagResourceType, d *schema.Resou
 				})
 			}
 			args.Tag = &tags
-			if _, err := client.ecsconn.AddTags(args); err != nil {
+			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+				return ecsClient.AddTags(args)
+			})
+			if err != nil {
 				return fmt.Errorf("Creating tags got error: %s", err)
 			}
 		}

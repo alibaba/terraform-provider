@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
+	"github.com/aliyun/aliyun-datahub-sdk-go/datahub"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -115,12 +117,14 @@ func testAccCheckDatahubTopicExist(n string) resource.TestCheckFunc {
 			return fmt.Errorf("no Datahub topic ID is set")
 		}
 
-		dh := testAccProvider.Meta().(*AliyunClient).dhconn
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 		projectName := split[0]
 		topicName := split[1]
-		_, err := dh.GetTopic(projectName, topicName)
+		_, err := client.WithDataHubClient(func(dataHubClient *datahub.DataHub) (interface{}, error) {
+			return dataHubClient.GetTopic(projectName, topicName)
+		})
 
 		if err != nil {
 			return err
@@ -135,12 +139,14 @@ func testAccCheckDatahubTopicDestroy(s *terraform.State) error {
 			continue
 		}
 
-		dh := testAccProvider.Meta().(*AliyunClient).dhconn
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
 
 		split := strings.Split(rs.Primary.ID, COLON_SEPARATED)
 		projectName := split[0]
 		topicName := split[1]
-		_, err := dh.GetTopic(projectName, topicName)
+		_, err := client.WithDataHubClient(func(dataHubClient *datahub.DataHub) (interface{}, error) {
+			return dataHubClient.GetTopic(projectName, topicName)
+		})
 
 		if err != nil && isDatahubNotExistError(err) {
 			continue

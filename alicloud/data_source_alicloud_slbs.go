@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -122,7 +123,7 @@ func dataSourceAlicloudSlbs() *schema.Resource {
 }
 
 func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).slbconn
+	client := meta.(*connectivity.AliyunClient)
 
 	args := slb.CreateDescribeLoadBalancersRequest()
 
@@ -156,11 +157,13 @@ func dataSourceAlicloudSlbsRead(d *schema.ResourceData, meta interface{}) error 
 	args.PageSize = requests.NewInteger(PageSizeLarge)
 	args.PageNumber = requests.NewInteger(1)
 	for {
-		resp, err := conn.DescribeLoadBalancers(args)
+		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			return slbClient.DescribeLoadBalancers(args)
+		})
 		if err != nil {
 			return err
 		}
-
+		resp, _ := raw.(*slb.DescribeLoadBalancersResponse)
 		if resp == nil || len(resp.LoadBalancers.LoadBalancer) < 1 {
 			break
 		}

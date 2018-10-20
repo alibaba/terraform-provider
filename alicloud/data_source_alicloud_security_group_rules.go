@@ -6,6 +6,7 @@ import (
 
 	"strconv"
 
+	"github.com/alibaba/terraform-provider/alicloud/connectivity"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -116,17 +117,19 @@ func dataSourceAlicloudSecurityGroupRules() *schema.Resource {
 }
 
 func dataSourceAlicloudSecurityGroupRulesRead(d *schema.ResourceData, meta interface{}) error {
-	conn := meta.(*AliyunClient).ecsconn
+	client := meta.(*connectivity.AliyunClient)
 
 	req := ecs.CreateDescribeSecurityGroupAttributeRequest()
 	req.SecurityGroupId = d.Get("group_id").(string)
 	req.NicType = d.Get("nic_type").(string)
 	req.Direction = d.Get("direction").(string)
-	attr, err := conn.DescribeSecurityGroupAttribute(req)
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.DescribeSecurityGroupAttribute(req)
+	})
 	if err != nil {
 		return fmt.Errorf("DescribeSecurityGroupAttribute got an error: %#v", err)
 	}
-
+	attr, _ := raw.(*ecs.DescribeSecurityGroupAttributeResponse)
 	var rules []map[string]interface{}
 
 	if attr == nil {
