@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccResourceAlicloudMNSTopicSubscription_basic(t *testing.T) {
+func TestAccAlicloudMnsTopicSubscription_basic(t *testing.T) {
 
 	var attr ali_mns.TopicAttribute
 
