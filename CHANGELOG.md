@@ -8,6 +8,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Modify mns resources name ([#759](https://github.com/alibaba/terraform-provider/pull/759))
 - Improve fc_service sweeper test ([#758](https://github.com/alibaba/terraform-provider/pull/758))
 - Support provider thread safety ([#688](https://github.com/alibaba/terraform-provider/pull/688))
 - add tags to security group ([#755](https://github.com/alibaba/terraform-provider/pull/755))
