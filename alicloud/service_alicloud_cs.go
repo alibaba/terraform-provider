@@ -72,7 +72,7 @@ func (s *CsService) GetContainerClusterAndCertsByName(name string) (*cs.ClusterT
 func (s *CsService) DescribeContainerApplication(clusterName, appName string) (app cs.GetProjectResponse, err error) {
 	appName = Trim(appName)
 	cluster, certs, err := s.GetContainerClusterAndCertsByName(appName)
-	if err == nil {
+	if err != nil {
 		return app, err
 	}
 	raw, err := s.client.WithCsProjectClient(cluster.ClusterID, cluster.MasterURL, *certs, func(csProjectClient *cs.ProjectClient) (interface{}, error) {

@@ -97,8 +97,6 @@ func TestAccAlicloudApigatewayGroup_basic(t *testing.T) {
 }
 
 func testAccCheckAlicloudApigatewayGroupExists(n string, d *cloudapi.DescribeApiGroupResponse) resource.TestCheckFunc {
-	client := testAccProvider.Meta().(*connectivity.AliyunClient)
-	cloudApiService := CloudApiService{client}
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -109,7 +107,8 @@ func testAccCheckAlicloudApigatewayGroupExists(n string, d *cloudapi.DescribeApi
 			return fmt.Errorf("No Apigroup ID is set")
 		}
 
-		fmt.Println(rs.Primary.ID)
+		client := testAccProvider.Meta().(*connectivity.AliyunClient)
+		cloudApiService := CloudApiService{client}
 
 		resp, err := cloudApiService.DescribeApiGroup(rs.Primary.ID)
 		if err != nil {

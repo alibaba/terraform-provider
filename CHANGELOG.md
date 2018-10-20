@@ -8,6 +8,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Support provider thread safety ([#688](https://github.com/alibaba/terraform-provider/pull/688))
 - add tags to security group ([#755](https://github.com/alibaba/terraform-provider/pull/755))
 - Resource router_interface support PrePaid ([#754](https://github.com/alibaba/terraform-provider/pull/754))
 - resource alicloud_slb_listener support acl ([#752](https://github.com/alibaba/terraform-provider/pull/752))
@@ -19,6 +20,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- Fix security group tag's describing bugs ([#757](https://github.com/alibaba/terraform-provider/pull/757))
 - Fix reources' id description bugs ([#756](https://github.com/alibaba/terraform-provider/pull/756))
 - Fix alicloud_ess_scaling_configuration setting data_disk failed ([#753](https://github.com/alibaba/terraform-provider/pull/753))
 

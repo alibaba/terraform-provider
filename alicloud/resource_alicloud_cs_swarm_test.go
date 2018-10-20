@@ -69,8 +69,8 @@ func testSweepCSSwarms(region string) error {
 		}
 	}
 	if sweeped {
-		// Waiting 5 minutes to eusure these swarms have been deleted.
-		time.Sleep(5 * time.Minute)
+		// Waiting 2 minutes to eusure these swarms have been deleted.
+		time.Sleep(2 * time.Minute)
 	}
 	return nil
 }
