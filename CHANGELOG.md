@@ -8,6 +8,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- Improve datahub_project sweeper test ([#760](https://github.com/alibaba/terraform-provider/pull/760))
 - Modify mns resources name ([#759](https://github.com/alibaba/terraform-provider/pull/759))
 - Improve fc_service sweeper test ([#758](https://github.com/alibaba/terraform-provider/pull/758))
 - Support provider thread safety ([#688](https://github.com/alibaba/terraform-provider/pull/688))
