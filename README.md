@@ -1,4 +1,4 @@
-# This repo has been deprecated and please refer to the latest repo: https://github.com/terraform-providers/terraform-provider-alicloud
+# [NOTES]: This repo has been deprecated and please refer to the latest repo: https://github.com/terraform-providers/terraform-provider-alicloud
 
 ## Alicloud ([Alibaba Cloud](http://www.aliyun.com)) Terraform provider
 
