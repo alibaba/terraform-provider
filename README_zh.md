@@ -1,3 +1,4 @@
+# 本仓库已经弃用，请访问最新的仓库：https://github.com/terraform-providers/terraform-provider-alicloud
 
 # 利用Terraform创建/配置Aliyun资源
 
